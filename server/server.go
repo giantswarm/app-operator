@@ -25,10 +25,10 @@ type Config struct {
 // New creates a new server object with given configuration.
 func New(config Config) (microserver.Server, error) {
 	if config.Service == nil {
-		return nil, microerror.Maskf(invalidConfigError, "config.Service must not be empty")
+		return nil, microerror.Maskf(invalidConfigError, "%T.Service must not be empty", config)
 	}
 	if config.MicroServerConfig.ServiceName == "" {
-		return nil, microerror.Maskf(invalidConfigError, "config.MicroServerConfig.ServiceName must not be empty")
+		return nil, microerror.Maskf(invalidConfigError, "%T.MicroServerConfig.ServiceName must not be empty", config)
 	}
 
 	newServer := &server{

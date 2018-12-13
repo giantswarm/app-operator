@@ -2,8 +2,6 @@ package main
 
 import (
 	"fmt"
-	"os"
-
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/microkit/command"
 	microserver "github.com/giantswarm/microkit/server"
@@ -15,15 +13,11 @@ import (
 	"github.com/giantswarm/app-operator/service"
 )
 
-const (
-	notAvailable = "n/a"
-)
-
 var (
-	description = "The app-operator deploys catalogs' app by look up to appCatalog CR."
+	description = "The app-operator manages apps in Kubernetes clusters."
 	f           = flag.New()
 	name        = "app-operator"
-	gitCommit   = notAvailable
+	gitCommit   = "n/a"
 	source      = "https://github.com/giantswarm/app-operator"
 )
 
@@ -38,9 +32,8 @@ func mainWithError() (err error) {
 	// Create a new logger that is used by all packages.
 	var newLogger micrologger.Logger
 	{
-		c := micrologger.Config{
-			IOWriter: os.Stdout,
-		}
+		c := micrologger.Config{}
+
 		newLogger, err = micrologger.New(c)
 		if err != nil {
 			return microerror.Maskf(err, "micrologger.New")
@@ -59,7 +52,7 @@ func mainWithError() (err error) {
 				Viper:  v,
 
 				Description: description,
-				GitCommit:   notAvailable,
+				GitCommit:   gitCommit,
 				Name:        name,
 				Source:      source,
 			}
