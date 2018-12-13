@@ -23,4 +23,3 @@ type Endpoint struct {
 func New(config Config) (*Endpoint, error) {
 	return &Endpoint{}, nil
 }
-
