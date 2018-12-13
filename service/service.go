@@ -1,25 +1,24 @@
 package service
 
 import (
+	"github.com/spf13/viper"
 	"sync"
 
+	"github.com/giantswarm/app-operator/flag"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
-	"github.com/spf13/viper"
-
-	"github.com/giantswarm/app-operator/flag"
 )
 
 // Config represents the configuration used to create a new service.
 type Config struct {
 	Logger micrologger.Logger
+	Flag   *flag.Flag
+	Viper  *viper.Viper
 
 	Description string
-	Flag        *flag.Flag
 	GitCommit   string
 	Name        string
 	Source      string
-	Viper       *viper.Viper
 }
 
 // New creates a new service with given configuration.
