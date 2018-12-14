@@ -2,15 +2,16 @@ package server
 
 import (
 	"context"
-	"github.com/giantswarm/app-operator/server/endpoint"
-	"github.com/spf13/viper"
 	"net/http"
 	"sync"
 
-	"github.com/giantswarm/app-operator/service"
 	"github.com/giantswarm/microerror"
 	microserver "github.com/giantswarm/microkit/server"
 	"github.com/giantswarm/micrologger"
+	"github.com/spf13/viper"
+
+	"github.com/giantswarm/app-operator/server/endpoint"
+	"github.com/giantswarm/app-operator/service"
 )
 
 // Config represents the configuration used to construct server object.

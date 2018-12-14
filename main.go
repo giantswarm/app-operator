@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/microkit/command"
 	microserver "github.com/giantswarm/microkit/server"

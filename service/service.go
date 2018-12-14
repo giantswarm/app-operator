@@ -1,17 +1,18 @@
 package service
 
 import (
-	"github.com/giantswarm/microendpoint/service/version"
-	"github.com/spf13/viper"
-	"k8s.io/client-go/kubernetes"
 	"sync"
 
-	"github.com/giantswarm/app-operator/flag"
-	"github.com/giantswarm/app-operator/service/healthz"
+	"github.com/giantswarm/microendpoint/service/version"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/client/k8srestconfig"
+	"github.com/spf13/viper"
+	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
+
+	"github.com/giantswarm/app-operator/flag"
+	"github.com/giantswarm/app-operator/service/healthz"
 )
 
 // Config represents the configuration used to create a new service.
