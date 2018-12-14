@@ -53,7 +53,7 @@ func mainWithError() (err error) {
 
 				Description: description,
 				GitCommit:   gitCommit,
-				Name:        name,
+				ProjectName: name,
 				Source:      source,
 			}
 			newService, err = service.New(c)
@@ -68,13 +68,12 @@ func mainWithError() (err error) {
 		var newServer microserver.Server
 		{
 			c := server.Config{
-				MicroServerConfig: microserver.Config{
-					Logger:      newLogger,
-					ServiceName: name,
-					Viper:       v,
-				},
-				Service: newService,
+				Logger:      newLogger,
+				Service:     newService,
+				Viper:       v,
+				ProjectName: name,
 			}
+
 			newServer, err = server.New(c)
 			if err != nil {
 				panic(fmt.Sprintf("%#v\n", microerror.Maskf(err, "server.New")))
