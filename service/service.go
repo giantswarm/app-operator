@@ -1,12 +1,14 @@
 package service
 
 import (
-	"github.com/spf13/viper"
 	"sync"
 
-	"github.com/giantswarm/app-operator/flag"
+	"github.com/giantswarm/microendpoint/service/version"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
+	"github.com/spf13/viper"
+
+	"github.com/giantswarm/app-operator/flag"
 )
 
 // Config represents the configuration used to create a new service.
@@ -17,8 +19,16 @@ type Config struct {
 
 	Description string
 	GitCommit   string
-	Name        string
+	ProjectName string
 	Source      string
+}
+
+// Service is a type providing implementation of microkit service interface.
+type Service struct {
+	Version *version.Service
+
+	// Internals
+	bootOnce sync.Once
 }
 
 // New creates a new service with given configuration.
@@ -33,18 +43,36 @@ func New(config Config) (*Service, error) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Viper must not be empty", config)
 	}
 
+	var err error
+
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	var versionService *version.Service
+	{
+		versionConfig := version.Config{
+			Description:    config.Description,
+			GitCommit:      config.GitCommit,
+			Name:           config.ProjectName,
+			Source:         config.Source,
+			VersionBundles: NewVersionBundles(),
+		}
+
+		versionService, err = version.New(versionConfig)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	newService := &Service{
+		Version: versionService,
+
 		// Internals
 		bootOnce: sync.Once{},
 	}
 
 	return newService, nil
-}
-
-// Service is a type providing implementation of microkit service interface.
-type Service struct {
-	// Internals
-	bootOnce sync.Once
 }
 
 // Boot starts top level service implementation.
