@@ -3,11 +3,12 @@ package service
 import (
 	"sync"
 
-	"github.com/giantswarm/app-operator/flag"
 	"github.com/giantswarm/microendpoint/service/version"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/spf13/viper"
+
+	"github.com/giantswarm/app-operator/flag"
 )
 
 // Config represents the configuration used to create a new service.
