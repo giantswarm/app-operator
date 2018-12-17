@@ -1,4 +1,4 @@
-[![CircleCI](https://circleci.com/gh/giantswarm/app-operator.svg?style=shield)](https://circleci.com/gh/giantswarm/chart-operator) [![Docker Repository on Quay](https://quay.io/repository/giantswarm/chart-operator/status "Docker Repository on Quay")](https://quay.io/repository/giantswarm/app-operator)
+[![CircleCI](https://circleci.com/gh/giantswarm/app-operator.svg?style=shield)](https://circleci.com/gh/giantswarm/) [![Docker Repository on Quay](https://quay.io/repository/giantswarm/app-operator/status "Docker Repository on Quay")](https://quay.io/repository/giantswarm/app-operator)
 
 # app-operator
 
