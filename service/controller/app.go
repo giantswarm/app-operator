@@ -3,13 +3,12 @@ package controller
 import (
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
-	"github.com/giantswarm/apprclient"
+	"github.com/giantswarm/app-operator/service/controller/v1"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/client/k8scrdclient"
 	"github.com/giantswarm/operatorkit/controller"
 	"github.com/giantswarm/operatorkit/informer"
-	"github.com/spf13/afero"
 	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	"k8s.io/client-go/kubernetes"
 	//"github.com/giantswarm/app-operator/service/controller/v1"
@@ -18,7 +17,6 @@ import (
 const AppControllerSuffix = "-app"
 
 type AppConfig struct {
-	ApprClient   apprclient.Interface
 	G8sClient    versioned.Interface
 	K8sClient    kubernetes.Interface
 	K8sExtClient apiextensionsclient.Interface
@@ -69,7 +67,7 @@ func NewApp(config AppConfig) (*App, error) {
 	{
 		c := informer.Config{
 			Logger:  config.Logger,
-			Watcher: config.G8sClient.CoreV1alpha1().AppConfigs(config.WatchNamespace),
+			Watcher: config.G8sClient.ApplicationV1alpha1().Apps(config.WatchNamespace),
 
 			RateWait:     informer.DefaultRateWait,
 			ResyncPeriod: informer.DefaultResyncPeriod,
@@ -81,17 +79,33 @@ func NewApp(config AppConfig) (*App, error) {
 		}
 	}
 
+	var resourceSetV1 *controller.ResourceSet
+	{
+		c := v1.ResourceSetConfig{
+			K8sClient:   config.K8sClient,
+			Logger:      config.Logger,
+			ProjectName: config.ProjectName,
+		}
+
+		resourceSetV1, err = v1.NewResourceSet(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var appController *controller.Controller
 	{
 		c := controller.Config{
-			CRD:          v1alpha1.NewAppCRD(),
-			CRDClient:    crdClient,
-			Informer:     newInformer,
-			Logger:       config.Logger,
-			ResourceSets: []*controller.ResourceSet{},
-			RESTClient:   config.G8sClient.CoreV1alpha1().RESTClient(),
+			CRD:       v1alpha1.NewAppCRD(),
+			CRDClient: crdClient,
+			Informer:  newInformer,
+			Logger:    config.Logger,
+			ResourceSets: []*controller.ResourceSet{
+				resourceSetV1,
+			},
+			RESTClient: config.G8sClient.CoreV1alpha1().RESTClient(),
 
-			Name: config.ProjectName + appControllerSuffix,
+			Name: config.ProjectName + AppControllerSuffix,
 		}
 
 		appController, err = controller.New(c)

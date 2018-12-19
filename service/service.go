@@ -3,10 +3,16 @@ package service
 import (
 	"sync"
 
+	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
+	"github.com/giantswarm/app-operator/service/controller"
 	"github.com/giantswarm/microendpoint/service/version"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
+	"github.com/giantswarm/operatorkit/client/k8srestconfig"
 	"github.com/spf13/viper"
+	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
+	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/rest"
 
 	"github.com/giantswarm/app-operator/flag"
 )
@@ -28,7 +34,8 @@ type Service struct {
 	Version *version.Service
 
 	// Internals
-	bootOnce sync.Once
+	appController *controller.App
+	bootOnce      sync.Once
 }
 
 // New creates a new service with given configuration.
@@ -47,6 +54,58 @@ func New(config Config) (*Service, error) {
 
 	if err != nil {
 		return nil, microerror.Mask(err)
+	}
+	var restConfig *rest.Config
+	{
+		c := k8srestconfig.Config{
+			Logger: config.Logger,
+
+			Address:   config.Viper.GetString(config.Flag.Service.Kubernetes.Address),
+			InCluster: config.Viper.GetBool(config.Flag.Service.Kubernetes.InCluster),
+			TLS: k8srestconfig.TLSClientConfig{
+				CAFile:  config.Viper.GetString(config.Flag.Service.Kubernetes.TLS.CAFile),
+				CrtFile: config.Viper.GetString(config.Flag.Service.Kubernetes.TLS.CrtFile),
+				KeyFile: config.Viper.GetString(config.Flag.Service.Kubernetes.TLS.KeyFile),
+			},
+		}
+
+		restConfig, err = k8srestconfig.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	g8sClient, err := versioned.NewForConfig(restConfig)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	k8sClient, err := kubernetes.NewForConfig(restConfig)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	k8sExtClient, err := apiextensionsclient.NewForConfig(restConfig)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	var appController *controller.App
+	{
+		c := controller.AppConfig{
+			G8sClient:    g8sClient,
+			Logger:       config.Logger,
+			K8sClient:    k8sClient,
+			K8sExtClient: k8sExtClient,
+
+			ProjectName:    config.ProjectName,
+			WatchNamespace: config.Viper.GetString(config.Flag.Service.Kubernetes.Watch.Namespace),
+		}
+
+		appController, err = controller.NewApp(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
 	}
 
 	var versionService *version.Service
@@ -68,8 +127,8 @@ func New(config Config) (*Service, error) {
 	newService := &Service{
 		Version: versionService,
 
-		// Internals
-		bootOnce: sync.Once{},
+		appController: appController,
+		bootOnce:      sync.Once{},
 	}
 
 	return newService, nil
