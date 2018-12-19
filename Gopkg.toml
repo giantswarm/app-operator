@@ -31,10 +31,18 @@ required = [
   "github.com/docker/distribution/reference",
   "k8s.io/api/core/v1",
   "k8s.io/apimachinery/pkg/apis/meta/v1",
-  "k8s.io/apiserver/pkg/endpoints/request"
+  "k8s.io/apiserver/pkg/endpoints/request",
+  "github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 ]
 
 
+[[constraint]]
+  branch = "master"
+  name = "github.com/giantswarm/operatorkit"
+
+[[constraint]]
+  branch = "catalog_app_deployment"
+  name = "github.com/giantswarm/apiextensions"
 
 [[constraint]]
   name = "github.com/Azure/go-autorest"
