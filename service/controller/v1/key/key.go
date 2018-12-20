@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	VERSION_BUNDLE = "giantswarm.io/version-bundle"
+	versionBundleAnnotation = "giantswarm.io/version-bundle"
 )
 
 func AppName(customObject v1alpha1.App) string {
@@ -37,7 +37,7 @@ func ToCustomObject(v interface{}) (v1alpha1.App, error) {
 }
 
 func VersionBundleVersion(customObject v1alpha1.App) string {
-	if val, ok := customObject.ObjectMeta.Annotations[VERSION_BUNDLE]; ok {
+	if val, ok := customObject.ObjectMeta.Annotations[versionBundleAnnotation]; ok {
 		return val
 	} else {
 		return ""

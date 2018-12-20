@@ -11,17 +11,17 @@ import (
 
 const (
 	// Name is the identifier of the resource.
-	Name = "appv1"
+	Name = "chartv1"
 )
 
-// Config represents the configuration used to create a new app resource.
+// Config represents the configuration used to create a new chart resource.
 type Config struct {
 	// Dependencies.
 	K8sClient kubernetes.Interface
 	Logger    micrologger.Logger
 }
 
-// Resource implements the app resource.
+// Resource implements the chart resource.
 type Resource struct {
 	// Dependencies.
 	k8sClient kubernetes.Interface
@@ -56,7 +56,7 @@ func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange inte
 	return nil
 }
 
-// New creates a new configured app resource.
+// New creates a new configured chart resource.
 func New(config Config) (*Resource, error) {
 	// Dependencies.
 	if config.K8sClient == nil {
