@@ -11,7 +11,7 @@ import (
 	"k8s.io/client-go/kubernetes"
 
 	"github.com/giantswarm/app-operator/service/controller/v1/key"
-	"github.com/giantswarm/app-operator/service/controller/v1/resource/app"
+	"github.com/giantswarm/app-operator/service/controller/v1/resource/chart"
 )
 
 // ResourceSetConfig contains necessary dependencies and settings for
@@ -45,12 +45,12 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 
 	var appResource controller.Resource
 	{
-		c := app.Config{
+		c := chart.Config{
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
 		}
 
-		ops, err := app.New(c)
+		ops, err := chart.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}

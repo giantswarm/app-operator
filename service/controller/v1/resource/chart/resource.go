@@ -1,4 +1,4 @@
-package app
+package chart
 
 import (
 	"context"
