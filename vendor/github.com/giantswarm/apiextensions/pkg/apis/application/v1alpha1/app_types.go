@@ -60,27 +60,6 @@ func NewAppTypeMeta() metav1.TypeMeta {
 // +genclient
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
-// App CR example as below.
-//
-//     apiVersion: application.giantswarm.io/v1alpha1
-//     kind: App
-//     metadata:
-//       name: "My-Cool-Prometheus"
-//       namespace: “12345”
-//     spec:
-//       name: “kubernetes-prometheus”
-//       catalog: "giant-swarm"
-//       namespace: “monitoring”
-//       release: 1.0.0
-//
-//       kubeConfig:
-//         secret:
-//          name: "giantswarm-12345"
-//          namespace: "12345"
-//
-//     status:
-//       app: “DEPLOYED”
-//
 type App struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata"`
@@ -89,33 +68,37 @@ type App struct {
 }
 
 type AppSpec struct {
-	// Name is the name of the application to be deployed.
+	// Name is the name of the app to be deployed.
 	// e.g. kubernetes-prometheus
 	Name string `json:"name" yaml:"name"`
-	// Catalog is the name of the application catalog this app belongs to.
-	// e.g. giant-swarm
+	// Catalog is the name of the app catalog this app belongs to.
+	// e.g. giantswarm
 	Catalog string `json:"catalog" yaml:"catalog"`
-	// Namespace is the namespace where the application should be deployed.
+	// Namespace is the namespace where the app should be deployed.
 	// e.g. monitoring
 	Namespace string `json:"namespace" yaml:"namespace"`
-	// Release is the version of this application which we would like to use.
+	// Release is the version of the app that should be deployed.
 	// e.g. 1.0.0
 	Release string `json:"release" yaml:"release"`
-	// KubeConfig is the name of secret resource  which represent specific k8s cluster where the application could be deployed.
+	// KubeConfig is the kubeconfig to connect to the cluster when deploying the app.
 	KubeConfig AppSpecKubeConfig `json:"kubeConfig" yaml:"kubeConfig"`
 }
 
 type AppSpecKubeConfig struct {
+	// Secret references a secret containing the kubconfig.
 	Secret AppSpecKubeConfigSecret `json:"secret" yaml:"secret"`
 }
 
 type AppSpecKubeConfigSecret struct {
-	Name      string `json:"name" yaml:"name"`
+	// Name is the name of the secret containing the kubeconfig.
+	Name string `json:"name" yaml:"name"`
+	// Namespace is the namespace of the secret containing the kubeconfig.
 	Namespace string `json:"namespace" yaml:"namespace"`
 }
 
 type AppStatus struct {
-	App string `json:"app" yaml:"app"`
+	// Status is the status of the deployed app.
+	Status string `json:"status" yaml:"status"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
