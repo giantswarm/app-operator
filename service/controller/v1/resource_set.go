@@ -14,12 +14,6 @@ import (
 	"github.com/giantswarm/app-operator/service/controller/v1/resource/app"
 )
 
-const (
-	// ResourceRetries presents number of retries for failed Resource
-	// operation before giving up.
-	ResourceRetries uint64 = 3
-)
-
 // ResourceSetConfig contains necessary dependencies and settings for
 // AppConfig controller ResourceSet configuration.
 type ResourceSetConfig struct {

@@ -4,7 +4,6 @@ import (
 	"sync"
 
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
-	"github.com/giantswarm/app-operator/service/controller"
 	"github.com/giantswarm/microendpoint/service/version"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
@@ -15,6 +14,7 @@ import (
 	"k8s.io/client-go/rest"
 
 	"github.com/giantswarm/app-operator/flag"
+	"github.com/giantswarm/app-operator/service/controller"
 )
 
 // Config represents the configuration used to create a new service.
@@ -137,7 +137,6 @@ func New(config Config) (*Service, error) {
 // Boot starts top level service implementation.
 func (s *Service) Boot() {
 	s.bootOnce.Do(func() {
-		// Insert service startup logic here.
 		// Start the controller.
 		go s.appController.Boot()
 	})
