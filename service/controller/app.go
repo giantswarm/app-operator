@@ -14,7 +14,7 @@ import (
 	"github.com/giantswarm/app-operator/service/controller/v1"
 )
 
-type AppConfig struct {
+type Config struct {
 	G8sClient    versioned.Interface
 	K8sClient    kubernetes.Interface
 	K8sExtClient apiextensionsclient.Interface
@@ -28,7 +28,7 @@ type App struct {
 	*controller.Controller
 }
 
-func NewApp(config AppConfig) (*App, error) {
+func NewApp(config Config) (*App, error) {
 	var err error
 
 	if config.G8sClient == nil {

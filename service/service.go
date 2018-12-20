@@ -92,7 +92,7 @@ func New(config Config) (*Service, error) {
 
 	var appController *controller.App
 	{
-		c := controller.AppConfig{
+		c := controller.Config{
 			G8sClient:    g8sClient,
 			Logger:       config.Logger,
 			K8sClient:    k8sClient,
