@@ -138,5 +138,7 @@ func New(config Config) (*Service, error) {
 func (s *Service) Boot() {
 	s.bootOnce.Do(func() {
 		// Insert service startup logic here.
+		// Start the controller.
+		go s.appController.Boot()
 	})
 }

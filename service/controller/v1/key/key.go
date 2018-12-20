@@ -21,7 +21,7 @@ func ReleaseName(customObject v1alpha1.App) string {
 	return customObject.Spec.Release
 }
 
-// ToCustomObject converts value to v1alpha1.ChartConfig and returns it or error
+// ToCustomObject converts value to v1alpha1.App and returns it or error
 // if type does not match.
 func ToCustomObject(v interface{}) (v1alpha1.App, error) {
 	customObjectPointer, ok := v.(*v1alpha1.App)
