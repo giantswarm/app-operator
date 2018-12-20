@@ -34,11 +34,17 @@ required = [
   "k8s.io/apiserver/pkg/endpoints/request"
 ]
 
-
-
 [[constraint]]
   name = "github.com/Azure/go-autorest"
   version = "9.1.0"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/giantswarm/apiextensions"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/giantswarm/operatorkit"
 
 [[constraint]]
   branch = "master"
