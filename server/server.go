@@ -28,7 +28,7 @@ func New(config Config) (microserver.Server, error) {
 	var err error
 
 	if config.Logger == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.Service must not be empty", config)
+		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
 	if config.Service == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Service must not be empty", config)
