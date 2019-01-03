@@ -47,12 +47,6 @@ rules:
 - apiGroups:
     - application.giantswarm.io
   resources:
-    - charts
-  verbs:
-    - "*"
-- apiGroups:
-    - application.giantswarm.io
-  resources:
     - apps
   verbs:
     - get
