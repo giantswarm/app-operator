@@ -39,6 +39,14 @@ rules:
 - apiGroups:
     - application.giantswarm.io
   resources:
+    - appcatalogs
+  verbs:
+    - get
+    - list
+    - watch
+- apiGroups:
+    - application.giantswarm.io
+  resources:
     - charts
   verbs:
     - "*"
