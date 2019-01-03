@@ -19,49 +19,37 @@ rules:
   verbs:
     - get
     - list
-    - patch
-    - update
     - watch
 - apiGroups:
-    - core.giantswarm.io
+    - application.giantswarm.io
   resources:
-    - charts/status
+    - apps/status
   verbs:
     - create
     - patch
     - update
 - apiGroups:
-  - core.giantswarm.io
+  - application.giantswarm.io
   resources:
-  - charts
+  - apps
   verbs:
   - get
   - list
-  - patch
-  - update
   - watch
 - apiGroups:
-  - core.giantswarm.io
+    - application.giantswarm.io
   resources:
-  - charts/status
+    - charts
   verbs:
-  - create
-  - patch
-  - update
+    - "*"
 - apiGroups:
-  - ""
+    - application.giantswarm.io
   resources:
-  - configmaps
-  - pods
+    - apps
   verbs:
-  - "get"
-  - "list"
-- apiGroups:
-  - ""
-  resources:
-  - pods/portforward
-  verbs:
-  - "create"
+    - get
+    - list
+    - watch
 - apiGroups:
   - "rbac.authorization.k8s.io"
   resources:

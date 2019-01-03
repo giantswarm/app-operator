@@ -1,4 +1,4 @@
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ .Values.name }}
@@ -28,17 +28,6 @@ spec:
             path: config.yaml
       serviceAccountName: {{ .Values.name }}
       dnsPolicy: None
-      dnsConfig:
-        nameservers:
-        - {{ .Values.clusterDNSIP }}
-        - 8.8.8.8
-        searches:
-        - giantswarm.svc.cluster.local
-        - svc.cluster.local
-        - cluster.local
-        options:
-        - name: ndots
-          value: "5"
       containers:
       - name: {{ .Values.name }}
         image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}"
