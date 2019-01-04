@@ -3,6 +3,7 @@
 # Declare variables to be passed into your templates.
 
 name: app-operator
+chart: app-operator-chart
 namespace: giantswarm
 port: 8000
 
