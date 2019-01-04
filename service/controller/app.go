@@ -26,6 +26,7 @@ type Config struct {
 
 type App struct {
 	*controller.Controller
+	*k8scrdclient.CRDClient
 }
 
 func NewApp(config Config) (*App, error) {
@@ -114,6 +115,7 @@ func NewApp(config Config) (*App, error) {
 
 	c := &App{
 		Controller: appController,
+		CRDClient:  crdClient,
 	}
 
 	return c, nil

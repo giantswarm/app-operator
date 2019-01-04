@@ -1,7 +1,12 @@
 package service
 
 import (
+	"context"
+	"fmt"
+	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
+	"github.com/giantswarm/backoff"
 	"sync"
+	"time"
 
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/microendpoint/service/version"
@@ -134,10 +139,19 @@ func New(config Config) (*Service, error) {
 	return newService, nil
 }
 
+func (s *Service) createAppCatalogCRDResource() {
+	ctx := context.Background()
+	err := s.appController.CRDClient.EnsureCreated(ctx, v1alpha1.NewAppCatalogCRD(), backoff.NewMaxRetries(7, 1*time.Second))
+	if err != nil {
+		panic(fmt.Sprintf("%#v\n", microerror.Maskf(err, "service.createAppCatalogCRDResource")))
+	}
+}
+
 // Boot starts top level service implementation.
 func (s *Service) Boot() {
 	s.bootOnce.Do(func() {
 		// Start the controller.
+		s.createAppCatalogCRDResource()
 		go s.appController.Boot()
 	})
 }
