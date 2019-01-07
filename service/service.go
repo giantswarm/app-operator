@@ -4,19 +4,18 @@ import (
 	"context"
 	"fmt"
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
-	"github.com/giantswarm/backoff"
-	"sync"
-	"time"
-
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
+	"github.com/giantswarm/backoff"
 	"github.com/giantswarm/microendpoint/service/version"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
+	"github.com/giantswarm/operatorkit/client/k8scrdclient"
 	"github.com/giantswarm/operatorkit/client/k8srestconfig"
 	"github.com/spf13/viper"
 	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
+	"sync"
 
 	"github.com/giantswarm/app-operator/flag"
 	"github.com/giantswarm/app-operator/service/controller"
@@ -40,6 +39,7 @@ type Service struct {
 
 	// Internals
 	appController *controller.App
+	crdClient     k8scrdclient.CRDClient
 	bootOnce      sync.Once
 }
 
@@ -95,6 +95,19 @@ func New(config Config) (*Service, error) {
 		return nil, microerror.Mask(err)
 	}
 
+	var crdClient *k8scrdclient.CRDClient
+	{
+		c := k8scrdclient.Config{
+			K8sExtClient: k8sExtClient,
+			Logger:       config.Logger,
+		}
+
+		crdClient, err = k8scrdclient.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var appController *controller.App
 	{
 		c := controller.Config{
@@ -102,6 +115,7 @@ func New(config Config) (*Service, error) {
 			Logger:       config.Logger,
 			K8sClient:    k8sClient,
 			K8sExtClient: k8sExtClient,
+			CRDClient:    *crdClient,
 
 			ProjectName:    config.ProjectName,
 			WatchNamespace: config.Viper.GetString(config.Flag.Service.Kubernetes.Watch.Namespace),
@@ -133,15 +147,16 @@ func New(config Config) (*Service, error) {
 		Version: versionService,
 
 		appController: appController,
+		crdClient:     *crdClient,
 		bootOnce:      sync.Once{},
 	}
 
 	return newService, nil
 }
 
-func (s *Service) createAppCatalogCRDResource() {
+func (s *Service) ensureAppCatalogCRDCreated() {
 	ctx := context.Background()
-	err := s.appController.CRDClient.EnsureCreated(ctx, v1alpha1.NewAppCatalogCRD(), backoff.NewMaxRetries(7, 1*time.Second))
+	err := s.crdClient.EnsureCreated(ctx, v1alpha1.NewAppCatalogCRD(), backoff.NewExponential(backoff.ShortMaxWait, backoff.ShortMaxInterval))
 	if err != nil {
 		panic(fmt.Sprintf("%#v\n", microerror.Maskf(err, "service.createAppCatalogCRDResource")))
 	}
@@ -151,7 +166,7 @@ func (s *Service) createAppCatalogCRDResource() {
 func (s *Service) Boot() {
 	s.bootOnce.Do(func() {
 		// Start the controller.
-		s.createAppCatalogCRDResource()
+		s.ensureAppCatalogCRDCreated()
 		go s.appController.Boot()
 	})
 }
