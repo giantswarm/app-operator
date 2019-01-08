@@ -1,0 +1,129 @@
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRole
+metadata:
+  name: {{ .Values.name }}
+  labels:
+    app: {{ .Values.name }}
+    giantswarm.io/service-type: "managed"
+rules:
+- apiGroups:
+  - apiextensions.k8s.io
+  resources:
+  - customresourcedefinitions
+  verbs:
+  - "*"
+- apiGroups:
+    - application.giantswarm.io
+  resources:
+    - apps
+  verbs:
+    - get
+    - list
+    - watch
+- apiGroups:
+    - application.giantswarm.io
+  resources:
+    - apps/status
+  verbs:
+    - create
+    - patch
+    - update
+- apiGroups:
+    - application.giantswarm.io
+  resources:
+    - appcatalogs
+  verbs:
+    - get
+    - list
+    - watch
+- apiGroups:
+    - application.giantswarm.io
+  resources:
+    - apps
+  verbs:
+    - get
+    - list
+    - watch
+- apiGroups:
+  - "rbac.authorization.k8s.io"
+  resources:
+  - clusterrolebindings
+  verbs:
+  - "create"
+- apiGroups:
+  - "rbac.authorization.k8s.io"
+  resources:
+  - clusterroles
+  verbs:
+  - "bind"
+- apiGroups:
+  - ""
+  resources:
+  - services
+  - serviceaccounts
+  verbs:
+  - "create"
+- apiGroups:
+  - extensions
+  resources:
+  - deployments
+  verbs:
+  - 'create'
+- nonResourceURLs:
+  - "/"
+  - "/healthz"
+  verbs:
+    - get
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRole
+metadata:
+  name: {{ .Values.name }}-chart
+  labels:
+    app: {{ .Values.name }}
+    giantswarm.io/service-type: "managed"
+rules:
+  - apiGroups:
+      - apiextensions.k8s.io
+    resources:
+      - customresourcedefinitions
+    verbs:
+      - "*"
+  - apiGroups:
+      - application.giantswarm.io
+    resources:
+      - charts
+    verbs:
+      - "*"
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ .Values.name }}
+  labels:
+    app: {{ .Values.name }}
+    giantswarm.io/service-type: "managed"
+subjects:
+  - kind: ServiceAccount
+    name: {{ .Values.name }}
+    namespace: {{ .Values.namespace }}
+roleRef:
+  kind: ClusterRole
+  name: {{ .Values.name }}
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ .Values.name }}
+  labels:
+    app: {{ .Values.name }}
+    giantswarm.io/service-type: "managed"
+subjects:
+  - kind: ServiceAccount
+    name: {{ .Values.name }}-chart
+    namespace: {{ .Values.namespace }}
+roleRef:
+  kind: ClusterRole
+  name: {{ .Values.name }}-chart
+  apiGroup: rbac.authorization.k8s.io
