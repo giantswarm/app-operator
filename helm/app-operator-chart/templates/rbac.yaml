@@ -121,7 +121,7 @@ metadata:
     giantswarm.io/service-type: "managed"
 subjects:
   - kind: ServiceAccount
-    name: {{ .Values.name }}
+    name: {{ .Values.name }}-chart
     namespace: {{ .Values.namespace }}
 roleRef:
   kind: ClusterRole
