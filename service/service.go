@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"sync"
 
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
@@ -138,6 +139,6 @@ func New(config Config) (*Service, error) {
 func (s *Service) Boot() {
 	s.bootOnce.Do(func() {
 		// Start the controller.
-		go s.appController.Boot()
+		go s.appController.Boot(context.Background())
 	})
 }
