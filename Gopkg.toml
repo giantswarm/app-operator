@@ -34,6 +34,8 @@ required = [
   "k8s.io/apiserver/pkg/endpoints/request"
 ]
 
+
+
 [[constraint]]
   name = "github.com/Azure/go-autorest"
   version = "9.1.0"
@@ -61,10 +63,6 @@ required = [
 [[constraint]]
   branch = "master"
   name = "github.com/giantswarm/micrologger"
-
-[[constraint]]
-  name = "github.com/go-kit/kit"
-  version = "0.6.0"
 
 [[constraint]]
   name = "github.com/spf13/viper"
