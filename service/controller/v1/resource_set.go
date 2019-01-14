@@ -3,7 +3,6 @@ package v1
 import (
 	"context"
 
-	"github.com/giantswarm/app-operator/service/controller/v1/resource/appcatalog"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/controller"
@@ -12,6 +11,7 @@ import (
 	"k8s.io/client-go/kubernetes"
 
 	"github.com/giantswarm/app-operator/service/controller/v1/key"
+	"github.com/giantswarm/app-operator/service/controller/v1/resource/appcatalog"
 	"github.com/giantswarm/app-operator/service/controller/v1/resource/chart"
 )
 
