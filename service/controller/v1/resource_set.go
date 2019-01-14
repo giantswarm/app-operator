@@ -3,6 +3,7 @@ package v1
 import (
 	"context"
 
+	"github.com/giantswarm/app-operator/service/controller/v1/resource/appcatalog"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/controller"
@@ -12,6 +13,13 @@ import (
 
 	"github.com/giantswarm/app-operator/service/controller/v1/key"
 	"github.com/giantswarm/app-operator/service/controller/v1/resource/chart"
+)
+
+type ResourceType int
+
+const (
+	AppType        ResourceType = 0
+	AppCatalogType ResourceType = 1
 )
 
 // ResourceSetConfig contains necessary dependencies and settings for
@@ -24,6 +32,7 @@ type ResourceSetConfig struct {
 	// Settings.
 	HandledVersionBundles []string
 	ProjectName           string
+	ResourceType          ResourceType
 }
 
 // NewResourceSet returns a configured App controller ResourceSet.
@@ -45,12 +54,27 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 
 	var appResource controller.Resource
 	{
-		c := chart.Config{
-			K8sClient: config.K8sClient,
-			Logger:    config.Logger,
-		}
 
-		ops, err := chart.New(c)
+		var ops controller.CRUDResourceOps
+		var err error
+
+		switch config.ResourceType {
+		case AppType:
+			c := chart.Config{
+				K8sClient: config.K8sClient,
+				Logger:    config.Logger,
+			}
+			ops, err = chart.New(c)
+			break
+
+		case AppCatalogType:
+			c := appcatalog.Config{
+				K8sClient: config.K8sClient,
+				Logger:    config.Logger,
+			}
+			ops, err = appcatalog.New(c)
+			break
+		}
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}

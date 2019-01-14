@@ -8,10 +8,18 @@ import (
 	"github.com/giantswarm/operatorkit/client/k8scrdclient"
 	"github.com/giantswarm/operatorkit/controller"
 	"github.com/giantswarm/operatorkit/informer"
+	apiextensionsv1beta1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
 	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	"k8s.io/client-go/kubernetes"
 
 	"github.com/giantswarm/app-operator/service/controller/v1"
+)
+
+type ControllerType int
+
+const (
+	AppType        ControllerType = 0
+	AppCatalogType ControllerType = 1
 )
 
 type Config struct {
@@ -22,6 +30,7 @@ type Config struct {
 
 	ProjectName    string
 	WatchNamespace string
+	ControllerType ControllerType
 }
 
 type App struct {
@@ -46,6 +55,20 @@ func NewApp(config Config) (*App, error) {
 
 	if config.ProjectName == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ProjectName must not be empty", config)
+	}
+
+	if config.ControllerType != AppType && config.ControllerType != AppCatalogType {
+		return nil, microerror.Maskf(invalidConfigError, "%T.InstanceType must not be AppType or AppCatalogType", config)
+	}
+
+	var resourceType v1.ResourceType
+	var CRD *apiextensionsv1beta1.CustomResourceDefinition
+	if config.ControllerType == AppCatalogType {
+		resourceType = v1.AppCatalogType
+		CRD = v1alpha1.NewAppCatalogCRD()
+	} else if config.ControllerType == AppType {
+		resourceType = v1.AppType
+		CRD = v1alpha1.NewAppCRD()
 	}
 
 	var crdClient *k8scrdclient.CRDClient
@@ -79,10 +102,12 @@ func NewApp(config Config) (*App, error) {
 
 	var resourceSetV1 *controller.ResourceSet
 	{
+
 		c := v1.ResourceSetConfig{
-			K8sClient:   config.K8sClient,
-			Logger:      config.Logger,
-			ProjectName: config.ProjectName,
+			K8sClient:    config.K8sClient,
+			Logger:       config.Logger,
+			ProjectName:  config.ProjectName,
+			ResourceType: resourceType,
 		}
 
 		resourceSetV1, err = v1.NewResourceSet(c)
@@ -94,7 +119,7 @@ func NewApp(config Config) (*App, error) {
 	var appController *controller.Controller
 	{
 		c := controller.Config{
-			CRD:       v1alpha1.NewAppCRD(),
+			CRD:       CRD,
 			CRDClient: crdClient,
 			Informer:  newInformer,
 			Logger:    config.Logger,

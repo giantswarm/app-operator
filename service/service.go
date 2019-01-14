@@ -35,8 +35,9 @@ type Service struct {
 	Version *version.Service
 
 	// Internals
-	appController *controller.App
-	bootOnce      sync.Once
+	appCatalogController *controller.App
+	appController        *controller.App
+	bootOnce             sync.Once
 }
 
 // New creates a new service with given configuration.
@@ -101,9 +102,29 @@ func New(config Config) (*Service, error) {
 
 			ProjectName:    config.ProjectName,
 			WatchNamespace: config.Viper.GetString(config.Flag.Service.Kubernetes.Watch.Namespace),
+			ControllerType: controller.AppType,
 		}
 
 		appController, err = controller.NewApp(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	var appCatalogController *controller.App
+	{
+		c := controller.Config{
+			G8sClient:    g8sClient,
+			Logger:       config.Logger,
+			K8sClient:    k8sClient,
+			K8sExtClient: k8sExtClient,
+
+			ProjectName:    config.ProjectName,
+			WatchNamespace: config.Viper.GetString(config.Flag.Service.Kubernetes.Watch.Namespace),
+			ControllerType: controller.AppCatalogType,
+		}
+
+		appCatalogController, err = controller.NewApp(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -128,8 +149,9 @@ func New(config Config) (*Service, error) {
 	newService := &Service{
 		Version: versionService,
 
-		appController: appController,
-		bootOnce:      sync.Once{},
+		appCatalogController: appCatalogController,
+		appController:        appController,
+		bootOnce:             sync.Once{},
 	}
 
 	return newService, nil
@@ -139,6 +161,7 @@ func New(config Config) (*Service, error) {
 func (s *Service) Boot() {
 	s.bootOnce.Do(func() {
 		// Start the controller.
+		go s.appCatalogController.Boot(context.Background())
 		go s.appController.Boot(context.Background())
 	})
 }
