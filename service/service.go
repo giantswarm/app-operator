@@ -55,9 +55,6 @@ func New(config Config) (*Service, error) {
 
 	var err error
 
-	if err != nil {
-		return nil, microerror.Mask(err)
-	}
 	var restConfig *rest.Config
 	{
 		c := k8srestconfig.Config{
