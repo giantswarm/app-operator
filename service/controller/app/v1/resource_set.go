@@ -10,8 +10,8 @@ import (
 	"github.com/giantswarm/operatorkit/controller/resource/retryresource"
 	"k8s.io/client-go/kubernetes"
 
-	"github.com/giantswarm/app-operator/service/controller/v1/key"
-	"github.com/giantswarm/app-operator/service/controller/v1/resource/chart"
+	"github.com/giantswarm/app-operator/service/controller/app/v1/key"
+	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/chart"
 )
 
 // ResourceSetConfig contains necessary dependencies and settings for
