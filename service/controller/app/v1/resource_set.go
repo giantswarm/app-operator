@@ -92,7 +92,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	}
 
 	handlesFunc := func(obj interface{}) bool {
-		appConfig, err := key.ToCustomObject(obj)
+		appConfig, err := key.ToCustomResource(obj)
 		if err != nil {
 			return false
 		}
