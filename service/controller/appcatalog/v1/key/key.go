@@ -13,7 +13,7 @@ func AppCatalogTitle(customObject v1alpha1.AppCatalog) string {
 	return customObject.Spec.Title
 }
 
-// ToCustomObject converts value to v1alpha1.App and returns it or error
+// ToCustomObject converts value to v1alpha1.AppCatalog and returns it or error
 // if type does not match.
 func ToCustomObject(v interface{}) (v1alpha1.AppCatalog, error) {
 	customObjectPointer, ok := v.(*v1alpha1.AppCatalog)

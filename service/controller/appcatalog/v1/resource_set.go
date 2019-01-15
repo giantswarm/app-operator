@@ -15,7 +15,7 @@ import (
 )
 
 // ResourceSetConfig contains necessary dependencies and settings for
-// AppConfig controller ResourceSet configuration.
+// AppCatalog controller ResourceSet configuration.
 type ResourceSetConfig struct {
 	// Dependencies.
 	K8sClient kubernetes.Interface
@@ -26,7 +26,7 @@ type ResourceSetConfig struct {
 	ProjectName           string
 }
 
-// NewResourceSet returns a configured App controller ResourceSet.
+// NewResourceSet returns a configured AppCatalog controller ResourceSet.
 func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	var err error
 
@@ -43,7 +43,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ProjectName must not be empty", config)
 	}
 
-	var appCatalogResource controller.Resource
+	var indexResource controller.Resource
 	{
 		c := index.Config{
 			K8sClient: config.K8sClient,
@@ -55,14 +55,14 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 			return nil, microerror.Mask(err)
 		}
 
-		appCatalogResource, err = toCRUDResource(config.Logger, ops)
+		indexResource, err = toCRUDResource(config.Logger, ops)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
 	}
 
 	resources := []controller.Resource{
-		appCatalogResource,
+		indexResource,
 	}
 
 	{

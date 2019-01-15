@@ -14,14 +14,14 @@ const (
 	Name = "indexv1"
 )
 
-// Config represents the configuration used to create a new chart resource.
+// Config represents the configuration used to create a new index resource.
 type Config struct {
 	// Dependencies.
 	K8sClient kubernetes.Interface
 	Logger    micrologger.Logger
 }
 
-// Resource implements the chart resource.
+// Resource implements the index resource.
 type Resource struct {
 	// Dependencies.
 	k8sClient kubernetes.Interface
@@ -56,7 +56,7 @@ func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange inte
 	return nil
 }
 
-// New creates a new configured appCatalog resource.
+// New creates a new configured index resource.
 func New(config Config) (*Resource, error) {
 	// Dependencies.
 	if config.K8sClient == nil {

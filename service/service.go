@@ -90,24 +90,6 @@ func New(config Config) (*Service, error) {
 		return nil, microerror.Mask(err)
 	}
 
-	var appController *app.App
-	{
-		c := app.Config{
-			G8sClient:    g8sClient,
-			Logger:       config.Logger,
-			K8sClient:    k8sClient,
-			K8sExtClient: k8sExtClient,
-
-			ProjectName:    config.ProjectName,
-			WatchNamespace: config.Viper.GetString(config.Flag.Service.Kubernetes.Watch.Namespace),
-		}
-
-		appController, err = app.NewApp(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
 	var appCatalogController *appcatalog.AppCatalog
 	{
 		c := appcatalog.Config{
@@ -121,6 +103,24 @@ func New(config Config) (*Service, error) {
 		}
 
 		appCatalogController, err = appcatalog.NewAppCatalog(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	var appController *app.App
+	{
+		c := app.Config{
+			G8sClient:    g8sClient,
+			Logger:       config.Logger,
+			K8sClient:    k8sClient,
+			K8sExtClient: k8sExtClient,
+
+			ProjectName:    config.ProjectName,
+			WatchNamespace: config.Viper.GetString(config.Flag.Service.Kubernetes.Watch.Namespace),
+		}
+
+		appController, err = app.NewApp(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
