@@ -1,4 +1,4 @@
-package appcatalog
+package index
 
 import (
 	"context"
@@ -11,7 +11,7 @@ import (
 
 const (
 	// Name is the identifier of the resource.
-	Name = "appcatalogv1"
+	Name = "indexv1"
 )
 
 // Config represents the configuration used to create a new chart resource.

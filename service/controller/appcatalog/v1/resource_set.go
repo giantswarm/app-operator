@@ -11,7 +11,7 @@ import (
 	"k8s.io/client-go/kubernetes"
 
 	"github.com/giantswarm/app-operator/service/controller/appcatalog/v1/key"
-	"github.com/giantswarm/app-operator/service/controller/appcatalog/v1/resource/appcatalog"
+	"github.com/giantswarm/app-operator/service/controller/appcatalog/v1/resource/index"
 )
 
 // ResourceSetConfig contains necessary dependencies and settings for
@@ -45,12 +45,12 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 
 	var appCatalogResource controller.Resource
 	{
-		c := appcatalog.Config{
+		c := index.Config{
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
 		}
 
-		ops, err := appcatalog.New(c)
+		ops, err := index.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
