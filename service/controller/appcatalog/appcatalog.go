@@ -91,7 +91,7 @@ func NewAppCatalog(config Config) (*AppCatalog, error) {
 		}
 	}
 
-	var appController *controller.Controller
+	var appCatalogController *controller.Controller
 	{
 		c := controller.Config{
 			CRD:       v1alpha1.NewAppCatalogCRD(),
@@ -106,14 +106,14 @@ func NewAppCatalog(config Config) (*AppCatalog, error) {
 			Name: config.ProjectName,
 		}
 
-		appController, err = controller.New(c)
+		appCatalogController, err = controller.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
 	}
 
 	c := &AppCatalog{
-		Controller: appController,
+		Controller: appCatalogController,
 	}
 
 	return c, nil
