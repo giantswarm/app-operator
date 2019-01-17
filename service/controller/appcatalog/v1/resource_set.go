@@ -10,12 +10,12 @@ import (
 	"github.com/giantswarm/operatorkit/controller/resource/retryresource"
 	"k8s.io/client-go/kubernetes"
 
-	"github.com/giantswarm/app-operator/service/controller/v1/key"
-	"github.com/giantswarm/app-operator/service/controller/v1/resource/chart"
+	"github.com/giantswarm/app-operator/service/controller/appcatalog/v1/key"
+	"github.com/giantswarm/app-operator/service/controller/appcatalog/v1/resource/index"
 )
 
 // ResourceSetConfig contains necessary dependencies and settings for
-// AppConfig controller ResourceSet configuration.
+// AppCatalog controller ResourceSet configuration.
 type ResourceSetConfig struct {
 	// Dependencies.
 	K8sClient kubernetes.Interface
@@ -26,7 +26,7 @@ type ResourceSetConfig struct {
 	ProjectName           string
 }
 
-// NewResourceSet returns a configured App controller ResourceSet.
+// NewResourceSet returns a configured AppCatalog controller ResourceSet.
 func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	var err error
 
@@ -43,26 +43,26 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ProjectName must not be empty", config)
 	}
 
-	var appResource controller.Resource
+	var indexResource controller.Resource
 	{
-		c := chart.Config{
+		c := index.Config{
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
 		}
 
-		ops, err := chart.New(c)
+		ops, err := index.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
 
-		appResource, err = toCRUDResource(config.Logger, ops)
+		indexResource, err = toCRUDResource(config.Logger, ops)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
 	}
 
 	resources := []controller.Resource{
-		appResource,
+		indexResource,
 	}
 
 	{
@@ -92,7 +92,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	}
 
 	handlesFunc := func(obj interface{}) bool {
-		appConfig, err := key.ToCustomObject(obj)
+		appConfig, err := key.ToCustomResource(obj)
 		if err != nil {
 			return false
 		}

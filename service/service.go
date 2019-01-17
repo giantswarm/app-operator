@@ -15,7 +15,8 @@ import (
 	"k8s.io/client-go/rest"
 
 	"github.com/giantswarm/app-operator/flag"
-	"github.com/giantswarm/app-operator/service/controller"
+	"github.com/giantswarm/app-operator/service/controller/app"
+	"github.com/giantswarm/app-operator/service/controller/appcatalog"
 )
 
 // Config represents the configuration used to create a new service.
@@ -35,8 +36,9 @@ type Service struct {
 	Version *version.Service
 
 	// Internals
-	appController *controller.App
-	bootOnce      sync.Once
+	appController        *app.App
+	appCatalogController *appcatalog.AppCatalog
+	bootOnce             sync.Once
 }
 
 // New creates a new service with given configuration.
@@ -53,9 +55,6 @@ func New(config Config) (*Service, error) {
 
 	var err error
 
-	if err != nil {
-		return nil, microerror.Mask(err)
-	}
 	var restConfig *rest.Config
 	{
 		c := k8srestconfig.Config{
@@ -91,9 +90,9 @@ func New(config Config) (*Service, error) {
 		return nil, microerror.Mask(err)
 	}
 
-	var appController *controller.App
+	var appCatalogController *appcatalog.AppCatalog
 	{
-		c := controller.Config{
+		c := appcatalog.Config{
 			G8sClient:    g8sClient,
 			Logger:       config.Logger,
 			K8sClient:    k8sClient,
@@ -103,7 +102,25 @@ func New(config Config) (*Service, error) {
 			WatchNamespace: config.Viper.GetString(config.Flag.Service.Kubernetes.Watch.Namespace),
 		}
 
-		appController, err = controller.NewApp(c)
+		appCatalogController, err = appcatalog.NewAppCatalog(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	var appController *app.App
+	{
+		c := app.Config{
+			G8sClient:    g8sClient,
+			Logger:       config.Logger,
+			K8sClient:    k8sClient,
+			K8sExtClient: k8sExtClient,
+
+			ProjectName:    config.ProjectName,
+			WatchNamespace: config.Viper.GetString(config.Flag.Service.Kubernetes.Watch.Namespace),
+		}
+
+		appController, err = app.NewApp(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -128,8 +145,9 @@ func New(config Config) (*Service, error) {
 	newService := &Service{
 		Version: versionService,
 
-		appController: appController,
-		bootOnce:      sync.Once{},
+		appController:        appController,
+		appCatalogController: appCatalogController,
+		bootOnce:             sync.Once{},
 	}
 
 	return newService, nil
@@ -138,7 +156,8 @@ func New(config Config) (*Service, error) {
 // Boot starts top level service implementation.
 func (s *Service) Boot() {
 	s.bootOnce.Do(func() {
-		// Start the controller.
+		// Start the controllers.
+		go s.appCatalogController.Boot(context.Background())
 		go s.appController.Boot(context.Background())
 	})
 }

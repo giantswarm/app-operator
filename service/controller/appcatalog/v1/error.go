@@ -1,8 +1,6 @@
-package controller
+package v1
 
-import (
-	"github.com/giantswarm/microerror"
-)
+import "github.com/giantswarm/microerror"
 
 var invalidConfigError = &microerror.Error{
 	Kind: "invalidConfigError",

@@ -153,9 +153,17 @@
 
 [[projects]]
   branch = "master"
+<<<<<<< HEAD
   name = "github.com/giantswarm/versionbundle"
   packages = ["."]
   revision = "9a4f3249a5b5a080d13f1db2580cf09ba5d14ca1"
+=======
+  digest = "1:5a0d05db0c0ccbaaf9ff7493b44196139f9f5fcff65113fcc463480bab4c3fc9"
+  name = "github.com/giantswarm/versionbundle"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "bb309403328a6b8ee85d88e2774a5cc902a4f36c"
+>>>>>>> master
 
 [[projects]]
   name = "github.com/go-kit/kit"
