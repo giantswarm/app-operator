@@ -8,13 +8,13 @@ func VersionBundle() versionbundle.Bundle {
 	return versionbundle.Bundle{
 		Changelogs: []versionbundle.Changelog{
 			{
-				Component:   "app-operator",
+				Component:   "appcatalog-operator",
 				Description: "Added initial version.",
 				Kind:        versionbundle.KindAdded,
 			},
 		},
 		Components: []versionbundle.Component{},
-		Name:       "app-operator",
+		Name:       "appcatalog-operator",
 		Version:    "0.1.0",
 	}
 }

@@ -65,7 +65,7 @@ func NewAppCatalog(config Config) (*AppCatalog, error) {
 	{
 		c := informer.Config{
 			Logger:  config.Logger,
-			Watcher: config.G8sClient.ApplicationV1alpha1().Apps(config.WatchNamespace),
+			Watcher: config.G8sClient.ApplicationV1alpha1().AppCatalogs(config.WatchNamespace),
 
 			RateWait:     informer.DefaultRateWait,
 			ResyncPeriod: informer.DefaultResyncPeriod,
