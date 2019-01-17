@@ -1,4 +1,4 @@
-package controller
+package appcatalog
 
 import (
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
@@ -11,7 +11,7 @@ import (
 	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	"k8s.io/client-go/kubernetes"
 
-	"github.com/giantswarm/app-operator/service/controller/v1"
+	"github.com/giantswarm/app-operator/service/controller/appcatalog/v1"
 )
 
 type Config struct {
@@ -24,11 +24,11 @@ type Config struct {
 	WatchNamespace string
 }
 
-type App struct {
+type AppCatalog struct {
 	*controller.Controller
 }
 
-func NewApp(config Config) (*App, error) {
+func NewAppCatalog(config Config) (*AppCatalog, error) {
 	var err error
 
 	if config.G8sClient == nil {
@@ -65,7 +65,7 @@ func NewApp(config Config) (*App, error) {
 	{
 		c := informer.Config{
 			Logger:  config.Logger,
-			Watcher: config.G8sClient.ApplicationV1alpha1().Apps(config.WatchNamespace),
+			Watcher: config.G8sClient.ApplicationV1alpha1().AppCatalogs(config.WatchNamespace),
 
 			RateWait:     informer.DefaultRateWait,
 			ResyncPeriod: informer.DefaultResyncPeriod,
@@ -91,10 +91,10 @@ func NewApp(config Config) (*App, error) {
 		}
 	}
 
-	var appController *controller.Controller
+	var appCatalogController *controller.Controller
 	{
 		c := controller.Config{
-			CRD:       v1alpha1.NewAppCRD(),
+			CRD:       v1alpha1.NewAppCatalogCRD(),
 			CRDClient: crdClient,
 			Informer:  newInformer,
 			Logger:    config.Logger,
@@ -106,14 +106,14 @@ func NewApp(config Config) (*App, error) {
 			Name: config.ProjectName,
 		}
 
-		appController, err = controller.New(c)
+		appCatalogController, err = controller.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
 	}
 
-	c := &App{
-		Controller: appController,
+	c := &AppCatalog{
+		Controller: appCatalogController,
 	}
 
 	return c, nil
