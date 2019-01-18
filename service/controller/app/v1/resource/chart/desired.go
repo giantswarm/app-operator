@@ -55,6 +55,8 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		chartCR.Spec.Config.ConfigMap.Name = customResource.Spec.Config.ConfigMap.Name
 		chartCR.Spec.Config.ConfigMap.Namespace = customResource.Spec.Config.ConfigMap.Namespace
 	}
+	fmt.Println("fuckoff!")
+	fmt.Printf("%#v\n", chartCR)
 	return chartCR, nil
 }
 
