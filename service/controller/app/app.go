@@ -80,6 +80,7 @@ func NewApp(config Config) (*App, error) {
 	var resourceSetV1 *controller.ResourceSet
 	{
 		c := v1.ResourceSetConfig{
+			G8sClient:   config.G8sClient,
 			K8sClient:   config.K8sClient,
 			Logger:      config.Logger,
 			ProjectName: config.ProjectName,

@@ -21,6 +21,10 @@ func ReleaseName(customObject v1alpha1.App) string {
 	return customObject.Spec.Release
 }
 
+func CatalogName(customObject v1alpha1.App) string {
+	return customObject.Spec.Catalog
+}
+
 // ToCustomResource converts value to v1alpha1.App and returns it or error
 // if type does not match.
 func ToCustomResource(v interface{}) (v1alpha1.App, error) {
