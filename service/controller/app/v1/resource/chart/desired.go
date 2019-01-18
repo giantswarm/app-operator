@@ -6,6 +6,7 @@ import (
 
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/microerror"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/giantswarm/app-operator/service/controller/app/v1/key"
@@ -20,7 +21,9 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 	catalogName := key.CatalogName(customResource)
 
 	appCatalog, err := r.g8sClient.ApplicationV1alpha1().AppCatalogs("default").Get(catalogName, v1.GetOptions{})
-	if err != nil {
+	if apierrors.IsNotFound(err) {
+		return nil, microerror.Maskf(notFoundError, "appCatalog '%s' in namespace 'default' not found", catalogName)
+	} else if err != nil {
 		return nil, microerror.Mask(err)
 	}
 
@@ -55,8 +58,6 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		chartCR.Spec.Config.ConfigMap.Name = customResource.Spec.Config.ConfigMap.Name
 		chartCR.Spec.Config.ConfigMap.Namespace = customResource.Spec.Config.ConfigMap.Namespace
 	}
-	fmt.Println("fuckoff!")
-	fmt.Printf("%#v\n", chartCR)
 	return chartCR, nil
 }
 

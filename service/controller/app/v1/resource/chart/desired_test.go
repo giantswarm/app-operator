@@ -125,7 +125,66 @@ func TestResource_GetDesiredState(t *testing.T) {
 				},
 			},
 		},
-	}
+		{
+			name: "case 1: appcatalog not found",
+			appObj: &v1alpha1.App{
+				ObjectMeta: v1.ObjectMeta{
+					Name:      "my-cool-prometheus",
+					Namespace: "default",
+					Labels: map[string]string{
+						"app":                        "prometheus",
+						"giantswarm.io/cluster":      "6iec4",
+						"giantswarm.io/organization": "giantswarm",
+						"giantswarm.io/service-type": "managed",
+					},
+					Annotations: map[string]string{
+						"giantswarm.io/managed-by":     "app-operator",
+						"giantswarm.io/version-bundle": "0.1.0",
+					},
+				},
+				Spec: v1alpha1.AppSpec{
+					Catalog: "giantswarm",
+					Release: "1.0.0",
+					Config: v1alpha1.AppSpecConfig{
+						ConfigMap: v1alpha1.AppSpecConfigConfigMap{
+							Name:      "ginat-swarm-config",
+							Namespace: "giantswarm",
+						},
+						Secret: v1alpha1.AppSpecConfigSecret{
+							Name:      "ginat-swarm-secret",
+							Namespace: "giantswarm",
+						},
+					},
+					KubeConfig: v1alpha1.AppSpecKubeConfig{
+						Secret: v1alpha1.AppSpecKubeConfigSecret{
+							Name:      "giantswarm-12345",
+							Namespace: "12345",
+						},
+					},
+					Name:      "kubernetes-prometheus",
+					Namespace: "monitoring",
+				},
+			},
+			appCatalog: &v1alpha1.AppCatalog{
+				ObjectMeta: v1.ObjectMeta{
+					Name:      "giantswarm-xxx1",
+					Namespace: "default",
+					Labels: map[string]string{
+						"app-operator.giantswarm.io/version": "1.0.0",
+					},
+				},
+				Spec: v1alpha1.AppCatalogSpec{
+					Title:       "Giant Swarm",
+					Description: "Catalog of Apps by Giant Swarm",
+					CatalogStorage: v1alpha1.AppCatalogSpecCatalogStorage{
+						Type: "helm",
+						URL:  "https://giantswarm.github.com/app-catalog/",
+					},
+					LogoURL: "https://s.giantswarm.io/...",
+				},
+			},
+			errorMatcher: IsNotFound,
+		}}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
 			objs := make([]runtime.Object, 0, 0)
@@ -152,13 +211,15 @@ func TestResource_GetDesiredState(t *testing.T) {
 				t.Fatalf("error == %#v, want matching", err)
 			}
 
-			chart, err := key.ToChart(result)
-			if err != nil {
-				t.Fatalf("error == %#v, want nil", err)
-			}
+			if err == nil && tc.errorMatcher == nil {
+				chart, err := key.ToChart(result)
+				if err != nil {
+					t.Fatalf("error == %#v, want nil", err)
+				}
 
-			if !reflect.DeepEqual(chart, *tc.expectedChart) {
-				t.Fatalf("Chart == %#v, want %#v", chart, tc.expectedChart)
+				if !reflect.DeepEqual(chart, *tc.expectedChart) {
+					t.Fatalf("Chart == %#v, want %#v", chart, tc.expectedChart)
+				}
 			}
 		})
 	}
