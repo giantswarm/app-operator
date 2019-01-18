@@ -40,6 +40,19 @@ func ToCustomResource(v interface{}) (v1alpha1.App, error) {
 	return *customResource, nil
 }
 
+func ToChart(v interface{}) (v1alpha1.Chart, error) {
+	customResource, ok := v.(*v1alpha1.Chart)
+	if !ok {
+		return v1alpha1.Chart{}, microerror.Maskf(wrongTypeError, "expected '%T', got '%T'", &v1alpha1.Chart{}, v)
+	}
+
+	if customResource == nil {
+		return v1alpha1.Chart{}, microerror.Maskf(emptyValueError, "empty value cannot be converted to CustomObject")
+	}
+
+	return *customResource, nil
+}
+
 func VersionBundleVersion(customObject v1alpha1.App) string {
 	if val, ok := customObject.ObjectMeta.Annotations[versionBundleAnnotation]; ok {
 		return val
