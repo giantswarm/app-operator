@@ -186,9 +186,10 @@ func TestResource_GetDesiredState(t *testing.T) {
 				objs = append(objs, tc.appCatalog)
 			}
 			c := Config{
-				G8sClient: fake.NewSimpleClientset(objs...),
-				K8sClient: k8sfake.NewSimpleClientset(),
-				Logger:    microloggertest.New(),
+				G8sClient:      fake.NewSimpleClientset(objs...),
+				K8sClient:      k8sfake.NewSimpleClientset(),
+				Logger:         microloggertest.New(),
+				WatchNamespace: "default",
 			}
 			r, err := New(c)
 			if err != nil {

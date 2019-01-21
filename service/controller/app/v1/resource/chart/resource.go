@@ -20,17 +20,19 @@ const (
 // Config represents the configuration used to create a new chart resource.
 type Config struct {
 	// Dependencies.
-	G8sClient versioned.Interface
-	K8sClient kubernetes.Interface
-	Logger    micrologger.Logger
+	G8sClient      versioned.Interface
+	K8sClient      kubernetes.Interface
+	Logger         micrologger.Logger
+	WatchNamespace string
 }
 
 // Resource implements the chart resource.
 type Resource struct {
 	// Dependencies.
-	g8sClient versioned.Interface
-	k8sClient kubernetes.Interface
-	logger    micrologger.Logger
+	g8sClient      versioned.Interface
+	k8sClient      kubernetes.Interface
+	logger         micrologger.Logger
+	watchNamespace string
 }
 
 func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interface{}, error) {
@@ -88,12 +90,16 @@ func New(config Config) (*Resource, error) {
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
+	if config.WatchNamespace == "" {
+		return nil, microerror.Maskf(invalidConfigError, "%T.WatchNamespace must not be empty", config)
+	}
 
 	r := &Resource{
 		// Dependencies.
-		g8sClient: config.G8sClient,
-		k8sClient: config.K8sClient,
-		logger:    config.Logger,
+		g8sClient:      config.G8sClient,
+		k8sClient:      config.K8sClient,
+		logger:         config.Logger,
+		watchNamespace: config.WatchNamespace,
 	}
 
 	return r, nil

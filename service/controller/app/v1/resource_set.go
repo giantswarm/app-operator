@@ -26,6 +26,7 @@ type ResourceSetConfig struct {
 	// Settings.
 	HandledVersionBundles []string
 	ProjectName           string
+	WatchNamespace        string
 }
 
 // NewResourceSet returns a configured App controller ResourceSet.
@@ -47,13 +48,17 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	if config.ProjectName == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ProjectName must not be empty", config)
 	}
+	if config.WatchNamespace == "" {
+		return nil, microerror.Maskf(invalidConfigError, "%T.WatchNamespace must not be empty", config)
+	}
 
 	var appResource controller.Resource
 	{
 		c := chart.Config{
-			G8sClient: config.G8sClient,
-			K8sClient: config.K8sClient,
-			Logger:    config.Logger,
+			G8sClient:      config.G8sClient,
+			K8sClient:      config.K8sClient,
+			Logger:         config.Logger,
+			WatchNamespace: config.WatchNamespace,
 		}
 
 		ops, err := chart.New(c)
