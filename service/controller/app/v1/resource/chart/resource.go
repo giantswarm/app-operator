@@ -7,8 +7,6 @@ import (
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/controller"
 	"k8s.io/client-go/kubernetes"
-
-	"github.com/giantswarm/app-operator/service/controller/app/v1/key"
 )
 
 const (
@@ -40,10 +38,11 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 }
 
 func (r *Resource) NewUpdatePatch(ctx context.Context, obj, currentState, desiredState interface{}) (*controller.Patch, error) {
-	patch := controller.NewPatch()
+	/*patch := controller.NewPatch()
 	patch.SetCreateChange(desiredState)
 
-	return patch, nil
+	return patch, nil*/
+	return nil, nil
 }
 
 func (r *Resource) NewDeletePatch(ctx context.Context, obj, currentState, desiredState interface{}) (*controller.Patch, error) {
@@ -51,7 +50,7 @@ func (r *Resource) NewDeletePatch(ctx context.Context, obj, currentState, desire
 }
 
 func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange interface{}) error {
-	app, err := key.ToCustomResource(obj)
+	/*app, err := key.ToCustomResource(obj)
 	if err != nil {
 		return microerror.Mask(err)
 	}
@@ -65,6 +64,7 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 	if err != nil {
 		return microerror.Mask(err)
 	}
+	return nil*/
 	return nil
 }
 
