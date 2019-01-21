@@ -22,7 +22,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 
 	appCatalog, err := r.g8sClient.ApplicationV1alpha1().AppCatalogs("default").Get(catalogName, v1.GetOptions{})
 	if apierrors.IsNotFound(err) {
-		return nil, microerror.Maskf(notFoundError, "appCatalog '%s' in namespace 'default' not found", catalogName)
+		return nil, microerror.Maskf(notFoundError, "appCatalog %#q in namespace %#q", catalogName, "default")
 	} else if err != nil {
 		return nil, microerror.Mask(err)
 	}
