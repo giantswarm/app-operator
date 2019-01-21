@@ -8,7 +8,7 @@ import (
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned/fake"
 	"github.com/giantswarm/micrologger/microloggertest"
-	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	k8sfake "k8s.io/client-go/kubernetes/fake"
 
@@ -28,7 +28,7 @@ func TestResource_GetDesiredState(t *testing.T) {
 		{
 			name: "case 0: flawless flow",
 			obj: &v1alpha1.App{
-				ObjectMeta: v1.ObjectMeta{
+				ObjectMeta: metav1.ObjectMeta{
 					Name:      "my-cool-prometheus",
 					Namespace: "default",
 					Labels: map[string]string{
@@ -66,7 +66,7 @@ func TestResource_GetDesiredState(t *testing.T) {
 				},
 			},
 			appCatalog: &v1alpha1.AppCatalog{
-				ObjectMeta: v1.ObjectMeta{
+				ObjectMeta: metav1.ObjectMeta{
 					Name:      "giantswarm",
 					Namespace: "default",
 					Labels: map[string]string{
@@ -84,11 +84,11 @@ func TestResource_GetDesiredState(t *testing.T) {
 				},
 			},
 			expectedChart: &v1alpha1.Chart{
-				TypeMeta: v1.TypeMeta{
+				TypeMeta: metav1.TypeMeta{
 					Kind:       "Chart",
 					APIVersion: "application.giantswarm.io",
 				},
-				ObjectMeta: v1.ObjectMeta{
+				ObjectMeta: metav1.ObjectMeta{
 					Name: "kubernetes-prometheus",
 					Labels: map[string]string{
 						"app": "prometheus",
@@ -123,7 +123,7 @@ func TestResource_GetDesiredState(t *testing.T) {
 		{
 			name: "case 1: appcatalog not found",
 			obj: &v1alpha1.App{
-				ObjectMeta: v1.ObjectMeta{
+				ObjectMeta: metav1.ObjectMeta{
 					Name:      "my-cool-prometheus",
 					Namespace: "default",
 					Labels: map[string]string{
@@ -161,7 +161,7 @@ func TestResource_GetDesiredState(t *testing.T) {
 				},
 			},
 			appCatalog: &v1alpha1.AppCatalog{
-				ObjectMeta: v1.ObjectMeta{
+				ObjectMeta: metav1.ObjectMeta{
 					Name:      "giantswarm-xxx1",
 					Namespace: "default",
 					Labels: map[string]string{
@@ -183,7 +183,7 @@ func TestResource_GetDesiredState(t *testing.T) {
 		{
 			name: "case 2: generating catalog url failed",
 			obj: &v1alpha1.App{
-				ObjectMeta: v1.ObjectMeta{
+				ObjectMeta: metav1.ObjectMeta{
 					Name:      "my-cool-prometheus",
 					Namespace: "default",
 					Labels: map[string]string{
@@ -221,7 +221,7 @@ func TestResource_GetDesiredState(t *testing.T) {
 				},
 			},
 			appCatalog: &v1alpha1.AppCatalog{
-				ObjectMeta: v1.ObjectMeta{
+				ObjectMeta: metav1.ObjectMeta{
 					Name:      "giantswarm",
 					Namespace: "default",
 					Labels: map[string]string{
