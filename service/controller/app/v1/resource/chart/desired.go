@@ -57,14 +57,14 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 					Namespace: key.SecretNamespace(cr),
 				},
 			},
-			TarballURL: chartURL,
+			TarballURL: tarballURL,
 		},
 	}
 
 	return chartCR, nil
 }
 
-func generateCatalogURL(baseURL string, appName string, release string) (string, error) {
+func generateTarballURL(baseURL string, appName string, release string) (string, error) {
 	if baseURL == "" || appName == "" || release == "" {
 		return "", microerror.Maskf(failedExecution, "baseURL %#q, appName %#q, release %#q should not be empty", baseURL, appName, release)
 	}
