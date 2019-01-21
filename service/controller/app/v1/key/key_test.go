@@ -37,6 +37,47 @@ func Test_CatalogName(t *testing.T) {
 	}
 }
 
+func Test_ConfigMapName(t *testing.T) {
+	expectedName := "giant-swarm-configmap-name"
+
+	obj := v1alpha1.App{
+		Spec: v1alpha1.AppSpec{
+			Name:    "giant-swarm-name",
+			Catalog: "giant-swarm-catalog-name",
+			Config: v1alpha1.AppSpecConfig{
+				ConfigMap: v1alpha1.AppSpecConfigConfigMap{
+					Name: "giant-swarm-configmap-name",
+				},
+			},
+		},
+	}
+
+	if ConfigMapName(obj) != expectedName {
+		t.Fatalf("configMap name %s, want %s", ConfigMapName(obj), expectedName)
+	}
+}
+
+func Test_ConfigMapNamespace(t *testing.T) {
+	expectedName := "giant-swarm-configmap-namespace"
+
+	obj := v1alpha1.App{
+		Spec: v1alpha1.AppSpec{
+			Name:    "giant-swarm-name",
+			Catalog: "giant-swarm-catalog-name",
+			Config: v1alpha1.AppSpecConfig{
+				ConfigMap: v1alpha1.AppSpecConfigConfigMap{
+					Name:      "giant-swarm-configmap-name",
+					Namespace: "giant-swarm-configmap-namespace",
+				},
+			},
+		},
+	}
+
+	if ConfigMapNamespace(obj) != expectedName {
+		t.Fatalf("configMap namespace %s, want %s", ConfigMapNamespace(obj), expectedName)
+	}
+}
+
 func Test_Namespace(t *testing.T) {
 	expectedName := "giant-swarm-namespace"
 
@@ -65,6 +106,46 @@ func Test_ReleaseName(t *testing.T) {
 
 	if ReleaseName(obj) != expectedName {
 		t.Fatalf("app release %s, want %s", ReleaseName(obj), expectedName)
+	}
+}
+
+func Test_SecretName(t *testing.T) {
+	expectedName := "giant-swarm-secret-name"
+
+	obj := v1alpha1.App{
+		Spec: v1alpha1.AppSpec{
+			Name:    "giant-swarm-name",
+			Catalog: "giant-swarm-catalog-name",
+			Config: v1alpha1.AppSpecConfig{
+				Secret: v1alpha1.AppSpecConfigSecret{
+					Name: "giant-swarm-secret-name",
+				},
+			},
+		},
+	}
+
+	if SecretName(obj) != expectedName {
+		t.Fatalf("secret name %s, want %s", SecretName(obj), expectedName)
+	}
+}
+
+func Test_SecretNamespace(t *testing.T) {
+	expectedName := "giant-swarm-secret-namespace"
+
+	obj := v1alpha1.App{
+		Spec: v1alpha1.AppSpec{
+			Name:    "giant-swarm-name",
+			Catalog: "giant-swarm-catalog-name",
+			Config: v1alpha1.AppSpecConfig{
+				Secret: v1alpha1.AppSpecConfigSecret{
+					Namespace: "giant-swarm-secret-namespace",
+				},
+			},
+		},
+	}
+
+	if SecretNamespace(obj) != expectedName {
+		t.Fatalf("secret namespace %s, want %s", SecretNamespace(obj), expectedName)
 	}
 }
 

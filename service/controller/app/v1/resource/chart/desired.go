@@ -45,17 +45,21 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 			Annotations: cr.GetObjectMeta().GetAnnotations(),
 		},
 		Spec: v1alpha1.ChartSpec{
-			Name:       cr.GetObjectMeta().GetName(),
-			Namespace:  cr.Spec.Namespace,
+			Name:      cr.GetObjectMeta().GetName(),
+			Namespace: cr.Spec.Namespace,
+			Config: v1alpha1.ChartSpecConfig{
+				ConfigMap: v1alpha1.ChartSpecConfigConfigMap{
+					Name:      key.ConfigMapName(cr),
+					Namespace: key.ConfigMapNamespace(cr),
+				},
+				Secret: v1alpha1.ChartSpecConfigSecret{
+					Name:      key.SecretName(cr),
+					Namespace: key.SecretNamespace(cr),
+				},
+			},
 			TarballURL: chartURL,
 		},
 	}
-
-	chartCR.Spec.Config.Secret.Name = cr.Spec.Config.Secret.Name
-	chartCR.Spec.Config.Secret.Namespace = cr.Spec.Config.Secret.Namespace
-
-	chartCR.Spec.Config.ConfigMap.Name = cr.Spec.Config.ConfigMap.Name
-	chartCR.Spec.Config.ConfigMap.Namespace = cr.Spec.Config.ConfigMap.Namespace
 
 	return chartCR, nil
 }

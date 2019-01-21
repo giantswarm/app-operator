@@ -17,12 +17,28 @@ func CatalogName(customObject v1alpha1.App) string {
 	return customObject.Spec.Catalog
 }
 
+func ConfigMapName(customObject v1alpha1.App) string {
+	return customObject.Spec.Config.ConfigMap.Name
+}
+
+func ConfigMapNamespace(customObject v1alpha1.App) string {
+	return customObject.Spec.Config.ConfigMap.Namespace
+}
+
 func Namespace(customObject v1alpha1.App) string {
 	return customObject.Spec.Namespace
 }
 
 func ReleaseName(customObject v1alpha1.App) string {
 	return customObject.Spec.Release
+}
+
+func SecretName(customObject v1alpha1.App) string {
+	return customObject.Spec.Config.Secret.Name
+}
+
+func SecretNamespace(customObject v1alpha1.App) string {
+	return customObject.Spec.Config.Secret.Namespace
 }
 
 // ToCustomResource converts value to v1alpha1.App and returns it or error
