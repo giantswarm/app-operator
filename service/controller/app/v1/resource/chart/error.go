@@ -2,15 +2,6 @@ package chart
 
 import "github.com/giantswarm/microerror"
 
-var invalidConfigError = &microerror.Error{
-	Kind: "invalidConfigError",
-}
-
-// IsInvalidConfig asserts invalidConfigError.
-func IsInvalidConfig(err error) bool {
-	return microerror.Cause(err) == invalidConfigError
-}
-
 var failedExecution = &microerror.Error{
 	Kind: "failedExecution",
 }
@@ -20,13 +11,13 @@ func IsFailedExecution(err error) bool {
 	return microerror.Cause(err) == failedExecution
 }
 
-var wrongTypeError = &microerror.Error{
-	Kind: "wrongTypeError",
+var invalidConfigError = &microerror.Error{
+	Kind: "invalidConfigError",
 }
 
-// IsWrongType asserts wrongTypeError.
-func IsWrongType(err error) bool {
-	return microerror.Cause(err) == wrongTypeError
+// IsInvalidConfig asserts invalidConfigError.
+func IsInvalidConfig(err error) bool {
+	return microerror.Cause(err) == invalidConfigError
 }
 
 var notFoundError = &microerror.Error{
@@ -36,4 +27,13 @@ var notFoundError = &microerror.Error{
 // IsNotFound asserts notFoundError.
 func IsNotFound(err error) bool {
 	return microerror.Cause(err) == notFoundError
+}
+
+var wrongTypeError = &microerror.Error{
+	Kind: "wrongTypeError",
+}
+
+// IsWrongType asserts wrongTypeError.
+func IsWrongType(err error) bool {
+	return microerror.Cause(err) == wrongTypeError
 }
