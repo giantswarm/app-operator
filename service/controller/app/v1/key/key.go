@@ -9,16 +9,24 @@ const (
 	versionBundleAnnotation = "giantswarm.io/version-bundle"
 )
 
-func AppName(customObject v1alpha1.App) string {
-	return customObject.Spec.Name
+func AppName(customResource v1alpha1.App) string {
+	return customResource.Spec.Name
 }
 
-func Namespace(customObject v1alpha1.App) string {
-	return customObject.Spec.Namespace
+func KubeConfigSecretName(customResource v1alpha1.App) string {
+	return customResource.Spec.KubeConfig.Secret.Name
 }
 
-func ReleaseName(customObject v1alpha1.App) string {
-	return customObject.Spec.Release
+func KubeConfigSecretNamespace(customResource v1alpha1.App) string {
+	return customResource.Spec.KubeConfig.Secret.Namespace
+}
+
+func Namespace(customResource v1alpha1.App) string {
+	return customResource.Spec.Namespace
+}
+
+func ReleaseName(customResource v1alpha1.App) string {
+	return customResource.Spec.Release
 }
 
 // ToCustomResource converts value to v1alpha1.App and returns it or error
@@ -30,14 +38,14 @@ func ToCustomResource(v interface{}) (v1alpha1.App, error) {
 	}
 
 	if customResource == nil {
-		return v1alpha1.App{}, microerror.Maskf(emptyValueError, "empty value cannot be converted to CustomObject")
+		return v1alpha1.App{}, microerror.Maskf(emptyValueError, "empty value cannot be converted to customResource")
 	}
 
 	return *customResource, nil
 }
 
-func VersionBundleVersion(customObject v1alpha1.App) string {
-	if val, ok := customObject.ObjectMeta.Annotations[versionBundleAnnotation]; ok {
+func VersionBundleVersion(customResource v1alpha1.App) string {
+	if val, ok := customResource.ObjectMeta.Annotations[versionBundleAnnotation]; ok {
 		return val
 	} else {
 		return ""
