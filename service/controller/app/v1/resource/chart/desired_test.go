@@ -8,11 +8,12 @@ import (
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned/fake"
 	"github.com/giantswarm/micrologger/microloggertest"
-	"k8s.io/apimachinery/pkg/apis/meta/v1"
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	k8sfake "k8s.io/client-go/kubernetes/fake"
 
 	"github.com/giantswarm/app-operator/service/controller/app/v1/key"
+	"github.com/giantswarm/app-operator/service/controller/app/v1/kubeconfig"
 )
 
 func TestResource_GetDesiredState(t *testing.T) {
@@ -31,7 +32,7 @@ func TestResource_GetDesiredState(t *testing.T) {
 					Name:      "my-cool-prometheus",
 					Namespace: "default",
 					Labels: map[string]string{
-						"app":                        "prometheus",
+						"app": "prometheus",
 						"giantswarm.io/cluster":      "6iec4",
 						"giantswarm.io/organization": "giantswarm",
 						"giantswarm.io/service-type": "managed",
@@ -90,7 +91,7 @@ func TestResource_GetDesiredState(t *testing.T) {
 				ObjectMeta: v1.ObjectMeta{
 					Name: "kubernetes-prometheus",
 					Labels: map[string]string{
-						"app":                        "prometheus",
+						"app": "prometheus",
 						"giantswarm.io/cluster":      "6iec4",
 						"giantswarm.io/organization": "giantswarm",
 						"giantswarm.io/service-type": "managed",
@@ -126,7 +127,7 @@ func TestResource_GetDesiredState(t *testing.T) {
 					Name:      "my-cool-prometheus",
 					Namespace: "default",
 					Labels: map[string]string{
-						"app":                        "prometheus",
+						"app": "prometheus",
 						"giantswarm.io/cluster":      "6iec4",
 						"giantswarm.io/organization": "giantswarm",
 						"giantswarm.io/service-type": "managed",
@@ -178,14 +179,15 @@ func TestResource_GetDesiredState(t *testing.T) {
 				},
 			},
 			errorMatcher: IsNotFound,
-		}, {
+		},
+		{
 			name: "case 2: generating catalog url failed",
 			obj: &v1alpha1.App{
 				ObjectMeta: v1.ObjectMeta{
 					Name:      "my-cool-prometheus",
 					Namespace: "default",
 					Labels: map[string]string{
-						"app":                        "prometheus",
+						"app": "prometheus",
 						"giantswarm.io/cluster":      "6iec4",
 						"giantswarm.io/organization": "giantswarm",
 						"giantswarm.io/service-type": "managed",
@@ -237,16 +239,35 @@ func TestResource_GetDesiredState(t *testing.T) {
 				},
 			},
 			errorMatcher: IsFailedExecution,
-		}}
+		},
+	}
+
+	var err error
+	var kc *kubeconfig.KubeConfig
+	{
+		c := kubeconfig.Config{
+			G8sClient: fake.NewSimpleClientset(),
+			K8sClient: k8sfake.NewSimpleClientset(),
+			Logger:    microloggertest.New(),
+		}
+
+		kc, err = kubeconfig.New(c)
+		if err != nil {
+			t.Fatalf("error == %#v, want nil", err)
+		}
+	}
+
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
 			objs := make([]runtime.Object, 0, 0)
 			if tc.appCatalog != nil {
 				objs = append(objs, tc.appCatalog)
 			}
+
 			c := Config{
 				G8sClient:      fake.NewSimpleClientset(objs...),
 				K8sClient:      k8sfake.NewSimpleClientset(),
+				KubeConfig:     kc,
 				Logger:         microloggertest.New(),
 				WatchNamespace: "default",
 			}
