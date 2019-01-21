@@ -21,7 +21,7 @@ type Config struct {
 }
 
 // KubeConfig service provides primitives for connecting to the Kubernetes
-// cluster configured in the app CR.
+// cluster configured in the kubeconfig section of the app CR.
 type KubeConfig struct {
 	g8sClient  versioned.Interface
 	k8sClient  kubernetes.Interface
@@ -66,8 +66,9 @@ func New(config Config) (*KubeConfig, error) {
 	return k, nil
 }
 
-// NewG8sClientForApp returns a versioned.Interface clientset for the cluster
-// configured via the app CR.
+// NewG8sClientForApp returns a generated clientset for the cluster configured
+// in the kubeconfig section of the app CR. If this is empty a clientset for
+// the current cluster is returned.
 func (k KubeConfig) NewG8sClientForApp(ctx context.Context, customResource v1alpha1.App) (versioned.Interface, error) {
 	secretName := key.KubeConfigSecretName(customResource)
 
@@ -85,8 +86,9 @@ func (k KubeConfig) NewG8sClientForApp(ctx context.Context, customResource v1alp
 	return k8sClient, nil
 }
 
-// NewK8sClientForApp returns a versioned.Interface clientset for the cluster
-// configured via the app CR.
+// NewK8sClientForApp returns a Kubernetes clientset for the cluster configured
+// in the kubeconfig section of the app CR. If this is empty a clientset for
+// the current cluster is returned.
 func (k KubeConfig) NewK8sClientForApp(ctx context.Context, customResource v1alpha1.App) (kubernetes.Interface, error) {
 	secretName := key.KubeConfigSecretName(customResource)
 
