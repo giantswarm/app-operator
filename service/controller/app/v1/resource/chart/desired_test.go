@@ -32,7 +32,7 @@ func TestResource_GetDesiredState(t *testing.T) {
 					Name:      "my-cool-prometheus",
 					Namespace: "default",
 					Labels: map[string]string{
-						"app": "prometheus",
+						"app":                        "prometheus",
 						"giantswarm.io/cluster":      "6iec4",
 						"giantswarm.io/organization": "giantswarm",
 						"giantswarm.io/service-type": "managed",
@@ -91,7 +91,7 @@ func TestResource_GetDesiredState(t *testing.T) {
 				ObjectMeta: metav1.ObjectMeta{
 					Name: "kubernetes-prometheus",
 					Labels: map[string]string{
-						"app": "prometheus",
+						"app":                        "prometheus",
 						"giantswarm.io/cluster":      "6iec4",
 						"giantswarm.io/organization": "giantswarm",
 						"giantswarm.io/service-type": "managed",
@@ -127,7 +127,7 @@ func TestResource_GetDesiredState(t *testing.T) {
 					Name:      "my-cool-prometheus",
 					Namespace: "default",
 					Labels: map[string]string{
-						"app": "prometheus",
+						"app":                        "prometheus",
 						"giantswarm.io/cluster":      "6iec4",
 						"giantswarm.io/organization": "giantswarm",
 						"giantswarm.io/service-type": "managed",
@@ -187,7 +187,7 @@ func TestResource_GetDesiredState(t *testing.T) {
 					Name:      "my-cool-prometheus",
 					Namespace: "default",
 					Labels: map[string]string{
-						"app": "prometheus",
+						"app":                        "prometheus",
 						"giantswarm.io/cluster":      "6iec4",
 						"giantswarm.io/organization": "giantswarm",
 						"giantswarm.io/service-type": "managed",
