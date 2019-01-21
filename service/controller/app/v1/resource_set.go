@@ -3,6 +3,7 @@ package v1
 import (
 	"context"
 
+	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/controller"
@@ -18,12 +19,14 @@ import (
 // AppConfig controller ResourceSet configuration.
 type ResourceSetConfig struct {
 	// Dependencies.
+	G8sClient versioned.Interface
 	K8sClient kubernetes.Interface
 	Logger    micrologger.Logger
 
 	// Settings.
 	HandledVersionBundles []string
 	ProjectName           string
+	WatchNamespace        string
 }
 
 // NewResourceSet returns a configured App controller ResourceSet.
@@ -31,6 +34,9 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	var err error
 
 	// Dependencies.
+	if config.G8sClient == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.G8sClient must not be empty", config)
+	}
 	if config.K8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
 	}
@@ -42,12 +48,17 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	if config.ProjectName == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ProjectName must not be empty", config)
 	}
+	if config.WatchNamespace == "" {
+		return nil, microerror.Maskf(invalidConfigError, "%T.WatchNamespace must not be empty", config)
+	}
 
 	var appResource controller.Resource
 	{
 		c := chart.Config{
-			K8sClient: config.K8sClient,
-			Logger:    config.Logger,
+			G8sClient:      config.G8sClient,
+			K8sClient:      config.K8sClient,
+			Logger:         config.Logger,
+			WatchNamespace: config.WatchNamespace,
 		}
 
 		ops, err := chart.New(c)
