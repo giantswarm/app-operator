@@ -27,6 +27,25 @@ func Test_AppCatalogTitle(t *testing.T) {
 	}
 }
 
+func Test_CatalogStorageURL(t *testing.T) {
+	expectedName := "http://giantswarm.io/sample-catalog/"
+
+	obj := v1alpha1.AppCatalog{
+		Spec: v1alpha1.AppCatalogSpec{
+			Title:       "giant-swarm-title",
+			Description: "giant-swarm app catalog sample",
+			CatalogStorage: v1alpha1.AppCatalogSpecCatalogStorage{
+				Type: "helm",
+				URL:  "http://giantswarm.io/sample-catalog/",
+			},
+		},
+	}
+
+	if CatalogStorageURL(obj) != expectedName {
+		t.Fatalf("app catalog storage url %s, want %s", CatalogStorageURL(obj), expectedName)
+	}
+}
+
 func Test_ToCustomResource(t *testing.T) {
 	testCases := []struct {
 		name           string

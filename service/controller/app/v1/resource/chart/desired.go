@@ -3,6 +3,7 @@ package chart
 import (
 	"context"
 	"fmt"
+	appcatalogkey "github.com/giantswarm/app-operator/service/controller/appcatalog/v1/key"
 	"net/url"
 	"path"
 
@@ -29,7 +30,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		return nil, microerror.Mask(err)
 	}
 
-	tarballURL, err := generateTarballURL(appCatalog.Spec.CatalogStorage.URL, cr.Spec.Name, cr.Spec.Release)
+	tarballURL, err := generateTarballURL(appcatalogkey.CatalogStorageURL(*appCatalog), key.AppName(cr), key.ReleaseName(cr))
 	if err != nil {
 		return nil, err
 	}

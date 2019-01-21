@@ -13,6 +13,10 @@ func AppCatalogTitle(customObject v1alpha1.AppCatalog) string {
 	return customObject.Spec.Title
 }
 
+func CatalogStorageURL(customObject v1alpha1.AppCatalog) string {
+	return customObject.Spec.CatalogStorage.URL
+}
+
 // ToCustomResource converts value to v1alpha1.AppCatalog and returns it or error
 // if type does not match.
 func ToCustomResource(v interface{}) (v1alpha1.AppCatalog, error) {
