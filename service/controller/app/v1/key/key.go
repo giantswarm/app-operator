@@ -13,16 +13,16 @@ func AppName(customObject v1alpha1.App) string {
 	return customObject.Spec.Name
 }
 
+func CatalogName(customObject v1alpha1.App) string {
+	return customObject.Spec.Catalog
+}
+
 func Namespace(customObject v1alpha1.App) string {
 	return customObject.Spec.Namespace
 }
 
 func ReleaseName(customObject v1alpha1.App) string {
 	return customObject.Spec.Release
-}
-
-func CatalogName(customObject v1alpha1.App) string {
-	return customObject.Spec.Catalog
 }
 
 // ToCustomResource converts value to v1alpha1.App and returns it or error
@@ -47,7 +47,7 @@ func ToChart(v interface{}) (v1alpha1.Chart, error) {
 	}
 
 	if customResource == nil {
-		return v1alpha1.Chart{}, microerror.Maskf(emptyValueError, "empty value cannot be converted to CustomObject")
+		return v1alpha1.Chart{}, microerror.Maskf(emptyValueError, "empty value cannot be converted to Chart")
 	}
 
 	return *customResource, nil

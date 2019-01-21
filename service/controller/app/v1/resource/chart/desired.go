@@ -3,6 +3,8 @@ package chart
 import (
 	"context"
 	"fmt"
+	"net/url"
+	"path"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/microerror"
@@ -27,7 +29,10 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		return nil, microerror.Mask(err)
 	}
 
-	chartURL := generateCatalogURL(appCatalog.Spec.CatalogStorage.URL, cr.Spec.Name, cr.Spec.Release)
+	chartURL, err := generateCatalogURL(appCatalog.Spec.CatalogStorage.URL, cr.Spec.Name, cr.Spec.Release)
+	if err != nil {
+		return nil, err
+	}
 
 	chartCR := &v1alpha1.Chart{
 		TypeMeta: v1.TypeMeta{
@@ -46,9 +51,6 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		},
 	}
 
-	chartCR.Spec.KubeConfig.Secret.Name = cr.Spec.KubeConfig.Secret.Name
-	chartCR.Spec.KubeConfig.Secret.Namespace = cr.Spec.KubeConfig.Secret.Namespace
-
 	chartCR.Spec.Config.Secret.Name = cr.Spec.Config.Secret.Name
 	chartCR.Spec.Config.Secret.Namespace = cr.Spec.Config.Secret.Namespace
 
@@ -58,6 +60,11 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 	return chartCR, nil
 }
 
-func generateCatalogURL(baseURL string, appName string, release string) string {
-	return fmt.Sprintf("%s-%s-%s.tgz", baseURL, appName, release)
+func generateCatalogURL(baseURL string, appName string, release string) (string, error) {
+	u, err := url.Parse(baseURL)
+	if err != nil {
+		return "", microerror.Mask(err)
+	}
+	u.Path = path.Join(u.Path, fmt.Sprintf("%s-%s.tgz", appName, release))
+	return u.String(), nil
 }

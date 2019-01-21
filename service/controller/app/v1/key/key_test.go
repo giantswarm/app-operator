@@ -22,6 +22,21 @@ func Test_AppName(t *testing.T) {
 	}
 }
 
+func Test_CatalogName(t *testing.T) {
+	expectedName := "giant-swarm-catalog-name"
+
+	obj := v1alpha1.App{
+		Spec: v1alpha1.AppSpec{
+			Name:    "giant-swarm-name",
+			Catalog: "giant-swarm-catalog-name",
+		},
+	}
+
+	if CatalogName(obj) != expectedName {
+		t.Fatalf("catalog name %s, want %s", CatalogName(obj), expectedName)
+	}
+}
+
 func Test_Namespace(t *testing.T) {
 	expectedName := "giant-swarm-namespace"
 

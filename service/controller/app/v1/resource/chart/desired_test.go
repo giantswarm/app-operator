@@ -2,11 +2,11 @@ package chart
 
 import (
 	"context"
+	"github.com/giantswarm/apiextensions/pkg/clientset/versioned/fake"
 	"reflect"
 	"testing"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
-	"github.com/giantswarm/apiextensions/pkg/clientset/versioned/fake"
 	"github.com/giantswarm/micrologger/microloggertest"
 	"k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -19,14 +19,14 @@ func TestResource_GetDesiredState(t *testing.T) {
 
 	tests := []struct {
 		name          string
-		appObj        *v1alpha1.App
+		obj           *v1alpha1.App
 		appCatalog    *v1alpha1.AppCatalog
 		expectedChart *v1alpha1.Chart
 		errorMatcher  func(error) bool
 	}{
 		{
 			name: "case 0: flawless flow",
-			appObj: &v1alpha1.App{
+			obj: &v1alpha1.App{
 				ObjectMeta: v1.ObjectMeta{
 					Name:      "my-cool-prometheus",
 					Namespace: "default",
@@ -46,11 +46,11 @@ func TestResource_GetDesiredState(t *testing.T) {
 					Release: "1.0.0",
 					Config: v1alpha1.AppSpecConfig{
 						ConfigMap: v1alpha1.AppSpecConfigConfigMap{
-							Name:      "ginat-swarm-config",
+							Name:      "giant-swarm-config",
 							Namespace: "giantswarm",
 						},
 						Secret: v1alpha1.AppSpecConfigSecret{
-							Name:      "ginat-swarm-secret",
+							Name:      "giant-swarm-secret",
 							Namespace: "giantswarm",
 						},
 					},
@@ -103,31 +103,25 @@ func TestResource_GetDesiredState(t *testing.T) {
 				Spec: v1alpha1.ChartSpec{
 					Config: v1alpha1.ChartSpecConfig{
 						ConfigMap: v1alpha1.ChartSpecConfigConfigMap{
-							Name:            "ginat-swarm-config",
+							Name:            "giant-swarm-config",
 							Namespace:       "giantswarm",
 							ResourceVersion: "",
 						},
 						Secret: v1alpha1.ChartSpecConfigSecret{
-							Name:            "ginat-swarm-secret",
+							Name:            "giant-swarm-secret",
 							Namespace:       "giantswarm",
 							ResourceVersion: "",
 						},
 					},
-					Name: "my-cool-prometheus",
-					KubeConfig: v1alpha1.ChartSpecKubeConfig{
-						Secret: v1alpha1.ChartSpecKubeConfigSecret{
-							Name:      "giantswarm-12345",
-							Namespace: "12345",
-						},
-					},
+					Name:       "my-cool-prometheus",
 					Namespace:  "monitoring",
-					TarballURL: "https://giantswarm.github.com/app-catalog/-kubernetes-prometheus-1.0.0.tgz",
+					TarballURL: "https://giantswarm.github.com/app-catalog/kubernetes-prometheus-1.0.0.tgz",
 				},
 			},
 		},
 		{
 			name: "case 1: appcatalog not found",
-			appObj: &v1alpha1.App{
+			obj: &v1alpha1.App{
 				ObjectMeta: v1.ObjectMeta{
 					Name:      "my-cool-prometheus",
 					Namespace: "default",
@@ -147,11 +141,11 @@ func TestResource_GetDesiredState(t *testing.T) {
 					Release: "1.0.0",
 					Config: v1alpha1.AppSpecConfig{
 						ConfigMap: v1alpha1.AppSpecConfigConfigMap{
-							Name:      "ginat-swarm-config",
+							Name:      "giant-swarm-config",
 							Namespace: "giantswarm",
 						},
 						Secret: v1alpha1.AppSpecConfigSecret{
-							Name:      "ginat-swarm-secret",
+							Name:      "giant-swarm-secret",
 							Namespace: "giantswarm",
 						},
 					},
@@ -192,8 +186,8 @@ func TestResource_GetDesiredState(t *testing.T) {
 				objs = append(objs, tc.appCatalog)
 			}
 			c := Config{
-				K8sClient: k8sfake.NewSimpleClientset(),
 				G8sClient: fake.NewSimpleClientset(objs...),
+				K8sClient: k8sfake.NewSimpleClientset(),
 				Logger:    microloggertest.New(),
 			}
 			r, err := New(c)
@@ -201,7 +195,7 @@ func TestResource_GetDesiredState(t *testing.T) {
 				t.Fatalf("error == %#v, want nil", err)
 			}
 
-			result, err := r.GetDesiredState(context.TODO(), tc.appObj)
+			result, err := r.GetDesiredState(context.TODO(), tc.obj)
 			switch {
 			case err != nil && tc.errorMatcher == nil:
 				t.Fatalf("error == %#v, want nil", err)
