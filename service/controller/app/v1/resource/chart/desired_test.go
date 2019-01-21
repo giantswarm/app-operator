@@ -2,11 +2,11 @@ package chart
 
 import (
 	"context"
-	"github.com/giantswarm/apiextensions/pkg/clientset/versioned/fake"
 	"reflect"
 	"testing"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
+	"github.com/giantswarm/apiextensions/pkg/clientset/versioned/fake"
 	"github.com/giantswarm/micrologger/microloggertest"
 	"k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"

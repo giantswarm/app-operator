@@ -3,7 +3,6 @@ package chart
 import (
 	"context"
 	"fmt"
-	appcatalogkey "github.com/giantswarm/app-operator/service/controller/appcatalog/v1/key"
 	"net/url"
 	"path"
 
@@ -13,6 +12,7 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/giantswarm/app-operator/service/controller/app/v1/key"
+	appcatalogkey "github.com/giantswarm/app-operator/service/controller/appcatalog/v1/key"
 )
 
 func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interface{}, error) {

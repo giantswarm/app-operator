@@ -9,36 +9,36 @@ const (
 	versionBundleAnnotation = "giantswarm.io/version-bundle"
 )
 
-func AppName(customObject v1alpha1.App) string {
-	return customObject.Spec.Name
+func AppName(customResource v1alpha1.App) string {
+	return customResource.Spec.Name
 }
 
-func CatalogName(customObject v1alpha1.App) string {
-	return customObject.Spec.Catalog
+func CatalogName(customResource v1alpha1.App) string {
+	return customResource.Spec.Catalog
 }
 
-func ConfigMapName(customObject v1alpha1.App) string {
-	return customObject.Spec.Config.ConfigMap.Name
+func ConfigMapName(customResource v1alpha1.App) string {
+	return customResource.Spec.Config.ConfigMap.Name
 }
 
-func ConfigMapNamespace(customObject v1alpha1.App) string {
-	return customObject.Spec.Config.ConfigMap.Namespace
+func ConfigMapNamespace(customResource v1alpha1.App) string {
+	return customResource.Spec.Config.ConfigMap.Namespace
 }
 
-func Namespace(customObject v1alpha1.App) string {
-	return customObject.Spec.Namespace
+func Namespace(customResource v1alpha1.App) string {
+	return customResource.Spec.Namespace
 }
 
-func ReleaseName(customObject v1alpha1.App) string {
-	return customObject.Spec.Release
+func ReleaseName(customResource v1alpha1.App) string {
+	return customResource.Spec.Release
 }
 
-func SecretName(customObject v1alpha1.App) string {
-	return customObject.Spec.Config.Secret.Name
+func SecretName(customResource v1alpha1.App) string {
+	return customResource.Spec.Config.Secret.Name
 }
 
-func SecretNamespace(customObject v1alpha1.App) string {
-	return customObject.Spec.Config.Secret.Namespace
+func SecretNamespace(customResource v1alpha1.App) string {
+	return customResource.Spec.Config.Secret.Namespace
 }
 
 // ToCustomResource converts value to v1alpha1.App and returns it or error
@@ -50,7 +50,7 @@ func ToCustomResource(v interface{}) (v1alpha1.App, error) {
 	}
 
 	if customResource == nil {
-		return v1alpha1.App{}, microerror.Maskf(emptyValueError, "empty value cannot be converted to CustomObject")
+		return v1alpha1.App{}, microerror.Maskf(emptyValueError, "empty value cannot be converted to customResource")
 	}
 
 	return *customResource, nil
@@ -69,8 +69,8 @@ func ToChart(v interface{}) (v1alpha1.Chart, error) {
 	return *customResource, nil
 }
 
-func VersionBundleVersion(customObject v1alpha1.App) string {
-	if val, ok := customObject.ObjectMeta.Annotations[versionBundleAnnotation]; ok {
+func VersionBundleVersion(customResource v1alpha1.App) string {
+	if val, ok := customResource.ObjectMeta.Annotations[versionBundleAnnotation]; ok {
 		return val
 	} else {
 		return ""
