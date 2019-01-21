@@ -101,8 +101,12 @@
     "pkg/clientset/versioned/typed/provider/v1alpha1",
     "pkg/clientset/versioned/typed/provider/v1alpha1/fake",
   ]
+<<<<<<< HEAD
   pruneopts = "UT"
   revision = "0584389c4f82e52ba980c14dc31434d922245a46"
+=======
+  revision = "452d2fb9f8222ebd7a8f1777e6aee4ef4218f5b8"
+>>>>>>> kubeconfig
 
 [[projects]]
   branch = "master"
@@ -122,7 +126,16 @@
 
 [[projects]]
   branch = "master"
+<<<<<<< HEAD
   digest = "1:b7f7982da706514dcb15a2d9211d932efb654c33d4ac105d552ae1981702dad4"
+=======
+  name = "github.com/giantswarm/kubeconfig"
+  packages = ["."]
+  revision = "6239e995957f590f09dcc2b8ac438b7e4c875715"
+
+[[projects]]
+  branch = "master"
+>>>>>>> kubeconfig
   name = "github.com/giantswarm/microendpoint"
   packages = [
     "endpoint/healthz",
@@ -173,8 +186,12 @@
     "loggermeta",
     "microloggertest",
   ]
+<<<<<<< HEAD
   pruneopts = "UT"
   revision = "39ed6a99d31b8962e38dfaff287125fb756e8b2a"
+=======
+  revision = "0926d9b7c5419173936b4556411a103bdf8d5966"
+>>>>>>> kubeconfig
 
 [[projects]]
   branch = "master"
@@ -194,8 +211,12 @@
     "informer",
     "informer/collector",
   ]
+<<<<<<< HEAD
   pruneopts = "UT"
   revision = "43dd8d30de6553f21effdd2d11c363613a9997bb"
+=======
+  revision = "204721021837676ee3e6ee110ae58ec2e2b0d0c0"
+>>>>>>> kubeconfig
 
 [[projects]]
   branch = "master"
@@ -352,7 +373,16 @@
   version = "v1.0.0"
 
 [[projects]]
+<<<<<<< HEAD
   digest = "1:870d441fe217b8e689d7949fef6e43efbc787e50f200cb1e70dbca9204a1d6be"
+=======
+  name = "github.com/imdario/mergo"
+  packages = ["."]
+  revision = "9f23e2d6bd2a77f959b2bf6acdbefd708a83a4a4"
+  version = "v0.3.6"
+
+[[projects]]
+>>>>>>> kubeconfig
   name = "github.com/inconshreveable/mousetrap"
   packages = ["."]
   pruneopts = "UT"
@@ -505,8 +535,12 @@
     "nfs",
     "xfs",
   ]
+<<<<<<< HEAD
   pruneopts = "UT"
   revision = "b1a0a9a36d7453ba0f62578b99712f3a6c5f82d1"
+=======
+  revision = "bf6a532e95b1f7a62adf0ab5050a5bb2237ad2f4"
+>>>>>>> kubeconfig
 
 [[projects]]
   digest = "1:d707dbc1330c0ed177d4642d6ae102d5e2c847ebd0eb84562d0dc4f024531cfc"
@@ -580,8 +614,12 @@
     "idna",
     "publicsuffix",
   ]
+<<<<<<< HEAD
   pruneopts = "UT"
   revision = "915654e7eabcea33ae277abbecf52f0d8b7a9fdc"
+=======
+  revision = "ed066c81e75eba56dd9bd2139ade88125b855585"
+>>>>>>> kubeconfig
 
 [[projects]]
   branch = "master"
@@ -610,8 +648,12 @@
     "unix",
     "windows",
   ]
+<<<<<<< HEAD
   pruneopts = "UT"
   revision = "11f53e03133963fb11ae0588e08b5e0b85be8be5"
+=======
+  revision = "770c60269bf0ef965e9e7ac8bedcb6bca2a1cefd"
+>>>>>>> kubeconfig
 
 [[projects]]
   digest = "1:a2ab62866c75542dd18d2b069fec854577a20211d7c0ea6ae746072a1dccdd18"
@@ -732,7 +774,10 @@
   version = "kubernetes-1.13.2"
 
 [[projects]]
+<<<<<<< HEAD
   digest = "1:94a80f27cf90470bfd2a3256e46be44d5582002c66d2730856da852c4a4d4ec2"
+=======
+>>>>>>> kubeconfig
   name = "k8s.io/apimachinery"
   packages = [
     "pkg/api/errors",
@@ -781,7 +826,11 @@
   ]
   pruneopts = "UT"
   revision = "2b1284ed4c93a43499e781493253e2ac5959c4fd"
+<<<<<<< HEAD
   version = "kubernetes-1.13.2"
+=======
+  version = "kubernetes-1.13.0"
+>>>>>>> kubeconfig
 
 [[projects]]
   digest = "1:e8ecf4b943098180fa6392a89c585fa04d57d548c8b075bdfaf350fc1f237913"
@@ -875,9 +924,16 @@
     "plugin/pkg/client/auth/exec",
     "rest",
     "rest/watch",
+<<<<<<< HEAD
     "testing",
+=======
+    "tools/auth",
+>>>>>>> kubeconfig
     "tools/cache",
+    "tools/clientcmd",
     "tools/clientcmd/api",
+    "tools/clientcmd/api/latest",
+    "tools/clientcmd/api/v1",
     "tools/metrics",
     "tools/pager",
     "tools/reference",
@@ -886,6 +942,7 @@
     "util/cert",
     "util/connrotation",
     "util/flowcontrol",
+    "util/homedir",
     "util/integer",
     "util/retry",
   ]
@@ -920,6 +977,7 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
+<<<<<<< HEAD
   input-imports = [
     "github.com/Azure/go-autorest/autorest",
     "github.com/docker/distribution/reference",
@@ -953,5 +1011,8 @@
     "k8s.io/client-go/kubernetes/fake",
     "k8s.io/client-go/rest",
   ]
+=======
+  inputs-digest = "dc3d7c0fe171cbc9bc3767d6ec3098c757d8ce7bc9cc1c4303a0e20c7191cda9"
+>>>>>>> kubeconfig
   solver-name = "gps-cdcl"
   solver-version = 1

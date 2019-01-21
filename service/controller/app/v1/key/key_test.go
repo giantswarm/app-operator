@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
-	"k8s.io/apimachinery/pkg/apis/meta/v1"
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 func Test_AppName(t *testing.T) {
@@ -90,6 +90,44 @@ func Test_Namespace(t *testing.T) {
 
 	if Namespace(obj) != expectedName {
 		t.Fatalf("app namespace %s, want %s", Namespace(obj), expectedName)
+	}
+}
+
+func Test_KubeConfigSecretName(t *testing.T) {
+	expectedName := "cluster-12345-kubeconfig"
+
+	obj := v1alpha1.App{
+		Spec: v1alpha1.AppSpec{
+			KubeConfig: v1alpha1.AppSpecKubeConfig{
+				Secret: v1alpha1.AppSpecKubeConfigSecret{
+					Name:      "cluster-12345-kubeconfig",
+					Namespace: "default",
+				},
+			},
+		},
+	}
+
+	if KubeConfigSecretName(obj) != expectedName {
+		t.Fatalf("app namespace %s, want %s", KubeConfigSecretName(obj), expectedName)
+	}
+}
+
+func Test_KubeConfigSecretNamespace(t *testing.T) {
+	expectedNamespace := "default"
+
+	obj := v1alpha1.App{
+		Spec: v1alpha1.AppSpec{
+			KubeConfig: v1alpha1.AppSpecKubeConfig{
+				Secret: v1alpha1.AppSpecKubeConfigSecret{
+					Name:      "cluster-12345-kubeconfig",
+					Namespace: "default",
+				},
+			},
+		},
+	}
+
+	if KubeConfigSecretNamespace(obj) != expectedNamespace {
+		t.Fatalf("app namespace %s, want %s", KubeConfigSecretNamespace(obj), expectedNamespace)
 	}
 }
 
