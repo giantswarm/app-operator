@@ -42,11 +42,11 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		},
 		ObjectMeta: v1.ObjectMeta{
 			Name:        cr.Spec.Name,
-			Labels:      cr.GetObjectMeta().GetLabels(),
-			Annotations: cr.GetObjectMeta().GetAnnotations(),
+			Labels:      cr.ObjectMeta.Labels,
+			Annotations: cr.ObjectMeta.Annotations,
 		},
 		Spec: v1alpha1.ChartSpec{
-			Name:      cr.GetObjectMeta().GetName(),
+			Name:      cr.ObjectMeta.Name,
 			Namespace: cr.Spec.Namespace,
 			Config: v1alpha1.ChartSpecConfig{
 				ConfigMap: v1alpha1.ChartSpecConfigConfigMap{
