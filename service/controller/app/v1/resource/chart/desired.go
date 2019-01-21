@@ -13,12 +13,12 @@ import (
 )
 
 func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interface{}, error) {
-	customResource, err := key.ToCustomResource(obj)
+	cr, err := key.ToCustomResource(obj)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
 
-	catalogName := key.CatalogName(customResource)
+	catalogName := key.CatalogName(cr)
 
 	appCatalog, err := r.g8sClient.ApplicationV1alpha1().AppCatalogs("default").Get(catalogName, v1.GetOptions{})
 	if apierrors.IsNotFound(err) {
@@ -27,7 +27,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		return nil, microerror.Mask(err)
 	}
 
-	chartURL := generateCatalogURL(appCatalog.Spec.CatalogStorage.URL, customResource.Spec.Name, customResource.Spec.Release)
+	chartURL := generateCatalogURL(appCatalog.Spec.CatalogStorage.URL, cr.Spec.Name, cr.Spec.Release)
 
 	chartCR := &v1alpha1.Chart{
 		TypeMeta: v1.TypeMeta{
@@ -35,29 +35,26 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 			APIVersion: chartAPIVersion,
 		},
 		ObjectMeta: v1.ObjectMeta{
-			Name:        customResource.Spec.Name,
-			Labels:      customResource.GetObjectMeta().GetLabels(),
-			Annotations: customResource.GetObjectMeta().GetAnnotations(),
+			Name:        cr.Spec.Name,
+			Labels:      cr.GetObjectMeta().GetLabels(),
+			Annotations: cr.GetObjectMeta().GetAnnotations(),
 		},
 		Spec: v1alpha1.ChartSpec{
-			Name:       customResource.GetObjectMeta().GetName(),
-			Namespace:  customResource.Spec.Namespace,
+			Name:       cr.GetObjectMeta().GetName(),
+			Namespace:  cr.Spec.Namespace,
 			TarballURL: chartURL,
 		},
 	}
 
-	if customResource.Spec.KubeConfig != (v1alpha1.AppSpecKubeConfig{}) {
-		chartCR.Spec.KubeConfig.Secret.Name = customResource.Spec.KubeConfig.Secret.Name
-		chartCR.Spec.KubeConfig.Secret.Namespace = customResource.Spec.KubeConfig.Secret.Namespace
-	}
+	chartCR.Spec.KubeConfig.Secret.Name = cr.Spec.KubeConfig.Secret.Name
+	chartCR.Spec.KubeConfig.Secret.Namespace = cr.Spec.KubeConfig.Secret.Namespace
 
-	if customResource.Spec.Config != (v1alpha1.AppSpecConfig{}) {
-		chartCR.Spec.Config.Secret.Name = customResource.Spec.Config.Secret.Name
-		chartCR.Spec.Config.Secret.Namespace = customResource.Spec.Config.Secret.Namespace
+	chartCR.Spec.Config.Secret.Name = cr.Spec.Config.Secret.Name
+	chartCR.Spec.Config.Secret.Namespace = cr.Spec.Config.Secret.Namespace
 
-		chartCR.Spec.Config.ConfigMap.Name = customResource.Spec.Config.ConfigMap.Name
-		chartCR.Spec.Config.ConfigMap.Namespace = customResource.Spec.Config.ConfigMap.Namespace
-	}
+	chartCR.Spec.Config.ConfigMap.Name = cr.Spec.Config.ConfigMap.Name
+	chartCR.Spec.Config.ConfigMap.Namespace = cr.Spec.Config.ConfigMap.Namespace
+
 	return chartCR, nil
 }
 
