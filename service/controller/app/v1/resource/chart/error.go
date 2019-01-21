@@ -11,6 +11,15 @@ func IsInvalidConfig(err error) bool {
 	return microerror.Cause(err) == invalidConfigError
 }
 
+var failedExecution = &microerror.Error{
+	Kind: "failedExecution",
+}
+
+// IsFailedExecution asserts failedExecution
+func IsFailedExecution(err error) bool {
+	return microerror.Cause(err) == failedExecution
+}
+
 var wrongTypeError = &microerror.Error{
 	Kind: "wrongTypeError",
 }

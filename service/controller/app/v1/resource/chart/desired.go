@@ -65,6 +65,9 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 }
 
 func generateCatalogURL(baseURL string, appName string, release string) (string, error) {
+	if baseURL == "" || appName == "" || release == "" {
+		return "", microerror.Maskf(failedExecution, "baseURL(%s), appName(%s), release(%s) should not left as blank string", baseURL, appName, release)
+	}
 	u, err := url.Parse(baseURL)
 	if err != nil {
 		return "", microerror.Mask(err)

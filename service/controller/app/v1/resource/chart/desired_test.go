@@ -178,6 +178,65 @@ func TestResource_GetDesiredState(t *testing.T) {
 				},
 			},
 			errorMatcher: IsNotFound,
+		}, {
+			name: "case 2: generating catalog url failed",
+			obj: &v1alpha1.App{
+				ObjectMeta: v1.ObjectMeta{
+					Name:      "my-cool-prometheus",
+					Namespace: "default",
+					Labels: map[string]string{
+						"app":                        "prometheus",
+						"giantswarm.io/cluster":      "6iec4",
+						"giantswarm.io/organization": "giantswarm",
+						"giantswarm.io/service-type": "managed",
+					},
+					Annotations: map[string]string{
+						"giantswarm.io/managed-by":     "app-operator",
+						"giantswarm.io/version-bundle": "0.1.0",
+					},
+				},
+				Spec: v1alpha1.AppSpec{
+					Catalog: "giantswarm",
+					Release: "1.0.0",
+					Config: v1alpha1.AppSpecConfig{
+						ConfigMap: v1alpha1.AppSpecConfigConfigMap{
+							Name:      "giant-swarm-config",
+							Namespace: "giantswarm",
+						},
+						Secret: v1alpha1.AppSpecConfigSecret{
+							Name:      "giant-swarm-secret",
+							Namespace: "giantswarm",
+						},
+					},
+					KubeConfig: v1alpha1.AppSpecKubeConfig{
+						Secret: v1alpha1.AppSpecKubeConfigSecret{
+							Name:      "giantswarm-12345",
+							Namespace: "12345",
+						},
+					},
+					Name:      "kubernetes-prometheus",
+					Namespace: "monitoring",
+				},
+			},
+			appCatalog: &v1alpha1.AppCatalog{
+				ObjectMeta: v1.ObjectMeta{
+					Name:      "giantswarm",
+					Namespace: "default",
+					Labels: map[string]string{
+						"app-operator.giantswarm.io/version": "1.0.0",
+					},
+				},
+				Spec: v1alpha1.AppCatalogSpec{
+					Title:       "Giant Swarm",
+					Description: "Catalog of Apps by Giant Swarm",
+					CatalogStorage: v1alpha1.AppCatalogSpecCatalogStorage{
+						Type: "helm",
+						URL:  "", // Empty baseURL
+					},
+					LogoURL: "https://s.giantswarm.io/...",
+				},
+			},
+			errorMatcher: IsFailedExecution,
 		}}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
