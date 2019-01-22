@@ -14,6 +14,7 @@ import (
 	"github.com/giantswarm/app-operator/service/controller/app/v1/key"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/kubeconfig"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/chart"
+	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/configmap"
 )
 
 // ResourceSetConfig contains necessary dependencies and settings for
@@ -88,8 +89,30 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 	}
 
+	var configmapResource controller.Resource
+	{
+		c := configmap.Config{
+			G8sClient:      config.G8sClient,
+			K8sClient:      config.K8sClient,
+			KubeConfig:     kubeConfigService,
+			Logger:         config.Logger,
+			WatchNamespace: config.WatchNamespace,
+		}
+
+		ops, err := configmap.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		configmapResource, err = toCRUDResource(config.Logger, ops)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	resources := []controller.Resource{
 		chartResource,
+		configmapResource,
 	}
 
 	{
