@@ -2,7 +2,6 @@ package chart
 
 import (
 	"context"
-	"github.com/giantswarm/app-operator/service/controller/app/v1/kubeconfig"
 	"reflect"
 	"testing"
 
@@ -14,6 +13,7 @@ import (
 	k8sfake "k8s.io/client-go/kubernetes/fake"
 
 	"github.com/giantswarm/app-operator/service/controller/app/v1/key"
+	"github.com/giantswarm/app-operator/service/controller/app/v1/kubeconfig"
 )
 
 func TestResource_GetCurrentState(t *testing.T) {
