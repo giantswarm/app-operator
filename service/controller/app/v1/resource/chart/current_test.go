@@ -47,8 +47,8 @@ func TestResource_GetCurrentState(t *testing.T) {
 					},
 					KubeConfig: v1alpha1.AppSpecKubeConfig{
 						Secret: v1alpha1.AppSpecKubeConfigSecret{
-							Name:      "giantswarm-12345",
-							Namespace: "12345",
+							Name:      "",
+							Namespace: "",
 						},
 					},
 					Name:      "kubernetes-prometheus",
@@ -132,8 +132,8 @@ func TestResource_GetCurrentState(t *testing.T) {
 					},
 					KubeConfig: v1alpha1.AppSpecKubeConfig{
 						Secret: v1alpha1.AppSpecKubeConfigSecret{
-							Name:      "giantswarm-12345",
-							Namespace: "12345",
+							Name:      "",
+							Namespace: "",
 						},
 					},
 					Name:      "kubernetes-prometheus",
@@ -181,16 +181,10 @@ func TestResource_GetCurrentState(t *testing.T) {
 			k8sClient := k8sfake.NewSimpleClientset()
 			micrologger := microloggertest.New()
 
-			fakeKubeConfig := &FakeKubeConfig{
-				g8sClient: g8sClient,
-				k8sClient: k8sClient,
-			}
-
 			config := kubeconfig.Config{
-				G8sClient:      g8sClient,
-				K8sClient:      k8sClient,
-				Logger:         micrologger,
-				TestKubeconfig: fakeKubeConfig,
+				G8sClient: g8sClient,
+				K8sClient: k8sClient,
+				Logger:    micrologger,
 			}
 
 			kc, err := kubeconfig.New(config)

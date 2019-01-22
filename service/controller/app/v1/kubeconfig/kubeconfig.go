@@ -15,10 +15,9 @@ import (
 
 // Config represents the configuration used to create a new kubeconfig service.
 type Config struct {
-	G8sClient      versioned.Interface
-	K8sClient      kubernetes.Interface
-	Logger         micrologger.Logger
-	TestKubeconfig kubeconfiglib.Interface
+	G8sClient versioned.Interface
+	K8sClient kubernetes.Interface
+	Logger    micrologger.Logger
 }
 
 // KubeConfig service provides primitives for connecting to the Kubernetes
@@ -51,13 +50,9 @@ func New(config Config) (*KubeConfig, error) {
 			K8sClient: config.K8sClient,
 		}
 
-		if config.TestKubeconfig == nil {
-			kc, err = kubeconfiglib.New(c)
-			if err != nil {
-				return nil, microerror.Mask(err)
-			}
-		} else {
-			kc = config.TestKubeconfig
+		kc, err = kubeconfiglib.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
 		}
 	}
 
