@@ -22,7 +22,6 @@ func TestResource_GetCurrentState(t *testing.T) {
 		name          string
 		obj           *v1alpha1.App
 		returnedChart *v1alpha1.Chart
-		expectedChart *v1alpha1.Chart
 		errorMatcher  func(error) bool
 	}{
 		{
@@ -82,33 +81,6 @@ func TestResource_GetCurrentState(t *testing.T) {
 					TarballURL: "https://giantswarm.github.com/app-catalog/kubernetes-prometheus-1.0.0.tgz",
 				},
 			},
-			expectedChart: &v1alpha1.Chart{
-				TypeMeta: v1.TypeMeta{
-					Kind:       "Chart",
-					APIVersion: "application.giantswarm.io",
-				},
-				ObjectMeta: v1.ObjectMeta{
-					Name:      "kubernetes-prometheus",
-					Namespace: "default",
-				},
-				Spec: v1alpha1.ChartSpec{
-					Config: v1alpha1.ChartSpecConfig{
-						ConfigMap: v1alpha1.ChartSpecConfigConfigMap{
-							Name:            "giant-swarm-config",
-							Namespace:       "giantswarm",
-							ResourceVersion: "",
-						},
-						Secret: v1alpha1.ChartSpecConfigSecret{
-							Name:            "giant-swarm-secret",
-							Namespace:       "giantswarm",
-							ResourceVersion: "",
-						},
-					},
-					Name:       "my-cool-prometheus",
-					Namespace:  "monitoring",
-					TarballURL: "https://giantswarm.github.com/app-catalog/kubernetes-prometheus-1.0.0.tgz",
-				},
-			},
 		},
 		{
 			name: "case 1: chart not found",
@@ -140,34 +112,7 @@ func TestResource_GetCurrentState(t *testing.T) {
 					Namespace: "monitoring",
 				},
 			},
-			returnedChart: &v1alpha1.Chart{
-				TypeMeta: v1.TypeMeta{
-					Kind:       "Chart",
-					APIVersion: "application.giantswarm.io",
-				},
-				ObjectMeta: v1.ObjectMeta{
-					Name:      "kubernetes-prometheus-1",
-					Namespace: "default",
-				},
-				Spec: v1alpha1.ChartSpec{
-					Config: v1alpha1.ChartSpecConfig{
-						ConfigMap: v1alpha1.ChartSpecConfigConfigMap{
-							Name:            "giant-swarm-config",
-							Namespace:       "giantswarm",
-							ResourceVersion: "",
-						},
-						Secret: v1alpha1.ChartSpecConfigSecret{
-							Name:            "giant-swarm-secret",
-							Namespace:       "giantswarm",
-							ResourceVersion: "",
-						},
-					},
-					Name:       "my-cool-prometheus",
-					Namespace:  "monitoring",
-					TarballURL: "https://giantswarm.github.com/app-catalog/kubernetes-prometheus-1.0.0.tgz",
-				},
-			},
-			expectedChart: nil,
+			returnedChart: nil,
 		}}
 
 	for _, tc := range tests {
@@ -218,8 +163,8 @@ func TestResource_GetCurrentState(t *testing.T) {
 						t.Fatalf("error == %#v, want nil", err)
 					}
 
-					if !reflect.DeepEqual(chart, *tc.expectedChart) {
-						t.Fatalf("Chart == %#v, want %#v", chart, tc.expectedChart)
+					if !reflect.DeepEqual(chart, *tc.returnedChart) {
+						t.Fatalf("Chart == %#v, want %#v", chart, tc.returnedChart)
 					}
 				}
 			}
