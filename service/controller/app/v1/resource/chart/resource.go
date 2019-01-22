@@ -2,7 +2,6 @@ package chart
 
 import (
 	"context"
-
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
@@ -39,10 +38,6 @@ type Resource struct {
 	kubeConfig     *kubeconfig.KubeConfig
 	logger         micrologger.Logger
 	watchNamespace string
-}
-
-func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interface{}, error) {
-	return nil, nil
 }
 
 func (r *Resource) NewUpdatePatch(ctx context.Context, obj, currentState, desiredState interface{}) (*controller.Patch, error) {
