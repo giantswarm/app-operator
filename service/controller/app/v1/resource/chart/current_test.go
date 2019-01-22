@@ -186,15 +186,19 @@ func TestResource_GetCurrentState(t *testing.T) {
 				k8sClient: k8sClient,
 			}
 
+			config := kubeconfig.Config{
+				G8sClient:      g8sClient,
+				K8sClient:      k8sClient,
+				Logger:         micrologger,
+				TestKubeconfig: fakeKubeConfig,
+			}
+
+			kc, err := kubeconfig.New(config)
+
 			c := Config{
-				G8sClient: g8sClient,
-				K8sClient: k8sClient,
-				KubeConfig: &kubeconfig.KubeConfig{
-					G8sClient:  g8sClient,
-					K8sClient:  k8sClient,
-					KubeConfig: fakeKubeConfig,
-					Logger:     micrologger,
-				},
+				G8sClient:      g8sClient,
+				K8sClient:      k8sClient,
+				KubeConfig:     kc,
 				Logger:         micrologger,
 				WatchNamespace: "default",
 			}

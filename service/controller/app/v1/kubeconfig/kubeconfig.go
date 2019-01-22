@@ -15,18 +15,19 @@ import (
 
 // Config represents the configuration used to create a new kubeconfig service.
 type Config struct {
-	G8sClient versioned.Interface
-	K8sClient kubernetes.Interface
-	Logger    micrologger.Logger
+	G8sClient      versioned.Interface
+	K8sClient      kubernetes.Interface
+	Logger         micrologger.Logger
+	TestKubeconfig kubeconfiglib.Interface
 }
 
 // KubeConfig service provides primitives for connecting to the Kubernetes
 // cluster configured in the kubeconfig section of the app CR.
 type KubeConfig struct {
-	G8sClient  versioned.Interface
-	K8sClient  kubernetes.Interface
-	KubeConfig kubeconfiglib.Interface
-	Logger     micrologger.Logger
+	g8sClient  versioned.Interface
+	k8sClient  kubernetes.Interface
+	kubeConfig kubeconfiglib.Interface
+	logger     micrologger.Logger
 }
 
 // New creates a new configured kubeconfig service.
@@ -50,17 +51,21 @@ func New(config Config) (*KubeConfig, error) {
 			K8sClient: config.K8sClient,
 		}
 
-		kc, err = kubeconfiglib.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
+		if config.TestKubeconfig == nil {
+			kc, err = kubeconfiglib.New(c)
+			if err != nil {
+				return nil, microerror.Mask(err)
+			}
+		} else {
+			kc = config.TestKubeconfig
 		}
 	}
 
 	k := &KubeConfig{
-		G8sClient:  config.G8sClient,
-		K8sClient:  config.K8sClient,
-		KubeConfig: kc,
-		Logger:     config.Logger,
+		g8sClient:  config.G8sClient,
+		k8sClient:  config.K8sClient,
+		kubeConfig: kc,
+		logger:     config.Logger,
 	}
 
 	return k, nil
@@ -74,11 +79,11 @@ func (k KubeConfig) NewG8sClientForApp(ctx context.Context, customResource v1alp
 
 	// KubeConfig is not configured so connect to current cluster.
 	if secretName == "" {
-		return k.G8sClient, nil
+		return k.g8sClient, nil
 	}
 
 	secretNamespace := key.KubeConfigSecretNamespace(customResource)
-	k8sClient, err := k.KubeConfig.NewG8sClientFromSecret(ctx, secretName, secretNamespace)
+	k8sClient, err := k.kubeConfig.NewG8sClientFromSecret(ctx, secretName, secretNamespace)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
@@ -94,11 +99,11 @@ func (k KubeConfig) NewK8sClientForApp(ctx context.Context, customResource v1alp
 
 	// KubeConfig is not configured so connect to current cluster.
 	if secretName == "" {
-		return k.K8sClient, nil
+		return k.k8sClient, nil
 	}
 
 	secretNamespace := key.KubeConfigSecretNamespace(customResource)
-	k8sClient, err := k.KubeConfig.NewK8sClientFromSecret(ctx, secretName, secretNamespace)
+	k8sClient, err := k.kubeConfig.NewK8sClientFromSecret(ctx, secretName, secretNamespace)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
