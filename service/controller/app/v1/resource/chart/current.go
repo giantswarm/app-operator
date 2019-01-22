@@ -2,6 +2,7 @@ package chart
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/giantswarm/microerror"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -21,11 +22,11 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 		return nil, microerror.Mask(err)
 	}
 	chart, err := client.ApplicationV1alpha1().Charts(r.watchNamespace).Get(name, metav1.GetOptions{})
-	if err != nil {
-		if errors.IsNotFound(err) {
-			// Return early as chart is not installed.
-			return nil, nil
-		}
+
+	if errors.IsNotFound(err) {
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("did not find chart %#q", name))
+		return nil, nil
+	} else if err != nil {
 		return nil, microerror.Mask(err)
 	}
 
