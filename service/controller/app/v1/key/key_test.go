@@ -18,7 +18,7 @@ func Test_AppName(t *testing.T) {
 	}
 
 	if AppName(obj) != expectedName {
-		t.Fatalf("app name %s, want %s", AppName(obj), expectedName)
+		t.Fatalf("app name %#q, want %#q", AppName(obj), expectedName)
 	}
 }
 
@@ -33,7 +33,7 @@ func Test_CatalogName(t *testing.T) {
 	}
 
 	if CatalogName(obj) != expectedName {
-		t.Fatalf("catalog name %s, want %s", CatalogName(obj), expectedName)
+		t.Fatalf("catalog name %#q, want %#q", CatalogName(obj), expectedName)
 	}
 }
 
@@ -53,7 +53,7 @@ func Test_ConfigMapName(t *testing.T) {
 	}
 
 	if ConfigMapName(obj) != expectedName {
-		t.Fatalf("configMap name %s, want %s", ConfigMapName(obj), expectedName)
+		t.Fatalf("configMap name %#q, want %#q", ConfigMapName(obj), expectedName)
 	}
 }
 
@@ -74,7 +74,7 @@ func Test_ConfigMapNamespace(t *testing.T) {
 	}
 
 	if ConfigMapNamespace(obj) != expectedName {
-		t.Fatalf("configMap namespace %s, want %s", ConfigMapNamespace(obj), expectedName)
+		t.Fatalf("configMap namespace %#q, want %#q", ConfigMapNamespace(obj), expectedName)
 	}
 }
 
@@ -89,7 +89,7 @@ func Test_Namespace(t *testing.T) {
 	}
 
 	if Namespace(obj) != expectedName {
-		t.Fatalf("app namespace %s, want %s", Namespace(obj), expectedName)
+		t.Fatalf("app namespace %#q, want %#q", Namespace(obj), expectedName)
 	}
 }
 
@@ -108,7 +108,7 @@ func Test_KubeConfigSecretName(t *testing.T) {
 	}
 
 	if KubeConfigSecretName(obj) != expectedName {
-		t.Fatalf("app namespace %s, want %s", KubeConfigSecretName(obj), expectedName)
+		t.Fatalf("app kubeconfig secret name %#q, want %#q", KubeConfigSecretName(obj), expectedName)
 	}
 }
 
@@ -127,7 +127,7 @@ func Test_KubeConfigSecretNamespace(t *testing.T) {
 	}
 
 	if KubeConfigSecretNamespace(obj) != expectedNamespace {
-		t.Fatalf("app namespace %s, want %s", KubeConfigSecretNamespace(obj), expectedNamespace)
+		t.Fatalf("app kubeconfig secret namespace %#q, want %#q", KubeConfigSecretNamespace(obj), expectedNamespace)
 	}
 }
 
@@ -143,7 +143,7 @@ func Test_ReleaseName(t *testing.T) {
 	}
 
 	if ReleaseName(obj) != expectedName {
-		t.Fatalf("app release %s, want %s", ReleaseName(obj), expectedName)
+		t.Fatalf("app release %#q, want %#q", ReleaseName(obj), expectedName)
 	}
 }
 
@@ -163,7 +163,7 @@ func Test_SecretName(t *testing.T) {
 	}
 
 	if SecretName(obj) != expectedName {
-		t.Fatalf("secret name %s, want %s", SecretName(obj), expectedName)
+		t.Fatalf("secret name %#q, want %#q", SecretName(obj), expectedName)
 	}
 }
 
@@ -183,7 +183,7 @@ func Test_SecretNamespace(t *testing.T) {
 	}
 
 	if SecretNamespace(obj) != expectedName {
-		t.Fatalf("secret namespace %s, want %s", SecretNamespace(obj), expectedName)
+		t.Fatalf("secret namespace %#q, want %#q", SecretNamespace(obj), expectedName)
 	}
 }
 
