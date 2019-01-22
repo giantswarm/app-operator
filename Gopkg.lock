@@ -63,7 +63,7 @@
   version = "v1.4.7"
 
 [[projects]]
-  branch = "master"
+  branch = "appcatalog-config"
   name = "github.com/giantswarm/apiextensions"
   packages = [
     "pkg/apis/application/v1alpha1",
@@ -82,7 +82,7 @@
     "pkg/clientset/versioned/typed/provider/v1alpha1",
     "pkg/clientset/versioned/typed/provider/v1alpha1/fake"
   ]
-  revision = "452d2fb9f8222ebd7a8f1777e6aee4ef4218f5b8"
+  revision = "062ba6e5621034065f50ea337205e0148e623098"
 
 [[projects]]
   branch = "master"
@@ -789,6 +789,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "de30b310d0bd7b9a04a194d17e6982a605ea994058e4112735d19132e760545a"
+  inputs-digest = "72bc240d6b5b9aaa24215b61688961bade68b2f30539cb0a1e151040e1e44797"
   solver-name = "gps-cdcl"
   solver-version = 1

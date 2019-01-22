@@ -44,8 +44,8 @@ required = [
   branch = "master"
   name = "github.com/docker/distribution"
 
-[[constraint]]
-  branch = "master"
+[[override]]
+  branch = "appcatalog-config"
   name = "github.com/giantswarm/apiextensions"
 
 [[constraint]]

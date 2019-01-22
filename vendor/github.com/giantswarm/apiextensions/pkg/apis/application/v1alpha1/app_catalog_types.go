@@ -60,6 +60,9 @@ type AppCatalogSpec struct {
 	// CatalogStorage references a map containing values that should be
 	// applied to the appcatalog.
 	CatalogStorage AppCatalogSpecCatalogStorage `json:"catalogStorage" yaml:"catalogStorage"`
+	// Config is the config to be applied when apps belonging to this
+	// catalog are deployed.
+	Config AppCatalogSpecConfig `json:"config" yaml:"config"`
 	// LogoURL contains the links for logo image file for this app catalog
 	LogoURL string `json:"logoURL" yaml:"logoURL"`
 }
@@ -71,6 +74,33 @@ type AppCatalogSpecCatalogStorage struct {
 	// URL is the link to where this AppCatalog's repository is located
 	// e.g. https://giantswarm.github.com/app-catalog/.
 	URL string `json:"URL" yaml:"URL"`
+}
+
+type AppCatalogSpecConfig struct {
+	// ConfigMap references a config map containing catalog values that
+	// should be applied to apps in this catalog.
+	ConfigMap AppCatalogSpecConfigConfigMap `json:"configMap" yaml:"configMap"`
+	// Secret references a secret containing catalog values that should be
+	// applied to apps in this catalog.
+	Secret AppCatalogSpecConfigSecret `json:"secret" yaml:"secret"`
+}
+
+type AppCatalogSpecConfigConfigMap struct {
+	// Name is the name of the config map containing catalog values to
+	// apply, e.g. app-catalog-values.
+	Name string `json:"name" yaml:"name"`
+	// Namespace is the namespace of the catalog values config map,
+	// e.g. giantswarm.
+	Namespace string `json:"namespace" yaml:"namespace"`
+}
+
+type AppCatalogSpecConfigSecret struct {
+	// Name is the name of the secret containing catalog values to apply,
+	// e.g. app-catalog-secret.
+	Name string `json:"name" yaml:"name"`
+	// Namespace is the namespace of the secret,
+	// e.g. giantswarm.
+	Namespace string `json:"namespace" yaml:"namespace"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
