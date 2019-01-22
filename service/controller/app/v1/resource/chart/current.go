@@ -2,11 +2,11 @@ package chart
 
 import (
 	"context"
-	"fmt"
-	"github.com/giantswarm/app-operator/service/controller/app/v1/key"
 	"github.com/giantswarm/microerror"
 	"k8s.io/apimachinery/pkg/api/errors"
-	"k8s.io/apimachinery/pkg/apis/meta/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
+	"github.com/giantswarm/app-operator/service/controller/app/v1/key"
 )
 
 func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interface{}, error) {
@@ -15,10 +15,10 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 		return nil, microerror.Mask(err)
 	}
 	name := key.AppName(customResource)
-	chart, err := r.g8sClient.ApplicationV1alpha1().Charts(r.watchNamespace).Get(name, v1.GetOptions{})
+	chart, err := r.g8sClient.ApplicationV1alpha1().Charts(r.watchNamespace).Get(name, metav1.GetOptions{})
 	if err != nil {
 		if errors.IsNotFound(err) {
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("chart %#q is not created yet", name))
+			// Return early as chart is not installed.
 			return nil, nil
 		}
 		return nil, microerror.Mask(err)
