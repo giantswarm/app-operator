@@ -25,6 +25,14 @@ func ConfigMapNamespace(customResource v1alpha1.App) string {
 	return customResource.Spec.Config.ConfigMap.Namespace
 }
 
+func KubeConfigSecretName(customResource v1alpha1.App) string {
+	return customResource.Spec.KubeConfig.Secret.Name
+}
+
+func KubeConfigSecretNamespace(customResource v1alpha1.App) string {
+	return customResource.Spec.KubeConfig.Secret.Namespace
+}
+
 func Namespace(customResource v1alpha1.App) string {
 	return customResource.Spec.Namespace
 }

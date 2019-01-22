@@ -8,6 +8,8 @@ import (
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/controller"
 	"k8s.io/client-go/kubernetes"
+
+	"github.com/giantswarm/app-operator/service/controller/app/v1/kubeconfig"
 )
 
 const (
@@ -24,6 +26,7 @@ type Config struct {
 	// Dependencies.
 	G8sClient      versioned.Interface
 	K8sClient      kubernetes.Interface
+	KubeConfig     *kubeconfig.KubeConfig
 	Logger         micrologger.Logger
 	WatchNamespace string
 }
@@ -33,6 +36,7 @@ type Resource struct {
 	// Dependencies.
 	g8sClient      versioned.Interface
 	k8sClient      kubernetes.Interface
+	kubeConfig     *kubeconfig.KubeConfig
 	logger         micrologger.Logger
 	watchNamespace string
 }
@@ -88,6 +92,9 @@ func New(config Config) (*Resource, error) {
 	}
 	if config.K8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
+	}
+	if config.KubeConfig == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.KubeConfig must not be empty", config)
 	}
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
