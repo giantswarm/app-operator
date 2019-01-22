@@ -2,6 +2,7 @@ package chart
 
 import (
 	"context"
+	"github.com/giantswarm/app-operator/service/controller/app/v1/kubeconfig"
 	"reflect"
 	"testing"
 
@@ -20,7 +21,7 @@ func TestResource_GetCurrentState(t *testing.T) {
 	tests := []struct {
 		name          string
 		obj           *v1alpha1.App
-		returnChart   *v1alpha1.Chart
+		returnedChart *v1alpha1.Chart
 		expectedChart *v1alpha1.Chart
 		errorMatcher  func(error) bool
 	}{
@@ -30,16 +31,6 @@ func TestResource_GetCurrentState(t *testing.T) {
 				ObjectMeta: v1.ObjectMeta{
 					Name:      "my-cool-prometheus",
 					Namespace: "default",
-					Labels: map[string]string{
-						"app":                        "prometheus",
-						"giantswarm.io/cluster":      "6iec4",
-						"giantswarm.io/organization": "giantswarm",
-						"giantswarm.io/service-type": "managed",
-					},
-					Annotations: map[string]string{
-						"giantswarm.io/managed-by":     "app-operator",
-						"giantswarm.io/version-bundle": "0.1.0",
-					},
 				},
 				Spec: v1alpha1.AppSpec{
 					Catalog: "giantswarm",
@@ -64,7 +55,7 @@ func TestResource_GetCurrentState(t *testing.T) {
 					Namespace: "monitoring",
 				},
 			},
-			returnChart: &v1alpha1.Chart{
+			returnedChart: &v1alpha1.Chart{
 				TypeMeta: v1.TypeMeta{
 					Kind:       "Chart",
 					APIVersion: "application.giantswarm.io",
@@ -72,16 +63,6 @@ func TestResource_GetCurrentState(t *testing.T) {
 				ObjectMeta: v1.ObjectMeta{
 					Name:      "kubernetes-prometheus",
 					Namespace: "default",
-					Labels: map[string]string{
-						"app":                        "prometheus",
-						"giantswarm.io/cluster":      "6iec4",
-						"giantswarm.io/organization": "giantswarm",
-						"giantswarm.io/service-type": "managed",
-					},
-					Annotations: map[string]string{
-						"giantswarm.io/managed-by":     "app-operator",
-						"giantswarm.io/version-bundle": "0.1.0",
-					},
 				},
 				Spec: v1alpha1.ChartSpec{
 					Config: v1alpha1.ChartSpecConfig{
@@ -109,16 +90,6 @@ func TestResource_GetCurrentState(t *testing.T) {
 				ObjectMeta: v1.ObjectMeta{
 					Name:      "kubernetes-prometheus",
 					Namespace: "default",
-					Labels: map[string]string{
-						"app":                        "prometheus",
-						"giantswarm.io/cluster":      "6iec4",
-						"giantswarm.io/organization": "giantswarm",
-						"giantswarm.io/service-type": "managed",
-					},
-					Annotations: map[string]string{
-						"giantswarm.io/managed-by":     "app-operator",
-						"giantswarm.io/version-bundle": "0.1.0",
-					},
 				},
 				Spec: v1alpha1.ChartSpec{
 					Config: v1alpha1.ChartSpecConfig{
@@ -140,21 +111,11 @@ func TestResource_GetCurrentState(t *testing.T) {
 			},
 		},
 		{
-			name: "case 0: chart not found",
+			name: "case 1: chart not found",
 			obj: &v1alpha1.App{
 				ObjectMeta: v1.ObjectMeta{
 					Name:      "my-cool-prometheus",
 					Namespace: "default",
-					Labels: map[string]string{
-						"app":                        "prometheus",
-						"giantswarm.io/cluster":      "6iec4",
-						"giantswarm.io/organization": "giantswarm",
-						"giantswarm.io/service-type": "managed",
-					},
-					Annotations: map[string]string{
-						"giantswarm.io/managed-by":     "app-operator",
-						"giantswarm.io/version-bundle": "0.1.0",
-					},
 				},
 				Spec: v1alpha1.AppSpec{
 					Catalog: "giantswarm",
@@ -179,7 +140,7 @@ func TestResource_GetCurrentState(t *testing.T) {
 					Namespace: "monitoring",
 				},
 			},
-			returnChart: &v1alpha1.Chart{
+			returnedChart: &v1alpha1.Chart{
 				TypeMeta: v1.TypeMeta{
 					Kind:       "Chart",
 					APIVersion: "application.giantswarm.io",
@@ -187,16 +148,6 @@ func TestResource_GetCurrentState(t *testing.T) {
 				ObjectMeta: v1.ObjectMeta{
 					Name:      "kubernetes-prometheus-1",
 					Namespace: "default",
-					Labels: map[string]string{
-						"app":                        "prometheus",
-						"giantswarm.io/cluster":      "6iec4",
-						"giantswarm.io/organization": "giantswarm",
-						"giantswarm.io/service-type": "managed",
-					},
-					Annotations: map[string]string{
-						"giantswarm.io/managed-by":     "app-operator",
-						"giantswarm.io/version-bundle": "0.1.0",
-					},
 				},
 				Spec: v1alpha1.ChartSpec{
 					Config: v1alpha1.ChartSpecConfig{
@@ -222,13 +173,29 @@ func TestResource_GetCurrentState(t *testing.T) {
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
 			objs := make([]runtime.Object, 0, 0)
-			if tc.returnChart != nil {
-				objs = append(objs, tc.returnChart)
+			if tc.returnedChart != nil {
+				objs = append(objs, tc.returnedChart)
 			}
+
+			g8sClient := fake.NewSimpleClientset(objs...)
+			k8sClient := k8sfake.NewSimpleClientset()
+			micrologger := microloggertest.New()
+
+			fakeKubeConfig := &FakeKubeConfig{
+				g8sClient: g8sClient,
+				k8sClient: k8sClient,
+			}
+
 			c := Config{
-				G8sClient:      fake.NewSimpleClientset(objs...),
-				K8sClient:      k8sfake.NewSimpleClientset(),
-				Logger:         microloggertest.New(),
+				G8sClient: g8sClient,
+				K8sClient: k8sClient,
+				KubeConfig: &kubeconfig.KubeConfig{
+					G8sClient:  g8sClient,
+					K8sClient:  k8sClient,
+					KubeConfig: fakeKubeConfig,
+					Logger:     micrologger,
+				},
+				Logger:         micrologger,
 				WatchNamespace: "default",
 			}
 			r, err := New(c)

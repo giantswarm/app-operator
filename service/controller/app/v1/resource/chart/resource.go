@@ -104,6 +104,7 @@ func New(config Config) (*Resource, error) {
 		k8sClient:      config.K8sClient,
 		logger:         config.Logger,
 		watchNamespace: config.WatchNamespace,
+		kubeConfig:     config.KubeConfig,
 	}
 
 	return r, nil
