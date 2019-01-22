@@ -9,7 +9,7 @@ import (
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/microerror"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
-	"k8s.io/apimachinery/pkg/apis/meta/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/giantswarm/app-operator/service/controller/app/v1/key"
 	appcatalogkey "github.com/giantswarm/app-operator/service/controller/appcatalog/v1/key"
@@ -23,9 +23,9 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 
 	catalogName := key.CatalogName(cr)
 
-	appCatalog, err := r.g8sClient.ApplicationV1alpha1().AppCatalogs(r.watchNamespace).Get(catalogName, v1.GetOptions{})
+	appCatalog, err := r.g8sClient.ApplicationV1alpha1().AppCatalogs(r.watchNamespace).Get(catalogName, metav1.GetOptions{})
 	if apierrors.IsNotFound(err) {
-		return nil, microerror.Maskf(notFoundError, "appCatalog %#q in namespace %#q", catalogName, "default")
+		return nil, microerror.Maskf(notFoundError, "appCatalog %#q in namespace %#q", catalogName, r.watchNamespace)
 	} else if err != nil {
 		return nil, microerror.Mask(err)
 	}
@@ -36,11 +36,11 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 	}
 
 	chartCR := &v1alpha1.Chart{
-		TypeMeta: v1.TypeMeta{
+		TypeMeta: metav1.TypeMeta{
 			Kind:       chartKind,
 			APIVersion: chartAPIVersion,
 		},
-		ObjectMeta: v1.ObjectMeta{
+		ObjectMeta: metav1.ObjectMeta{
 			Name:        cr.Spec.Name,
 			Labels:      cr.ObjectMeta.Labels,
 			Annotations: cr.ObjectMeta.Annotations,
