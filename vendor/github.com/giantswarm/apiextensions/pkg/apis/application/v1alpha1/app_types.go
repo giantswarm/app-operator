@@ -82,11 +82,11 @@ type AppSpec struct {
 	// Namespace is the namespace where the app should be deployed.
 	// e.g. monitoring
 	Namespace string `json:"namespace" yaml:"namespace"`
-	// Release is the version of the app that should be deployed.
-	// e.g. 1.0.0
-	Release string `json:"release" yaml:"release"`
 	// UserConfig is the user config to be applied when the app is deployed.
 	UserConfig AppSpecConfig `json:"userConfig" yaml:"userConfig"`
+	// Version is the version of the app that should be deployed.
+	// e.g. 1.0.0
+	Version string `json:"version" yaml:"version"`
 }
 
 type AppSpecConfig struct {
