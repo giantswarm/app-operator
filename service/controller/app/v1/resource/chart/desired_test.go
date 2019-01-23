@@ -43,8 +43,10 @@ func TestResource_GetDesiredState(t *testing.T) {
 					},
 				},
 				Spec: v1alpha1.AppSpec{
-					Catalog: "giantswarm",
-					Release: "1.0.0",
+					Catalog:   "giantswarm",
+					Name:      "kubernetes-prometheus",
+					Namespace: "monitoring",
+					Version:   "1.0.0",
 					Config: v1alpha1.AppSpecConfig{
 						ConfigMap: v1alpha1.AppSpecConfigConfigMap{
 							Name:      "giant-swarm-config",
@@ -61,8 +63,6 @@ func TestResource_GetDesiredState(t *testing.T) {
 							Namespace: "12345",
 						},
 					},
-					Name:      "kubernetes-prometheus",
-					Namespace: "monitoring",
 				},
 			},
 			appCatalog: &v1alpha1.AppCatalog{
@@ -138,8 +138,10 @@ func TestResource_GetDesiredState(t *testing.T) {
 					},
 				},
 				Spec: v1alpha1.AppSpec{
-					Catalog: "giantswarm",
-					Release: "1.0.0",
+					Catalog:   "giantswarm",
+					Name:      "kubernetes-prometheus",
+					Namespace: "monitoring",
+					Version:   "1.0.0",
 					Config: v1alpha1.AppSpecConfig{
 						ConfigMap: v1alpha1.AppSpecConfigConfigMap{
 							Name:      "giant-swarm-config",
@@ -156,8 +158,6 @@ func TestResource_GetDesiredState(t *testing.T) {
 							Namespace: "12345",
 						},
 					},
-					Name:      "kubernetes-prometheus",
-					Namespace: "monitoring",
 				},
 			},
 			appCatalog: &v1alpha1.AppCatalog{
@@ -198,8 +198,10 @@ func TestResource_GetDesiredState(t *testing.T) {
 					},
 				},
 				Spec: v1alpha1.AppSpec{
-					Catalog: "giantswarm",
-					Release: "1.0.0",
+					Catalog:   "giantswarm",
+					Name:      "kubernetes-prometheus",
+					Namespace: "monitoring",
+					Version:   "1.0.0",
 					Config: v1alpha1.AppSpecConfig{
 						ConfigMap: v1alpha1.AppSpecConfigConfigMap{
 							Name:      "giant-swarm-config",
@@ -216,8 +218,6 @@ func TestResource_GetDesiredState(t *testing.T) {
 							Namespace: "12345",
 						},
 					},
-					Name:      "kubernetes-prometheus",
-					Namespace: "monitoring",
 				},
 			},
 			appCatalog: &v1alpha1.AppCatalog{

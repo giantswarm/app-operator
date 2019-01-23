@@ -30,7 +30,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		return nil, microerror.Mask(err)
 	}
 
-	tarballURL, err := generateTarballURL(appcatalogkey.CatalogStorageURL(*appCatalog), key.AppName(cr), key.ReleaseName(cr))
+	tarballURL, err := generateTarballURL(appcatalogkey.CatalogStorageURL(*appCatalog), key.AppName(cr), key.Version(cr))
 	if err != nil {
 		return nil, err
 	}
@@ -65,14 +65,14 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 	return chartCR, nil
 }
 
-func generateTarballURL(baseURL string, appName string, release string) (string, error) {
-	if baseURL == "" || appName == "" || release == "" {
-		return "", microerror.Maskf(failedExecution, "baseURL %#q, appName %#q, release %#q should not be empty", baseURL, appName, release)
+func generateTarballURL(baseURL string, appName string, version string) (string, error) {
+	if baseURL == "" || appName == "" || version == "" {
+		return "", microerror.Maskf(failedExecution, "baseURL %#q, appName %#q, release %#q should not be empty", baseURL, appName, version)
 	}
 	u, err := url.Parse(baseURL)
 	if err != nil {
 		return "", microerror.Mask(err)
 	}
-	u.Path = path.Join(u.Path, fmt.Sprintf("%s-%s.tgz", appName, release))
+	u.Path = path.Join(u.Path, fmt.Sprintf("%s-%s.tgz", appName, version))
 	return u.String(), nil
 }

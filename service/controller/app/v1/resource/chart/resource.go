@@ -41,10 +41,6 @@ type Resource struct {
 	watchNamespace string
 }
 
-func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interface{}, error) {
-	return nil, nil
-}
-
 func (r *Resource) NewUpdatePatch(ctx context.Context, obj, currentState, desiredState interface{}) (*controller.Patch, error) {
 	/*patch := controller.NewPatch()
 	patch.SetCreateChange(desiredState)
@@ -106,6 +102,7 @@ func New(config Config) (*Resource, error) {
 	r := &Resource{
 		// Dependencies.
 		g8sClient:      config.G8sClient,
+		kubeConfig:     config.KubeConfig,
 		k8sClient:      config.K8sClient,
 		logger:         config.Logger,
 		watchNamespace: config.WatchNamespace,
