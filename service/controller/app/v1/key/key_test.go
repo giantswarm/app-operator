@@ -131,22 +131,6 @@ func Test_KubeConfigSecretNamespace(t *testing.T) {
 	}
 }
 
-func Test_ReleaseName(t *testing.T) {
-	expectedName := "giant-swarm-release"
-
-	obj := v1alpha1.App{
-		Spec: v1alpha1.AppSpec{
-			Name:      "giant-swarm-name",
-			Namespace: "giant-swarm-namespace",
-			Release:   "giant-swarm-release",
-		},
-	}
-
-	if ReleaseName(obj) != expectedName {
-		t.Fatalf("app release %#q, want %#q", ReleaseName(obj), expectedName)
-	}
-}
-
 func Test_SecretName(t *testing.T) {
 	expectedName := "giant-swarm-secret-name"
 
@@ -200,14 +184,14 @@ func Test_ToCustomResource(t *testing.T) {
 				Spec: v1alpha1.AppSpec{
 					Name:      "giant-swarm-name",
 					Namespace: "giant-swarm-namespace",
-					Release:   "giant-swarm-release",
+					Version:   "1.2.3",
 				},
 			},
 			expectedObject: v1alpha1.App{
 				Spec: v1alpha1.AppSpec{
 					Name:      "giant-swarm-name",
 					Namespace: "giant-swarm-namespace",
-					Release:   "giant-swarm-release",
+					Version:   "1.2.3",
 				},
 			},
 		},
@@ -234,6 +218,22 @@ func Test_ToCustomResource(t *testing.T) {
 				t.Fatalf("Custom Object == %#v, want %#v", result, tc.expectedObject)
 			}
 		})
+	}
+}
+
+func Test_Version(t *testing.T) {
+	expectedVersion := "1.2.3"
+
+	obj := v1alpha1.App{
+		Spec: v1alpha1.AppSpec{
+			Name:      "prometheus",
+			Namespace: "monitoring",
+			Version:   "1.2.3",
+		},
+	}
+
+	if Version(obj) != expectedVersion {
+		t.Fatalf("app version %#q, want %#q", Version(obj), expectedVersion)
 	}
 }
 
