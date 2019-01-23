@@ -16,12 +16,14 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
+
 	name := key.AppName(customResource)
-	client, err := r.kubeConfig.NewG8sClientForApp(ctx, customResource)
+	g8sClient, err := r.kubeConfig.NewG8sClientForApp(ctx, customResource)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
-	chart, err := client.ApplicationV1alpha1().Charts(r.watchNamespace).Get(name, metav1.GetOptions{})
+
+	chart, err := g8sClient.ApplicationV1alpha1().Charts(r.watchNamespace).Get(name, metav1.GetOptions{})
 	if errors.IsNotFound(err) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("did not find chart %#q", name))
 		return nil, nil
