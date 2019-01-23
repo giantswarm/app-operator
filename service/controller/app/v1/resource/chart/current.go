@@ -12,13 +12,13 @@ import (
 )
 
 func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interface{}, error) {
-	customResource, err := key.ToCustomResource(obj)
+	cr, err := key.ToCustomResource(obj)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
 
-	name := key.AppName(customResource)
-	g8sClient, err := r.kubeConfig.NewG8sClientForApp(ctx, customResource)
+	name := key.AppName(cr)
+	g8sClient, err := r.kubeConfig.NewG8sClientForApp(ctx, cr)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
