@@ -8,7 +8,7 @@ import (
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned/fake"
 	"github.com/giantswarm/micrologger/microloggertest"
-	"k8s.io/apimachinery/pkg/apis/meta/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	k8sfake "k8s.io/client-go/kubernetes/fake"
 
@@ -27,7 +27,7 @@ func TestResource_GetCurrentState(t *testing.T) {
 		{
 			name: "case 0: chart already created",
 			obj: &v1alpha1.App{
-				ObjectMeta: v1.ObjectMeta{
+				ObjectMeta: metav1.ObjectMeta{
 					Name:      "my-cool-prometheus",
 					Namespace: "default",
 				},
@@ -55,11 +55,11 @@ func TestResource_GetCurrentState(t *testing.T) {
 				},
 			},
 			returnedChart: &v1alpha1.Chart{
-				TypeMeta: v1.TypeMeta{
+				TypeMeta: metav1.TypeMeta{
 					Kind:       "Chart",
 					APIVersion: "application.giantswarm.io",
 				},
-				ObjectMeta: v1.ObjectMeta{
+				ObjectMeta: metav1.ObjectMeta{
 					Name:      "kubernetes-prometheus",
 					Namespace: "default",
 				},
@@ -85,7 +85,7 @@ func TestResource_GetCurrentState(t *testing.T) {
 		{
 			name: "case 1: chart not found",
 			obj: &v1alpha1.App{
-				ObjectMeta: v1.ObjectMeta{
+				ObjectMeta: metav1.ObjectMeta{
 					Name:      "my-cool-prometheus",
 					Namespace: "default",
 				},
