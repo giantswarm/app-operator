@@ -44,7 +44,7 @@ func TestResource_GetDesiredState(t *testing.T) {
 				},
 				Spec: v1alpha1.AppSpec{
 					Catalog: "giantswarm",
-					Release: "1.0.0",
+					Version: "1.0.0",
 					Config: v1alpha1.AppSpecConfig{
 						ConfigMap: v1alpha1.AppSpecConfigConfigMap{
 							Name:      "giant-swarm-config",
@@ -139,7 +139,7 @@ func TestResource_GetDesiredState(t *testing.T) {
 				},
 				Spec: v1alpha1.AppSpec{
 					Catalog: "giantswarm",
-					Release: "1.0.0",
+					Version: "1.0.0",
 					Config: v1alpha1.AppSpecConfig{
 						ConfigMap: v1alpha1.AppSpecConfigConfigMap{
 							Name:      "giant-swarm-config",
@@ -199,7 +199,7 @@ func TestResource_GetDesiredState(t *testing.T) {
 				},
 				Spec: v1alpha1.AppSpec{
 					Catalog: "giantswarm",
-					Release: "1.0.0",
+					Version: "1.0.0",
 					Config: v1alpha1.AppSpecConfig{
 						ConfigMap: v1alpha1.AppSpecConfigConfigMap{
 							Name:      "giant-swarm-config",

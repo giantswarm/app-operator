@@ -37,10 +37,6 @@ func Namespace(customResource v1alpha1.App) string {
 	return customResource.Spec.Namespace
 }
 
-func ReleaseName(customResource v1alpha1.App) string {
-	return customResource.Spec.Release
-}
-
 func SecretName(customResource v1alpha1.App) string {
 	return customResource.Spec.Config.Secret.Name
 }
@@ -75,6 +71,10 @@ func ToChart(v interface{}) (v1alpha1.Chart, error) {
 	}
 
 	return *customResource, nil
+}
+
+func Version(customResource v1alpha1.App) string {
+	return customResource.Spec.Version
 }
 
 func VersionBundleVersion(customResource v1alpha1.App) string {
