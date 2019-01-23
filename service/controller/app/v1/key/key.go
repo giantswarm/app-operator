@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	versionBundleAnnotation = "giantswarm.io/version-bundle"
+	versionLabel = "app-operator.giantswarm.io/version"
 )
 
 func AppName(customResource v1alpha1.App) string {
@@ -77,8 +77,8 @@ func Version(customResource v1alpha1.App) string {
 	return customResource.Spec.Version
 }
 
-func VersionBundleVersion(customResource v1alpha1.App) string {
-	if val, ok := customResource.ObjectMeta.Annotations[versionBundleAnnotation]; ok {
+func VersionLabel(customResource v1alpha1.App) string {
+	if val, ok := customResource.ObjectMeta.Labels[versionLabel]; ok {
 		return val
 	} else {
 		return ""

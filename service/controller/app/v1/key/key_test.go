@@ -237,43 +237,59 @@ func Test_Version(t *testing.T) {
 	}
 }
 
-func TestVersionBundleVersion(t *testing.T) {
+func Test_VersionLabel(t *testing.T) {
 	testCases := []struct {
-		name           string
-		input          v1alpha1.App
-		expectedObject string
-		errorMatcher   func(error) bool
+		name            string
+		obj             v1alpha1.App
+		expectedVersion string
+		errorMatcher    func(error) bool
 	}{
 		{
 			name: "case 0: basic match",
-			input: v1alpha1.App{
+			obj: v1alpha1.App{
 				ObjectMeta: metav1.ObjectMeta{
-					Annotations: map[string]string{
-						"giantswarm.io/version-bundle": "0.1.0",
+					Labels: map[string]string{
+						"app-operator.giantswarm.io/version": "1.0.0",
 					},
 				},
 			},
-			expectedObject: "0.1.0",
+			expectedVersion: "1.0.0",
 		},
 		{
-			name: "case 1: can't find key",
-			input: v1alpha1.App{
+			name: "case 1: different value",
+			obj: v1alpha1.App{
 				ObjectMeta: metav1.ObjectMeta{
-					Annotations: map[string]string{
-						"giantswarm.io/version": "",
+					Labels: map[string]string{
+						"app-operator.giantswarm.io/version": "2.0.0",
 					},
 				},
 			},
-			expectedObject: "",
+			expectedVersion: "2.0.0",
+		},
+		{
+			name: "case 2: incorrect label",
+			obj: v1alpha1.App{
+				ObjectMeta: metav1.ObjectMeta{
+					Labels: map[string]string{
+						"chart-operator.giantswarm.io/version": "1.0.0",
+					},
+				},
+			},
+			expectedVersion: "",
+		},
+		{
+			name:            "case 3: no labels",
+			obj:             v1alpha1.App{},
+			expectedVersion: "",
 		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			result := VersionBundleVersion(tc.input)
+			result := VersionLabel(tc.obj)
 
-			if !reflect.DeepEqual(result, tc.expectedObject) {
-				t.Fatalf("version == %#v, want %#v", result, tc.expectedObject)
+			if !reflect.DeepEqual(result, tc.expectedVersion) {
+				t.Fatalf("Version label == %#v, want %#v", result, tc.expectedVersion)
 			}
 		})
 	}
