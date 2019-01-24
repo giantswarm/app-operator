@@ -78,7 +78,7 @@ func Version(customResource v1alpha1.App) string {
 // VersionLabel returns the label value to determine if the custom resource is
 // supported by this version of the operatorkit resource.
 func VersionLabel(customResource v1alpha1.App) string {
-	if val, ok := customResource.ObjectMeta.Labels[label.Version]; ok {
+	if val, ok := customResource.ObjectMeta.Labels[label.AppOperatorVersion]; ok {
 		return val
 	} else {
 		return ""
