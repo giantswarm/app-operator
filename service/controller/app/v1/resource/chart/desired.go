@@ -85,7 +85,7 @@ func processLabels(projectName string, inputLabels map[string]string) map[string
 	}
 
 	for k, v := range inputLabels {
-		if k != label.ManagedBy && k != label.Version {
+		if k != label.ManagedBy && k != label.AppOperatorVersion {
 			labels[k] = v
 		}
 	}
