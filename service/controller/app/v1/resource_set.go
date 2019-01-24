@@ -70,12 +70,10 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	var chartResource controller.Resource
 	{
 		c := chart.Config{
-			G8sClient:  config.G8sClient,
-			K8sClient:  config.K8sClient,
-			KubeConfig: kubeConfigService,
-			Logger:     config.Logger,
-
-			ProjectName:    config.ProjectName,
+			G8sClient:      config.G8sClient,
+			K8sClient:      config.K8sClient,
+			KubeConfig:     kubeConfigService,
+			Logger:         config.Logger,
 			WatchNamespace: config.WatchNamespace,
 		}
 
