@@ -21,7 +21,6 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 	}
 
 	_, err = r.g8sClient.ApplicationV1alpha1().Charts(app.Namespace).Create(&chart)
-
 	if err != nil {
 		return microerror.Mask(err)
 	}
