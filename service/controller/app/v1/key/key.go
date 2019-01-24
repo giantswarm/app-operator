@@ -59,13 +59,12 @@ func ToCustomResource(v interface{}) (v1alpha1.App, error) {
 }
 
 func ToChart(v interface{}) (v1alpha1.Chart, error) {
+	if v == nil {
+		return v1alpha1.Chart{}, nil
+	}
 	customResource, ok := v.(*v1alpha1.Chart)
 	if !ok {
 		return v1alpha1.Chart{}, microerror.Maskf(wrongTypeError, "expected '%T', got '%T'", &v1alpha1.Chart{}, v)
-	}
-
-	if customResource == nil {
-		return v1alpha1.Chart{}, microerror.Maskf(emptyValueError, "empty value cannot be converted to Chart")
 	}
 
 	return *customResource, nil
