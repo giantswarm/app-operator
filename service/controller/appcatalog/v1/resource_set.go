@@ -89,12 +89,12 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	}
 
 	handlesFunc := func(obj interface{}) bool {
-		appConfig, err := key.ToCustomResource(obj)
+		cr, err := key.ToCustomResource(obj)
 		if err != nil {
 			return false
 		}
 
-		if key.VersionBundleVersion(appConfig) == VersionBundle().Version {
+		if key.VersionLabel(cr) == VersionBundle().Version {
 			return true
 		}
 

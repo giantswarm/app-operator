@@ -2,6 +2,7 @@ package key
 
 import (
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
+	"github.com/giantswarm/app-operator/pkg/label"
 	"github.com/giantswarm/microerror"
 )
 
@@ -32,8 +33,10 @@ func ToCustomResource(v interface{}) (v1alpha1.AppCatalog, error) {
 	return *customResource, nil
 }
 
-func VersionBundleVersion(customObject v1alpha1.AppCatalog) string {
-	if val, ok := customObject.ObjectMeta.Annotations[versionBundleAnnotation]; ok {
+// VersionLabel returns the label value to determine if the custom resource is
+// supported by this version of the operatorkit resource.
+func VersionLabel(customResource v1alpha1.AppCatalog) string {
+	if val, ok := customResource.ObjectMeta.Labels[label.Version]; ok {
 		return val
 	} else {
 		return ""
