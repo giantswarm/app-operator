@@ -135,10 +135,12 @@ func TestResource_GetCurrentState(t *testing.T) {
 			kc, err := kubeconfig.New(config)
 
 			c := Config{
-				G8sClient:      g8sClient,
-				K8sClient:      k8sClient,
-				KubeConfig:     kc,
-				Logger:         micrologger,
+				G8sClient:  g8sClient,
+				K8sClient:  k8sClient,
+				KubeConfig: kc,
+				Logger:     micrologger,
+
+				ProjectName:    "app-operator",
 				WatchNamespace: "default",
 			}
 			r, err := New(c)
