@@ -11,7 +11,7 @@ import (
 )
 
 func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange interface{}) error {
-	app, err := key.ToCustomResource(obj)
+	cr, err := key.ToCustomResource(obj)
 	if err != nil {
 		return microerror.Mask(err)
 	}
@@ -20,12 +20,12 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 		return microerror.Mask(err)
 	}
 
-	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating chart %#q", chart.Name))
-	_, err = r.g8sClient.ApplicationV1alpha1().Charts(app.Namespace).Create(&chart)
+	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("ensuring creation of chart %#q", chart.Name))
+	_, err = r.g8sClient.ApplicationV1alpha1().Charts(cr.Namespace).Create(&chart)
 	if err != nil {
 		return microerror.Mask(err)
 	}
-	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("created %#q", chart.Name))
+	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("ensured creation of chart %#q", chart.Name))
 	return nil
 }
 
@@ -43,7 +43,7 @@ func (r *Resource) newCreateChange(ctx context.Context, currentResource, desired
 
 	createChart := &v1alpha1.Chart{}
 
-	if isEmpty(currentChart) || currentChart.Name != desiredChart.Name {
+	if isEmpty(currentChart) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("the %#q chart needs to be created", desiredChart.Name))
 		createChart = &desiredChart
 	} else {
