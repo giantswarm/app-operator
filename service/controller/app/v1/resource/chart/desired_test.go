@@ -32,7 +32,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					Name:      "my-cool-prometheus",
 					Namespace: "default",
 					Labels: map[string]string{
-						"app": "prometheus",
+						"app":                                "prometheus",
 						"app-operator.giantswarm.io/version": "1.0.0",
 						"giantswarm.io/managed-by":           "cluster-operator",
 					},
@@ -86,7 +86,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 				ObjectMeta: metav1.ObjectMeta{
 					Name: "prometheus",
 					Labels: map[string]string{
-						"app": "prometheus",
+						"app":                                  "prometheus",
 						"chart-operator.giantswarm.io/version": "1.0.0",
 						"giantswarm.io/managed-by":             "app-operator",
 					},
@@ -117,7 +117,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					Name:      "my-cool-prometheus",
 					Namespace: "default",
 					Labels: map[string]string{
-						"app": "prometheus",
+						"app":                                "prometheus",
 						"app-operator.giantswarm.io/version": "1.0.0",
 						"giantswarm.io/managed-by":           "cluster-operator",
 					},
@@ -172,7 +172,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					Name:      "my-cool-prometheus",
 					Namespace: "default",
 					Labels: map[string]string{
-						"app": "prometheus",
+						"app":                                "prometheus",
 						"app-operator.giantswarm.io/version": "1.0.0",
 						"giantswarm.io/managed-by":           "cluster-operator",
 					},
@@ -311,14 +311,14 @@ func Test_processLabels(t *testing.T) {
 			name:        "case 1: extra labels still present",
 			projectName: "app-operator",
 			inputLabels: map[string]string{
-				"app": "prometheus",
+				"app":                                "prometheus",
 				"app-operator.giantswarm.io/version": "1.0.0",
 				"giantswarm.io/cluster":              "5xchu",
 				"giantswarm.io/managed-by":           "cluster-operator",
 				"giantswarm.io/organization":         "giantswarm",
 			},
 			expectedLabels: map[string]string{
-				"app": "prometheus",
+				"app":                                  "prometheus",
 				"chart-operator.giantswarm.io/version": "1.0.0",
 				"giantswarm.io/cluster":                "5xchu",
 				"giantswarm.io/managed-by":             "app-operator",
