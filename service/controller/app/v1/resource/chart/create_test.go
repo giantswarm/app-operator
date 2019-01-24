@@ -14,6 +14,7 @@ import (
 	"k8s.io/client-go/kubernetes"
 	k8sfake "k8s.io/client-go/kubernetes/fake"
 
+	"github.com/giantswarm/app-operator/kubeconfigtest"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/kubeconfig"
 )
 
@@ -40,24 +41,12 @@ func TestResource_newCreateChange(t *testing.T) {
 					APIVersion: "application.giantswarm.io",
 				},
 				ObjectMeta: metav1.ObjectMeta{
-					Name: "kubernetes-prometheus",
+					Name: "prometheus",
 					Labels: map[string]string{
 						"app": "prometheus",
 					},
 				},
 				Spec: v1alpha1.ChartSpec{
-					Config: v1alpha1.ChartSpecConfig{
-						ConfigMap: v1alpha1.ChartSpecConfigConfigMap{
-							Name:            "giant-swarm-config",
-							Namespace:       "giantswarm",
-							ResourceVersion: "",
-						},
-						Secret: v1alpha1.ChartSpecConfigSecret{
-							Name:            "giant-swarm-secret",
-							Namespace:       "giantswarm",
-							ResourceVersion: "",
-						},
-					},
 					Name:       "my-cool-prometheus",
 					Namespace:  "monitoring",
 					TarballURL: "https://giantswarm.github.com/app-catalog/kubernetes-prometheus-1.0.0.tgz",
@@ -69,24 +58,12 @@ func TestResource_newCreateChange(t *testing.T) {
 					APIVersion: "application.giantswarm.io",
 				},
 				ObjectMeta: metav1.ObjectMeta{
-					Name: "kubernetes-prometheus",
+					Name: "prometheus",
 					Labels: map[string]string{
 						"app": "prometheus",
 					},
 				},
 				Spec: v1alpha1.ChartSpec{
-					Config: v1alpha1.ChartSpecConfig{
-						ConfigMap: v1alpha1.ChartSpecConfigConfigMap{
-							Name:            "giant-swarm-config",
-							Namespace:       "giantswarm",
-							ResourceVersion: "",
-						},
-						Secret: v1alpha1.ChartSpecConfigSecret{
-							Name:            "giant-swarm-secret",
-							Namespace:       "giantswarm",
-							ResourceVersion: "",
-						},
-					},
 					Name:       "my-cool-prometheus",
 					Namespace:  "monitoring",
 					TarballURL: "https://giantswarm.github.com/app-catalog/kubernetes-prometheus-1.0.0.tgz",
@@ -94,31 +71,19 @@ func TestResource_newCreateChange(t *testing.T) {
 			},
 		},
 		{
-			name: "case 1: chart already existed",
+			name: "case 1: chart already exist",
 			currentResource: &v1alpha1.Chart{
 				TypeMeta: metav1.TypeMeta{
 					Kind:       "Chart",
 					APIVersion: "application.giantswarm.io",
 				},
 				ObjectMeta: metav1.ObjectMeta{
-					Name: "kubernetes-prometheus",
+					Name: "prometheus",
 					Labels: map[string]string{
 						"app": "prometheus",
 					},
 				},
 				Spec: v1alpha1.ChartSpec{
-					Config: v1alpha1.ChartSpecConfig{
-						ConfigMap: v1alpha1.ChartSpecConfigConfigMap{
-							Name:            "giant-swarm-config",
-							Namespace:       "giantswarm",
-							ResourceVersion: "",
-						},
-						Secret: v1alpha1.ChartSpecConfigSecret{
-							Name:            "giant-swarm-secret",
-							Namespace:       "giantswarm",
-							ResourceVersion: "",
-						},
-					},
 					Name:       "my-cool-prometheus",
 					Namespace:  "monitoring",
 					TarballURL: "https://giantswarm.github.com/app-catalog/kubernetes-prometheus-1.0.0.tgz",
@@ -130,24 +95,12 @@ func TestResource_newCreateChange(t *testing.T) {
 					APIVersion: "application.giantswarm.io",
 				},
 				ObjectMeta: metav1.ObjectMeta{
-					Name: "kubernetes-prometheus",
+					Name: "prometheus",
 					Labels: map[string]string{
 						"app": "prometheus",
 					},
 				},
 				Spec: v1alpha1.ChartSpec{
-					Config: v1alpha1.ChartSpecConfig{
-						ConfigMap: v1alpha1.ChartSpecConfigConfigMap{
-							Name:            "giant-swarm-config",
-							Namespace:       "giantswarm",
-							ResourceVersion: "",
-						},
-						Secret: v1alpha1.ChartSpecConfigSecret{
-							Name:            "giant-swarm-secret",
-							Namespace:       "giantswarm",
-							ResourceVersion: "",
-						},
-					},
 					Name:       "my-cool-prometheus",
 					Namespace:  "monitoring",
 					TarballURL: "https://giantswarm.github.com/app-catalog/kubernetes-prometheus-1.0.0.tgz",
@@ -160,18 +113,10 @@ func TestResource_newCreateChange(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 
 			var err error
-			var kc *kubeconfig.KubeConfig
-			{
-				c := kubeconfig.Config{
-					G8sClient: fake.NewSimpleClientset(),
-					K8sClient: k8sfake.NewSimpleClientset(),
-					Logger:    microloggertest.New(),
-				}
 
-				kc, err = kubeconfig.New(c)
-				if err != nil {
-					t.Fatalf("error == %#v, want nil", err)
-				}
+			kc, err := kubeconfigtest.New(nil)
+			if err != nil {
+				t.Fatalf("error == %#v, want nil", err)
 			}
 			c := Config{
 				G8sClient:      fake.NewSimpleClientset(),
