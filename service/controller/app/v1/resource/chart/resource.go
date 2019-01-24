@@ -16,28 +16,32 @@ const (
 	// Name is the identifier of the resource.
 	Name = "chartv1"
 
-	chartAPIVersion           = "application.giantswarm.io"
-	chartKind                 = "Chart"
-	chartVersionBundleVersion = "0.1.0"
+	chartAPIVersion            = "application.giantswarm.io"
+	chartKind                  = "Chart"
+	chartCustomResourceVersion = "1.0.0"
 )
 
 // Config represents the configuration used to create a new chart resource.
 type Config struct {
 	// Dependencies.
-	G8sClient      versioned.Interface
-	K8sClient      kubernetes.Interface
-	KubeConfig     *kubeconfig.KubeConfig
-	Logger         micrologger.Logger
+	G8sClient  versioned.Interface
+	K8sClient  kubernetes.Interface
+	KubeConfig *kubeconfig.KubeConfig
+	Logger     micrologger.Logger
+
+	ProjectName    string
 	WatchNamespace string
 }
 
 // Resource implements the chart resource.
 type Resource struct {
 	// Dependencies.
-	g8sClient      versioned.Interface
-	k8sClient      kubernetes.Interface
-	kubeConfig     *kubeconfig.KubeConfig
-	logger         micrologger.Logger
+	g8sClient  versioned.Interface
+	k8sClient  kubernetes.Interface
+	kubeConfig *kubeconfig.KubeConfig
+	logger     micrologger.Logger
+
+	projectName    string
 	watchNamespace string
 }
 
@@ -95,16 +99,22 @@ func New(config Config) (*Resource, error) {
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
+
+	if config.ProjectName == "" {
+		return nil, microerror.Maskf(invalidConfigError, "%T.ProjectName must not be empty", config)
+	}
 	if config.WatchNamespace == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.WatchNamespace must not be empty", config)
 	}
 
 	r := &Resource{
 		// Dependencies.
-		g8sClient:      config.G8sClient,
-		kubeConfig:     config.KubeConfig,
-		k8sClient:      config.K8sClient,
-		logger:         config.Logger,
+		g8sClient:  config.G8sClient,
+		kubeConfig: config.KubeConfig,
+		k8sClient:  config.K8sClient,
+		logger:     config.Logger,
+
+		projectName:    config.ProjectName,
 		watchNamespace: config.WatchNamespace,
 	}
 
