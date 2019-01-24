@@ -78,8 +78,12 @@ func generateTarballURL(baseURL string, appName string, version string) (string,
 	return u.String(), nil
 }
 
-// processLabels ensures chart resources have the labels required by
-// chart-operatorbut and any additional labels remain.
+// processLabels ensures the chart-operator.giantswarm.io/version label is
+// present and the app-operator.giantswarm.io/version label is removed. It
+// also ensures the giantswarm.io/managed-by label is accurate.
+//
+// Any other labels added to the app custom resource are passed on to the chart
+// custom resource.
 func processLabels(projectName string, inputLabels map[string]string) map[string]string {
 	// These labels are required.
 	labels := map[string]string{
