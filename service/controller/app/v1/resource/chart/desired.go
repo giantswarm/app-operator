@@ -78,13 +78,17 @@ func generateTarballURL(baseURL string, appName string, version string) (string,
 	return u.String(), nil
 }
 
+// processLabels ensures chart resources have the labels required by
+// chart-operatorbut and any additional labels remain.
 func processLabels(projectName string, inputLabels map[string]string) map[string]string {
+	// These labels are required.
 	labels := map[string]string{
 		label.ChartOperatorVersion: chartCustomResourceVersion,
 		label.ManagedBy:            projectName,
 	}
 
 	for k, v := range inputLabels {
+		// These labels must be removed.
 		if k != label.ManagedBy && k != label.AppOperatorVersion {
 			labels[k] = v
 		}
