@@ -4,10 +4,8 @@ import (
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/app-operator/pkg/label"
 	"github.com/giantswarm/microerror"
-)
 
-const (
-	versionBundleAnnotation = "giantswarm.io/version-bundle"
+	"github.com/giantswarm/app-operator/pkg/label"
 )
 
 func AppCatalogTitle(customResource v1alpha1.AppCatalog) string {
@@ -36,7 +34,7 @@ func ToCustomResource(v interface{}) (v1alpha1.AppCatalog, error) {
 // VersionLabel returns the label value to determine if the custom resource is
 // supported by this version of the operatorkit resource.
 func VersionLabel(customResource v1alpha1.AppCatalog) string {
-	if val, ok := customResource.ObjectMeta.Labels[label.Version]; ok {
+	if val, ok := customResource.ObjectMeta.Labels[label.AppOperatorVersion]; ok {
 		return val
 	} else {
 		return ""
