@@ -20,14 +20,16 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 		return microerror.Mask(err)
 	}
 
-	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("ensuring creation of chart %#q", chart.Name))
+	if chart.Name != "" {
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("ensuring creation of chart %#q", chart.Name))
 
-	_, err = r.g8sClient.ApplicationV1alpha1().Charts(cr.Namespace).Create(&chart)
+		_, err = r.g8sClient.ApplicationV1alpha1().Charts(cr.Namespace).Create(&chart)
 
-	if err != nil {
-		return microerror.Mask(err)
+		if err != nil {
+			return microerror.Mask(err)
+		}
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("ensured creation of chart %#q", chart.Name))
 	}
-	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("ensured creation of chart %#q", chart.Name))
 	return nil
 }
 
