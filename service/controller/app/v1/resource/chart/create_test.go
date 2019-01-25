@@ -130,7 +130,7 @@ func TestResource_newCreateChange(t *testing.T) {
 				t.Fatalf("error == %#v, want nil", err)
 			}
 
-			got, err := r.newCreateChange(context.TODO(), tt.currentResource, tt.desiredResource)
+			got, err := r.newCreateChange(context.Background(), tt.currentResource, tt.desiredResource)
 			if err != nil {
 				t.Errorf("Resource.newCreateChange() error = %v", err)
 				return

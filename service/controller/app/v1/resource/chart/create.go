@@ -21,7 +21,9 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 	}
 
 	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("ensuring creation of chart %#q", chart.Name))
+
 	_, err = r.g8sClient.ApplicationV1alpha1().Charts(cr.Namespace).Create(&chart)
+
 	if err != nil {
 		return microerror.Mask(err)
 	}
