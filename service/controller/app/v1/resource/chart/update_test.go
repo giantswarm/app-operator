@@ -14,7 +14,7 @@ import (
 	"github.com/giantswarm/app-operator/service/controller/app/v1/kubeconfig"
 )
 
-func TestResource_newUpdateChange(t *testing.T) {
+func Test_Resource_newUpdateChange(t *testing.T) {
 	tests := []struct {
 		name            string
 		currentResource *v1alpha1.Chart
@@ -148,11 +148,11 @@ func TestResource_newUpdateChange(t *testing.T) {
 
 			got, err := r.newUpdateChange(context.Background(), tt.currentResource, tt.desiredResource)
 			if err != nil {
-				t.Errorf("Resource.newCreateChange() error = %v", err)
+				t.Fatalf("error == %#v, want nil", err)
 				return
 			}
 			if !reflect.DeepEqual(got, tt.expectedChart) {
-				t.Errorf("Resource.newCreateChange() = %v, want %v", got, tt.expectedChart)
+				t.Fatalf("Chart == %#v, want %#v", got, tt.expectedChart)
 			}
 		})
 	}

@@ -3,8 +3,8 @@ package chart
 import (
 	"context"
 	"fmt"
-
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
+
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/controller"
 
@@ -21,9 +21,11 @@ func (r *Resource) NewUpdatePatch(ctx context.Context, obj, currentChart, desire
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
+
 	patch := controller.NewPatch()
 	patch.SetCreateChange(create)
 	patch.SetUpdateChange(update)
+
 	return patch, nil
 }
 
@@ -38,16 +40,16 @@ func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange inte
 	}
 
 	if chart.Name != "" {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("ensuring updating of chart %#q", chart.Name))
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("ensuring update of chart %#q", chart.Name))
 
 		_, err = r.g8sClient.ApplicationV1alpha1().Charts(cr.Namespace).Update(&chart)
 		if err != nil {
 			return microerror.Mask(err)
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("ensured updating of chart %#q", chart.Name))
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("ensured update of chart %#q", chart.Name))
 	} else {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("no need to update charts"))
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("no need to update chart"))
 	}
 	return nil
 }
