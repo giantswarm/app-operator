@@ -101,8 +101,12 @@
     "pkg/clientset/versioned/typed/provider/v1alpha1",
     "pkg/clientset/versioned/typed/provider/v1alpha1/fake",
   ]
+<<<<<<< HEAD
+  revision = "1f1e998db676f6bfc5698286fd697f5b4c0a55e5"
+=======
   pruneopts = "UT"
   revision = "452d2fb9f8222ebd7a8f1777e6aee4ef4218f5b8"
+>>>>>>> master
 
 [[projects]]
   branch = "master"
@@ -202,8 +206,12 @@
     "informer",
     "informer/collector",
   ]
+<<<<<<< HEAD
+  revision = "f2d3255eb15c638c8e9a7a52ecd890081101fb6b"
+=======
   pruneopts = "UT"
   revision = "204721021837676ee3e6ee110ae58ec2e2b0d0c0"
+>>>>>>> master
 
 [[projects]]
   branch = "master"
@@ -281,6 +289,17 @@
   packages = ["."]
   pruneopts = "UT"
   revision = "4030bb1f1f0c35b30ca7009e9ebd06849dd45306"
+
+[[projects]]
+  name = "github.com/google/go-cmp"
+  packages = [
+    "cmp",
+    "cmp/internal/diff",
+    "cmp/internal/function",
+    "cmp/internal/value"
+  ]
+  revision = "3af367b6b30c263d47e8895973edcca9a49cf029"
+  version = "v0.2.0"
 
 [[projects]]
   branch = "master"
@@ -363,9 +382,14 @@
   digest = "1:8eb1de8112c9924d59bf1d3e5c26f5eaa2bfc2a5fcbb92dc1c2e4546d695f277"
   name = "github.com/imdario/mergo"
   packages = ["."]
+<<<<<<< HEAD
+  revision = "7c29201646fa3de8506f701213473dd407f19646"
+  version = "v0.3.7"
+=======
   pruneopts = "UT"
   revision = "9f23e2d6bd2a77f959b2bf6acdbefd708a83a4a4"
   version = "v0.3.6"
+>>>>>>> master
 
 [[projects]]
   digest = "1:870d441fe217b8e689d7949fef6e43efbc787e50f200cb1e70dbca9204a1d6be"
@@ -488,8 +512,12 @@
     "prometheus/internal",
     "prometheus/promhttp",
   ]
+<<<<<<< HEAD
+  revision = "d5f63107bfcac90d692baa94bd0064132e1f1d0d"
+=======
   pruneopts = "UT"
   revision = "26e258bb9c9a94c26d4a46ff302ec7e855b82e10"
+>>>>>>> master
 
 [[projects]]
   branch = "master"
@@ -627,8 +655,12 @@
     "unix",
     "windows",
   ]
+<<<<<<< HEAD
+  revision = "b90733256f2e882e81d52f9126de08df5615afd9"
+=======
   pruneopts = "UT"
   revision = "770c60269bf0ef965e9e7ac8bedcb6bca2a1cefd"
+>>>>>>> master
 
 [[projects]]
   digest = "1:a2ab62866c75542dd18d2b069fec854577a20211d7c0ea6ae746072a1dccdd18"
@@ -942,6 +974,9 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
+<<<<<<< HEAD
+  inputs-digest = "a3f47ca5ce5dacb9f4a4cfbdfb387050f6a7cbd19d5fbd19c39cf0cbdb9946ff"
+=======
   input-imports = [
     "github.com/Azure/go-autorest/autorest",
     "github.com/docker/distribution/reference",
@@ -976,5 +1011,6 @@
     "k8s.io/client-go/kubernetes/fake",
     "k8s.io/client-go/rest",
   ]
+>>>>>>> master
   solver-name = "gps-cdcl"
   solver-version = 1

@@ -8,6 +8,7 @@ import (
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned/fake"
 	"github.com/giantswarm/micrologger/microloggertest"
+	"github.com/google/go-cmp/cmp"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	k8sfake "k8s.io/client-go/kubernetes/fake"
@@ -16,8 +17,7 @@ import (
 	"github.com/giantswarm/app-operator/service/controller/app/v1/key"
 )
 
-func TestResource_GetDesiredState(t *testing.T) {
-
+func Test_Resource_GetDesiredState(t *testing.T) {
 	tests := []struct {
 		name          string
 		obj           *v1alpha1.App
@@ -32,19 +32,14 @@ func TestResource_GetDesiredState(t *testing.T) {
 					Name:      "my-cool-prometheus",
 					Namespace: "default",
 					Labels: map[string]string{
-						"app":                        "prometheus",
-						"giantswarm.io/cluster":      "6iec4",
-						"giantswarm.io/organization": "giantswarm",
-						"giantswarm.io/service-type": "managed",
-					},
-					Annotations: map[string]string{
-						"giantswarm.io/managed-by":     "app-operator",
-						"giantswarm.io/version-bundle": "0.1.0",
+						"app":                                "prometheus",
+						"app-operator.giantswarm.io/version": "1.0.0",
+						"giantswarm.io/managed-by":           "cluster-operator",
 					},
 				},
 				Spec: v1alpha1.AppSpec{
 					Catalog:   "giantswarm",
-					Name:      "kubernetes-prometheus",
+					Name:      "prometheus",
 					Namespace: "monitoring",
 					Version:   "1.0.0",
 					Config: v1alpha1.AppSpecConfig{
@@ -89,16 +84,11 @@ func TestResource_GetDesiredState(t *testing.T) {
 					APIVersion: "application.giantswarm.io",
 				},
 				ObjectMeta: metav1.ObjectMeta{
-					Name: "kubernetes-prometheus",
+					Name: "prometheus",
 					Labels: map[string]string{
-						"app":                        "prometheus",
-						"giantswarm.io/cluster":      "6iec4",
-						"giantswarm.io/organization": "giantswarm",
-						"giantswarm.io/service-type": "managed",
-					},
-					Annotations: map[string]string{
-						"giantswarm.io/managed-by":     "app-operator",
-						"giantswarm.io/version-bundle": "0.1.0",
+						"app":                                  "prometheus",
+						"chart-operator.giantswarm.io/version": "1.0.0",
+						"giantswarm.io/managed-by":             "app-operator",
 					},
 				},
 				Spec: v1alpha1.ChartSpec{
@@ -116,7 +106,7 @@ func TestResource_GetDesiredState(t *testing.T) {
 					},
 					Name:       "my-cool-prometheus",
 					Namespace:  "monitoring",
-					TarballURL: "https://giantswarm.github.com/app-catalog/kubernetes-prometheus-1.0.0.tgz",
+					TarballURL: "https://giantswarm.github.com/app-catalog/prometheus-1.0.0.tgz",
 				},
 			},
 		},
@@ -127,14 +117,9 @@ func TestResource_GetDesiredState(t *testing.T) {
 					Name:      "my-cool-prometheus",
 					Namespace: "default",
 					Labels: map[string]string{
-						"app":                        "prometheus",
-						"giantswarm.io/cluster":      "6iec4",
-						"giantswarm.io/organization": "giantswarm",
-						"giantswarm.io/service-type": "managed",
-					},
-					Annotations: map[string]string{
-						"giantswarm.io/managed-by":     "app-operator",
-						"giantswarm.io/version-bundle": "0.1.0",
+						"app":                                "prometheus",
+						"app-operator.giantswarm.io/version": "1.0.0",
+						"giantswarm.io/managed-by":           "cluster-operator",
 					},
 				},
 				Spec: v1alpha1.AppSpec{
@@ -187,14 +172,9 @@ func TestResource_GetDesiredState(t *testing.T) {
 					Name:      "my-cool-prometheus",
 					Namespace: "default",
 					Labels: map[string]string{
-						"app":                        "prometheus",
-						"giantswarm.io/cluster":      "6iec4",
-						"giantswarm.io/organization": "giantswarm",
-						"giantswarm.io/service-type": "managed",
-					},
-					Annotations: map[string]string{
-						"giantswarm.io/managed-by":     "app-operator",
-						"giantswarm.io/version-bundle": "0.1.0",
+						"app":                                "prometheus",
+						"app-operator.giantswarm.io/version": "1.0.0",
+						"giantswarm.io/managed-by":           "cluster-operator",
 					},
 				},
 				Spec: v1alpha1.AppSpec{
@@ -255,10 +235,12 @@ func TestResource_GetDesiredState(t *testing.T) {
 			}
 
 			c := Config{
-				G8sClient:      fake.NewSimpleClientset(objs...),
-				K8sClient:      k8sfake.NewSimpleClientset(),
-				KubeConfig:     kc,
-				Logger:         microloggertest.New(),
+				G8sClient:  fake.NewSimpleClientset(objs...),
+				K8sClient:  k8sfake.NewSimpleClientset(),
+				KubeConfig: kc,
+				Logger:     microloggertest.New(),
+
+				ProjectName:    "app-operator",
 				WatchNamespace: "default",
 			}
 			r, err := New(c)
@@ -282,9 +264,74 @@ func TestResource_GetDesiredState(t *testing.T) {
 					t.Fatalf("error == %#v, want nil", err)
 				}
 
-				if !reflect.DeepEqual(chart, *tc.expectedChart) {
-					t.Fatalf("Chart == %#v, want %#v", chart, tc.expectedChart)
+				if !reflect.DeepEqual(chart.ObjectMeta, tc.expectedChart.ObjectMeta) {
+					t.Fatalf("want matching objectmeta \n %s", cmp.Diff(chart.ObjectMeta, tc.expectedChart.ObjectMeta))
 				}
+				if !reflect.DeepEqual(chart.Spec, tc.expectedChart.Spec) {
+					t.Fatalf("want matching spec \n %s", cmp.Diff(chart.Spec, tc.expectedChart.Spec))
+				}
+				if !reflect.DeepEqual(chart.TypeMeta, tc.expectedChart.TypeMeta) {
+					t.Fatalf("want matching typemeta \n %s", cmp.Diff(chart.TypeMeta, tc.expectedChart.TypeMeta))
+				}
+			}
+		})
+	}
+}
+
+func Test_processLabels(t *testing.T) {
+	tests := []struct {
+		name           string
+		projectName    string
+		inputLabels    map[string]string
+		expectedLabels map[string]string
+	}{
+		{
+			name:        "case 0: basic match",
+			projectName: "app-operator",
+			inputLabels: map[string]string{
+				"app-operator.giantswarm.io/version": "1.0.0",
+				"giantswarm.io/managed-by":           "release-operator",
+			},
+			expectedLabels: map[string]string{
+				"chart-operator.giantswarm.io/version": "1.0.0",
+				"giantswarm.io/managed-by":             "app-operator",
+			},
+		},
+		{
+			name:        "case 1: extra labels still present",
+			projectName: "app-operator",
+			inputLabels: map[string]string{
+				"app":                                "prometheus",
+				"app-operator.giantswarm.io/version": "1.0.0",
+				"giantswarm.io/cluster":              "5xchu",
+				"giantswarm.io/managed-by":           "cluster-operator",
+				"giantswarm.io/organization":         "giantswarm",
+			},
+			expectedLabels: map[string]string{
+				"app":                                  "prometheus",
+				"chart-operator.giantswarm.io/version": "1.0.0",
+				"giantswarm.io/cluster":                "5xchu",
+				"giantswarm.io/managed-by":             "app-operator",
+				"giantswarm.io/organization":           "giantswarm",
+			},
+		},
+		{
+			name:        "case 2: empty inputs",
+			projectName: "app-operator",
+			expectedLabels: map[string]string{
+				"chart-operator.giantswarm.io/version": "1.0.0",
+				"giantswarm.io/managed-by":             "app-operator",
+			},
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+
+			result := processLabels(tc.projectName, tc.inputLabels)
+
+			if !reflect.DeepEqual(result, tc.expectedLabels) {
+				t.Fatalf("want matching \n %s", cmp.Diff(result, tc.expectedLabels))
 			}
 		})
 	}

@@ -119,10 +119,12 @@ func TestResource_newCreateChange(t *testing.T) {
 				t.Fatalf("error == %#v, want nil", err)
 			}
 			c := Config{
-				G8sClient:      fake.NewSimpleClientset(),
-				K8sClient:      k8sfake.NewSimpleClientset(),
-				KubeConfig:     kc,
-				Logger:         microloggertest.New(),
+				G8sClient:  fake.NewSimpleClientset(),
+				K8sClient:  k8sfake.NewSimpleClientset(),
+				KubeConfig: kc,
+				Logger:     microloggertest.New(),
+
+				ProjectName:    "app-operator",
 				WatchNamespace: "default",
 			}
 			r, err := New(c)
