@@ -45,12 +45,8 @@ required = [
   name = "github.com/docker/distribution"
 
 [[override]]
-  branch = "appcatalog-config"
-  name = "github.com/giantswarm/apiextensions"
-
-[[constraint]]
   branch = "master"
-  name = "github.com/giantswarm/kubeconfig"
+  name = "github.com/giantswarm/apiextensions"
 
 [[constraint]]
   branch = "master"
@@ -71,6 +67,10 @@ required = [
 [[constraint]]
   branch = "master"
   name = "github.com/giantswarm/operatorkit"
+
+[[constraint]]
+  name = "github.com/google/go-cmp"
+  version = "0.2.0"
 
 [[constraint]]
   name = "github.com/spf13/viper"

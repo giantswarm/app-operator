@@ -69,6 +69,7 @@ func NewAppCatalogCRD() *apiextensionsv1beta1.CustomResourceDefinition {
 //          name: "app-catalog-secrets"
 //          namespace: "giantswarm"
 //      logoURL: “https://s.giantswarm.io/...”
+//
 type AppCatalog struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata"`

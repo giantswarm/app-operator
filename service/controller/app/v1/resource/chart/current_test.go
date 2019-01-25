@@ -12,8 +12,8 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	k8sfake "k8s.io/client-go/kubernetes/fake"
 
+	"github.com/giantswarm/app-operator/kubeconfigtest"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/key"
-	"github.com/giantswarm/app-operator/service/controller/app/v1/kubeconfig"
 )
 
 func TestResource_GetCurrentState(t *testing.T) {
@@ -123,22 +123,18 @@ func TestResource_GetCurrentState(t *testing.T) {
 			}
 
 			g8sClient := fake.NewSimpleClientset(objs...)
-			k8sClient := k8sfake.NewSimpleClientset()
-			micrologger := microloggertest.New()
-
-			config := kubeconfig.Config{
-				G8sClient: g8sClient,
-				K8sClient: k8sClient,
-				Logger:    micrologger,
+			kc, err := kubeconfigtest.New(g8sClient)
+			if err != nil {
+				t.Fatalf("error == %#v, want nil", err)
 			}
 
-			kc, err := kubeconfig.New(config)
-
 			c := Config{
-				G8sClient:      g8sClient,
-				K8sClient:      k8sClient,
-				KubeConfig:     kc,
-				Logger:         micrologger,
+				G8sClient:  g8sClient,
+				K8sClient:  k8sfake.NewSimpleClientset(),
+				KubeConfig: kc,
+				Logger:     microloggertest.New(),
+
+				ProjectName:    "app-operator",
 				WatchNamespace: "default",
 			}
 			r, err := New(c)

@@ -63,7 +63,7 @@
   version = "v1.4.7"
 
 [[projects]]
-  branch = "appcatalog-config"
+  branch = "master"
   name = "github.com/giantswarm/apiextensions"
   packages = [
     "pkg/apis/application/v1alpha1",
@@ -82,11 +82,7 @@
     "pkg/clientset/versioned/typed/provider/v1alpha1",
     "pkg/clientset/versioned/typed/provider/v1alpha1/fake"
   ]
-<<<<<<< HEAD
-  revision = "062ba6e5621034065f50ea337205e0148e623098"
-=======
-  revision = "3e9a08388d7350c61eb96adbe7a92abc1d91003b"
->>>>>>> master
+  revision = "1f1e998db676f6bfc5698286fd697f5b4c0a55e5"
 
 [[projects]]
   branch = "master"
@@ -171,7 +167,7 @@
     "informer",
     "informer/collector"
   ]
-  revision = "7a8289f8ae8a079bc178aa8f520cb6cbb4b48034"
+  revision = "a1aa0b72cce3bb752ca8e5097dc84f97cf4cbbf7"
 
 [[projects]]
   branch = "master"
@@ -233,6 +229,17 @@
   name = "github.com/google/btree"
   packages = ["."]
   revision = "4030bb1f1f0c35b30ca7009e9ebd06849dd45306"
+
+[[projects]]
+  name = "github.com/google/go-cmp"
+  packages = [
+    "cmp",
+    "cmp/internal/diff",
+    "cmp/internal/function",
+    "cmp/internal/value"
+  ]
+  revision = "3af367b6b30c263d47e8895973edcca9a49cf029"
+  version = "v0.2.0"
 
 [[projects]]
   branch = "master"
@@ -300,8 +307,8 @@
 [[projects]]
   name = "github.com/imdario/mergo"
   packages = ["."]
-  revision = "9f23e2d6bd2a77f959b2bf6acdbefd708a83a4a4"
-  version = "v0.3.6"
+  revision = "7c29201646fa3de8506f701213473dd407f19646"
+  version = "v0.3.7"
 
 [[projects]]
   name = "github.com/inconshreveable/mousetrap"
@@ -395,7 +402,7 @@
     "prometheus/internal",
     "prometheus/promhttp"
   ]
-  revision = "26e258bb9c9a94c26d4a46ff302ec7e855b82e10"
+  revision = "d5f63107bfcac90d692baa94bd0064132e1f1d0d"
 
 [[projects]]
   branch = "master"
@@ -481,7 +488,7 @@
     "idna",
     "publicsuffix"
   ]
-  revision = "ed066c81e75eba56dd9bd2139ade88125b855585"
+  revision = "d26f9f9a57f3fab6a695bec0d84433c2c50f8bbf"
 
 [[projects]]
   branch = "master"
@@ -505,7 +512,7 @@
     "unix",
     "windows"
   ]
-  revision = "c6b37f3e92850b723493d63fd35aad34e19e048d"
+  revision = "b90733256f2e882e81d52f9126de08df5615afd9"
 
 [[projects]]
   name = "golang.org/x/text"
@@ -793,6 +800,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "be65d026109513097b4fab626e3ef2abdae72336f1cc5b107f25fbdd60597b42"
+  inputs-digest = "3b5b29db322fc1bede6418492bdfd259dda6b85db39b1a4c4aa0e146038995fc"
   solver-name = "gps-cdcl"
   solver-version = 1

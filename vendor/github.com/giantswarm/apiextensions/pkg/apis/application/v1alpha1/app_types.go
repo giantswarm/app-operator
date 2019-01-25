@@ -60,6 +60,38 @@ func NewAppTypeMeta() metav1.TypeMeta {
 // +genclient
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
+// App CRs might look something like the following.
+//
+//    apiVersion: application.giantswarm.io/v1alpha1
+//    kind: App
+//    metadata:
+//      name: “prometheus”
+//      labels:
+//        app-operator.giantswarm.io/version: "1.0.0"
+//
+//    spec:
+//      catalog: "giantswarm"
+//      name: “prometheus”
+//      namespace: “monitoring”
+//      version: "1.0.0"
+//      config:
+//        configMap:
+//          name: "prometheus-values"
+//          namespace: "monitoring"
+//        secret:
+//          name: "prometheus-secrets"
+//          namespace: "monitoring"
+//        kubeConfig:
+//          context:
+//            name: "giantswarm-12345"
+//          secret:
+//            name: “giantswarm-12345”
+//            namespace: "giantswarm"
+//          userConfig:
+//            configMap:
+//              name: "prometheus-user-values"
+//              namespace: "monitoring"
+//
 type App struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata"`

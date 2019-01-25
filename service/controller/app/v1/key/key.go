@@ -3,10 +3,8 @@ package key
 import (
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/microerror"
-)
 
-const (
-	versionBundleAnnotation = "giantswarm.io/version-bundle"
+	"github.com/giantswarm/app-operator/pkg/label"
 )
 
 func AppName(customResource v1alpha1.App) string {
@@ -61,13 +59,12 @@ func ToCustomResource(v interface{}) (v1alpha1.App, error) {
 }
 
 func ToChart(v interface{}) (v1alpha1.Chart, error) {
+	if v == nil {
+		return v1alpha1.Chart{}, nil
+	}
 	customResource, ok := v.(*v1alpha1.Chart)
 	if !ok {
 		return v1alpha1.Chart{}, microerror.Maskf(wrongTypeError, "expected '%T', got '%T'", &v1alpha1.Chart{}, v)
-	}
-
-	if customResource == nil {
-		return v1alpha1.Chart{}, microerror.Maskf(emptyValueError, "empty value cannot be converted to Chart")
 	}
 
 	return *customResource, nil
@@ -77,8 +74,10 @@ func Version(customResource v1alpha1.App) string {
 	return customResource.Spec.Version
 }
 
-func VersionBundleVersion(customResource v1alpha1.App) string {
-	if val, ok := customResource.ObjectMeta.Annotations[versionBundleAnnotation]; ok {
+// VersionLabel returns the label value to determine if the custom resource is
+// supported by this version of the operatorkit resource.
+func VersionLabel(customResource v1alpha1.App) string {
+	if val, ok := customResource.ObjectMeta.Labels[label.AppOperatorVersion]; ok {
 		return val
 	} else {
 		return ""
