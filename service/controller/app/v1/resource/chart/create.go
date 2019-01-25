@@ -29,6 +29,8 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 			return microerror.Mask(err)
 		}
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("ensured creation of chart %#q", chart.Name))
+	} else {
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("no need to create charts"))
 	}
 	return nil
 }

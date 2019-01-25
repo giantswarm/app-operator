@@ -3,11 +3,12 @@ package chart
 import (
 	"context"
 	"fmt"
-	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
-	"github.com/giantswarm/app-operator/service/controller/app/v1/key"
 
+	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/controller"
+
+	"github.com/giantswarm/app-operator/service/controller/app/v1/key"
 )
 
 func (r *Resource) NewUpdatePatch(ctx context.Context, obj, currentChart, desiredChart interface{}) (*controller.Patch, error) {
@@ -45,6 +46,8 @@ func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange inte
 		}
 
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("ensured updating of chart %#q", chart.Name))
+	} else {
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("no need to update charts"))
 	}
 	return nil
 }
