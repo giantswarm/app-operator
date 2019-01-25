@@ -47,10 +47,6 @@ type Resource struct {
 	watchNamespace string
 }
 
-func (r *Resource) newUpdateChange(ctx context.Context, obj, currentResource, desiredResource interface{}) (interface{}, error) {
-	return nil, nil
-}
-
 func (r *Resource) NewDeletePatch(ctx context.Context, obj, currentState, desiredState interface{}) (*controller.Patch, error) {
 	return nil, nil
 }
