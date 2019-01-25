@@ -12,8 +12,8 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	k8sfake "k8s.io/client-go/kubernetes/fake"
 
-	"github.com/giantswarm/app-operator/kubeconfigtest"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/key"
+	"github.com/giantswarm/app-operator/service/controller/app/v1/kubeconfig"
 )
 
 func TestResource_GetDesiredState(t *testing.T) {
@@ -242,9 +242,20 @@ func TestResource_GetDesiredState(t *testing.T) {
 		},
 	}
 
-	kc, err := kubeconfigtest.New(nil)
-	if err != nil {
-		t.Fatalf("error == %#v, want nil", err)
+	var err error
+
+	var kc *kubeconfig.KubeConfig
+	{
+		c := kubeconfig.Config{
+			G8sClient: fake.NewSimpleClientset(),
+			K8sClient: k8sfake.NewSimpleClientset(),
+			Logger:    microloggertest.New(),
+		}
+
+		kc, err = kubeconfig.New(c)
+		if err != nil {
+			t.Fatalf("error == %#v, want nil", err)
+		}
 	}
 
 	for _, tc := range tests {

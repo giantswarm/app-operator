@@ -11,7 +11,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	k8sfake "k8s.io/client-go/kubernetes/fake"
 
-	"github.com/giantswarm/app-operator/kubeconfigtest"
+	"github.com/giantswarm/app-operator/service/controller/app/v1/kubeconfig"
 )
 
 func TestResource_newUpdateChange(t *testing.T) {
@@ -114,15 +114,26 @@ func TestResource_newUpdateChange(t *testing.T) {
 			expectedChart: &v1alpha1.Chart{},
 		},
 	}
+
+	var err error
+
+	var kc *kubeconfig.KubeConfig
+	{
+		c := kubeconfig.Config{
+			G8sClient: fake.NewSimpleClientset(),
+			K8sClient: k8sfake.NewSimpleClientset(),
+			Logger:    microloggertest.New(),
+		}
+
+		kc, err = kubeconfig.New(c)
+		if err != nil {
+			t.Fatalf("error == %#v, want nil", err)
+		}
+	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 
-			var err error
-
-			kc, err := kubeconfigtest.New(nil)
-			if err != nil {
-				t.Fatalf("error == %#v, want nil", err)
-			}
 			c := Config{
 				G8sClient:      fake.NewSimpleClientset(),
 				K8sClient:      k8sfake.NewSimpleClientset(),
