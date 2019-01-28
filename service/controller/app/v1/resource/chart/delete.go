@@ -25,7 +25,12 @@ func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange inte
 	if chart.Name != "" {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleting the %#q chart", chart.Name))
 
-		err := r.g8sClient.ApplicationV1alpha1().Charts(cr.Namespace).Delete(chart.Name, &metav1.DeleteOptions{})
+		g8sClient, err := r.kubeConfig.NewG8sClientForApp(ctx, cr)
+		if err != nil {
+			return microerror.Mask(err)
+		}
+
+		err = g8sClient.ApplicationV1alpha1().Charts(cr.Namespace).Delete(chart.Name, &metav1.DeleteOptions{})
 		if apierrors.IsNotFound(err) {
 			// fall through
 		} else if err != nil {
