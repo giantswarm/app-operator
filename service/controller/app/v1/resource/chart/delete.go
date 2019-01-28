@@ -34,7 +34,7 @@ func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange inte
 
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleted the %#q chart", chart.Name))
 	} else {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "the chart do not need to be deleted")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "the chart does not need to be deleted")
 	}
 
 	return nil
