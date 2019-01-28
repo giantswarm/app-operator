@@ -14,7 +14,7 @@ import (
 	"github.com/giantswarm/app-operator/service/controller/app/v1/kubeconfig"
 )
 
-func Test_Resource_newUpdateChange(t *testing.T) {
+func TestResource_newDeleteChange(t *testing.T) {
 	tests := []struct {
 		name            string
 		currentResource *v1alpha1.Chart
@@ -22,7 +22,7 @@ func Test_Resource_newUpdateChange(t *testing.T) {
 		expectedChart   *v1alpha1.Chart
 	}{
 		{
-			name: "case 0: chart should be updated",
+			name: "case 0: chart should be deleted",
 			currentResource: &v1alpha1.Chart{
 				TypeMeta: metav1.TypeMeta{
 					Kind:       "Chart",
@@ -37,7 +37,7 @@ func Test_Resource_newUpdateChange(t *testing.T) {
 				Spec: v1alpha1.ChartSpec{
 					Name:       "my-cool-prometheus",
 					Namespace:  "monitoring",
-					TarballURL: "https://giantswarm.github.com/app-catalog/kubernetes-prometheus-1.0.1.tgz",
+					TarballURL: "https://giantswarm.github.com/app-catalog/kubernetes-prometheus-1.0.0.tgz",
 				},
 			},
 			desiredResource: &v1alpha1.Chart{
@@ -76,7 +76,7 @@ func Test_Resource_newUpdateChange(t *testing.T) {
 			},
 		},
 		{
-			name: "case 1: chart should not be update",
+			name: "case 1: chart should not deleted",
 			currentResource: &v1alpha1.Chart{
 				TypeMeta: metav1.TypeMeta{
 					Kind:       "Chart",
@@ -102,7 +102,7 @@ func Test_Resource_newUpdateChange(t *testing.T) {
 				ObjectMeta: metav1.ObjectMeta{
 					Name: "prometheus",
 					Labels: map[string]string{
-						"app": "prometheus",
+						"app": "prometheus-1",
 					},
 				},
 				Spec: v1alpha1.ChartSpec{
@@ -111,7 +111,7 @@ func Test_Resource_newUpdateChange(t *testing.T) {
 					TarballURL: "https://giantswarm.github.com/app-catalog/kubernetes-prometheus-1.0.0.tgz",
 				},
 			},
-			expectedChart: &v1alpha1.Chart{},
+			expectedChart: nil,
 		},
 	}
 
@@ -134,6 +134,8 @@ func Test_Resource_newUpdateChange(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 
+			var err error
+
 			c := Config{
 				G8sClient:  fake.NewSimpleClientset(),
 				K8sClient:  k8sfake.NewSimpleClientset(),
@@ -148,13 +150,18 @@ func Test_Resource_newUpdateChange(t *testing.T) {
 				t.Fatalf("error == %#v, want nil", err)
 			}
 
-			got, err := r.newUpdateChange(context.Background(), tt.currentResource, tt.desiredResource)
+			got, err := r.newDeleteChange(context.Background(), nil, tt.currentResource, tt.desiredResource)
 			if err != nil {
-				t.Fatalf("error == %#v, want nil", err)
+				t.Fatalf("error = %v", err)
 				return
 			}
-			if !reflect.DeepEqual(got, tt.expectedChart) {
-				t.Fatalf("Chart == %#v, want %#v", got, tt.expectedChart)
+			if tt.expectedChart == nil && got != nil {
+				t.Fatal("expected", nil, "got", got)
+			}
+			if got != nil {
+				if !reflect.DeepEqual(got, tt.expectedChart) {
+					t.Fatalf("got %v, want %v", got, tt.expectedChart)
+				}
 			}
 		})
 	}
