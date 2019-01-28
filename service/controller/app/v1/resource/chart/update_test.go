@@ -135,10 +135,12 @@ func Test_Resource_newUpdateChange(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 
 			c := Config{
-				G8sClient:      fake.NewSimpleClientset(),
-				K8sClient:      k8sfake.NewSimpleClientset(),
-				KubeConfig:     kc,
-				Logger:         microloggertest.New(),
+				G8sClient:  fake.NewSimpleClientset(),
+				K8sClient:  k8sfake.NewSimpleClientset(),
+				KubeConfig: kc,
+				Logger:     microloggertest.New(),
+
+				ProjectName:    "app-operator",
 				WatchNamespace: "default",
 			}
 			r, err := New(c)
