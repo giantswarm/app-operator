@@ -2,6 +2,7 @@ package v1
 
 import (
 	"context"
+	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/chartstatus"
 
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/kubeconfig"
@@ -90,8 +91,26 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 	}
 
+	var chartStatusResource controller.Resource
+	{
+		c := chartstatus.Config{
+			G8sClient:  config.G8sClient,
+			K8sClient:  config.K8sClient,
+			KubeConfig: kubeConfigService,
+			Logger:     config.Logger,
+
+			WatchNamespace: config.WatchNamespace,
+		}
+
+		chartStatusResource, err = chartstatus.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	resources := []controller.Resource{
 		chartResource,
+		chartStatusResource,
 	}
 
 	{
