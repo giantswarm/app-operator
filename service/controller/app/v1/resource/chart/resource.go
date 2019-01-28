@@ -1,14 +1,12 @@
 package chart
 
 import (
-	"context"
 	"reflect"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
-	"github.com/giantswarm/operatorkit/controller"
 	"k8s.io/client-go/kubernetes"
 
 	"github.com/giantswarm/app-operator/service/controller/app/v1/kubeconfig"
@@ -45,14 +43,6 @@ type Resource struct {
 
 	projectName    string
 	watchNamespace string
-}
-
-func (r *Resource) NewDeletePatch(ctx context.Context, obj, currentState, desiredState interface{}) (*controller.Patch, error) {
-	return nil, nil
-}
-
-func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange interface{}) error {
-	return nil
 }
 
 // New creates a new configured chart resource.
