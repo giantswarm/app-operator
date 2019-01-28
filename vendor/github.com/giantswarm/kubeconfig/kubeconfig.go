@@ -3,6 +3,7 @@ package kubeconfig
 import (
 	"context"
 
+	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
@@ -14,18 +15,23 @@ import (
 
 // Config represents the configuration used to create a new kubeconfig library instance.
 type Config struct {
+	G8sClient versioned.Interface
 	Logger    micrologger.Logger
 	K8sClient kubernetes.Interface
 }
 
 // KubeConfig provides functionality for connecting to tenant clusters based on the specified secret information.
 type KubeConfig struct {
+	g8sClient versioned.Interface
 	logger    micrologger.Logger
 	k8sClient kubernetes.Interface
 }
 
 // New creates a new KubeConfig service.
 func New(config Config) (*KubeConfig, error) {
+	if config.G8sClient == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.G8sClient must not be empty", config)
+	}
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
@@ -34,6 +40,7 @@ func New(config Config) (*KubeConfig, error) {
 	}
 
 	g := &KubeConfig{
+		g8sClient: config.G8sClient,
 		logger:    config.Logger,
 		k8sClient: config.K8sClient,
 	}
@@ -41,9 +48,18 @@ func New(config Config) (*KubeConfig, error) {
 	return g, nil
 }
 
-// NewG8sClientFromSecret returns a generated clientset based on the kubeconfig stored in a secret.
-func (k KubeConfig) NewG8sClientFromSecret(ctx context.Context, secretName, secretNamespace string) (versioned.Interface, error) {
-	kubeConfig, err := k.getKubeConfigFromSecret(ctx, secretName, secretNamespace)
+// NewG8sClientForApp returns a generated clientset for the cluster configured
+// in the kubeconfig section of the app CR. If this is empty a clientset for
+// the current cluster is returned.
+func (k KubeConfig) NewG8sClientForApp(ctx context.Context, app v1alpha1.App) (versioned.Interface, error) {
+	secretName := secretName(app)
+
+	// KubeConfig is not configured so connect to current cluster.
+	if secretName == "" {
+		return k.g8sClient, nil
+	}
+
+	kubeConfig, err := k.getKubeConfigFromSecret(ctx, secretName, secretNamespace(app))
 	if err != nil {
 		return nil, err
 	}
@@ -60,9 +76,18 @@ func (k KubeConfig) NewG8sClientFromSecret(ctx context.Context, secretName, secr
 	return client, nil
 }
 
-// NewK8sClientFromSecret returns a Kubernetes clientset based on the kubeconfig stored in a secret.
-func (k KubeConfig) NewK8sClientFromSecret(ctx context.Context, secretName, secretNamespace string) (kubernetes.Interface, error) {
-	kubeConfig, err := k.getKubeConfigFromSecret(ctx, secretName, secretNamespace)
+// NewK8sClientForApp returns a Kubernetes clientset for the cluster configured
+// in the kubeconfig section of the app CR. If this is empty a clientset for
+// the current cluster is returned.
+func (k KubeConfig) NewK8sClientForApp(ctx context.Context, app v1alpha1.App) (kubernetes.Interface, error) {
+	secretName := secretName(app)
+
+	// KubeConfig is not configured so connect to current cluster.
+	if secretName == "" {
+		return k.k8sClient, nil
+	}
+
+	kubeConfig, err := k.getKubeConfigFromSecret(ctx, secretName, secretNamespace(app))
 	if err != nil {
 		return nil, err
 	}
@@ -93,4 +118,12 @@ func (k KubeConfig) getKubeConfigFromSecret(ctx context.Context, secretName, sec
 	} else {
 		return nil, notFoundError
 	}
+}
+
+func secretName(app v1alpha1.App) string {
+	return app.Spec.KubeConfig.Secret.Name
+}
+
+func secretNamespace(app v1alpha1.App) string {
+	return app.Spec.KubeConfig.Secret.Namespace
 }
