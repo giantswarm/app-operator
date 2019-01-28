@@ -42,7 +42,12 @@ func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange inte
 	if chart.Name != "" {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("ensuring update of chart %#q", chart.Name))
 
-		_, err = r.g8sClient.ApplicationV1alpha1().Charts(cr.Namespace).Update(&chart)
+		g8sClient, err := r.kubeConfig.NewG8sClientForApp(ctx, cr)
+		if err != nil {
+			return microerror.Mask(err)
+		}
+
+		_, err = g8sClient.ApplicationV1alpha1().Charts(cr.Namespace).Update(&chart)
 		if err != nil {
 			return microerror.Mask(err)
 		}
