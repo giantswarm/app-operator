@@ -7,6 +7,7 @@ import (
 
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned/fake"
+	"github.com/giantswarm/kubeconfig/kubeconfigtest"
 	"github.com/giantswarm/micrologger/microloggertest"
 	"github.com/google/go-cmp/cmp"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -14,7 +15,6 @@ import (
 	k8sfake "k8s.io/client-go/kubernetes/fake"
 
 	"github.com/giantswarm/app-operator/service/controller/app/v1/key"
-	"github.com/giantswarm/app-operator/service/controller/app/v1/kubeconfig"
 )
 
 func Test_Resource_GetDesiredState(t *testing.T) {
@@ -222,22 +222,6 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 		},
 	}
 
-	var err error
-
-	var kc *kubeconfig.KubeConfig
-	{
-		c := kubeconfig.Config{
-			G8sClient: fake.NewSimpleClientset(),
-			K8sClient: k8sfake.NewSimpleClientset(),
-			Logger:    microloggertest.New(),
-		}
-
-		kc, err = kubeconfig.New(c)
-		if err != nil {
-			t.Fatalf("error == %#v, want nil", err)
-		}
-	}
-
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
 			objs := make([]runtime.Object, 0, 0)
@@ -248,7 +232,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 			c := Config{
 				G8sClient:  fake.NewSimpleClientset(objs...),
 				K8sClient:  k8sfake.NewSimpleClientset(),
-				KubeConfig: kc,
+				KubeConfig: kubeconfigtest.New(kubeconfigtest.Config{}),
 				Logger:     microloggertest.New(),
 
 				ProjectName:    "app-operator",

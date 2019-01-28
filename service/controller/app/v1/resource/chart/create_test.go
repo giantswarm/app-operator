@@ -7,14 +7,13 @@ import (
 
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned/fake"
+	"github.com/giantswarm/kubeconfig/kubeconfigtest"
 	"github.com/giantswarm/micrologger/microloggertest"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	k8sfake "k8s.io/client-go/kubernetes/fake"
-
-	"github.com/giantswarm/app-operator/service/controller/app/v1/kubeconfig"
 )
 
-func TestResource_newCreateChange(t *testing.T) {
+func Test_Resource_newCreateChange(t *testing.T) {
 	tests := []struct {
 		name            string
 		currentResource *v1alpha1.Chart
@@ -99,31 +98,12 @@ func TestResource_newCreateChange(t *testing.T) {
 		},
 	}
 
-	var err error
-
-	var kc *kubeconfig.KubeConfig
-	{
-		c := kubeconfig.Config{
-			G8sClient: fake.NewSimpleClientset(),
-			K8sClient: k8sfake.NewSimpleClientset(),
-			Logger:    microloggertest.New(),
-		}
-
-		kc, err = kubeconfig.New(c)
-		if err != nil {
-			t.Fatalf("error == %#v, want nil", err)
-		}
-	}
-
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-
-			var err error
-
 			c := Config{
 				G8sClient:  fake.NewSimpleClientset(),
 				K8sClient:  k8sfake.NewSimpleClientset(),
-				KubeConfig: kc,
+				KubeConfig: kubeconfigtest.New(kubeconfigtest.Config{}),
 				Logger:     microloggertest.New(),
 
 				ProjectName:    "app-operator",
