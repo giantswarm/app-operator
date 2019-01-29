@@ -5,11 +5,10 @@ import (
 
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
+	"github.com/giantswarm/kubeconfig"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"k8s.io/client-go/kubernetes"
-
-	"github.com/giantswarm/app-operator/service/controller/app/v1/kubeconfig"
 )
 
 const (
@@ -26,7 +25,7 @@ type Config struct {
 	// Dependencies.
 	G8sClient  versioned.Interface
 	K8sClient  kubernetes.Interface
-	KubeConfig *kubeconfig.KubeConfig
+	KubeConfig kubeconfig.Interface
 	Logger     micrologger.Logger
 
 	ProjectName    string
@@ -38,7 +37,7 @@ type Resource struct {
 	// Dependencies.
 	g8sClient  versioned.Interface
 	k8sClient  kubernetes.Interface
-	kubeConfig *kubeconfig.KubeConfig
+	kubeConfig kubeconfig.Interface
 	logger     micrologger.Logger
 
 	projectName    string
@@ -71,8 +70,8 @@ func New(config Config) (*Resource, error) {
 	r := &Resource{
 		// Dependencies.
 		g8sClient:  config.G8sClient,
-		kubeConfig: config.KubeConfig,
 		k8sClient:  config.K8sClient,
+		kubeConfig: config.KubeConfig,
 		logger:     config.Logger,
 
 		projectName:    config.ProjectName,

@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
+	"github.com/giantswarm/kubeconfig"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/controller"
@@ -12,7 +13,6 @@ import (
 	"k8s.io/client-go/kubernetes"
 
 	"github.com/giantswarm/app-operator/service/controller/app/v1/key"
-	"github.com/giantswarm/app-operator/service/controller/app/v1/kubeconfig"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/chart"
 )
 
@@ -53,7 +53,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.WatchNamespace must not be empty", config)
 	}
 
-	var kubeConfigService *kubeconfig.KubeConfig
+	var kubeConfig kubeconfig.Interface
 	{
 		c := kubeconfig.Config{
 			G8sClient: config.G8sClient,
@@ -61,7 +61,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 			Logger:    config.Logger,
 		}
 
-		kubeConfigService, err = kubeconfig.New(c)
+		kubeConfig, err = kubeconfig.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -72,7 +72,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		c := chart.Config{
 			G8sClient:  config.G8sClient,
 			K8sClient:  config.K8sClient,
-			KubeConfig: kubeConfigService,
+			KubeConfig: kubeConfig,
 			Logger:     config.Logger,
 
 			ProjectName:    config.ProjectName,

@@ -93,44 +93,6 @@ func Test_Namespace(t *testing.T) {
 	}
 }
 
-func Test_KubeConfigSecretName(t *testing.T) {
-	expectedName := "cluster-12345-kubeconfig"
-
-	obj := v1alpha1.App{
-		Spec: v1alpha1.AppSpec{
-			KubeConfig: v1alpha1.AppSpecKubeConfig{
-				Secret: v1alpha1.AppSpecKubeConfigSecret{
-					Name:      "cluster-12345-kubeconfig",
-					Namespace: "default",
-				},
-			},
-		},
-	}
-
-	if KubeConfigSecretName(obj) != expectedName {
-		t.Fatalf("app kubeconfig secret name %#q, want %#q", KubeConfigSecretName(obj), expectedName)
-	}
-}
-
-func Test_KubeConfigSecretNamespace(t *testing.T) {
-	expectedNamespace := "default"
-
-	obj := v1alpha1.App{
-		Spec: v1alpha1.AppSpec{
-			KubeConfig: v1alpha1.AppSpecKubeConfig{
-				Secret: v1alpha1.AppSpecKubeConfigSecret{
-					Name:      "cluster-12345-kubeconfig",
-					Namespace: "default",
-				},
-			},
-		},
-	}
-
-	if KubeConfigSecretNamespace(obj) != expectedNamespace {
-		t.Fatalf("app kubeconfig secret namespace %#q, want %#q", KubeConfigSecretNamespace(obj), expectedNamespace)
-	}
-}
-
 func Test_SecretName(t *testing.T) {
 	expectedName := "giant-swarm-secret-name"
 
