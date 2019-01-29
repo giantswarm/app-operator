@@ -31,7 +31,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		return nil, microerror.Mask(err)
 	}
 
-	tarballURL, err := generateTarballURL(appcatalogkey.CatalogStorageURL(*appCatalog), key.AppName(cr), key.Release(cr))
+	tarballURL, err := generateTarballURL(appcatalogkey.CatalogStorageURL(*appCatalog), key.AppName(cr), key.Version(cr))
 	if err != nil {
 		return nil, err
 	}
