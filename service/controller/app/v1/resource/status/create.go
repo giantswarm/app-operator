@@ -1,4 +1,4 @@
-package chartstatus
+package status
 
 import (
 	"context"
@@ -11,14 +11,14 @@ import (
 )
 
 func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
-	customResource, err := key.ToCustomResource(obj)
+	cr, err := key.ToCustomResource(obj)
 	if err != nil {
 		return microerror.Mask(err)
 	}
 
-	name := key.AppName(customResource)
+	name := key.AppName(cr)
 
-	g8sClient, err := r.kubeConfig.NewG8sClientForApp(ctx, customResource)
+	g8sClient, err := r.kubeConfig.NewG8sClientForApp(ctx, cr)
 	if err != nil {
 		return microerror.Mask(err)
 	}
@@ -29,13 +29,17 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return microerror.Maskf(notFoundError, "chart %#q in namespace %#q", name, r.watchNamespace)
 	}
 
-	if chart.Status.Status != "" && key.ReleaseStatus(customResource) != chart.Status.Status {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("setting chart %#q status as %#q", name, chart.Status.Status))
-		customResourceCopy := customResource.DeepCopy()
+	if chart.Status.Status != "" && key.AppStatus(cr) != chart.Status.Status {
+		r.logger.LogCtx(ctx, "level", "debug", "message",
+			fmt.Sprintf("setting app %#q status as %#q", name, chart.Status.Status))
+
+		customResourceCopy := cr.DeepCopy()
 		customResourceCopy.Status.LastDeployed = *chart.Status.LastDeployed.DeepCopy()
 		customResourceCopy.Status.Status = chart.Status.Status
+		customResourceCopy.Status.Version = chart.Status.Version
+		customResourceCopy.Status.AppVersion = chart.Status.AppVersion
 
-		_, err = r.g8sClient.ApplicationV1alpha1().Apps(customResource.Namespace).UpdateStatus(customResourceCopy)
+		_, err = r.g8sClient.ApplicationV1alpha1().Apps(cr.Namespace).UpdateStatus(customResourceCopy)
 		if err != nil {
 			return microerror.Mask(err)
 		}

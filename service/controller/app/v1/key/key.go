@@ -35,8 +35,8 @@ func SecretNamespace(customResource v1alpha1.App) string {
 	return customResource.Spec.Config.Secret.Namespace
 }
 
-func ReleaseStatus(customObject v1alpha1.App) string {
-	return customObject.Status.Status
+func AppStatus(customResource v1alpha1.App) string {
+	return customResource.Status.Status
 }
 
 // ToCustomResource converts value to v1alpha1.App and returns it or error

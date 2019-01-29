@@ -1,4 +1,4 @@
-package chartstatus
+package status
 
 import (
 	"context"

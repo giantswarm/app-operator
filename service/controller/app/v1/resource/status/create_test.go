@@ -1,7 +1,8 @@
-package chartstatus
+package status
 
 import (
 	"context"
+	"reflect"
 	"testing"
 	"time"
 
@@ -15,11 +16,12 @@ import (
 	"github.com/giantswarm/app-operator/service/controller/app/v1/kubeconfig"
 )
 
-func TestResource_EnsureCreated(t *testing.T) {
+func Test_Resource_EnsureCreated(t *testing.T) {
 	tests := []struct {
 		name         string
 		obj          *v1alpha1.App
 		chart        *v1alpha1.Chart
+		status       v1alpha1.AppStatus
 		errorMatcher func(error) bool
 	}{
 		{
@@ -74,7 +76,15 @@ func TestResource_EnsureCreated(t *testing.T) {
 				Status: v1alpha1.ChartStatus{
 					Status:       "DEPLOYED",
 					LastDeployed: v1alpha1.DeepCopyTime{time.Date(2019, 1, 1, 13, 0, 0, 0, time.UTC)},
+					Version:      "0.1.1",
+					AppVersion:   "0.1",
 				},
+			},
+			status: v1alpha1.AppStatus{
+				Status:       "DEPLOYED",
+				LastDeployed: v1alpha1.DeepCopyTime{time.Date(2019, 1, 1, 13, 0, 0, 0, time.UTC)},
+				Version:      "0.1.1",
+				AppVersion:   "0.1",
 			},
 		},
 		{
@@ -134,6 +144,10 @@ func TestResource_EnsureCreated(t *testing.T) {
 					Status:       "DEPLOYED",
 					LastDeployed: v1alpha1.DeepCopyTime{time.Date(2019, 1, 1, 13, 0, 0, 0, time.UTC)},
 				},
+			},
+			status: v1alpha1.AppStatus{
+				Status:       "DEPLOYED",
+				LastDeployed: v1alpha1.DeepCopyTime{time.Date(2019, 1, 1, 13, 0, 0, 0, time.UTC)},
 			},
 		},
 		{
@@ -230,11 +244,8 @@ func TestResource_EnsureCreated(t *testing.T) {
 				if err != nil {
 					t.Fatalf("error == %#v, want nil", err)
 				}
-				if app.Status.LastDeployed != tc.chart.Status.LastDeployed {
-					t.Fatalf("app.status.LastDeployed == %#v, want %#v", app.Status.LastDeployed, tc.chart.Status.LastDeployed)
-				}
-				if app.Status.Status != tc.chart.Status.Status {
-					t.Fatalf("app.status.Status == %#v, want %#v", app.Status.Status, tc.chart.Status.Status)
+				if !reflect.DeepEqual(app.Status, tc.status) {
+					t.Fatalf("app.Status == %#v, want %#v", app.Status, tc.status)
 				}
 			}
 
