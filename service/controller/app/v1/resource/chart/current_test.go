@@ -32,7 +32,7 @@ func Test_Resource_GetCurrentState(t *testing.T) {
 				},
 				Spec: v1alpha1.AppSpec{
 					Catalog: "giantswarm",
-					Version: "1.0.0",
+					Release: "1.0.0",
 					Config: v1alpha1.AppSpecConfig{
 						ConfigMap: v1alpha1.AppSpecConfigConfigMap{
 							Name:      "giant-swarm-config",
@@ -90,7 +90,7 @@ func Test_Resource_GetCurrentState(t *testing.T) {
 				},
 				Spec: v1alpha1.AppSpec{
 					Catalog: "giantswarm",
-					Version: "1.0.0",
+					Release: "1.0.0",
 					Config: v1alpha1.AppSpecConfig{
 						ConfigMap: v1alpha1.AppSpecConfigConfigMap{
 							Name:      "giant-swarm-config",

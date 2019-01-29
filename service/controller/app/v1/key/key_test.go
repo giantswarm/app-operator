@@ -146,14 +146,14 @@ func Test_ToCustomResource(t *testing.T) {
 				Spec: v1alpha1.AppSpec{
 					Name:      "giant-swarm-name",
 					Namespace: "giant-swarm-namespace",
-					Version:   "1.2.3",
+					Release:   "1.2.3",
 				},
 			},
 			expectedObject: v1alpha1.App{
 				Spec: v1alpha1.AppSpec{
 					Name:      "giant-swarm-name",
 					Namespace: "giant-swarm-namespace",
-					Version:   "1.2.3",
+					Release:   "1.2.3",
 				},
 			},
 		},
@@ -190,7 +190,7 @@ func Test_Version(t *testing.T) {
 		Spec: v1alpha1.AppSpec{
 			Name:      "prometheus",
 			Namespace: "monitoring",
-			Version:   "1.2.3",
+			Release:   "1.2.3",
 		},
 	}
 
