@@ -8,12 +8,11 @@ import (
 
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned/fake"
+	"github.com/giantswarm/kubeconfig"
 	"github.com/giantswarm/micrologger/microloggertest"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	k8sfake "k8s.io/client-go/kubernetes/fake"
-
-	"github.com/giantswarm/app-operator/service/controller/app/v1/kubeconfig"
 )
 
 func Test_Resource_EnsureCreated(t *testing.T) {

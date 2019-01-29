@@ -4,11 +4,10 @@ import (
 	"context"
 
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
+	"github.com/giantswarm/kubeconfig"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"k8s.io/client-go/kubernetes"
-
-	"github.com/giantswarm/app-operator/service/controller/app/v1/kubeconfig"
 )
 
 const (
@@ -19,7 +18,7 @@ const (
 type Config struct {
 	G8sClient  versioned.Interface
 	K8sClient  kubernetes.Interface
-	KubeConfig *kubeconfig.KubeConfig
+	KubeConfig kubeconfig.Interface
 	Logger     micrologger.Logger
 
 	WatchNamespace string
@@ -29,7 +28,7 @@ type Config struct {
 type Resource struct {
 	g8sClient  versioned.Interface
 	k8sClient  kubernetes.Interface
-	kubeConfig *kubeconfig.KubeConfig
+	kubeConfig kubeconfig.Interface
 	logger     micrologger.Logger
 
 	watchNamespace string
