@@ -64,6 +64,7 @@
 
 [[projects]]
   branch = "master"
+  digest = "1:32fb205b4ad78d544188add21c4b646ac2bc32ebf650010f9fe236d6ce1d74f8"
   name = "github.com/giantswarm/apiextensions"
   packages = [
     "pkg/apis/application/v1alpha1",
@@ -83,7 +84,7 @@
     "pkg/clientset/versioned/typed/provider/v1alpha1/fake"
   ]
   pruneopts = "UT"
-  revision = "452d2fb9f8222ebd7a8f1777e6aee4ef4218f5b8"
+  revision = "1f1e998db676f6bfc5698286fd697f5b4c0a55e5"
 
 [[projects]]
   branch = "master"
@@ -156,6 +157,7 @@
 
 [[projects]]
   branch = "master"
+  digest = "1:df8b5ad8b4da186898ece71aa2274ab8f0b8f27de2c47bbe7975ecc9958ad358"
   name = "github.com/giantswarm/operatorkit"
   packages = [
     "client/k8scrdclient",
@@ -172,7 +174,7 @@
     "informer/collector"
   ]
   pruneopts = "UT"
-  revision = "204721021837676ee3e6ee110ae58ec2e2b0d0c0"
+  revision = "a1aa0b72cce3bb752ca8e5097dc84f97cf4cbbf7"
 
 [[projects]]
   branch = "master"
@@ -265,8 +267,10 @@
   version = "v0.2.0"
 
 [[projects]]
+  digest = "1:ca59b1175189b3f0e9f1793d2c350114be36eaabbe5b9f554b35edee1de50aea"
   name = "github.com/gorilla/mux"
   packages = ["."]
+  pruneopts = "UT"
   revision = "a7962380ca08b5a188038c69871b8d3fbdf31e89"
   version = "v1.7.0"
 
@@ -306,11 +310,12 @@
   version = "v1.0.0"
 
 [[projects]]
+  digest = "1:a0cefd27d12712af4b5018dc7046f245e1e3b5760e2e848c30b171b570708f9b"
   name = "github.com/imdario/mergo"
   packages = ["."]
   pruneopts = "UT"
-  revision = "9f23e2d6bd2a77f959b2bf6acdbefd708a83a4a4"
-  version = "v0.3.6"
+  revision = "7c29201646fa3de8506f701213473dd407f19646"
+  version = "v0.3.7"
 
 [[projects]]
   name = "github.com/inconshreveable/mousetrap"
@@ -405,7 +410,7 @@
     "prometheus/promhttp"
   ]
   pruneopts = "UT"
-  revision = "26e258bb9c9a94c26d4a46ff302ec7e855b82e10"
+  revision = "12af604cf208d3105ced825c65231b4ecf00a8cc"
 
 [[projects]]
   branch = "master"
@@ -414,6 +419,7 @@
   revision = "56726106282f1985ea77d5305743db7231b0c0a8"
 
 [[projects]]
+  digest = "1:35cf6bdf68db765988baa9c4f10cc5d7dda1126a54bd62e252dbcd0b1fc8da90"
   name = "github.com/prometheus/common"
   packages = [
     "expfmt",
@@ -421,7 +427,8 @@
     "model"
   ]
   pruneopts = "UT"
-  revision = "2998b132700a7d019ff618c06a234b47c1f3f681"
+  revision = "cfeb6f9992ffa54aaa4f2170ade4067ee478b250"
+  version = "v0.2.0"
 
 [[projects]]
   branch = "master"
@@ -475,8 +482,10 @@
 
 [[projects]]
   branch = "master"
+  digest = "1:fde12c4da6237363bf36b81b59aa36a43d28061167ec4acb0d41fc49464e28b9"
   name = "golang.org/x/crypto"
   packages = ["ssh/terminal"]
+  pruneopts = "UT"
   revision = "c7b33c32a30bae9ba07d37eb4d86f1f8b0f644fb"
 
 [[projects]]
@@ -491,6 +500,7 @@
     "idna",
     "publicsuffix"
   ]
+  pruneopts = "UT"
   revision = "d26f9f9a57f3fab6a695bec0d84433c2c50f8bbf"
 
 [[projects]]
@@ -510,13 +520,14 @@
 
 [[projects]]
   branch = "master"
+  digest = "1:f5987dbdcc6c3fb59ea5d4e4344a009308608b22c0ba24ef74c4f1e2a6032904"
   name = "golang.org/x/sys"
   packages = [
     "unix",
     "windows"
   ]
   pruneopts = "UT"
-  revision = "770c60269bf0ef965e9e7ac8bedcb6bca2a1cefd"
+  revision = "302c3dd5f1cc82baae8e44d9c3178e89b6e2b345"
 
 [[projects]]
   name = "golang.org/x/text"
