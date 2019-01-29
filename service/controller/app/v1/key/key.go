@@ -66,8 +66,8 @@ func ToChart(v interface{}) (v1alpha1.Chart, error) {
 	return *customResource, nil
 }
 
-func Version(customResource v1alpha1.App) string {
-	return customResource.Spec.Version
+func Release(customResource v1alpha1.App) string {
+	return customResource.Spec.Release
 }
 
 // VersionLabel returns the label value to determine if the custom resource is

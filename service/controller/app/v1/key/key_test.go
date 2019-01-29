@@ -194,8 +194,8 @@ func Test_Version(t *testing.T) {
 		},
 	}
 
-	if Version(obj) != expectedVersion {
-		t.Fatalf("app version %#q, want %#q", Version(obj), expectedVersion)
+	if Release(obj) != expectedVersion {
+		t.Fatalf("app version %#q, want %#q", Release(obj), expectedVersion)
 	}
 }
 
@@ -251,7 +251,7 @@ func Test_VersionLabel(t *testing.T) {
 			result := VersionLabel(tc.obj)
 
 			if !reflect.DeepEqual(result, tc.expectedVersion) {
-				t.Fatalf("Version label == %#v, want %#v", result, tc.expectedVersion)
+				t.Fatalf("Release label == %#v, want %#v", result, tc.expectedVersion)
 			}
 		})
 	}

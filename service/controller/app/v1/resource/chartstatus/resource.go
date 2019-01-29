@@ -67,7 +67,7 @@ func New(config Config) (*Resource, error) {
 }
 
 func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
-	panic("implement me")
+	return nil
 }
 
 func (r Resource) Name() string {

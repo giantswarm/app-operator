@@ -29,7 +29,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return microerror.Maskf(notFoundError, "chart %#q in namespace %#q", name, r.watchNamespace)
 	}
 
-	if key.ReleaseStatus(customResource) != chart.Status.Status {
+	if chart.Status.Status != "" && key.ReleaseStatus(customResource) != chart.Status.Status {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("setting chart %#q status as %#q", name, chart.Status.Status))
 		customResourceCopy := customResource.DeepCopy()
 		customResourceCopy.Status.LastDeployed = *chart.Status.LastDeployed.DeepCopy()
