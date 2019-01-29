@@ -82,7 +82,8 @@
     "pkg/clientset/versioned/typed/provider/v1alpha1",
     "pkg/clientset/versioned/typed/provider/v1alpha1/fake"
   ]
-  revision = "1f1e998db676f6bfc5698286fd697f5b4c0a55e5"
+  pruneopts = "UT"
+  revision = "452d2fb9f8222ebd7a8f1777e6aee4ef4218f5b8"
 
 [[projects]]
   branch = "master"
@@ -170,7 +171,8 @@
     "informer",
     "informer/collector"
   ]
-  revision = "a1aa0b72cce3bb752ca8e5097dc84f97cf4cbbf7"
+  pruneopts = "UT"
+  revision = "204721021837676ee3e6ee110ae58ec2e2b0d0c0"
 
 [[projects]]
   branch = "master"
@@ -234,13 +236,15 @@
   revision = "4030bb1f1f0c35b30ca7009e9ebd06849dd45306"
 
 [[projects]]
+  digest = "1:2e3c336fc7fde5c984d2841455a658a6d626450b1754a854b3b32e7a8f49a07a"
   name = "github.com/google/go-cmp"
   packages = [
     "cmp",
     "cmp/internal/diff",
     "cmp/internal/function",
-    "cmp/internal/value"
+    "cmp/internal/value",
   ]
+  pruneopts = "UT"
   revision = "3af367b6b30c263d47e8895973edcca9a49cf029"
   version = "v0.2.0"
 
@@ -304,8 +308,9 @@
 [[projects]]
   name = "github.com/imdario/mergo"
   packages = ["."]
-  revision = "7c29201646fa3de8506f701213473dd407f19646"
-  version = "v0.3.7"
+  pruneopts = "UT"
+  revision = "9f23e2d6bd2a77f959b2bf6acdbefd708a83a4a4"
+  version = "v0.3.6"
 
 [[projects]]
   name = "github.com/inconshreveable/mousetrap"
@@ -399,7 +404,8 @@
     "prometheus/internal",
     "prometheus/promhttp"
   ]
-  revision = "12af604cf208d3105ced825c65231b4ecf00a8cc"
+  pruneopts = "UT"
+  revision = "26e258bb9c9a94c26d4a46ff302ec7e855b82e10"
 
 [[projects]]
   branch = "master"
@@ -414,8 +420,8 @@
     "internal/bitbucket.org/ww/goautoneg",
     "model"
   ]
-  revision = "cfeb6f9992ffa54aaa4f2170ade4067ee478b250"
-  version = "v0.2.0"
+  pruneopts = "UT"
+  revision = "2998b132700a7d019ff618c06a234b47c1f3f681"
 
 [[projects]]
   branch = "master"
@@ -509,7 +515,8 @@
     "unix",
     "windows"
   ]
-  revision = "302c3dd5f1cc82baae8e44d9c3178e89b6e2b345"
+  pruneopts = "UT"
+  revision = "770c60269bf0ef965e9e7ac8bedcb6bca2a1cefd"
 
 [[projects]]
   name = "golang.org/x/text"
@@ -797,6 +804,40 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "fc131a9b71dc9d5c26f330ed0a15de3c98d398ddd02c7f5bbaf7a36ec0cd52dc"
+  input-imports = [
+    "github.com/Azure/go-autorest/autorest",
+    "github.com/docker/distribution/reference",
+    "github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1",
+    "github.com/giantswarm/apiextensions/pkg/clientset/versioned",
+    "github.com/giantswarm/apiextensions/pkg/clientset/versioned/fake",
+    "github.com/giantswarm/kubeconfig",
+    "github.com/giantswarm/microendpoint/endpoint/healthz",
+    "github.com/giantswarm/microendpoint/endpoint/version",
+    "github.com/giantswarm/microendpoint/service/version",
+    "github.com/giantswarm/microerror",
+    "github.com/giantswarm/microkit/command",
+    "github.com/giantswarm/microkit/flag",
+    "github.com/giantswarm/microkit/server",
+    "github.com/giantswarm/micrologger",
+    "github.com/giantswarm/micrologger/microloggertest",
+    "github.com/giantswarm/operatorkit/client/k8scrdclient",
+    "github.com/giantswarm/operatorkit/client/k8srestconfig",
+    "github.com/giantswarm/operatorkit/controller",
+    "github.com/giantswarm/operatorkit/controller/resource/metricsresource",
+    "github.com/giantswarm/operatorkit/controller/resource/retryresource",
+    "github.com/giantswarm/operatorkit/informer",
+    "github.com/giantswarm/versionbundle",
+    "github.com/google/go-cmp/cmp",
+    "github.com/spf13/viper",
+    "k8s.io/api/core/v1",
+    "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset",
+    "k8s.io/apimachinery/pkg/api/errors",
+    "k8s.io/apimachinery/pkg/apis/meta/v1",
+    "k8s.io/apimachinery/pkg/runtime",
+    "k8s.io/apiserver/pkg/endpoints/request",
+    "k8s.io/client-go/kubernetes",
+    "k8s.io/client-go/kubernetes/fake",
+    "k8s.io/client-go/rest",
+  ]
   solver-name = "gps-cdcl"
   solver-version = 1

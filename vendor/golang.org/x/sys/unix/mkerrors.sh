@@ -182,7 +182,6 @@ struct ltchars {
 #include <sys/signalfd.h>
 #include <sys/socket.h>
 #include <sys/xattr.h>
-#include <linux/errqueue.h>
 #include <linux/if.h>
 #include <linux/if_alg.h>
 #include <linux/if_arp.h>

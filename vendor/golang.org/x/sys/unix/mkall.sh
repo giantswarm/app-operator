@@ -67,7 +67,7 @@ aix_ppc)
 	;;
 aix_ppc64)
 	mkerrors="$mkerrors -maix64"
-	mksyscall="go run mksyscall_aix_ppc64.go -aix"
+	mksyscall="./mksyscall_aix_ppc64.pl -aix"
 	mktypes="GOARCH=$GOARCH go tool cgo -godefs"
 	;;
 darwin_386)

@@ -234,22 +234,13 @@ func (c *Controller) deleteFunc(ctx context.Context, obj interface{}) {
 func (c *Controller) ProcessEvents(ctx context.Context, deleteChan chan watch.Event, updateChan chan watch.Event, errChan chan error) error {
 	loop := -1
 
-	for {
-		loop++
+	operation := func() error {
+		for {
+			loop++
 
-		// Set loop specific logger context.
-		{
-			ctx = setLoggerCtxValue(ctx, loggerKeyLoop, strconv.Itoa(loop))
-		}
-
-		select {
-		case e := <-deleteChan:
-			event := "delete"
-
-			t := prometheus.NewTimer(controllerHistogram.WithLabelValues(event))
-
-			// Set event specific logger context.
+			// Set loop specific logger context.
 			{
+<<<<<<< HEAD
 				ctx = setLoggerCtxValue(ctx, loggerKeyEvent, event)
 
 				accessor, err := meta.Accessor(e.Object)
@@ -259,18 +250,55 @@ func (c *Controller) ProcessEvents(ctx context.Context, deleteChan chan watch.Ev
 					ctx = setLoggerCtxValue(ctx, loggerKeyObject, accessor.GetSelfLink())
 					ctx = setLoggerCtxValue(ctx, loggerKeyVersion, accessor.GetResourceVersion())
 				}
+||||||| merged common ancestors
+				ctx = setLoggerCtxValue(ctx, loggerKeyEvent, event)
+
+				accessor, err := meta.Accessor(e.Object)
+				if err != nil {
+					c.logger.LogCtx(ctx, "level", "error", "message", fmt.Sprintf("cannot create accessor %T", e.Object), "stack", fmt.Sprintf("%#v", err))
+				} else {
+					ctx = setLoggerCtxValue(ctx, loggerKeyObject, accessor.GetSelfLink())
+					ctx = setLoggerCtxValue(ctx, loggerKeyVersion, accessor.GetResourceVersion())
+				}
+=======
+				ctx = setLoggerCtxValue(ctx, loggerKeyLoop, strconv.Itoa(loop))
+>>>>>>> update vendor
 			}
 
+<<<<<<< HEAD
 			c.logger.LogCtx(ctx, "level", "debug", "message", "reconciling object")
 			c.deleteFunc(ctx, e.Object)
 			c.logger.LogCtx(ctx, "level", "debug", "message", "reconciled object")
+||||||| merged common ancestors
+			c.deleteFunc(ctx, e.Object)
+=======
+			select {
+			case e := <-deleteChan:
+				event := "delete"
 
-			t.ObserveDuration()
-		case e := <-updateChan:
-			event := "update"
+				t := prometheus.NewTimer(controllerHistogram.WithLabelValues(event))
 
-			t := prometheus.NewTimer(controllerHistogram.WithLabelValues(event))
+				// Set event specific logger context.
+				{
+					ctx = setLoggerCtxValue(ctx, loggerKeyEvent, event)
 
+					accessor, err := meta.Accessor(e.Object)
+					if err != nil {
+						c.logger.LogCtx(ctx, "level", "warning", "message", fmt.Sprintf("cannot create accessor %T", e.Object), "stack", fmt.Sprintf("%#v", err))
+					} else {
+						ctx = setLoggerCtxValue(ctx, loggerKeyObject, accessor.GetSelfLink())
+						ctx = setLoggerCtxValue(ctx, loggerKeyVersion, accessor.GetResourceVersion())
+					}
+				}
+>>>>>>> update vendor
+
+				c.deleteFunc(ctx, e.Object)
+
+				t.ObserveDuration()
+			case e := <-updateChan:
+				event := "update"
+
+<<<<<<< HEAD
 			// Set event specific logger context.
 			{
 				ctx = setLoggerCtxValue(ctx, loggerKeyEvent, event)
@@ -281,26 +309,65 @@ func (c *Controller) ProcessEvents(ctx context.Context, deleteChan chan watch.Ev
 				} else {
 					ctx = setLoggerCtxValue(ctx, loggerKeyObject, accessor.GetSelfLink())
 					ctx = setLoggerCtxValue(ctx, loggerKeyVersion, accessor.GetResourceVersion())
-				}
-			}
+||||||| merged common ancestors
+			// Set event specific logger context.
+			{
+				ctx = setLoggerCtxValue(ctx, loggerKeyEvent, event)
 
+				accessor, err := meta.Accessor(e.Object)
+				if err != nil {
+					c.logger.LogCtx(ctx, "level", "error", "message", fmt.Sprintf("cannot create accessor %T", e.Object), "stack", fmt.Sprintf("%#v", err))
+				} else {
+					ctx = setLoggerCtxValue(ctx, loggerKeyObject, accessor.GetSelfLink())
+					ctx = setLoggerCtxValue(ctx, loggerKeyVersion, accessor.GetResourceVersion())
+=======
+				t := prometheus.NewTimer(controllerHistogram.WithLabelValues(event))
+
+				// Set event specific logger context.
+				{
+					ctx = setLoggerCtxValue(ctx, loggerKeyEvent, event)
+
+					accessor, err := meta.Accessor(e.Object)
+					if err != nil {
+						c.logger.LogCtx(ctx, "level", "warning", "message", fmt.Sprintf("cannot create accessor %T", e.Object), "stack", fmt.Sprintf("%#v", err))
+					} else {
+						ctx = setLoggerCtxValue(ctx, loggerKeyObject, accessor.GetSelfLink())
+						ctx = setLoggerCtxValue(ctx, loggerKeyVersion, accessor.GetResourceVersion())
+					}
+>>>>>>> update vendor
+				}
+
+<<<<<<< HEAD
 			c.logger.LogCtx(ctx, "level", "debug", "message", "reconciling object")
 			c.updateFunc(ctx, e.Object)
 			c.logger.LogCtx(ctx, "level", "debug", "message", "reconciled object")
+||||||| merged common ancestors
+			c.updateFunc(ctx, e.Object)
+=======
+				c.updateFunc(ctx, e.Object)
+>>>>>>> update vendor
 
-			t.ObserveDuration()
-		case err := <-errChan:
-			if IsStatusForbidden(err) {
-				c.logger.LogCtx(ctx, "level", "error", "message", fmt.Sprintf("controller might be missing RBAC rule for %s CRD", c.crd.Name), "stack", fmt.Sprintf("%#v", err))
-			} else if err != nil {
-				c.logger.LogCtx(ctx, "level", "error", "message", "failed to watch object", "stack", fmt.Sprintf("%#v", err))
+				t.ObserveDuration()
+			case err := <-errChan:
+				if IsStatusForbidden(err) {
+					return microerror.Maskf(statusForbiddenError, "controller might be missing RBAC rule for %s CRD", c.crd.Name)
+				} else if err != nil {
+					return microerror.Mask(err)
+				}
+			case <-ctx.Done():
+				return nil
 			}
-
-			time.Sleep(time.Second)
-		case <-ctx.Done():
-			return nil
 		}
 	}
+
+	notifier := backoff.NewNotifier(c.logger, ctx)
+
+	err := backoff.RetryNotify(operation, c.backOffFactory(), notifier)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
+	return nil
 }
 
 // UpdateFunc executes the controller's ProcessUpdate function.
