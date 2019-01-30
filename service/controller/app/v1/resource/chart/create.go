@@ -24,12 +24,12 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 	if chart.Name != "" {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("ensuring creation of chart %#q", chart.Name))
 
-		ctlctx, err := controllercontext.FromContext(ctx)
+		ctlCtx, err := controllercontext.FromContext(ctx)
 		if err != nil {
 			return microerror.Mask(err)
 		}
 
-		_, err = ctlctx.G8sClient.ApplicationV1alpha1().Charts(cr.Namespace).Create(&chart)
+		_, err = ctlCtx.G8sClient.ApplicationV1alpha1().Charts(cr.Namespace).Create(&chart)
 		if err != nil {
 			return microerror.Mask(err)
 		}

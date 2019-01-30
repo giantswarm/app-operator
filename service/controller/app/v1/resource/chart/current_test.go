@@ -157,7 +157,7 @@ func Test_Resource_GetCurrentState(t *testing.T) {
 			ctlConfig := controllercontext.Context{
 				G8sClient: g8sClient,
 			}
-			ctx := controllercontext.NewContext(context.TODO(), ctlConfig)
+			ctx := controllercontext.NewContext(context.Background(), ctlConfig)
 
 			result, err := r.GetCurrentState(ctx, tc.obj)
 			switch {

@@ -3,6 +3,7 @@ package status
 import (
 	"context"
 	"fmt"
+	"k8s.io/apimachinery/pkg/api/errors"
 
 	"github.com/giantswarm/microerror"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -27,8 +28,10 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding status for chart %#q", name))
 
 	chart, err := ctlCtx.G8sClient.ApplicationV1alpha1().Charts(r.watchNamespace).Get(name, metav1.GetOptions{})
-	if err != nil {
+	if errors.IsNotFound(err) {
 		return microerror.Maskf(notFoundError, "chart %#q in namespace %#q", name, r.watchNamespace)
+	} else if err != nil {
+		return microerror.Mask(err)
 	}
 
 	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found status for chart %#q", name))
@@ -37,6 +40,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("setting app %#q status as %#q", name, chart.Status.Status))
 
 		crCopy := cr.DeepCopy()
+		crCopy.ResourceVersion = chart.GetResourceVersion()
 		crCopy.Status.AppVersion = chart.Status.AppVersion
 		crCopy.Status.LastDeployed = *chart.Status.LastDeployed.DeepCopy()
 		crCopy.Status.Status = chart.Status.Status

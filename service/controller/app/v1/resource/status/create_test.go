@@ -233,7 +233,7 @@ func Test_Resource_EnsureCreated(t *testing.T) {
 			ctlConfig := controllercontext.Context{
 				G8sClient: g8sClient,
 			}
-			ctx := controllercontext.NewContext(context.TODO(), ctlConfig)
+			ctx := controllercontext.NewContext(context.Background(), ctlConfig)
 
 			err = r.EnsureCreated(ctx, tc.obj)
 			switch {
