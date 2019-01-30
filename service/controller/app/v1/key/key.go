@@ -11,6 +11,10 @@ func AppName(customResource v1alpha1.App) string {
 	return customResource.Spec.Name
 }
 
+func AppStatus(customResource v1alpha1.App) string {
+	return customResource.Status.Status
+}
+
 func CatalogName(customResource v1alpha1.App) string {
 	return customResource.Spec.Catalog
 }
@@ -33,10 +37,6 @@ func SecretName(customResource v1alpha1.App) string {
 
 func SecretNamespace(customResource v1alpha1.App) string {
 	return customResource.Spec.Config.Secret.Namespace
-}
-
-func AppStatus(customResource v1alpha1.App) string {
-	return customResource.Status.Status
 }
 
 // ToCustomResource converts value to v1alpha1.App and returns it or error
