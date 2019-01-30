@@ -26,12 +26,12 @@ func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange inte
 	if chart.Name != "" {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleting the %#q chart", chart.Name))
 
-		ctlctx, err := controllercontext.FromContext(ctx)
+		ctlCtx, err := controllercontext.FromContext(ctx)
 		if err != nil {
 			return microerror.Mask(err)
 		}
 
-		err = ctlctx.G8sClient.ApplicationV1alpha1().Charts(cr.Namespace).Delete(chart.Name, &metav1.DeleteOptions{})
+		err = ctlCtx.G8sClient.ApplicationV1alpha1().Charts(cr.Namespace).Delete(chart.Name, &metav1.DeleteOptions{})
 		if apierrors.IsNotFound(err) {
 			// fall through
 		} else if err != nil {
