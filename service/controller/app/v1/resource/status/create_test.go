@@ -13,6 +13,8 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	k8sfake "k8s.io/client-go/kubernetes/fake"
+
+	"github.com/giantswarm/app-operator/service/controller/app/v1/controllercontext"
 )
 
 func Test_Resource_EnsureCreated(t *testing.T) {
@@ -228,7 +230,12 @@ func Test_Resource_EnsureCreated(t *testing.T) {
 				t.Fatalf("error == %#v, want nil", err)
 			}
 
-			err = r.EnsureCreated(context.TODO(), tc.obj)
+			ctlConfig := controllercontext.Context{
+				G8sClient: g8sClient,
+			}
+			ctx := controllercontext.NewContext(context.TODO(), ctlConfig)
+
+			err = r.EnsureCreated(ctx, tc.obj)
 			switch {
 			case err != nil && tc.errorMatcher == nil:
 				t.Fatalf("error == %#v, want nil", err)

@@ -9,6 +9,7 @@ import (
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
+	"github.com/giantswarm/app-operator/service/controller/app/v1/controllercontext"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/key"
 )
 
@@ -25,12 +26,12 @@ func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange inte
 	if chart.Name != "" {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleting the %#q chart", chart.Name))
 
-		g8sClient, err := r.kubeConfig.NewG8sClientForApp(ctx, cr)
+		ctlctx, err := controllercontext.FromContext(ctx)
 		if err != nil {
 			return microerror.Mask(err)
 		}
 
-		err = g8sClient.ApplicationV1alpha1().Charts(cr.Namespace).Delete(chart.Name, &metav1.DeleteOptions{})
+		err = ctlctx.G8sClient.ApplicationV1alpha1().Charts(cr.Namespace).Delete(chart.Name, &metav1.DeleteOptions{})
 		if apierrors.IsNotFound(err) {
 			// fall through
 		} else if err != nil {

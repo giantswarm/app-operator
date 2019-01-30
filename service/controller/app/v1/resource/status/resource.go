@@ -1,8 +1,6 @@
 package status
 
 import (
-	"context"
-
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/kubeconfig"
 	"github.com/giantswarm/microerror"
@@ -63,10 +61,6 @@ func New(config Config) (*Resource, error) {
 	}
 
 	return r, nil
-}
-
-func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
-	return nil
 }
 
 func (r Resource) Name() string {
