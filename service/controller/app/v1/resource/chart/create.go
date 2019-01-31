@@ -7,6 +7,7 @@ import (
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/microerror"
 
+	"github.com/giantswarm/app-operator/service/controller/app/v1/controllercontext"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/key"
 )
 
@@ -23,12 +24,12 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 	if chart.Name != "" {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("ensuring creation of chart %#q", chart.Name))
 
-		g8sClient, err := r.kubeConfig.NewG8sClientForApp(ctx, cr)
+		ctlCtx, err := controllercontext.FromContext(ctx)
 		if err != nil {
 			return microerror.Mask(err)
 		}
 
-		_, err = g8sClient.ApplicationV1alpha1().Charts(cr.Namespace).Create(&chart)
+		_, err = ctlCtx.G8sClient.ApplicationV1alpha1().Charts(cr.Namespace).Create(&chart)
 		if err != nil {
 			return microerror.Mask(err)
 		}

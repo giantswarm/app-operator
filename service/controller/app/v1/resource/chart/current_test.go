@@ -13,6 +13,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	k8sfake "k8s.io/client-go/kubernetes/fake"
 
+	"github.com/giantswarm/app-operator/service/controller/app/v1/controllercontext"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/key"
 )
 
@@ -153,7 +154,12 @@ func Test_Resource_GetCurrentState(t *testing.T) {
 				t.Fatalf("error == %#v, want nil", err)
 			}
 
-			result, err := r.GetCurrentState(context.TODO(), tc.obj)
+			ctlConfig := controllercontext.Context{
+				G8sClient: g8sClient,
+			}
+			ctx := controllercontext.NewContext(context.Background(), ctlConfig)
+
+			result, err := r.GetCurrentState(ctx, tc.obj)
 			switch {
 			case err != nil && tc.errorMatcher == nil:
 				t.Fatalf("error == %#v, want nil", err)

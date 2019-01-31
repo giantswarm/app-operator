@@ -243,7 +243,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 				t.Fatalf("error == %#v, want nil", err)
 			}
 
-			result, err := r.GetDesiredState(context.TODO(), tc.obj)
+			result, err := r.GetDesiredState(context.Background(), tc.obj)
 			switch {
 			case err != nil && tc.errorMatcher == nil:
 				t.Fatalf("error == %#v, want nil", err)

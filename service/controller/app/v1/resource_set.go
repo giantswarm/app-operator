@@ -12,8 +12,10 @@ import (
 	"github.com/giantswarm/operatorkit/controller/resource/retryresource"
 	"k8s.io/client-go/kubernetes"
 
+	"github.com/giantswarm/app-operator/service/controller/app/v1/controllercontext"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/key"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/chart"
+	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/status"
 )
 
 // ResourceSetConfig contains necessary dependencies and settings for
@@ -90,8 +92,26 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 	}
 
+	var chartStatusResource controller.Resource
+	{
+		c := status.Config{
+			G8sClient:  config.G8sClient,
+			K8sClient:  config.K8sClient,
+			KubeConfig: kubeConfig,
+			Logger:     config.Logger,
+
+			WatchNamespace: config.WatchNamespace,
+		}
+
+		chartStatusResource, err = status.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	resources := []controller.Resource{
 		chartResource,
+		chartStatusResource,
 	}
 
 	{
@@ -114,6 +134,21 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	}
 
 	initCtxFunc := func(ctx context.Context, obj interface{}) (context.Context, error) {
+		cr, err := key.ToCustomResource(obj)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		g8sClient, err := kubeConfig.NewG8sClientForApp(ctx, cr)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		c := controllercontext.Context{
+			G8sClient: g8sClient,
+		}
+		ctx = controllercontext.NewContext(ctx, c)
+
 		return ctx, nil
 	}
 

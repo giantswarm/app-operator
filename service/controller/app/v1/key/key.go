@@ -11,6 +11,10 @@ func AppName(customResource v1alpha1.App) string {
 	return customResource.Spec.Name
 }
 
+func AppStatus(customResource v1alpha1.App) string {
+	return customResource.Status.Status
+}
+
 func CatalogName(customResource v1alpha1.App) string {
 	return customResource.Spec.Catalog
 }
