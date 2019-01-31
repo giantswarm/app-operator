@@ -22,6 +22,30 @@ func Test_AppName(t *testing.T) {
 	}
 }
 
+func Test_AppStatus(t *testing.T) {
+	expectedStatus := v1alpha1.AppStatus{
+		AppVersion: "0.12.0",
+		Release: v1alpha1.AppStatusRelease{
+			Status: "DEPLOYED",
+		},
+		Version: "0.1.0",
+	}
+
+	obj := v1alpha1.App{
+		Status: v1alpha1.AppStatus{
+			AppVersion: "0.12.0",
+			Release: v1alpha1.AppStatusRelease{
+				Status: "DEPLOYED",
+			},
+			Version: "0.1.0",
+		},
+	}
+
+	if AppStatus(obj) != expectedStatus {
+		t.Fatalf("app status %#q, want %#q", AppStatus(obj), expectedStatus)
+	}
+}
+
 func Test_CatalogName(t *testing.T) {
 	expectedName := "giant-swarm-catalog-name"
 
@@ -34,6 +58,30 @@ func Test_CatalogName(t *testing.T) {
 
 	if CatalogName(obj) != expectedName {
 		t.Fatalf("catalog name %#q, want %#q", CatalogName(obj), expectedName)
+	}
+}
+
+func Test_ChartStatus(t *testing.T) {
+	expectedStatus := v1alpha1.ChartStatus{
+		AppVersion: "0.12.0",
+		Release: v1alpha1.ChartStatusRelease{
+			Status: "DEPLOYED",
+		},
+		Version: "0.1.0",
+	}
+
+	obj := v1alpha1.Chart{
+		Status: v1alpha1.ChartStatus{
+			AppVersion: "0.12.0",
+			Release: v1alpha1.ChartStatusRelease{
+				Status: "DEPLOYED",
+			},
+			Version: "0.1.0",
+		},
+	}
+
+	if ChartStatus(obj) != expectedStatus {
+		t.Fatalf("chart status %#q, want %#q", ChartStatus(obj), expectedStatus)
 	}
 }
 

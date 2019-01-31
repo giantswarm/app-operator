@@ -3,9 +3,10 @@ package status
 import (
 	"context"
 	"fmt"
-	"k8s.io/apimachinery/pkg/api/errors"
 
+	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/microerror"
+	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/giantswarm/app-operator/service/controller/app/v1/controllercontext"
@@ -36,15 +37,22 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found status for chart %#q", name))
 
-	if chart.Status.Status != "" && key.AppStatus(cr) != chart.Status.Status {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("setting app %#q status as %#q", name, chart.Status.Status))
+	chartStatus := key.ChartStatus(*chart)
+	desiredStatus := v1alpha1.AppStatus{
+		AppVersion: chartStatus.AppVersion,
+		Release: v1alpha1.AppStatusRelease{
+			LastDeployed: *chartStatus.Release.LastDeployed.DeepCopy(),
+			Status:       chartStatus.Release.Status,
+		},
+		Version: chartStatus.Version,
+	}
+
+	if !equals(desiredStatus, key.AppStatus(cr)) {
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("setting status for app %#q", name))
 
 		crCopy := cr.DeepCopy()
 		crCopy.ResourceVersion = chart.GetResourceVersion()
-		crCopy.Status.AppVersion = chart.Status.AppVersion
-		crCopy.Status.LastDeployed = *chart.Status.LastDeployed.DeepCopy()
-		crCopy.Status.Status = chart.Status.Status
-		crCopy.Status.Version = chart.Status.Version
+		crCopy.Status = desiredStatus
 
 		_, err = r.g8sClient.ApplicationV1alpha1().Apps(cr.Namespace).UpdateStatus(crCopy)
 		if err != nil {
@@ -53,7 +61,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("status set for app %#q", name))
 	} else {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("status for chart %#q already set to %#q", name, chart.Status.Status))
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("status already set for app %#q", name))
 	}
 
 	return nil

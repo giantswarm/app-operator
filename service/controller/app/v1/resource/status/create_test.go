@@ -75,17 +75,21 @@ func Test_Resource_EnsureCreated(t *testing.T) {
 					TarballURL: "https://giantswarm.github.com/app-catalog/prometheus-1.0.0.tgz",
 				},
 				Status: v1alpha1.ChartStatus{
-					Status:       "DEPLOYED",
-					LastDeployed: v1alpha1.DeepCopyTime{time.Date(2019, 1, 1, 13, 0, 0, 0, time.UTC)},
-					Version:      "0.1.1",
-					AppVersion:   "0.1",
+					AppVersion: "0.1",
+					Release: v1alpha1.ChartStatusRelease{
+						LastDeployed: v1alpha1.DeepCopyTime{time.Date(2019, 1, 1, 13, 0, 0, 0, time.UTC)},
+						Status:       "DEPLOYED",
+					},
+					Version: "0.1.1",
 				},
 			},
 			status: v1alpha1.AppStatus{
-				Status:       "DEPLOYED",
-				LastDeployed: v1alpha1.DeepCopyTime{time.Date(2019, 1, 1, 13, 0, 0, 0, time.UTC)},
-				Version:      "0.1.1",
-				AppVersion:   "0.1",
+				AppVersion: "0.1",
+				Release: v1alpha1.AppStatusRelease{
+					Status:       "DEPLOYED",
+					LastDeployed: v1alpha1.DeepCopyTime{time.Date(2019, 1, 1, 13, 0, 0, 0, time.UTC)},
+				},
+				Version: "0.1.1",
 			},
 		},
 		{
@@ -117,8 +121,10 @@ func Test_Resource_EnsureCreated(t *testing.T) {
 					},
 				},
 				Status: v1alpha1.AppStatus{
-					Status:       "DEPLOYED",
-					LastDeployed: v1alpha1.DeepCopyTime{time.Date(2019, 1, 1, 13, 0, 0, 0, time.UTC)},
+					Release: v1alpha1.AppStatusRelease{
+						Status:       "DEPLOYED",
+						LastDeployed: v1alpha1.DeepCopyTime{time.Date(2019, 1, 1, 13, 0, 0, 0, time.UTC)},
+					},
 				},
 			},
 			chart: &v1alpha1.Chart{
@@ -142,13 +148,17 @@ func Test_Resource_EnsureCreated(t *testing.T) {
 					TarballURL: "https://giantswarm.github.com/app-catalog/prometheus-1.0.0.tgz",
 				},
 				Status: v1alpha1.ChartStatus{
-					Status:       "DEPLOYED",
-					LastDeployed: v1alpha1.DeepCopyTime{time.Date(2019, 1, 1, 13, 0, 0, 0, time.UTC)},
+					Release: v1alpha1.ChartStatusRelease{
+						LastDeployed: v1alpha1.DeepCopyTime{time.Date(2019, 1, 1, 13, 0, 0, 0, time.UTC)},
+						Status:       "DEPLOYED",
+					},
 				},
 			},
 			status: v1alpha1.AppStatus{
-				Status:       "DEPLOYED",
-				LastDeployed: v1alpha1.DeepCopyTime{time.Date(2019, 1, 1, 13, 0, 0, 0, time.UTC)},
+				Release: v1alpha1.AppStatusRelease{
+					LastDeployed: v1alpha1.DeepCopyTime{time.Date(2019, 1, 1, 13, 0, 0, 0, time.UTC)},
+					Status:       "DEPLOYED",
+				},
 			},
 		},
 		{
@@ -180,8 +190,10 @@ func Test_Resource_EnsureCreated(t *testing.T) {
 					},
 				},
 				Status: v1alpha1.AppStatus{
-					Status:       "DEPLOYED",
-					LastDeployed: v1alpha1.DeepCopyTime{time.Date(2019, 1, 1, 13, 0, 0, 0, time.UTC)},
+					Release: v1alpha1.AppStatusRelease{
+						LastDeployed: v1alpha1.DeepCopyTime{time.Date(2019, 1, 1, 13, 0, 0, 0, time.UTC)},
+						Status:       "DEPLOYED",
+					},
 				},
 			},
 			errorMatcher: IsNotFound,
