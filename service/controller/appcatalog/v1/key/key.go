@@ -11,8 +11,8 @@ func AppCatalogTitle(customResource v1alpha1.AppCatalog) string {
 	return customResource.Spec.Title
 }
 
-func CatalogStorageURL(customResource v1alpha1.AppCatalog) string {
-	return customResource.Spec.CatalogStorage.URL
+func AppCatalogStorageURL(customResource v1alpha1.AppCatalog) string {
+	return customResource.Spec.Storage.URL
 }
 
 // ToCustomResource converts value to v1alpha1.AppCatalog and returns it or error
