@@ -71,7 +71,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 				Spec: v1alpha1.AppCatalogSpec{
 					Title:       "Giant Swarm",
 					Description: "Catalog of Apps by Giant Swarm",
-					CatalogStorage: v1alpha1.AppCatalogSpecCatalogStorage{
+					Storage: v1alpha1.AppCatalogSpecStorage{
 						Type: "helm",
 						URL:  "https://giantswarm.github.com/app-catalog/",
 					},
@@ -156,7 +156,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 				Spec: v1alpha1.AppCatalogSpec{
 					Title:       "Giant Swarm",
 					Description: "Catalog of Apps by Giant Swarm",
-					CatalogStorage: v1alpha1.AppCatalogSpecCatalogStorage{
+					Storage: v1alpha1.AppCatalogSpecStorage{
 						Type: "helm",
 						URL:  "https://giantswarm.github.com/app-catalog/",
 					},
@@ -211,7 +211,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 				Spec: v1alpha1.AppCatalogSpec{
 					Title:       "Giant Swarm",
 					Description: "Catalog of Apps by Giant Swarm",
-					CatalogStorage: v1alpha1.AppCatalogSpecCatalogStorage{
+					Storage: v1alpha1.AppCatalogSpecStorage{
 						Type: "helm",
 						URL:  "", // Empty baseURL
 					},

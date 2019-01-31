@@ -1,6 +1,7 @@
 package status
 
 import (
+	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/kubeconfig"
 	"github.com/giantswarm/microerror"
@@ -65,4 +66,23 @@ func New(config Config) (*Resource, error) {
 
 func (r Resource) Name() string {
 	return Name
+}
+
+// equals asseses the equality of AppStatuses with regards to distinguishing
+// fields.
+func equals(a, b v1alpha1.AppStatus) bool {
+	if a.AppVersion != b.AppVersion {
+		return false
+	}
+	if a.Release.LastDeployed != b.Release.LastDeployed {
+		return false
+	}
+	if a.Release.Status != b.Release.Status {
+		return false
+	}
+	if a.Version != b.Version {
+		return false
+	}
+
+	return true
 }

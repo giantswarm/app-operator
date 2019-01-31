@@ -11,12 +11,16 @@ func AppName(customResource v1alpha1.App) string {
 	return customResource.Spec.Name
 }
 
-func AppStatus(customResource v1alpha1.App) string {
-	return customResource.Status.Status
+func AppStatus(customResource v1alpha1.App) v1alpha1.AppStatus {
+	return customResource.Status
 }
 
 func CatalogName(customResource v1alpha1.App) string {
 	return customResource.Spec.Catalog
+}
+
+func ChartStatus(customResource v1alpha1.Chart) v1alpha1.ChartStatus {
+	return customResource.Status
 }
 
 func ConfigMapName(customResource v1alpha1.App) string {
