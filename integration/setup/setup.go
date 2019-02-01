@@ -73,7 +73,7 @@ func resources(ctx context.Context, h *framework.Host, crdClient *k8scrdclient.C
 		return microerror.Mask(err)
 	}
 
-	err = h.InstallOperator("app-operator", "app", "", version)
+	err = h.InstallStableOperator("app-operator", "app", "")
 	if err != nil {
 		return microerror.Mask(err)
 	}
