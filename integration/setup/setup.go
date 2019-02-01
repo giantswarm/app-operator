@@ -4,7 +4,6 @@ package setup
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"os"
 	"testing"
@@ -64,8 +63,6 @@ func WrapTestMain(ctx context.Context, h *framework.Host, crdClient *k8scrdclien
 }
 
 func resources(ctx context.Context, h *framework.Host, crdClient *k8scrdclient.CRDClient, l micrologger.Logger) error {
-	version := fmt.Sprintf(":%s", env.CircleSHA())
-
 	var err error
 
 	err = crdClient.EnsureCreated(ctx, v1alpha1.NewChartCRD(), backoff.NewExponential(backoff.ShortMaxWait, backoff.ShortMaxInterval))
