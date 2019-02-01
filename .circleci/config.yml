@@ -47,3 +47,32 @@ jobs:
           fi
 
 
+  e2eTestChartInstall:
+    environment:
+      TEST_DIR: "integration/test/chart"
+      TESTED_VERSION: "current"
+    <<: *e2eTest
+
+workflows:
+  version: 2
+  build_e2e:
+    jobs:
+      - build
+
+      - e2eTestChartInstall:
+          requires:
+            - build
+
+      - deploy:
+          filters:
+            branches:
+              only: master
+          requires:
+            - e2eTestChartInstall
+
+      - publish_to_stable:
+          filters:
+            branches:
+              only: master
+          requires:
+            - deploy
