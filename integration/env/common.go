@@ -2,11 +2,7 @@ package env
 
 import (
 	"fmt"
-	"log"
 	"os"
-	"strings"
-
-	"github.com/giantswarm/e2e-harness/pkg/framework"
 )
 
 const (
@@ -28,12 +24,9 @@ const (
 )
 
 var (
-	circleCI             string
-	circleSHA            string
-	keepResources        string
-	testedVersion        string
-	token                string
-	versionBundleVersion string
+	circleCI      string
+	circleSHA     string
+	keepResources string
 )
 
 func init() {
@@ -43,34 +36,6 @@ func init() {
 	circleSHA = os.Getenv(EnvVarCircleSHA)
 	if circleSHA == "" {
 		panic(fmt.Sprintf("env var '%s' must not be empty", EnvVarCircleSHA))
-	}
-	testedVersion = os.Getenv(EnvVarTestedVersion)
-	if testedVersion == "" {
-		panic(fmt.Sprintf("env var '%s' must not be empty", EnvVarTestedVersion))
-	}
-	token = os.Getenv(EnvVarGithubBotToken)
-	if token == "" {
-		panic(fmt.Sprintf("env var '%s' must not be empty", EnvVarGithubBotToken))
-	}
-
-	var err error
-	params := &framework.VBVParams{
-		Component: "app-operator",
-		Provider:  "aws",
-		Token:     token,
-		VType:     TestedVersion(),
-	}
-	versionBundleVersion, err = framework.GetVersionBundleVersion(params)
-	if err != nil {
-		panic(err.Error())
-	}
-
-	if VersionBundleVersion() == "" {
-		if strings.ToLower(TestedVersion()) == "wip" {
-			log.Println("WIP version bundle version not present, exiting.")
-			os.Exit(0)
-		}
-		panic("version bundle version  must not be empty")
 	}
 }
 
@@ -84,12 +49,4 @@ func CircleSHA() string {
 
 func KeepResources() string {
 	return keepResources
-}
-
-func TestedVersion() string {
-	return testedVersion
-}
-
-func VersionBundleVersion() string {
-	return versionBundleVersion
 }
