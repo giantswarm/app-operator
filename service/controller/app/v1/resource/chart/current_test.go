@@ -7,7 +7,6 @@ import (
 
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned/fake"
-	"github.com/giantswarm/kubeconfig"
 	"github.com/giantswarm/micrologger/microloggertest"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -113,7 +112,8 @@ func Test_Resource_GetCurrentState(t *testing.T) {
 				},
 			},
 			returnedChart: nil,
-		}}
+		},
+	}
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
@@ -124,27 +124,18 @@ func Test_Resource_GetCurrentState(t *testing.T) {
 
 			g8sClient := fake.NewSimpleClientset(objs...)
 
-			var err error
-
-			var kc kubeconfig.Interface
+			var ctx context.Context
 			{
-				c := kubeconfig.Config{
+				c := controllercontext.Context{
 					G8sClient: g8sClient,
 					K8sClient: k8sfake.NewSimpleClientset(),
-					Logger:    microloggertest.New(),
 				}
-
-				kc, err = kubeconfig.New(c)
-				if err != nil {
-					t.Fatalf("error == %#v, want nil", err)
-				}
+				ctx = controllercontext.NewContext(context.Background(), c)
 			}
 
 			c := Config{
 				G8sClient:  g8sClient,
-				K8sClient:  k8sfake.NewSimpleClientset(),
-				KubeConfig: kc,
-				Logger:     microloggertest.New(),
+				Logger: microloggertest.New(),
 
 				ProjectName:    "app-operator",
 				WatchNamespace: "default",
@@ -153,11 +144,6 @@ func Test_Resource_GetCurrentState(t *testing.T) {
 			if err != nil {
 				t.Fatalf("error == %#v, want nil", err)
 			}
-
-			ctlConfig := controllercontext.Context{
-				G8sClient: g8sClient,
-			}
-			ctx := controllercontext.NewContext(context.Background(), ctlConfig)
 
 			result, err := r.GetCurrentState(ctx, tc.obj)
 			switch {
