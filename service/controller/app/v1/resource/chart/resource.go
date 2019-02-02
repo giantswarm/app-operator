@@ -71,24 +71,25 @@ func (r *Resource) Name() string {
 	return Name
 }
 
-// equals asseses the equality of ReleaseStates with regards to distinguishing fields.
+// equals asseses the equality of Charts with regards to distinguishing fields.
 func equals(a, b v1alpha1.Chart) bool {
 	if a.Name != b.Name {
-		return false
-	}
-	if !reflect.DeepEqual(a.Spec, b.Spec) {
-		return false
-	}
-	if !reflect.DeepEqual(a.Labels, b.Labels) {
 		return false
 	}
 	if !reflect.DeepEqual(a.Annotations, b.Annotations) {
 		return false
 	}
+	if !reflect.DeepEqual(a.Labels, b.Labels) {
+		return false
+	}
+	if !reflect.DeepEqual(a.Spec, b.Spec) {
+		return false
+	}
+
 	return true
 }
 
-// isEmpty checks if a ReleaseState is empty.
+// isEmpty checks if a Chart is empty.
 func isEmpty(c v1alpha1.Chart) bool {
 	return equals(c, v1alpha1.Chart{})
 }

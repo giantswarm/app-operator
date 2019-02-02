@@ -2,13 +2,13 @@ package chart
 
 import "github.com/giantswarm/microerror"
 
-var failedExecution = &microerror.Error{
+var failedExecutionError = &microerror.Error{
 	Kind: "failedExecution",
 }
 
-// IsFailedExecution asserts failedExecution
+// IsFailedExecution asserts failedExecutionError.
 func IsFailedExecution(err error) bool {
-	return microerror.Cause(err) == failedExecution
+	return microerror.Cause(err) == failedExecutionError
 }
 
 var invalidConfigError = &microerror.Error{
