@@ -8,11 +8,9 @@ import (
 
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned/fake"
-	"github.com/giantswarm/kubeconfig"
 	"github.com/giantswarm/micrologger/microloggertest"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
-	k8sfake "k8s.io/client-go/kubernetes/fake"
 
 	"github.com/giantswarm/app-operator/service/controller/app/v1/controllercontext"
 )
@@ -32,7 +30,7 @@ func Test_Resource_EnsureCreated(t *testing.T) {
 					Name:      "my-cool-prometheus",
 					Namespace: "default",
 					Labels: map[string]string{
-						"app":                                "prometheus",
+						"app": "prometheus",
 						"app-operator.giantswarm.io/version": "1.0.0",
 						"giantswarm.io/managed-by":           "cluster-operator",
 					},
@@ -63,7 +61,7 @@ func Test_Resource_EnsureCreated(t *testing.T) {
 					Name:      "prometheus",
 					Namespace: "default",
 					Labels: map[string]string{
-						"app":                                  "prometheus",
+						"app": "prometheus",
 						"chart-operator.giantswarm.io/version": "1.0.0",
 						"giantswarm.io/managed-by":             "app-operator",
 					},
@@ -99,7 +97,7 @@ func Test_Resource_EnsureCreated(t *testing.T) {
 					Name:      "my-cool-prometheus",
 					Namespace: "default",
 					Labels: map[string]string{
-						"app":                                "prometheus",
+						"app": "prometheus",
 						"app-operator.giantswarm.io/version": "1.0.0",
 						"giantswarm.io/managed-by":           "cluster-operator",
 					},
@@ -136,7 +134,7 @@ func Test_Resource_EnsureCreated(t *testing.T) {
 					Name:      "prometheus",
 					Namespace: "default",
 					Labels: map[string]string{
-						"app":                                  "prometheus",
+						"app": "prometheus",
 						"chart-operator.giantswarm.io/version": "1.0.0",
 						"giantswarm.io/managed-by":             "app-operator",
 					},
@@ -168,7 +166,7 @@ func Test_Resource_EnsureCreated(t *testing.T) {
 					Name:      "my-cool-prometheus",
 					Namespace: "default",
 					Labels: map[string]string{
-						"app":                                "prometheus",
+						"app": "prometheus",
 						"app-operator.giantswarm.io/version": "1.0.0",
 						"giantswarm.io/managed-by":           "cluster-operator",
 					},
@@ -215,25 +213,9 @@ func Test_Resource_EnsureCreated(t *testing.T) {
 
 			g8sClient := fake.NewSimpleClientset(objs...)
 
-			var kc *kubeconfig.KubeConfig
-			{
-				c := kubeconfig.Config{
-					G8sClient: g8sClient,
-					K8sClient: k8sfake.NewSimpleClientset(),
-					Logger:    microloggertest.New(),
-				}
-
-				kc, err = kubeconfig.New(c)
-				if err != nil {
-					t.Fatalf("error == %#v, want nil", err)
-				}
-			}
-
 			c := Config{
-				G8sClient:  g8sClient,
-				K8sClient:  k8sfake.NewSimpleClientset(),
-				KubeConfig: kc,
-				Logger:     microloggertest.New(),
+				G8sClient: g8sClient,
+				Logger:    microloggertest.New(),
 
 				WatchNamespace: "default",
 			}
