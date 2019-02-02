@@ -90,18 +90,15 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 	}
 
-	var chartStatusResource controller.Resource
+	var statusResource controller.Resource
 	{
 		c := status.Config{
-			G8sClient:  config.G8sClient,
-			K8sClient:  config.K8sClient,
-			KubeConfig: kubeConfig,
-			Logger:     config.Logger,
+			Logger: config.Logger,
 
 			WatchNamespace: config.WatchNamespace,
 		}
 
-		chartStatusResource, err = status.New(c)
+		statusResource, err = status.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -109,7 +106,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 
 	resources := []controller.Resource{
 		chartResource,
-		chartStatusResource,
+		statusResource,
 	}
 
 	{
