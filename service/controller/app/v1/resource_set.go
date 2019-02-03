@@ -15,6 +15,7 @@ import (
 	"github.com/giantswarm/app-operator/service/controller/app/v1/controllercontext"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/key"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/chart"
+	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/configmap"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/status"
 )
 
@@ -90,6 +91,28 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 	}
 
+	var configMapResource controller.Resource
+	{
+		c := configmap.Config{
+			G8sClient: config.G8sClient,
+			K8sClient: config.K8sClient,
+			Logger:    config.Logger,
+
+			ProjectName:    config.ProjectName,
+			WatchNamespace: config.WatchNamespace,
+		}
+
+		ops, err := configmap.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		configMapResource, err = toCRUDResource(config.Logger, ops)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var statusResource controller.Resource
 	{
 		c := status.Config{
@@ -105,6 +128,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	}
 
 	resources := []controller.Resource{
+		configMapResource,
 		chartResource,
 		statusResource,
 	}
@@ -139,8 +163,14 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 			return nil, microerror.Mask(err)
 		}
 
+		k8sClient, err := kubeConfig.NewK8sClientForApp(ctx, cr)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
 		c := controllercontext.Context{
-			G8sClient: g8sClient,
+			G8sClient:  g8sClient,
+			K8sClient:  k8sClient,
 		}
 		ctx = controllercontext.NewContext(ctx, c)
 
