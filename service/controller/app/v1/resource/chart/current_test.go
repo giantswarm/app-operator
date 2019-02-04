@@ -134,8 +134,8 @@ func Test_Resource_GetCurrentState(t *testing.T) {
 			}
 
 			c := Config{
-				G8sClient:  g8sClient,
-				Logger: microloggertest.New(),
+				G8sClient: g8sClient,
+				Logger:    microloggertest.New(),
 
 				ProjectName:    "app-operator",
 				WatchNamespace: "default",

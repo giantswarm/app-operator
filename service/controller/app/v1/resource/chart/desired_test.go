@@ -228,8 +228,8 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 			}
 
 			c := Config{
-				G8sClient:  fake.NewSimpleClientset(objs...),
-				Logger: microloggertest.New(),
+				G8sClient: fake.NewSimpleClientset(objs...),
+				Logger:    microloggertest.New(),
 
 				ProjectName:    "app-operator",
 				WatchNamespace: "default",
