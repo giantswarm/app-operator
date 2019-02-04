@@ -74,15 +74,7 @@ func New(config Config) (*Resource, error) {
 	return r, nil
 }
 
-func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange interface{}) error {
-	return nil
-}
-
 func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange interface{}) error {
-	return nil
-}
-
-func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange interface{}) error {
 	return nil
 }
 
@@ -92,10 +84,6 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 
 func (r *Resource) Name() string {
 	return Name
-}
-
-func (r *Resource) NewUpdatePatch(ctx context.Context, obj, currentState, desiredState interface{}) (*controller.Patch, error) {
-	return nil, nil
 }
 
 func (r *Resource) NewDeletePatch(ctx context.Context, obj, currentState, desiredState interface{}) (*controller.Patch, error) {
