@@ -8,6 +8,7 @@ import (
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned/fake"
 	"github.com/giantswarm/micrologger/microloggertest"
+	"github.com/google/go-cmp/cmp"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	clientgofake "k8s.io/client-go/kubernetes/fake"
@@ -82,21 +83,21 @@ func Test_Resource_newDeleteChange(t *testing.T) {
 		},
 	}
 
+	c := Config{
+		G8sClient: fake.NewSimpleClientset(),
+		K8sClient: clientgofake.NewSimpleClientset(),
+		Logger:    microloggertest.New(),
+
+		ProjectName:    "app-operator",
+		WatchNamespace: "default",
+	}
+	r, err := New(c)
+	if err != nil {
+		t.Fatalf("error == %#v, want nil", err)
+	}
+
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			c := Config{
-				G8sClient: fake.NewSimpleClientset(),
-				K8sClient: clientgofake.NewSimpleClientset(),
-				Logger:    microloggertest.New(),
-
-				ProjectName:    "app-operator",
-				WatchNamespace: "default",
-			}
-			r, err := New(c)
-			if err != nil {
-				t.Fatalf("error == %#v, want nil", err)
-			}
-
 			result, err := r.newDeleteChange(context.Background(), tc.obj, tc.currentState, tc.desiredState)
 			if err != nil {
 				t.Fatalf("error == %#v, want nil", err)
@@ -108,7 +109,7 @@ func Test_Resource_newDeleteChange(t *testing.T) {
 			}
 
 			if !reflect.DeepEqual(configMap, tc.expectedConfigMap) {
-				t.Fatalf("configMap == %q, want %q", configMap, tc.expectedConfigMap)
+				t.Fatalf("want matching configmap \n %s", cmp.Diff(configMap, tc.expectedConfigMap))
 			}
 		})
 	}
