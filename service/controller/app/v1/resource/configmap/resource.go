@@ -7,7 +7,6 @@ import (
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
-	"github.com/giantswarm/operatorkit/controller"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes"
 )
@@ -75,20 +74,12 @@ func New(config Config) (*Resource, error) {
 	return r, nil
 }
 
-func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange interface{}) error {
-	return nil
-}
-
 func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interface{}, error) {
 	return nil, nil
 }
 
 func (r *Resource) Name() string {
 	return Name
-}
-
-func (r *Resource) NewDeletePatch(ctx context.Context, obj, currentState, desiredState interface{}) (*controller.Patch, error) {
-	return nil, nil
 }
 
 // equals asseses the equality of ConfigMaps with regards to distinguishing
