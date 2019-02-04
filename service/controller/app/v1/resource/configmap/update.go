@@ -34,6 +34,7 @@ func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange inte
 	} else {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("no need to update configmap"))
 	}
+
 	return nil
 }
 

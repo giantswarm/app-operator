@@ -33,6 +33,7 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 	} else {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("no need to create configmap"))
 	}
+
 	return nil
 }
 
