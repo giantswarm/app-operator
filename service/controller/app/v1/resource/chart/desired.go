@@ -42,21 +42,21 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 			APIVersion: chartAPIVersion,
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			Name:        cr.Spec.Name,
-			Labels:      processLabels(r.projectName, cr.ObjectMeta.Labels),
-			Annotations: cr.ObjectMeta.Annotations,
+			Name:        cr.Name,
+			Labels:      processLabels(r.projectName, cr.Labels),
+			Annotations: cr.Annotations,
 		},
 		Spec: v1alpha1.ChartSpec{
-			Name:      cr.ObjectMeta.Name,
-			Namespace: cr.Spec.Namespace,
+			Name:      cr.Name,
+			Namespace: key.Namespace(cr),
 			Config: v1alpha1.ChartSpecConfig{
 				ConfigMap: v1alpha1.ChartSpecConfigConfigMap{
 					Name:      key.ConfigMapName(cr),
-					Namespace: key.ConfigMapNamespace(cr),
+					Namespace: key.Namespace(cr),
 				},
 				Secret: v1alpha1.ChartSpecConfigSecret{
 					Name:      key.SecretName(cr),
-					Namespace: key.SecretNamespace(cr),
+					Namespace: key.Namespace(cr),
 				},
 			},
 			TarballURL: tarballURL,

@@ -1,6 +1,15 @@
-package v1
+package configmap
 
 import "github.com/giantswarm/microerror"
+
+var failedExecutionError = &microerror.Error{
+	Kind: "failedExecutionError",
+}
+
+// IsFailedExecution asserts failedExecutionError.
+func IsFailedExecution(err error) bool {
+	return microerror.Cause(err) == failedExecutionError
+}
 
 var invalidConfigError = &microerror.Error{
 	Kind: "invalidConfigError",
@@ -18,4 +27,13 @@ var notFoundError = &microerror.Error{
 // IsNotFound asserts notFoundError.
 func IsNotFound(err error) bool {
 	return microerror.Cause(err) == notFoundError
+}
+
+var wrongTypeError = &microerror.Error{
+	Kind: "wrongTypeError",
+}
+
+// IsWrongType asserts wrongTypeError.
+func IsWrongType(err error) bool {
+	return microerror.Cause(err) == wrongTypeError
 }
