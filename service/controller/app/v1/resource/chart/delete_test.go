@@ -7,10 +7,8 @@ import (
 
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned/fake"
-	"github.com/giantswarm/kubeconfig/kubeconfigtest"
 	"github.com/giantswarm/micrologger/microloggertest"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	k8sfake "k8s.io/client-go/kubernetes/fake"
 )
 
 func Test_Resource_newDeleteChange(t *testing.T) {
@@ -114,22 +112,20 @@ func Test_Resource_newDeleteChange(t *testing.T) {
 		},
 	}
 
+	c := Config{
+		G8sClient: fake.NewSimpleClientset(),
+		Logger:    microloggertest.New(),
+
+		ProjectName:    "app-operator",
+		WatchNamespace: "default",
+	}
+	r, err := New(c)
+	if err != nil {
+		t.Fatalf("error == %#v, want nil", err)
+	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			c := Config{
-				G8sClient:  fake.NewSimpleClientset(),
-				K8sClient:  k8sfake.NewSimpleClientset(),
-				KubeConfig: kubeconfigtest.New(kubeconfigtest.Config{}),
-				Logger:     microloggertest.New(),
-
-				ProjectName:    "app-operator",
-				WatchNamespace: "default",
-			}
-			r, err := New(c)
-			if err != nil {
-				t.Fatalf("error == %#v, want nil", err)
-			}
-
 			got, err := r.newDeleteChange(context.Background(), nil, tt.currentResource, tt.desiredResource)
 			if err != nil {
 				t.Fatalf("error = %v", err)
