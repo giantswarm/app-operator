@@ -91,20 +91,6 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 	}
 
-	var statusResource controller.Resource
-	{
-		c := status.Config{
-			Logger: config.Logger,
-
-			WatchNamespace: config.WatchNamespace,
-		}
-
-		statusResource, err = status.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
 	var configMapResource controller.Resource
 	{
 		c := configmap.Config{
@@ -122,6 +108,20 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 
 		configMapResource, err = toCRUDResource(config.Logger, ops)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	var statusResource controller.Resource
+	{
+		c := status.Config{
+			Logger: config.Logger,
+
+			WatchNamespace: config.WatchNamespace,
+		}
+
+		statusResource, err = status.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
