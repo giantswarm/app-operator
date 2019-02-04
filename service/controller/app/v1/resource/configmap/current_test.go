@@ -8,6 +8,7 @@ import (
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned/fake"
 	"github.com/giantswarm/micrologger/microloggertest"
+	"github.com/google/go-cmp/cmp"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -34,6 +35,7 @@ func Test_Resource_GetCurrentState(t *testing.T) {
 							Namespace: "default",
 						},
 					},
+					Namespace: "kube-system",
 				},
 			},
 			configMap: &corev1.ConfigMap{
@@ -42,7 +44,7 @@ func Test_Resource_GetCurrentState(t *testing.T) {
 				},
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "app-values",
-					Namespace: "default",
+					Namespace: "kube-system",
 				},
 			},
 			expectedConfigMap: &corev1.ConfigMap{
@@ -51,7 +53,7 @@ func Test_Resource_GetCurrentState(t *testing.T) {
 				},
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "app-values",
-					Namespace: "default",
+					Namespace: "kube-system",
 				},
 			},
 		},
@@ -65,6 +67,7 @@ func Test_Resource_GetCurrentState(t *testing.T) {
 							Namespace: "default",
 						},
 					},
+					Namespace: "kube-system",
 				},
 			},
 			configMap: &corev1.ConfigMap{
@@ -76,9 +79,34 @@ func Test_Resource_GetCurrentState(t *testing.T) {
 					Namespace: "default",
 				},
 			},
+			expectedConfigMap: nil,
 		},
 		{
-			name: "case 2: no configmaps",
+			name: "case 2: namespace does not match",
+			obj: &v1alpha1.App{
+				Spec: v1alpha1.AppSpec{
+					Config: v1alpha1.AppSpecConfig{
+						ConfigMap: v1alpha1.AppSpecConfigConfigMap{
+							Name:      "app-values",
+							Namespace: "default",
+						},
+					},
+					Namespace: "kube-system",
+				},
+			},
+			configMap: &corev1.ConfigMap{
+				Data: map[string]string{
+					"key": "value",
+				},
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "app-values",
+					Namespace: "default",
+				},
+			},
+			expectedConfigMap: nil,
+		},
+		{
+			name: "case 3: no configmaps",
 			obj: &v1alpha1.App{
 				Spec: v1alpha1.AppSpec{
 					Config: v1alpha1.AppSpecConfig{
@@ -89,6 +117,7 @@ func Test_Resource_GetCurrentState(t *testing.T) {
 					},
 				},
 			},
+			expectedConfigMap: nil,
 		},
 	}
 
@@ -140,7 +169,7 @@ func Test_Resource_GetCurrentState(t *testing.T) {
 			}
 
 			if !reflect.DeepEqual(configMap, tc.expectedConfigMap) {
-				t.Fatalf("configMap == %q, want %q", configMap, tc.expectedConfigMap)
+				t.Fatalf("want matching configmap \n %s", cmp.Diff(configMap, tc.expectedConfigMap))
 			}
 		})
 	}

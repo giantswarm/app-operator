@@ -19,7 +19,7 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 	}
 
 	name := key.ConfigMapName(cr)
-	namespace := key.ConfigMapNamespace(cr)
+	namespace := key.Namespace(cr)
 
 	ctlCtx, err := controllercontext.FromContext(ctx)
 	if err != nil {
