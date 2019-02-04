@@ -96,20 +96,20 @@ func Test_Resource_newCreateChange(t *testing.T) {
 		},
 	}
 
+	c := Config{
+		G8sClient: fake.NewSimpleClientset(),
+		Logger:    microloggertest.New(),
+
+		ProjectName:    "app-operator",
+		WatchNamespace: "default",
+	}
+	r, err := New(c)
+	if err != nil {
+		t.Fatalf("error == %#v, want nil", err)
+	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			c := Config{
-				G8sClient:  fake.NewSimpleClientset(),
-				Logger: microloggertest.New(),
-
-				ProjectName:    "app-operator",
-				WatchNamespace: "default",
-			}
-			r, err := New(c)
-			if err != nil {
-				t.Fatalf("error == %#v, want nil", err)
-			}
-
 			got, err := r.newCreateChange(context.Background(), tt.currentResource, tt.desiredResource)
 			if err != nil {
 				t.Errorf("Resource.newCreateChange() error = %v", err)
