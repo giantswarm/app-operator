@@ -1,11 +1,12 @@
 package configmap
 
 import (
-	"reflect"
+	"context"
 
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
+	"github.com/giantswarm/operatorkit/controller"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes"
 )
@@ -73,35 +74,32 @@ func New(config Config) (*Resource, error) {
 	return r, nil
 }
 
+func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange interface{}) error {
+	return nil
+}
+
+func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange interface{}) error {
+	return nil
+}
+
+func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange interface{}) error {
+	return nil
+}
+
+func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interface{}, error) {
+	return nil, nil
+}
+
 func (r *Resource) Name() string {
 	return Name
 }
 
-// equals asseses the equality of ConfigMaps with regards to distinguishing
-// fields.
-func equals(a, b *corev1.ConfigMap) bool {
-	if a.Name != b.Name {
-		return false
-	}
-	if a.Namespace != b.Namespace {
-		return false
-	}
-	if !reflect.DeepEqual(a.Annotations, b.Annotations) {
-		return false
-	}
-	if !reflect.DeepEqual(a.Data, b.Data) {
-		return false
-	}
-	if !reflect.DeepEqual(a.Labels, b.Labels) {
-		return false
-	}
-
-	return true
+func (r *Resource) NewUpdatePatch(ctx context.Context, obj, currentState, desiredState interface{}) (*controller.Patch, error) {
+	return nil, nil
 }
 
-// isEmpty checks if a ConfigMap is empty.
-func isEmpty(c *corev1.ConfigMap) bool {
-	return equals(c, &corev1.ConfigMap{})
+func (r *Resource) NewDeletePatch(ctx context.Context, obj, currentState, desiredState interface{}) (*controller.Patch, error) {
+	return nil, nil
 }
 
 // toConfigMap converts the input into a ConfigMap.

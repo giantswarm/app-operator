@@ -133,6 +133,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	}
 
 	resources := []controller.Resource{
+		configMapResource,
 		chartResource,
 		chartStatusResource,
 	}
