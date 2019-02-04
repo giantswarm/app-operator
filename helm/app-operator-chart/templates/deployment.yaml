@@ -1,4 +1,4 @@
-apiVersion: apps/v1
+apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
   name: {{ .Values.name }}
@@ -27,7 +27,6 @@ spec:
           - key: config.yaml
             path: config.yaml
       serviceAccountName: {{ .Values.name }}
-      dnsPolicy: None
       containers:
       - name: {{ .Values.name }}
         image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}"
