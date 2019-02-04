@@ -35,7 +35,7 @@ func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange inte
 
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleted the %#q configmap", configMap.Name))
 	} else {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "the configmap does not need to be deleted")
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("did not delete the %#q configmap", configMap.Name))
 	}
 
 	return nil
