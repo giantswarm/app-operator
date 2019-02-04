@@ -2,6 +2,7 @@ package configmap
 
 import (
 	"context"
+	"reflect"
 
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/microerror"
@@ -88,6 +89,33 @@ func (r *Resource) Name() string {
 
 func (r *Resource) NewDeletePatch(ctx context.Context, obj, currentState, desiredState interface{}) (*controller.Patch, error) {
 	return nil, nil
+}
+
+// equals asseses the equality of ConfigMaps with regards to distinguishing
+// fields.
+func equals(a, b *corev1.ConfigMap) bool {
+	if a.Name != b.Name {
+		return false
+	}
+	if a.Namespace != b.Namespace {
+		return false
+	}
+	if !reflect.DeepEqual(a.Annotations, b.Annotations) {
+		return false
+	}
+	if !reflect.DeepEqual(a.Data, b.Data) {
+		return false
+	}
+	if !reflect.DeepEqual(a.Labels, b.Labels) {
+		return false
+	}
+
+	return true
+}
+
+// isEmpty checks if a ConfigMap is empty.
+func isEmpty(c *corev1.ConfigMap) bool {
+	return equals(c, &corev1.ConfigMap{})
 }
 
 // toConfigMap converts the input into a ConfigMap.
