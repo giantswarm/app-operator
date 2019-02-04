@@ -130,21 +130,21 @@ func Test_Resource_newUpdateChange(t *testing.T) {
 		},
 	}
 
+	c := Config{
+		G8sClient: fake.NewSimpleClientset(),
+		K8sClient: clientgofake.NewSimpleClientset(),
+		Logger:    microloggertest.New(),
+
+		ProjectName:    "app-operator",
+		WatchNamespace: "default",
+	}
+	r, err := New(c)
+	if err != nil {
+		t.Fatalf("error == %#v, want nil", err)
+	}
+
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			c := Config{
-				G8sClient: fake.NewSimpleClientset(),
-				K8sClient: clientgofake.NewSimpleClientset(),
-				Logger:    microloggertest.New(),
-
-				ProjectName:    "app-operator",
-				WatchNamespace: "default",
-			}
-			r, err := New(c)
-			if err != nil {
-				t.Fatalf("error == %#v, want nil", err)
-			}
-
 			result, err := r.newUpdateChange(context.Background(), tc.currentState, tc.desiredState)
 			if err != nil {
 				t.Fatalf("error == %#v, want nil", err)
