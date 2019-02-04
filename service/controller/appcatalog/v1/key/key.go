@@ -15,6 +15,14 @@ func AppCatalogStorageURL(customResource v1alpha1.AppCatalog) string {
 	return customResource.Spec.Storage.URL
 }
 
+func ConfigMapName(customResource v1alpha1.AppCatalog) string {
+	return customResource.Spec.Config.ConfigMap.Name
+}
+
+func ConfigMapNamespace(customResource v1alpha1.AppCatalog) string {
+	return customResource.Spec.Config.ConfigMap.Namespace
+}
+
 // ToCustomResource converts value to v1alpha1.AppCatalog and returns it or error
 // if type does not match.
 func ToCustomResource(v interface{}) (v1alpha1.AppCatalog, error) {

@@ -5,6 +5,7 @@ import (
 
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/microerror"
+	"k8s.io/client-go/kubernetes"
 )
 
 type contextKey string
@@ -13,6 +14,7 @@ const controllerKey contextKey = "controller"
 
 type Context struct {
 	G8sClient versioned.Interface
+	K8sClient kubernetes.Interface
 }
 
 func NewContext(ctx context.Context, c Context) context.Context {
