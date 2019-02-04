@@ -10,6 +10,8 @@ import (
 	"github.com/giantswarm/operatorkit/controller"
 	"github.com/giantswarm/operatorkit/controller/resource/metricsresource"
 	"github.com/giantswarm/operatorkit/controller/resource/retryresource"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 
 	"github.com/giantswarm/app-operator/service/controller/app/v1/controllercontext"
@@ -182,6 +184,14 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 			return nil, microerror.Mask(err)
 		}
 
+		catalogName := key.CatalogName(cr)
+		appCatalog, err := config.G8sClient.ApplicationV1alpha1().AppCatalogs(config.WatchNamespace).Get(catalogName, metav1.GetOptions{})
+		if apierrors.IsNotFound(err) {
+			return nil, microerror.Maskf(notFoundError, "appCatalog %#q in namespace %#q", catalogName, "default")
+		} else if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
 		g8sClient, err := kubeConfig.NewG8sClientForApp(ctx, cr)
 		if err != nil {
 			return nil, microerror.Mask(err)
@@ -193,6 +203,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 
 		c := controllercontext.Context{
+			AppCatalog: *appCatalog,
 			G8sClient:  g8sClient,
 			K8sClient:  k8sClient,
 		}
