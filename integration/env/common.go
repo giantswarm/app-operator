@@ -13,15 +13,9 @@ const (
 	// EnvVarCircleSHA is the process environment variable representing the
 	// CIRCLE_SHA1 env var.
 	EnvVarCircleSHA = "CIRCLE_SHA1"
-	// EnvVarGithubBotToken is the process environment variable representing
-	// the GITHUB_BOT_TOKEN env var.
-	EnvVarGithubBotToken = "GITHUB_BOT_TOKEN"
 	// EnvVarKeepResources is the process environment variable representing the
 	// KEEP_RESOURCES env var.
 	EnvVarKeepResources = "KEEP_RESOURCES"
-	// EnvVarTestedVersion is the process environment variable representing the
-	// TESTED_VERSION env var.
-	EnvVarTestedVersion = "TESTED_VERSION"
 )
 
 var (

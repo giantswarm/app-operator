@@ -10,13 +10,13 @@ import (
 )
 
 func teardown(ctx context.Context, config Config) error {
-	// clean host cluster components
+	// clean control plane components
 	err := framework.HelmCmd("delete --purge giantswarm-app-operator")
 	if err != nil {
 		return microerror.Mask(err)
 	}
 
-	// clean guest cluster components
+	// clean tenant cluster components
 	items := []string{"apiextensions-chart-e2e"}
 
 	for _, item := range items {

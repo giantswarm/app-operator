@@ -50,7 +50,6 @@ jobs:
   e2eTestChartInstall:
     environment:
       TEST_DIR: "integration/test/chart"
-      TESTED_VERSION: "current"
     <<: *e2eTest
 
 workflows:
