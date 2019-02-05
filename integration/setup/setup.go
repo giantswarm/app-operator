@@ -4,75 +4,76 @@ package setup
 
 import (
 	"context"
-	"log"
+	"fmt"
 	"os"
 	"testing"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
-	"github.com/giantswarm/backoff"
-	"github.com/giantswarm/e2e-harness/pkg/framework"
-	"github.com/giantswarm/helmclient"
+	"github.com/giantswarm/e2e-harness/pkg/release"
 	"github.com/giantswarm/microerror"
-	"github.com/giantswarm/micrologger"
-	"github.com/giantswarm/operatorkit/client/k8scrdclient"
 
 	"github.com/giantswarm/app-operator/integration/env"
-	"github.com/giantswarm/app-operator/integration/teardown"
+	"github.com/giantswarm/app-operator/integration/key"
 )
 
-func WrapTestMain(ctx context.Context, h *framework.Host, crdClient *k8scrdclient.CRDClient, helmClient *helmclient.Client, l micrologger.Logger, m *testing.M) {
+func Setup(m *testing.M, config Config) {
+	ctx := context.Background()
+
 	var v int
 	var err error
 
-	err = h.CreateNamespace("giantswarm")
+	err = installResources(ctx, config)
 	if err != nil {
-		log.Printf("%#v\n", err)
+		config.Logger.LogCtx(ctx, "level", "error", "message", "failed to install AWS resources", "stack", fmt.Sprintf("%#v", err))
 		v = 1
 	}
 
-	err = helmClient.EnsureTillerInstalled(ctx)
-	if err != nil {
-		log.Printf("%#v\n", err)
-		v = 1
-	}
-
-	err = resources(ctx, h, crdClient, l)
-	if err != nil {
-		log.Printf("%#v\n", err)
-		v = 1
+	if v == 0 && config.UseDefaultTenant {
+		if err != nil {
+			config.Logger.LogCtx(ctx, "level", "error", "message", "failed to create tenant cluster", "stack", fmt.Sprintf("%#v", err))
+			v = 1
+		}
 	}
 
 	if v == 0 {
 		v = m.Run()
 	}
 
-	if env.KeepResources() != "true" {
-		// only do full teardown when not on CI
-		if env.CircleCI() != "true" {
-			err := teardown.Teardown(h, helmClient)
+	if !env.KeepResources() {
+		if config.UseDefaultTenant {
 			if err != nil {
-				log.Printf("%#v\n", err)
+				config.Logger.LogCtx(ctx, "level", "error", "message", "failed to delete tenant cluster", "stack", fmt.Sprintf("%#v", err))
 				v = 1
 			}
-			// TODO there should be error handling for the framework teardown.
-			h.Teardown()
+		}
+
+		if !env.CircleCI() {
+			err := teardown(ctx, config)
+			if err != nil {
+				// teardown errors are logged inside the function.
+				v = 1
+			}
 		}
 	}
 
 	os.Exit(v)
 }
 
-func resources(ctx context.Context, h *framework.Host, crdClient *k8scrdclient.CRDClient, l micrologger.Logger) error {
+func installResources(ctx context.Context, config Config) error {
 	var err error
 
-	err = crdClient.EnsureCreated(ctx, v1alpha1.NewChartCRD(), backoff.NewExponential(backoff.ShortMaxWait, backoff.ShortMaxInterval))
-	if err != nil {
-		return microerror.Mask(err)
+	{
+		err = config.K8s.EnsureNamespaceCreated(ctx, namespace)
+		if err != nil {
+			return microerror.Mask(err)
+		}
 	}
 
-	err = h.InstallStableOperator("app-operator", "app", "")
-	if err != nil {
-		return microerror.Mask(err)
+	{
+		err = config.Release.InstallOperator(ctx, key.AppOperatorReleaseName(), release.NewVersion(env.CircleSHA()), "", v1alpha1.NewAppCRD())
+		if err != nil {
+			return microerror.Mask(err)
+		}
 	}
 
 	return nil

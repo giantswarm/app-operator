@@ -3,6 +3,7 @@ package env
 import (
 	"fmt"
 	"os"
+	"strings"
 )
 
 const (
@@ -39,14 +40,14 @@ func init() {
 	}
 }
 
-func CircleCI() string {
-	return circleCI
+func CircleCI() bool {
+	return circleCI == strings.ToLower("true")
 }
 
 func CircleSHA() string {
 	return circleSHA
 }
 
-func KeepResources() string {
-	return keepResources
+func KeepResources() bool {
+	return keepResources == strings.ToLower("true")
 }

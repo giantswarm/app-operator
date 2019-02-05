@@ -1,17 +1,15 @@
 // +build k8srequired
 
-package teardown
+package setup
 
 import (
 	"context"
 
 	"github.com/giantswarm/e2e-harness/pkg/framework"
-	"github.com/giantswarm/helmclient"
 	"github.com/giantswarm/microerror"
-	"k8s.io/helm/pkg/helm"
 )
 
-func Teardown(f *framework.Host, helmClient *helmclient.Client) error {
+func teardown(ctx context.Context, config Config) error {
 	// clean host cluster components
 	err := framework.HelmCmd("delete --purge giantswarm-app-operator")
 	if err != nil {
@@ -22,7 +20,7 @@ func Teardown(f *framework.Host, helmClient *helmclient.Client) error {
 	items := []string{"apiextensions-chart-e2e"}
 
 	for _, item := range items {
-		err := helmClient.DeleteRelease(context.TODO(), item, helm.DeletePurge(true))
+		err := config.Release.Delete(ctx, item)
 		if err != nil {
 			return microerror.Mask(err)
 		}
