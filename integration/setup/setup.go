@@ -30,7 +30,7 @@ func Setup(m *testing.M, config Config) {
 
 	if v == 0 {
 		if err != nil {
-			config.Logger.LogCtx(ctx, "level", "error", "message", "failed to create tenant cluster", "stack", fmt.Sprintf("%#v", err))
+			config.Logger.LogCtx(ctx, "level", "error", "message", "failed to create operator resources", "stack", fmt.Sprintf("%#v", err))
 			v = 1
 		}
 	}
