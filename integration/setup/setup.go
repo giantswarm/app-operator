@@ -63,7 +63,7 @@ func installResources(ctx context.Context, config Config) error {
 	}
 
 	{
-		err = config.Release.InstallOperator(ctx, key.AppOperatorReleaseName(), release.NewVersion(env.CircleSHA()), "", v1alpha1.NewAppCRD())
+		err = config.Release.InstallOperator(ctx, key.AppOperatorReleaseName(), release.NewVersion(env.CircleSHA()), "{}", v1alpha1.NewAppCRD())
 		if err != nil {
 			return microerror.Mask(err)
 		}
