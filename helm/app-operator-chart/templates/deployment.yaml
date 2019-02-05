@@ -7,6 +7,9 @@ metadata:
     app: {{ .Values.name }}
     giantswarm.io/service-type: "managed"
 spec:
+  selector:
+    matchLabels:
+      app: {{ .Values.name }}
   replicas: 1
   revisionHistoryLimit: 3
   strategy:
