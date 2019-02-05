@@ -9,8 +9,6 @@ import (
 	"github.com/giantswarm/helmclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
-
-	"github.com/giantswarm/aws-operator/integration/env"
 )
 
 const (
@@ -49,9 +47,6 @@ func NewConfig() (Config, error) {
 	{
 		c := framework.GuestConfig{
 			Logger: logger,
-
-			ClusterID:    env.ClusterID(),
-			CommonDomain: env.CommonDomain(),
 		}
 
 		guest, err = framework.NewGuest(c)
@@ -64,9 +59,6 @@ func NewConfig() (Config, error) {
 	{
 		c := framework.HostConfig{
 			Logger: logger,
-
-			ClusterID:  env.ClusterID(),
-			VaultToken: env.VaultToken(),
 		}
 
 		host, err = framework.NewHost(c)

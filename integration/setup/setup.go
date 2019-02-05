@@ -24,7 +24,7 @@ func Setup(m *testing.M, config Config) {
 
 	err = installResources(ctx, config)
 	if err != nil {
-		config.Logger.LogCtx(ctx, "level", "error", "message", "failed to install AWS resources", "stack", fmt.Sprintf("%#v", err))
+		config.Logger.LogCtx(ctx, "level", "error", "message", "failed to install resources", "stack", fmt.Sprintf("%#v", err))
 		v = 1
 	}
 
