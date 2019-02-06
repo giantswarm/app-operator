@@ -229,11 +229,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:0a690a7d61c70aa7a1cd07e1089251d284a0b2321addf4678f21b4198cec1070"
+  digest = "1:a60b48d98949c2d33b723450b587c6971f6300e43fbe22378d74ea4d3c3e5dcd"
   name = "github.com/giantswarm/kubeconfig"
   packages = ["."]
   pruneopts = "UT"
-  revision = "f491afa0e5b19a3789c5790f02ff8176b8a3b559"
+  revision = "06554ed06924f7c6b24bf21b9afc87738c0036fe"
 
 [[projects]]
   branch = "master"
