@@ -1,3 +1,31 @@
+e2eTest: &e2eTest
+  machine: true
+  working_directory: /home/circleci/.go_workspace/src/github.com/giantswarm/app-operator
+  steps:
+    - checkout
+
+    - attach_workspace:
+        at: .
+
+    - run: |
+        wget -q $(curl -sS https://api.github.com/repos/giantswarm/e2e-harness/releases/latest | grep browser_download_url | head -n 1 | cut -d '"' -f 4)
+        chmod +x ./e2e-harness
+
+    - run: ./e2e-harness localkube
+
+    - run: ./e2e-harness setup --remote=false
+
+    - run: ./e2e-harness test --test-dir=${TEST_DIR}
+
+    - store_artifacts:
+        path: .e2e-harness/workdir/logs
+        destination: logs
+
+    - run:
+        name: Finish with cleanup, no matter if the test succeeded or not
+        command: ./e2e-harness teardown
+        when: always
+
 version: 2
 jobs:
   build:
@@ -19,3 +47,31 @@ jobs:
           fi
 
 
+  e2eTestChartInstall:
+    environment:
+      TEST_DIR: "integration/test/chart"
+    <<: *e2eTest
+
+workflows:
+  version: 2
+  build_e2e:
+    jobs:
+      - build
+
+      - e2eTestChartInstall:
+          requires:
+            - build
+
+      - deploy:
+          filters:
+            branches:
+              only: master
+          requires:
+            - e2eTestChartInstall
+
+      - publish_to_stable:
+          filters:
+            branches:
+              only: master
+          requires:
+            - deploy
