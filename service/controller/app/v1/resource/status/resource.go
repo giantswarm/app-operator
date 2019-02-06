@@ -25,10 +25,8 @@ type Config struct {
 
 // Resource implements the chartstatus resource.
 type Resource struct {
-	g8sClient  versioned.Interface
-	k8sClient  kubernetes.Interface
-	kubeConfig kubeconfig.Interface
-	logger     micrologger.Logger
+	g8sClient versioned.Interface
+	logger    micrologger.Logger
 
 	watchNamespace string
 }
@@ -36,12 +34,6 @@ type Resource struct {
 func New(config Config) (*Resource, error) {
 	if config.G8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.G8sClient must not be empty", config)
-	}
-	if config.K8sClient == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
-	}
-	if config.KubeConfig == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.KubeConfig must not be empty", config)
 	}
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
@@ -53,10 +45,8 @@ func New(config Config) (*Resource, error) {
 
 	r := &Resource{
 		// Dependencies.
-		g8sClient:  config.G8sClient,
-		kubeConfig: config.KubeConfig,
-		k8sClient:  config.K8sClient,
-		logger:     config.Logger,
+		g8sClient: config.G8sClient,
+		logger:    config.Logger,
 
 		watchNamespace: config.WatchNamespace,
 	}

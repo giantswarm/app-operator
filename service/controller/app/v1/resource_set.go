@@ -116,7 +116,8 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	var statusResource controller.Resource
 	{
 		c := status.Config{
-			Logger: config.Logger,
+			G8sClient: config.G8sClient,
+			Logger:    config.Logger,
 
 			WatchNamespace: config.WatchNamespace,
 		}
