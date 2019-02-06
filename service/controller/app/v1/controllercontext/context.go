@@ -2,6 +2,7 @@ package controllercontext
 
 import (
 	"context"
+	"github.com/giantswarm/operatorkit/client/k8scrdclient"
 
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/microerror"
@@ -15,6 +16,7 @@ const controllerKey contextKey = "controller"
 type Context struct {
 	G8sClient versioned.Interface
 	K8sClient kubernetes.Interface
+	CRDClient *k8scrdclient.CRDClient
 }
 
 func NewContext(ctx context.Context, c Context) context.Context {

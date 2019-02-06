@@ -2,14 +2,17 @@ package v1
 
 import (
 	"context"
+	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/chartcrd"
 
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/kubeconfig"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
+	"github.com/giantswarm/operatorkit/client/k8scrdclient"
 	"github.com/giantswarm/operatorkit/controller"
 	"github.com/giantswarm/operatorkit/controller/resource/metricsresource"
 	"github.com/giantswarm/operatorkit/controller/resource/retryresource"
+	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	"k8s.io/client-go/kubernetes"
 
 	"github.com/giantswarm/app-operator/service/controller/app/v1/controllercontext"
@@ -128,10 +131,25 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 	}
 
+	var chartCRDResource controller.Resource
+	{
+		c := chartcrd.Config{
+			Logger: config.Logger,
+
+			WatchNamespace: config.WatchNamespace,
+		}
+
+		chartCRDResource, err = chartcrd.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	resources := []controller.Resource{
 		configMapResource,
 		chartResource,
 		statusResource,
+		chartCRDResource,
 	}
 
 	{
@@ -159,12 +177,34 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 			return nil, microerror.Mask(err)
 		}
 
-		g8sClient, err := kubeConfig.NewG8sClientForApp(ctx, cr)
+		restConfig, err := kubeConfig.NewRESTConfigForApp(ctx, cr)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
 
-		k8sClient, err := kubeConfig.NewK8sClientForApp(ctx, cr)
+		var crdClient *k8scrdclient.CRDClient
+		{
+			k8sExtClient, err := apiextensionsclient.NewForConfig(restConfig)
+			if err != nil {
+				return nil, microerror.Mask(err)
+			}
+			c := k8scrdclient.Config{
+				K8sExtClient: k8sExtClient,
+				Logger:       config.Logger,
+			}
+
+			crdClient, err = k8scrdclient.New(c)
+			if err != nil {
+				return nil, microerror.Mask(err)
+			}
+		}
+
+		g8sClient, err := versioned.NewForConfig(restConfig)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		k8sClient, err := kubernetes.NewForConfig(restConfig)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -172,6 +212,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		c := controllercontext.Context{
 			G8sClient: g8sClient,
 			K8sClient: k8sClient,
+			CRDClient: crdClient,
 		}
 		ctx = controllercontext.NewContext(ctx, c)
 
