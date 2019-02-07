@@ -2,22 +2,20 @@ package v1
 
 import (
 	"context"
-	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/chartcrd"
-
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/kubeconfig"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
-	"github.com/giantswarm/operatorkit/client/k8scrdclient"
 	"github.com/giantswarm/operatorkit/controller"
 	"github.com/giantswarm/operatorkit/controller/resource/metricsresource"
 	"github.com/giantswarm/operatorkit/controller/resource/retryresource"
-	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/rest"
 
 	"github.com/giantswarm/app-operator/service/controller/app/v1/controllercontext"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/key"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/chart"
+	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/chartcrd"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/configmap"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/status"
 )
@@ -177,42 +175,49 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 			return nil, microerror.Mask(err)
 		}
 
-		restConfig, err := kubeConfig.NewRESTConfigForApp(ctx, cr)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
+		secretName := key.SecretName(cr)
 
-		var crdClient *k8scrdclient.CRDClient
-		{
-			k8sExtClient, err := apiextensionsclient.NewForConfig(restConfig)
+		var restConfig *rest.Config
+		var g8sClient versioned.Interface
+		var k8sClient kubernetes.Interface
+
+		if secretName != "" {
+			restConfig, err = kubeConfig.NewRESTConfigForApp(ctx, cr)
 			if err != nil {
 				return nil, microerror.Mask(err)
 			}
-			c := k8scrdclient.Config{
-				K8sExtClient: k8sExtClient,
-				Logger:       config.Logger,
-			}
-
-			crdClient, err = k8scrdclient.New(c)
+			g8sClient, err = versioned.NewForConfig(restConfig)
 			if err != nil {
 				return nil, microerror.Mask(err)
 			}
-		}
-
-		g8sClient, err := versioned.NewForConfig(restConfig)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-
-		k8sClient, err := kubernetes.NewForConfig(restConfig)
-		if err != nil {
-			return nil, microerror.Mask(err)
+			k8sClient, err = kubernetes.NewForConfig(restConfig)
+			if err != nil {
+				return nil, microerror.Mask(err)
+			}
+			//if err != nil {
+			//	return nil, microerror.Mask(err)
+			//}
+			//
+			//k8sExtClient, err := apiextensionsclient.NewForConfig(restConfig)
+			//if err != nil {
+			//	return nil, microerror.Mask(err)
+			//}
+			//
+			//c := k8scrdclient.Config{
+			//	K8sExtClient: k8sExtClient,
+			//	Logger:       config.Logger,
+			//}
+			//
+			//crdClient, err = k8scrdclient.New(c)
+		} else {
+			g8sClient = config.G8sClient
+			k8sClient = config.K8sClient
 		}
 
 		c := controllercontext.Context{
-			G8sClient: g8sClient,
-			K8sClient: k8sClient,
-			CRDClient: crdClient,
+			RESTConfig: restConfig,
+			G8sClient:  g8sClient,
+			K8sClient:  k8sClient,
 		}
 		ctx = controllercontext.NewContext(ctx, c)
 
