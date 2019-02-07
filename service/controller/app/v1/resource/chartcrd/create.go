@@ -30,10 +30,6 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			return microerror.Mask(err)
 		}
 
-		if err != nil {
-			return microerror.Mask(err)
-		}
-
 		k8sExtClient, err := apiextensionsclient.NewForConfig(ctlCtx.RESTConfig)
 		if err != nil {
 			return microerror.Mask(err)
@@ -48,8 +44,10 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		crdBackoff := backoff.NewMaxRetries(3, 1*time.Second)
 
 		err = crdClient.EnsureCreated(ctx, v1alpha1.NewChartCRD(), crdBackoff)
-		if err != nil {
-			r.logger.LogCtx(ctx, "level", "debug", "error", "failed to ensured chart crd creation on tenant cluster")
+		if IsNotEstablished(err) {
+			r.logger.LogCtx(ctx, "level", "debug", "message", "chart crd in creation at the moment")
+			return nil
+		} else if err != nil {
 			return microerror.Mask(err)
 		}
 		r.logger.LogCtx(ctx, "level", "debug", "message", "ensured chart crd creation on tenant cluster")

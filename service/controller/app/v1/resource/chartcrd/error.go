@@ -12,3 +12,12 @@ var invalidConfigError = &microerror.Error{
 func IsInvalidConfig(err error) bool {
 	return microerror.Cause(err) == invalidConfigError
 }
+
+var notEstablishedError = &microerror.Error{
+	Kind: "notEstablishedError",
+}
+
+// IsNotEstablished asserts notEstablishedError.
+func IsNotEstablished(err error) bool {
+	return microerror.Cause(err) == notEstablishedError
+}
