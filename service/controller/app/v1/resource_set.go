@@ -194,21 +194,6 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 			if err != nil {
 				return nil, microerror.Mask(err)
 			}
-			//if err != nil {
-			//	return nil, microerror.Mask(err)
-			//}
-			//
-			//k8sExtClient, err := apiextensionsclient.NewForConfig(restConfig)
-			//if err != nil {
-			//	return nil, microerror.Mask(err)
-			//}
-			//
-			//c := k8scrdclient.Config{
-			//	K8sExtClient: k8sExtClient,
-			//	Logger:       config.Logger,
-			//}
-			//
-			//crdClient, err = k8scrdclient.New(c)
 		} else {
 			g8sClient = config.G8sClient
 			k8sClient = config.K8sClient
