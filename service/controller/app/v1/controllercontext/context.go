@@ -2,11 +2,11 @@ package controllercontext
 
 import (
 	"context"
-	"k8s.io/client-go/rest"
 
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/microerror"
 	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/rest"
 )
 
 type contextKey string
