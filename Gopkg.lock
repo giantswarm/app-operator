@@ -180,10 +180,13 @@
   revision = "85e779854c8e1b948bb2551e3750cfdae8ddfdbf"
 
 [[projects]]
-  branch = "master"
+  branch = "remove-methods"
   name = "github.com/giantswarm/kubeconfig"
-  packages = ["."]
-  revision = "06554ed06924f7c6b24bf21b9afc87738c0036fe"
+  packages = [
+    ".",
+    "kubeconfigtest"
+  ]
+  revision = "b5708e0be921b8489bd4bde4e712493f37d72bfb"
 
 [[projects]]
   branch = "master"
@@ -1015,6 +1018,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "9605c0238fa3caf859107e7e06cf663015ae4ea7d26dc98dabebb8fb1de914ff"
+  inputs-digest = "7b3af1903028e5f53b7aae62efcdf69b8af14138b3ee9ca91e837cb16b1f74b3"
   solver-name = "gps-cdcl"
   solver-version = 1

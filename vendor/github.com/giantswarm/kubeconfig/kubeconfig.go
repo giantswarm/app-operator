@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
-	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -17,7 +16,6 @@ import (
 // Config represents the configuration used to create a new kubeconfig library
 // instance.
 type Config struct {
-	G8sClient versioned.Interface
 	Logger    micrologger.Logger
 	K8sClient kubernetes.Interface
 }
@@ -25,16 +23,12 @@ type Config struct {
 // KubeConfig provides functionality for connecting to remote clusters based on
 // the specified kubeconfig.
 type KubeConfig struct {
-	g8sClient versioned.Interface
 	logger    micrologger.Logger
 	k8sClient kubernetes.Interface
 }
 
 // New creates a new KubeConfig service.
 func New(config Config) (*KubeConfig, error) {
-	if config.G8sClient == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.G8sClient must not be empty", config)
-	}
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
@@ -43,7 +37,6 @@ func New(config Config) (*KubeConfig, error) {
 	}
 
 	g := &KubeConfig{
-		g8sClient: config.G8sClient,
 		logger:    config.Logger,
 		k8sClient: config.K8sClient,
 	}
@@ -51,48 +44,8 @@ func New(config Config) (*KubeConfig, error) {
 	return g, nil
 }
 
-// NewG8sClientForApp returns a generated clientset for the cluster configured
-// in the kubeconfig section of the app CR. If this is empty a clientset for
-// the current cluster is returned.
-func (k *KubeConfig) NewG8sClientForApp(ctx context.Context, app v1alpha1.App) (versioned.Interface, error) {
-	// KubeConfig is not configured so connect to current cluster.
-	if secretName(app) != "" {
-		return k.g8sClient, nil
-	}
-
-	restConfig, err := k.NewRESTConfigForApp(ctx, app)
-	if err != nil {
-		return nil, microerror.Mask(err)
-	}
-
-	client, err := versioned.NewForConfig(restConfig)
-	if err != nil {
-		return nil, microerror.Mask(err)
-	}
-	return client, nil
-}
-
-// NewK8sClientForApp returns a Kubernetes clientset for the cluster configured
-// in the kubeconfig section of the app CR. If this is empty a clientset for
-// the current cluster is returned.
-func (k *KubeConfig) NewK8sClientForApp(ctx context.Context, app v1alpha1.App) (kubernetes.Interface, error) {
-	// KubeConfig is not configured so connect to current cluster.
-	if secretName(app) == "" {
-		return k.k8sClient, nil
-	}
-
-	restConfig, err := k.NewRESTConfigForApp(ctx, app)
-	if err != nil {
-		return nil, microerror.Mask(err)
-	}
-
-	client, err := kubernetes.NewForConfig(restConfig)
-	if err != nil {
-		return nil, microerror.Mask(err)
-	}
-	return client, nil
-}
-
+// NewRESTConfigForApp returns a Kubernetes REST config for the cluster
+// configured in the kubeconfig section of the app CR.
 func (k *KubeConfig) NewRESTConfigForApp(ctx context.Context, app v1alpha1.App) (*rest.Config, error) {
 	secretName := secretName(app)
 	secretNamespace := secretNamespace(app)

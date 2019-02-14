@@ -49,7 +49,7 @@ required = [
   name = "github.com/giantswarm/apiextensions"
 
 [[constraint]]
-  branch = "master"
+  branch = "remove-methods"
   name = "github.com/giantswarm/kubeconfig"
 
 [[constraint]]
