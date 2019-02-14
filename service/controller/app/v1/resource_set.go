@@ -59,7 +59,6 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	var kubeConfig kubeconfig.Interface
 	{
 		c := kubeconfig.Config{
-			G8sClient: config.G8sClient,
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
 		}
