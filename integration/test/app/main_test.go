@@ -1,6 +1,6 @@
 // +build k8srequired
 
-package chart
+package app
 
 import (
 	"testing"

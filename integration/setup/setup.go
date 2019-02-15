@@ -7,10 +7,13 @@ import (
 	"fmt"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
+	"github.com/giantswarm/backoff"
 	"github.com/giantswarm/e2e-harness/pkg/release"
 	"github.com/giantswarm/microerror"
+	"github.com/giantswarm/operatorkit/client/k8scrdclient"
 
 	"github.com/giantswarm/app-operator/integration/env"
 	"github.com/giantswarm/app-operator/integration/key"
@@ -67,6 +70,20 @@ func installResources(ctx context.Context, config Config) error {
 		if err != nil {
 			return microerror.Mask(err)
 		}
+	}
+
+	// Ensure Chart CRD creation
+	{
+		c := k8scrdclient.Config{
+			K8sExtClient: config.Host.ExtClient(),
+			Logger:       config.Logger,
+		}
+
+		var crdClient *k8scrdclient.CRDClient
+		crdClient, err = k8scrdclient.New(c)
+		crdBackoff := backoff.NewMaxRetries(3, 1*time.Second)
+
+		err = crdClient.EnsureCreated(ctx, v1alpha1.NewChartCRD(), crdBackoff)
 	}
 
 	return nil
