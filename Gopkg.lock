@@ -103,6 +103,12 @@
 
 [[projects]]
   branch = "master"
+<<<<<<< HEAD
+||||||| merged common ancestors
+  digest = "1:3d06f266a894b88ac1bff8e79bf8a53f4048cb4b9351f70942fb73d31ebbc562"
+=======
+  digest = "1:e03db988b22f0d319bb580195444d3e0776c5240677f0d3d363a0bc9d46827c3"
+>>>>>>> udpate vendor
   name = "github.com/giantswarm/apiextensions"
   packages = [
     "pkg/apis/application/v1alpha1",
@@ -124,7 +130,15 @@
     "pkg/clientset/versioned/typed/release/v1alpha1",
     "pkg/clientset/versioned/typed/release/v1alpha1/fake"
   ]
+<<<<<<< HEAD
   revision = "304908ba11ba09bfc343c4781f642da58488746b"
+||||||| merged common ancestors
+  pruneopts = "UT"
+  revision = "cd7862fb5ee9addd30c6e211ced977b69133268a"
+=======
+  pruneopts = "UT"
+  revision = "a6922a8de8463ded39249e3dac6311e74edb14ca"
+>>>>>>> udpate vendor
 
 [[projects]]
   branch = "master"
@@ -157,6 +171,23 @@
 
 [[projects]]
   branch = "master"
+<<<<<<< HEAD
+||||||| merged common ancestors
+  digest = "1:a880954e10c62b72dd4c6085d3a64d659b51c10116d2ceb17edbc483a5e4b101"
+=======
+  digest = "1:07f0274adc61cf95d9e36269dc058c831e4f45d6b2118b4544c95e5d783d85ed"
+  name = "github.com/giantswarm/e2etemplates"
+  packages = [
+    "internal/render",
+    "pkg/chartvalues",
+  ]
+  pruneopts = "UT"
+  revision = "0db133df315b795a4827efa42e573c5fd2074db5"
+
+[[projects]]
+  branch = "master"
+  digest = "1:a880954e10c62b72dd4c6085d3a64d659b51c10116d2ceb17edbc483a5e4b101"
+>>>>>>> udpate vendor
   name = "github.com/giantswarm/errors"
   packages = ["guest"]
   revision = "d4c171b8af43355ae5cb35bfd63a24aae3fbcc16"
@@ -1015,6 +1046,91 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
+<<<<<<< HEAD
   inputs-digest = "9605c0238fa3caf859107e7e06cf663015ae4ea7d26dc98dabebb8fb1de914ff"
+||||||| merged common ancestors
+  input-imports = [
+    "github.com/Azure/go-autorest/autorest",
+    "github.com/docker/distribution/reference",
+    "github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1",
+    "github.com/giantswarm/apiextensions/pkg/clientset/versioned",
+    "github.com/giantswarm/apiextensions/pkg/clientset/versioned/fake",
+    "github.com/giantswarm/e2e-harness/pkg/framework",
+    "github.com/giantswarm/e2e-harness/pkg/release",
+    "github.com/giantswarm/e2esetup/k8s",
+    "github.com/giantswarm/helmclient",
+    "github.com/giantswarm/kubeconfig",
+    "github.com/giantswarm/microendpoint/endpoint/healthz",
+    "github.com/giantswarm/microendpoint/endpoint/version",
+    "github.com/giantswarm/microendpoint/service/version",
+    "github.com/giantswarm/microerror",
+    "github.com/giantswarm/microkit/command",
+    "github.com/giantswarm/microkit/flag",
+    "github.com/giantswarm/microkit/server",
+    "github.com/giantswarm/micrologger",
+    "github.com/giantswarm/micrologger/microloggertest",
+    "github.com/giantswarm/operatorkit/client/k8scrdclient",
+    "github.com/giantswarm/operatorkit/client/k8srestconfig",
+    "github.com/giantswarm/operatorkit/controller",
+    "github.com/giantswarm/operatorkit/controller/resource/metricsresource",
+    "github.com/giantswarm/operatorkit/controller/resource/retryresource",
+    "github.com/giantswarm/operatorkit/informer",
+    "github.com/giantswarm/versionbundle",
+    "github.com/google/go-cmp/cmp",
+    "github.com/spf13/viper",
+    "k8s.io/api/core/v1",
+    "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset",
+    "k8s.io/apimachinery/pkg/api/errors",
+    "k8s.io/apimachinery/pkg/apis/meta/v1",
+    "k8s.io/apimachinery/pkg/runtime",
+    "k8s.io/apiserver/pkg/endpoints/request",
+    "k8s.io/client-go/kubernetes",
+    "k8s.io/client-go/kubernetes/fake",
+    "k8s.io/client-go/rest",
+  ]
+=======
+  input-imports = [
+    "github.com/Azure/go-autorest/autorest",
+    "github.com/docker/distribution/reference",
+    "github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1",
+    "github.com/giantswarm/apiextensions/pkg/clientset/versioned",
+    "github.com/giantswarm/apiextensions/pkg/clientset/versioned/fake",
+    "github.com/giantswarm/backoff",
+    "github.com/giantswarm/e2e-harness/pkg/framework",
+    "github.com/giantswarm/e2e-harness/pkg/release",
+    "github.com/giantswarm/e2esetup/k8s",
+    "github.com/giantswarm/e2etemplates/pkg/chartvalues",
+    "github.com/giantswarm/helmclient",
+    "github.com/giantswarm/kubeconfig",
+    "github.com/giantswarm/microendpoint/endpoint/healthz",
+    "github.com/giantswarm/microendpoint/endpoint/version",
+    "github.com/giantswarm/microendpoint/service/version",
+    "github.com/giantswarm/microerror",
+    "github.com/giantswarm/microkit/command",
+    "github.com/giantswarm/microkit/flag",
+    "github.com/giantswarm/microkit/server",
+    "github.com/giantswarm/micrologger",
+    "github.com/giantswarm/micrologger/microloggertest",
+    "github.com/giantswarm/operatorkit/client/k8scrdclient",
+    "github.com/giantswarm/operatorkit/client/k8srestconfig",
+    "github.com/giantswarm/operatorkit/controller",
+    "github.com/giantswarm/operatorkit/controller/resource/metricsresource",
+    "github.com/giantswarm/operatorkit/controller/resource/retryresource",
+    "github.com/giantswarm/operatorkit/informer",
+    "github.com/giantswarm/versionbundle",
+    "github.com/google/go-cmp/cmp",
+    "github.com/spf13/viper",
+    "golang.org/x/net/context",
+    "k8s.io/api/core/v1",
+    "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset",
+    "k8s.io/apimachinery/pkg/api/errors",
+    "k8s.io/apimachinery/pkg/apis/meta/v1",
+    "k8s.io/apimachinery/pkg/runtime",
+    "k8s.io/apiserver/pkg/endpoints/request",
+    "k8s.io/client-go/kubernetes",
+    "k8s.io/client-go/kubernetes/fake",
+    "k8s.io/client-go/rest",
+  ]
+>>>>>>> udpate vendor
   solver-name = "gps-cdcl"
   solver-version = 1
