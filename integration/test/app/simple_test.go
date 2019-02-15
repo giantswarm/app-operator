@@ -18,7 +18,7 @@ import (
 )
 
 const (
-	giantswarm                = "giantswarm"
+	namespace                 = "giantswarm"
 	customResourceReleaseName = "apiextensions-app-e2e-chart"
 	testAppReleaseName        = "test-app"
 	testAppCatalogReleaseName = "test-app-catalog"
@@ -27,32 +27,32 @@ const (
 func TestAppLifecycle(t *testing.T) {
 	ctx := context.Background()
 
+	sampleChart := chartvalues.APIExtensionsAppE2EConfig{
+		App: chartvalues.APIExtensionsAppE2EConfigApp{
+			Name:      testAppReleaseName,
+			Namespace: namespace,
+			Catalog:   testAppCatalogReleaseName,
+			Version:   "1.0.0",
+		},
+		AppCatalog: chartvalues.APIExtensionsAppE2EConfigAppCatalog{
+			Name:  testAppCatalogReleaseName,
+			Title: testAppCatalogReleaseName,
+			Storage: chartvalues.APIExtensionsAppE2EConfigAppCatalogStorage{
+				Type: "helm",
+				URL:  "https://giantswarm.github.com/sample-catalog",
+			},
+		},
+		AppOperator: chartvalues.APIExtensionsAppE2EConfigAppOperator{
+			Version: "1.0.0",
+		},
+		Namespace: namespace,
+	}
+
 	// Test creation.
 	{
 		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating app %#q", customResourceReleaseName))
 
-		c := chartvalues.APIExtensionsAppE2EConfig{
-			App: chartvalues.APIExtensionsAppE2EConfigApp{
-				Name:      testAppReleaseName,
-				Namespace: giantswarm,
-				Catalog:   testAppCatalogReleaseName,
-				Version:   "1.0.0",
-			},
-			AppCatalog: chartvalues.APIExtensionsAppE2EConfigAppCatalog{
-				Name:  testAppCatalogReleaseName,
-				Title: testAppCatalogReleaseName,
-				Storage: chartvalues.APIExtensionsAppE2EConfigAppCatalogStorage{
-					Type: "helm",
-					URL:  "https://giantswarm.github.com/sample-catalog",
-				},
-			},
-			AppOperator: chartvalues.APIExtensionsAppE2EConfigAppOperator{
-				Version: "1.0.0",
-			},
-			Namespace: giantswarm,
-		}
-
-		chartValues, err := chartvalues.NewAPIExtensionsAppE2E(c)
+		chartValues, err := chartvalues.NewAPIExtensionsAppE2E(sampleChart)
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
@@ -63,7 +63,7 @@ func TestAppLifecycle(t *testing.T) {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
 
-		err = config.Release.WaitForStatus(ctx, fmt.Sprintf("%s-%s", giantswarm, customResourceReleaseName), "DEPLOYED")
+		err = config.Release.WaitForStatus(ctx, fmt.Sprintf("%s-%s", namespace, customResourceReleaseName), "DEPLOYED")
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
@@ -74,7 +74,7 @@ func TestAppLifecycle(t *testing.T) {
 
 		tarballURL := "https://giantswarm.github.com/sample-catalog/test-app-1.0.0.tgz"
 		operation := func() error {
-			chart, err := config.Host.G8sClient().ApplicationV1alpha1().Charts(giantswarm).Get(testAppReleaseName, v1.GetOptions{})
+			chart, err := config.Host.G8sClient().ApplicationV1alpha1().Charts(namespace).Get(testAppReleaseName, v1.GetOptions{})
 			if err != nil {
 				return microerror.Maskf(err, fmt.Sprintf("expected %#v got %#v", nil, err))
 			}
@@ -99,28 +99,10 @@ func TestAppLifecycle(t *testing.T) {
 	{
 		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating app %#q", customResourceReleaseName))
 
-		c := chartvalues.APIExtensionsAppE2EConfig{
-			App: chartvalues.APIExtensionsAppE2EConfigApp{
-				Name:      testAppReleaseName,
-				Namespace: giantswarm,
-				Catalog:   testAppCatalogReleaseName,
-				Version:   "1.0.1",
-			},
-			AppCatalog: chartvalues.APIExtensionsAppE2EConfigAppCatalog{
-				Name:  testAppCatalogReleaseName,
-				Title: testAppCatalogReleaseName,
-				Storage: chartvalues.APIExtensionsAppE2EConfigAppCatalogStorage{
-					Type: "helm",
-					URL:  "https://giantswarm.github.com/sample-catalog_1/",
-				},
-			},
-			AppOperator: chartvalues.APIExtensionsAppE2EConfigAppOperator{
-				Version: "1.0.0",
-			},
-			Namespace: giantswarm,
-		}
+		sampleChart.App.Version = "1.0.1"
+		sampleChart.AppCatalog.Storage.URL = "https://giantswarm.github.com/sample-catalog_1/"
 
-		chartValues, err := chartvalues.NewAPIExtensionsAppE2E(c)
+		chartValues, err := chartvalues.NewAPIExtensionsAppE2E(sampleChart)
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
@@ -131,7 +113,7 @@ func TestAppLifecycle(t *testing.T) {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
 
-		err = config.Release.WaitForStatus(ctx, fmt.Sprintf("%s-%s", giantswarm, customResourceReleaseName), "DEPLOYED")
+		err = config.Release.WaitForStatus(ctx, fmt.Sprintf("%s-%s", namespace, customResourceReleaseName), "DEPLOYED")
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
@@ -142,12 +124,12 @@ func TestAppLifecycle(t *testing.T) {
 
 		tarballURL := "https://giantswarm.github.com/sample-catalog_1/test-app-1.0.1.tgz"
 		operation := func() error {
-			chart, err := config.Host.G8sClient().ApplicationV1alpha1().Charts(giantswarm).Get(testAppReleaseName, v1.GetOptions{})
+			chart, err := config.Host.G8sClient().ApplicationV1alpha1().Charts(namespace).Get(testAppReleaseName, v1.GetOptions{})
 			if err != nil {
 				return microerror.Maskf(err, fmt.Sprintf("expected %#v got %#v", nil, err))
 			}
 			if !reflect.DeepEqual(chart.Spec.TarballURL, tarballURL) {
-				return microerror.Maskf(notMatching, fmt.Sprintf("expected tarballURL: %#v got %#v", tarballURL, chart.Spec.TarballURL))
+				return microerror.Maskf(testError, fmt.Sprintf("expected tarballURL: %#v got %#v", tarballURL, chart.Spec.TarballURL))
 			}
 			return nil
 		}
@@ -172,7 +154,7 @@ func TestAppLifecycle(t *testing.T) {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
 
-		err = config.Release.WaitForStatus(ctx, fmt.Sprintf("%s-%s", giantswarm, customResourceReleaseName), "DELETED")
+		err = config.Release.WaitForStatus(ctx, fmt.Sprintf("%s-%s", namespace, customResourceReleaseName), "DELETED")
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
@@ -182,13 +164,13 @@ func TestAppLifecycle(t *testing.T) {
 		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("checking chart CR %#q is deleted", testAppReleaseName))
 
 		operation := func() error {
-			_, err = config.Host.G8sClient().ApplicationV1alpha1().Charts(giantswarm).Get(testAppReleaseName, v1.GetOptions{})
+			_, err = config.Host.G8sClient().ApplicationV1alpha1().Charts(namespace).Get(testAppReleaseName, v1.GetOptions{})
 			if errors.IsNotFound(err) {
 				return nil
 			} else if err != nil {
 				return microerror.Mask(err)
 			}
-			return microerror.Mask(notDeleted)
+			return microerror.Mask(testError)
 		}
 		notify := func(err error, t time.Duration) {
 			config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("failed to delete chart: retrying in %s", t))
