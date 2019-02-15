@@ -20,12 +20,12 @@ func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange inte
 	if configMap.Name != "" {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("ensuring update of configmap %#q", configMap.Name))
 
-		ctlCtx, err := controllercontext.FromContext(ctx)
+		cc, err := controllercontext.FromContext(ctx)
 		if err != nil {
 			return microerror.Mask(err)
 		}
 
-		_, err = ctlCtx.K8sClient.CoreV1().ConfigMaps(configMap.Namespace).Update(configMap)
+		_, err = cc.K8sClient.CoreV1().ConfigMaps(configMap.Namespace).Update(configMap)
 		if err != nil {
 			return microerror.Mask(err)
 		}

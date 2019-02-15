@@ -21,14 +21,14 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 	name := key.ConfigMapName(cr)
 	namespace := key.Namespace(cr)
 
-	ctlCtx, err := controllercontext.FromContext(ctx)
+	cc, err := controllercontext.FromContext(ctx)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
 
 	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding configmap %#q", name))
 
-	chart, err := ctlCtx.K8sClient.CoreV1().ConfigMaps(namespace).Get(name, metav1.GetOptions{})
+	chart, err := cc.K8sClient.CoreV1().ConfigMaps(namespace).Get(name, metav1.GetOptions{})
 	if apierrors.IsNotFound(err) {
 		// Return early as configmap does not exist.
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("did not find configmap %#q", name))
