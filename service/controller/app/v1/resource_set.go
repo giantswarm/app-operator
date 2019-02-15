@@ -59,7 +59,6 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	var kubeConfig kubeconfig.Interface
 	{
 		c := kubeconfig.Config{
-			G8sClient: config.G8sClient,
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
 		}
@@ -159,12 +158,17 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 			return nil, microerror.Mask(err)
 		}
 
-		g8sClient, err := kubeConfig.NewG8sClientForApp(ctx, cr)
+		restConfig, err := kubeConfig.NewRESTConfigForApp(ctx, cr)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
 
-		k8sClient, err := kubeConfig.NewK8sClientForApp(ctx, cr)
+		g8sClient, err := versioned.NewForConfig(restConfig)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		k8sClient, err := kubernetes.NewForConfig(restConfig)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
