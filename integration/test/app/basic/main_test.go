@@ -1,6 +1,6 @@
 // +build k8srequired
 
-package app
+package basic
 
 import (
 	"testing"
