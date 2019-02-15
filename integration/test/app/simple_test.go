@@ -192,7 +192,7 @@ func TestAppLifecycle(t *testing.T) {
 		notify := func(err error, t time.Duration) {
 			config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("failed to delete chart: retrying in %s", t))
 		}
-		b := backoff.NewExponential(30*time.Second, 10*time.Second)
+		b := backoff.NewExponential(1*time.Minute, 10*time.Second)
 		err = backoff.RetryNotify(operation, b, notify)
 		if err != nil {
 			t.Fatalf("%s", err)
