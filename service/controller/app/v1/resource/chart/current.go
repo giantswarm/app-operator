@@ -20,14 +20,14 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 
 	name := key.AppName(cr)
 
-	ctlctx, err := controllercontext.FromContext(ctx)
+	cc, err := controllercontext.FromContext(ctx)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
 
 	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding chart %#q", name))
 
-	chart, err := ctlctx.G8sClient.ApplicationV1alpha1().Charts(r.watchNamespace).Get(name, metav1.GetOptions{})
+	chart, err := cc.G8sClient.ApplicationV1alpha1().Charts(r.watchNamespace).Get(name, metav1.GetOptions{})
 	if errors.IsNotFound(err) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("did not find chart %#q", name))
 		return nil, nil

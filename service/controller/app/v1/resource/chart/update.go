@@ -43,12 +43,12 @@ func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange inte
 	if chart.Name != "" {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("ensuring update of chart %#q", chart.Name))
 
-		ctlCtx, err := controllercontext.FromContext(ctx)
+		cc, err := controllercontext.FromContext(ctx)
 		if err != nil {
 			return microerror.Mask(err)
 		}
 
-		_, err = ctlCtx.G8sClient.ApplicationV1alpha1().Charts(cr.Namespace).Update(&chart)
+		_, err = cc.G8sClient.ApplicationV1alpha1().Charts(cr.Namespace).Update(&chart)
 		if err != nil {
 			return microerror.Mask(err)
 		}

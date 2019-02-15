@@ -19,12 +19,12 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 	if configMap.Name != "" {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("ensuring creation of configmap %#q", configMap.Name))
 
-		ctlCtx, err := controllercontext.FromContext(ctx)
+		cc, err := controllercontext.FromContext(ctx)
 		if err != nil {
 			return microerror.Mask(err)
 		}
 
-		_, err = ctlCtx.K8sClient.CoreV1().ConfigMaps(configMap.Namespace).Create(configMap)
+		_, err = cc.K8sClient.CoreV1().ConfigMaps(configMap.Namespace).Create(configMap)
 		if err != nil {
 			return microerror.Mask(err)
 		}

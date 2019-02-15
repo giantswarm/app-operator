@@ -21,14 +21,14 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 	name := key.AppName(cr)
 
-	ctlCtx, err := controllercontext.FromContext(ctx)
+	cc, err := controllercontext.FromContext(ctx)
 	if err != nil {
 		return microerror.Mask(err)
 	}
 
 	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding status for chart %#q", name))
 
-	chart, err := ctlCtx.G8sClient.ApplicationV1alpha1().Charts(r.watchNamespace).Get(name, metav1.GetOptions{})
+	chart, err := cc.G8sClient.ApplicationV1alpha1().Charts(r.watchNamespace).Get(name, metav1.GetOptions{})
 	if errors.IsNotFound(err) {
 		return microerror.Maskf(notFoundError, "chart %#q in namespace %#q", name, r.watchNamespace)
 	} else if err != nil {

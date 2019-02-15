@@ -21,12 +21,12 @@ func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange inte
 	if configMap.Name != "" {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleting the %#q configmap", configMap.Name))
 
-		ctlCtx, err := controllercontext.FromContext(ctx)
+		cc, err := controllercontext.FromContext(ctx)
 		if err != nil {
 			return microerror.Mask(err)
 		}
 
-		err = ctlCtx.K8sClient.CoreV1().ConfigMaps(configMap.Namespace).Delete(configMap.Name, &metav1.DeleteOptions{})
+		err = cc.K8sClient.CoreV1().ConfigMaps(configMap.Namespace).Delete(configMap.Name, &metav1.DeleteOptions{})
 		if apierrors.IsNotFound(err) {
 			// fall through
 		} else if err != nil {
