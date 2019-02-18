@@ -61,17 +61,3 @@ workflows:
       - e2eTestChartInstall:
           requires:
             - build
-
-      - deploy:
-          filters:
-            branches:
-              only: master
-          requires:
-            - e2eTestChartInstall
-
-      - publish_to_stable:
-          filters:
-            branches:
-              only: master
-          requires:
-            - deploy
