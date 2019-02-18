@@ -60,7 +60,7 @@ func TestAppLifecycle(t *testing.T) {
 
 	// Test creation.
 	{
-		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating app %#q", customResourceReleaseName))
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating chart %#q", customResourceReleaseName))
 
 		chartValues, err := chartvalues.NewAPIExtensionsAppE2E(sampleChart)
 		if err != nil {
@@ -83,7 +83,7 @@ func TestAppLifecycle(t *testing.T) {
 		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("checking chart CR %#q is deployed", testAppReleaseName))
 
 		tarballURL := "https://giantswarm.github.com/sample-catalog/test-app-1.0.0.tgz"
-		err = waitForChartUpdated(ctx, create, "")
+		err = waitForUpdatedChartCR(ctx, create, "")
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
@@ -128,7 +128,7 @@ func TestAppLifecycle(t *testing.T) {
 		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("checking chart CR %#q is updated", testAppReleaseName))
 
 		tarballURL := "https://giantswarm.github.com/sample-catalog_1/test-app-1.0.1.tgz"
-		err = waitForChartUpdated(ctx, update, originalResourceVersion)
+		err = waitForUpdatedChartCR(ctx, update, originalResourceVersion)
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
@@ -159,15 +159,15 @@ func TestAppLifecycle(t *testing.T) {
 
 		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("checking chart CR %#q is deleted", testAppReleaseName))
 
-		err = waitForChartUpdated(ctx, delete, "")
+		err = waitForUpdatedChartCR(ctx, delete, "")
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
 	}
 }
 
-// searchChart will find Chart CR which have name as testAppReleaseName and resourceVersion greater than one we have.
-func waitForChartUpdated(ctx context.Context, cases CRTestCase, resourceVersion string) error {
+// waitForUpdatedChartCR will find Chart CR which have name as testAppReleaseName and resourceVersion greater than one we have.
+func waitForUpdatedChartCR(ctx context.Context, cases CRTestCase, resourceVersion string) error {
 	operation := func() error {
 		chart, err := config.Host.G8sClient().ApplicationV1alpha1().Charts(namespace).Get(testAppReleaseName, v1.GetOptions{})
 		switch cases {
@@ -179,7 +179,7 @@ func waitForChartUpdated(ctx context.Context, cases CRTestCase, resourceVersion 
 			if err != nil {
 				return microerror.Mask(err)
 			}
-			if chart.ObjectMeta.ResourceVersion < resourceVersion {
+			if chart.ObjectMeta.ResourceVersion == resourceVersion {
 				return microerror.Mask(testError)
 			}
 		case delete:
