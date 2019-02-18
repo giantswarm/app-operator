@@ -62,17 +62,3 @@ workflows:
       - e2eTestAppBasic:
           requires:
             - build
-
-      - deploy:
-          filters:
-            branches:
-              only: master
-          requires:
-            - e2eTestAppBasic
-
-      - publish_to_stable:
-          filters:
-            branches:
-              only: master
-          requires:
-            - deploy
