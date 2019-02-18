@@ -78,7 +78,7 @@ func TestAppLifecycle(t *testing.T) {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
 
-		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("created app %#q", customResourceReleaseName))
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("created chart %#q", customResourceReleaseName))
 
 		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("checking chart CR %#q is deployed", testAppReleaseName))
 
@@ -102,7 +102,7 @@ func TestAppLifecycle(t *testing.T) {
 
 	// Test update
 	{
-		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating app %#q", customResourceReleaseName))
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating chart %#q", customResourceReleaseName))
 
 		sampleChart.App.Version = "1.0.1"
 		sampleChart.AppCatalog.Storage.URL = "https://giantswarm.github.com/sample-catalog_1/"
@@ -123,7 +123,7 @@ func TestAppLifecycle(t *testing.T) {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
 
-		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updated app %#q", customResourceReleaseName))
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updated chart %#q", customResourceReleaseName))
 
 		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("checking chart CR %#q is updated", testAppReleaseName))
 
@@ -143,7 +143,7 @@ func TestAppLifecycle(t *testing.T) {
 
 	// Test deletion
 	{
-		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleting app %#q", customResourceReleaseName))
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleting chart %#q", customResourceReleaseName))
 
 		err := config.Release.Delete(ctx, customResourceReleaseName)
 		if err != nil {
@@ -155,7 +155,7 @@ func TestAppLifecycle(t *testing.T) {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
 
-		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleted app %#q", customResourceReleaseName))
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleted chart %#q", customResourceReleaseName))
 
 		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("checking chart CR %#q is deleted", testAppReleaseName))
 
@@ -166,7 +166,7 @@ func TestAppLifecycle(t *testing.T) {
 	}
 }
 
-// waitForUpdatedChartCR will find Chart CR which have name as testAppReleaseName and resourceVersion greater than one we have.
+// waitForUpdatedChartCR will get an updated chart CR which has a resourceVersion greater than the one we have.
 func waitForUpdatedChartCR(ctx context.Context, cases CRTestCase, resourceVersion string) error {
 	operation := func() error {
 		chart, err := config.Host.G8sClient().ApplicationV1alpha1().Charts(namespace).Get(testAppReleaseName, v1.GetOptions{})
@@ -192,7 +192,7 @@ func waitForUpdatedChartCR(ctx context.Context, cases CRTestCase, resourceVersio
 		return nil
 	}
 	notify := func(err error, t time.Duration) {
-		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("failed to detect the changed in chart CR: retrying in %s", t))
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("failed to detect updated in chart CR: retrying in %s", t))
 	}
 	b := backoff.NewExponential(3*time.Minute, 10*time.Second)
 	err := backoff.RetryNotify(operation, b, notify)
