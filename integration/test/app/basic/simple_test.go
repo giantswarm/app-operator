@@ -105,7 +105,6 @@ func TestAppLifecycle(t *testing.T) {
 		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating chart %#q", customResourceReleaseName))
 
 		sampleChart.App.Version = "1.0.1"
-		sampleChart.AppCatalog.Storage.URL = "https://giantswarm.github.com/sample-catalog_1/"
 
 		chartValues, err := chartvalues.NewAPIExtensionsAppE2E(sampleChart)
 		if err != nil {
@@ -127,7 +126,7 @@ func TestAppLifecycle(t *testing.T) {
 
 		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("checking chart CR %#q is updated", testAppReleaseName))
 
-		tarballURL := "https://giantswarm.github.com/sample-catalog_1/test-app-1.0.1.tgz"
+		tarballURL := "https://giantswarm.github.com/sample-catalog/test-app-1.0.1.tgz"
 		err = waitForUpdatedChartCR(ctx, update, originalResourceVersion)
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
