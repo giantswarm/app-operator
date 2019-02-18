@@ -4,7 +4,6 @@ package basic
 
 import (
 	"fmt"
-	"reflect"
 	"testing"
 	"time"
 
@@ -91,10 +90,10 @@ func TestAppLifecycle(t *testing.T) {
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
-		if !reflect.DeepEqual(chart.Spec.TarballURL, tarballURL) {
+		if chart.Spec.TarballURL != tarballURL {
 			t.Fatalf("expected tarballURL: %#q got %#q", tarballURL, chart.Spec.TarballURL)
 		}
-		if !reflect.DeepEqual(chart.Labels[chartOperatorVersion], "1.0.0") {
+		if chart.Labels[chartOperatorVersion] != "1.0.0" {
 			t.Fatalf("expected version label: %#q got %#q", "1.0.0", chart.Labels[chartOperatorVersion])
 		}
 		originalResourceVersion = chart.ObjectMeta.ResourceVersion
@@ -135,7 +134,7 @@ func TestAppLifecycle(t *testing.T) {
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
-		if !reflect.DeepEqual(chart.Spec.TarballURL, tarballURL) {
+		if chart.Spec.TarballURL != tarballURL {
 			t.Fatalf("expected tarballURL: %#v got %#v", tarballURL, chart.Spec.TarballURL)
 		}
 	}
