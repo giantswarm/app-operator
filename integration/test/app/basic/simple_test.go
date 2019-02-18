@@ -171,7 +171,6 @@ func waitForChartUpdated(ctx context.Context, cases CRTestCase, resourceVersion 
 			if err != nil {
 				return microerror.Mask(err)
 			}
-			return nil
 		case update:
 			if err != nil {
 				return microerror.Mask(err)
