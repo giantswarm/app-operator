@@ -20,6 +20,7 @@ import (
 const (
 	namespace                 = "giantswarm"
 	customResourceReleaseName = "apiextensions-app-e2e-chart"
+	chartOperatorVersion      = "chart-operator.giantswarm.io/version"
 	testAppReleaseName        = "test-app"
 	testAppCatalogReleaseName = "test-app-catalog"
 )
@@ -91,7 +92,10 @@ func TestAppLifecycle(t *testing.T) {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
 		if !reflect.DeepEqual(chart.Spec.TarballURL, tarballURL) {
-			t.Fatalf("expected tarballURL: %#v got %#v", tarballURL, chart.Spec.TarballURL)
+			t.Fatalf("expected tarballURL: %#q got %#q", tarballURL, chart.Spec.TarballURL)
+		}
+		if !reflect.DeepEqual(chart.Labels[chartOperatorVersion], "1.0.0") {
+			t.Fatalf("expected version label: %#q got %#q", "1.0.0", chart.Labels[chartOperatorVersion])
 		}
 		originalResourceVersion = chart.ObjectMeta.ResourceVersion
 	}
