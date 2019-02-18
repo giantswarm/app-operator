@@ -24,8 +24,17 @@ const (
 	testAppCatalogReleaseName = "test-app-catalog"
 )
 
+type CRTestCase int
+
+const (
+	create CRTestCase = 0
+	update CRTestCase = 1
+	delete CRTestCase = 2
+)
+
 func TestAppLifecycle(t *testing.T) {
 	ctx := context.Background()
+	var originalResourceVersion string
 
 	sampleChart := chartvalues.APIExtensionsAppE2EConfig{
 		App: chartvalues.APIExtensionsAppE2EConfigApp{
@@ -73,26 +82,18 @@ func TestAppLifecycle(t *testing.T) {
 		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("checking chart CR %#q is deployed", testAppReleaseName))
 
 		tarballURL := "https://giantswarm.github.com/sample-catalog/test-app-1.0.0.tgz"
-		operation := func() error {
-			chart, err := config.Host.G8sClient().ApplicationV1alpha1().Charts(namespace).Get(testAppReleaseName, v1.GetOptions{})
-			if err != nil {
-				return microerror.Maskf(err, fmt.Sprintf("expected %#v got %#v", nil, err))
-			}
-			if !reflect.DeepEqual(chart.Spec.TarballURL, tarballURL) {
-				return microerror.Maskf(notMatching, fmt.Sprintf("expected tarballURL: %#v got %#v", tarballURL, chart.Spec.TarballURL))
-			}
-			return nil
-		}
-		notify := func(err error, t time.Duration) {
-			config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("failed to get created chart: retrying in %s", t))
-		}
-		b := backoff.NewExponential(30*time.Second, 10*time.Second)
-		err = backoff.RetryNotify(operation, b, notify)
+		err = waitForChartUpdated(ctx, create, "")
 		if err != nil {
-			t.Fatalf("%s", err)
+			t.Fatalf("expected %#v got %#v", nil, err)
 		}
-
-		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("chart %#q is deployed", testAppReleaseName))
+		chart, err := config.Host.G8sClient().ApplicationV1alpha1().Charts(namespace).Get(testAppReleaseName, v1.GetOptions{})
+		if err != nil {
+			t.Fatalf("expected %#v got %#v", nil, err)
+		}
+		if !reflect.DeepEqual(chart.Spec.TarballURL, tarballURL) {
+			t.Fatalf("expected tarballURL: %#v got %#v", tarballURL, chart.Spec.TarballURL)
+		}
+		originalResourceVersion = chart.ObjectMeta.ResourceVersion
 	}
 
 	// Test update
@@ -123,26 +124,17 @@ func TestAppLifecycle(t *testing.T) {
 		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("checking chart CR %#q is updated", testAppReleaseName))
 
 		tarballURL := "https://giantswarm.github.com/sample-catalog_1/test-app-1.0.1.tgz"
-		operation := func() error {
-			chart, err := config.Host.G8sClient().ApplicationV1alpha1().Charts(namespace).Get(testAppReleaseName, v1.GetOptions{})
-			if err != nil {
-				return microerror.Maskf(err, fmt.Sprintf("expected %#v got %#v", nil, err))
-			}
-			if !reflect.DeepEqual(chart.Spec.TarballURL, tarballURL) {
-				return microerror.Maskf(testError, fmt.Sprintf("expected tarballURL: %#v got %#v", tarballURL, chart.Spec.TarballURL))
-			}
-			return nil
-		}
-		notify := func(err error, t time.Duration) {
-			config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("failed to get updated chart: retrying in %s", t))
-		}
-		b := backoff.NewExponential(1*time.Minute, 10*time.Second)
-		err = backoff.RetryNotify(operation, b, notify)
+		err = waitForChartUpdated(ctx, update, originalResourceVersion)
 		if err != nil {
-			t.Fatalf("%s", err)
+			t.Fatalf("expected %#v got %#v", nil, err)
 		}
-
-		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("chart CR %#q is updated", testAppReleaseName))
+		chart, err := config.Host.G8sClient().ApplicationV1alpha1().Charts(namespace).Get(testAppReleaseName, v1.GetOptions{})
+		if err != nil {
+			t.Fatalf("expected %#v got %#v", nil, err)
+		}
+		if !reflect.DeepEqual(chart.Spec.TarballURL, tarballURL) {
+			t.Fatalf("expected tarballURL: %#v got %#v", tarballURL, chart.Spec.TarballURL)
+		}
 	}
 
 	// Test deletion
@@ -163,24 +155,46 @@ func TestAppLifecycle(t *testing.T) {
 
 		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("checking chart CR %#q is deleted", testAppReleaseName))
 
-		operation := func() error {
-			_, err = config.Host.G8sClient().ApplicationV1alpha1().Charts(namespace).Get(testAppReleaseName, v1.GetOptions{})
-			if errors.IsNotFound(err) {
-				return nil
-			} else if err != nil {
+		err = waitForChartUpdated(ctx, delete, "")
+		if err != nil {
+			t.Fatalf("expected %#v got %#v", nil, err)
+		}
+	}
+}
+
+// searchChart will find Chart CR which have name as testAppReleaseName and resourceVersion greater than one we have.
+func waitForChartUpdated(ctx context.Context, cases CRTestCase, resourceVersion string) error {
+	operation := func() error {
+		chart, err := config.Host.G8sClient().ApplicationV1alpha1().Charts(namespace).Get(testAppReleaseName, v1.GetOptions{})
+		switch cases {
+		case create:
+			if err != nil {
 				return microerror.Mask(err)
 			}
-			return microerror.Mask(testError)
+			return nil
+		case update:
+			if err != nil {
+				return microerror.Mask(err)
+			}
+			if chart.ObjectMeta.ResourceVersion < resourceVersion {
+				return microerror.Mask(testError)
+			}
+		case delete:
+			if errors.IsNotFound(err) {
+				return nil
+			} else {
+				return microerror.Mask(err)
+			}
 		}
-		notify := func(err error, t time.Duration) {
-			config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("failed to delete chart: retrying in %s", t))
-		}
-		b := backoff.NewExponential(1*time.Minute, 10*time.Second)
-		err = backoff.RetryNotify(operation, b, notify)
-		if err != nil {
-			t.Fatalf("%s", err)
-		}
-
-		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("chart CR %#q is deleted", testAppReleaseName))
+		return nil
 	}
+	notify := func(err error, t time.Duration) {
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("failed to detect the changed in chart CR: retrying in %s", t))
+	}
+	b := backoff.NewExponential(3*time.Minute, 10*time.Second)
+	err := backoff.RetryNotify(operation, b, notify)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+	return nil
 }
