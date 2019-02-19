@@ -70,7 +70,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 	}
 
-	var appCatalog appcatalog.AppCatalog
+	var appCatalog *appcatalog.AppCatalog
 	{
 		c := appcatalog.Config{
 			G8sClient: config.G8sClient,
@@ -195,7 +195,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 
 		c := controllercontext.Context{
-			AppCatalog: catalogCR,
+			AppCatalog: *catalogCR,
 			G8sClient:  g8sClient,
 			K8sClient:  k8sClient,
 		}
