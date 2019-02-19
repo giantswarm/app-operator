@@ -1,7 +1,6 @@
 package configmap
 
 import (
-	"context"
 	"reflect"
 
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
@@ -72,10 +71,6 @@ func New(config Config) (*Resource, error) {
 	}
 
 	return r, nil
-}
-
-func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interface{}, error) {
-	return nil, nil
 }
 
 func (r *Resource) Name() string {
