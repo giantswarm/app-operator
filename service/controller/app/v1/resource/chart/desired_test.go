@@ -10,8 +10,8 @@ import (
 	"github.com/giantswarm/micrologger/microloggertest"
 	"github.com/google/go-cmp/cmp"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/runtime"
 
+	"github.com/giantswarm/app-operator/service/controller/app/v1/controllercontext"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/key"
 )
 
@@ -19,7 +19,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 	tests := []struct {
 		name          string
 		obj           *v1alpha1.App
-		appCatalog    *v1alpha1.AppCatalog
+		appCatalog    v1alpha1.AppCatalog
 		expectedChart *v1alpha1.Chart
 		errorMatcher  func(error) bool
 	}{
@@ -58,7 +58,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					},
 				},
 			},
-			appCatalog: &v1alpha1.AppCatalog{
+			appCatalog: v1alpha1.AppCatalog{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "giantswarm",
 					Namespace: "default",
@@ -109,7 +109,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 			},
 		},
 		{
-			name: "case 1: appcatalog not found",
+			name: "case 1: generating catalog url failed",
 			obj: &v1alpha1.App{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "my-cool-prometheus",
@@ -143,62 +143,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					},
 				},
 			},
-			appCatalog: &v1alpha1.AppCatalog{
-				ObjectMeta: metav1.ObjectMeta{
-					Name:      "giantswarm-xxx1",
-					Namespace: "default",
-					Labels: map[string]string{
-						"app-operator.giantswarm.io/version": "1.0.0",
-					},
-				},
-				Spec: v1alpha1.AppCatalogSpec{
-					Title:       "Giant Swarm",
-					Description: "Catalog of Apps by Giant Swarm",
-					Storage: v1alpha1.AppCatalogSpecStorage{
-						Type: "helm",
-						URL:  "https://giantswarm.github.com/app-catalog/",
-					},
-					LogoURL: "https://s.giantswarm.io/...",
-				},
-			},
-			errorMatcher: IsNotFound,
-		},
-		{
-			name: "case 2: generating catalog url failed",
-			obj: &v1alpha1.App{
-				ObjectMeta: metav1.ObjectMeta{
-					Name:      "my-cool-prometheus",
-					Namespace: "default",
-					Labels: map[string]string{
-						"app":                                "prometheus",
-						"app-operator.giantswarm.io/version": "1.0.0",
-						"giantswarm.io/managed-by":           "cluster-operator",
-					},
-				},
-				Spec: v1alpha1.AppSpec{
-					Catalog:   "giantswarm",
-					Name:      "kubernetes-prometheus",
-					Namespace: "monitoring",
-					Version:   "1.0.0",
-					Config: v1alpha1.AppSpecConfig{
-						ConfigMap: v1alpha1.AppSpecConfigConfigMap{
-							Name:      "giant-swarm-config",
-							Namespace: "giantswarm",
-						},
-						Secret: v1alpha1.AppSpecConfigSecret{
-							Name:      "giant-swarm-secret",
-							Namespace: "giantswarm",
-						},
-					},
-					KubeConfig: v1alpha1.AppSpecKubeConfig{
-						Secret: v1alpha1.AppSpecKubeConfigSecret{
-							Name:      "giantswarm-12345",
-							Namespace: "12345",
-						},
-					},
-				},
-			},
-			appCatalog: &v1alpha1.AppCatalog{
+			appCatalog: v1alpha1.AppCatalog{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "giantswarm",
 					Namespace: "default",
@@ -222,13 +167,8 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			objs := make([]runtime.Object, 0, 0)
-			if tc.appCatalog != nil {
-				objs = append(objs, tc.appCatalog)
-			}
-
 			c := Config{
-				G8sClient: fake.NewSimpleClientset(objs...),
+				G8sClient: fake.NewSimpleClientset(),
 				Logger:    microloggertest.New(),
 
 				ProjectName:    "app-operator",
@@ -239,7 +179,15 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 				t.Fatalf("error == %#v, want nil", err)
 			}
 
-			result, err := r.GetDesiredState(context.Background(), tc.obj)
+			var ctx context.Context
+			{
+				c := controllercontext.Context{
+					AppCatalog: tc.appCatalog,
+				}
+				ctx = controllercontext.NewContext(context.Background(), c)
+			}
+
+			result, err := r.GetDesiredState(ctx, tc.obj)
 			switch {
 			case err != nil && tc.errorMatcher == nil:
 				t.Fatalf("error == %#v, want nil", err)
