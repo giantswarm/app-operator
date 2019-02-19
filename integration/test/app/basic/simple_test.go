@@ -32,6 +32,18 @@ const (
 	delete CRTestCase = 2
 )
 
+// TestAppLifecycle tests a chart CR can be created, updated and deleted
+// uaing a app, appCatalog CRs processed by app-operator.
+//
+// - Create app, appCatalog CRs using apiextensions-app-e2e-chart.
+// - Ensure chart CR specified in the app CR is deployed.
+//
+// - Update chart CR using apiextensions-app-e2e-chart.
+// - Ensure chart CR is redeployed using updated app CR information.
+//
+// - Delete apiextensions-app-e2e-chart.
+// - Ensure chart CR is deleted.
+//
 func TestAppLifecycle(t *testing.T) {
 	ctx := context.Background()
 	var originalResourceVersion string
