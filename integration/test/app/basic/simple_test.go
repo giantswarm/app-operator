@@ -91,8 +91,6 @@ func TestAppLifecycle(t *testing.T) {
 
 		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("created chart %#q", customResourceReleaseName))
 
-		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("checking chart CR %#q is deployed", testAppReleaseName))
-
 		tarballURL := "https://giantswarm.github.com/sample-catalog/test-app-1.0.0.tgz"
 		err = waitForUpdatedChartCR(ctx, create, "")
 		if err != nil {
@@ -135,8 +133,6 @@ func TestAppLifecycle(t *testing.T) {
 
 		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updated chart %#q", customResourceReleaseName))
 
-		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("checking chart CR %#q is updated", testAppReleaseName))
-
 		tarballURL := "https://giantswarm.github.com/sample-catalog/test-app-1.0.1.tgz"
 		err = waitForUpdatedChartCR(ctx, update, originalResourceVersion)
 		if err != nil {
@@ -166,8 +162,6 @@ func TestAppLifecycle(t *testing.T) {
 		}
 
 		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleted chart %#q", customResourceReleaseName))
-
-		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("checking chart CR %#q is deleted", testAppReleaseName))
 
 		err = waitForUpdatedChartCR(ctx, delete, "")
 		if err != nil {
