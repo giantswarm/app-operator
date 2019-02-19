@@ -47,10 +47,11 @@ jobs:
           fi
 
 
-  e2eTestChartInstall:
+  e2eTestAppBasic:
     environment:
-      TEST_DIR: "integration/test/chart"
+      TEST_DIR: "integration/test/app/basic"
     <<: *e2eTest
+
 
 workflows:
   version: 2
@@ -58,6 +59,6 @@ workflows:
     jobs:
       - build
 
-      - e2eTestChartInstall:
+      - e2eTestAppBasic:
           requires:
             - build
