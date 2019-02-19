@@ -12,6 +12,7 @@ import (
 	"github.com/giantswarm/operatorkit/controller/resource/retryresource"
 	"k8s.io/client-go/kubernetes"
 
+	"github.com/giantswarm/app-operator/service/controller/app/v1/appcatalog"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/controllercontext"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/key"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/chart"
@@ -64,6 +65,21 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 
 		kubeConfig, err = kubeconfig.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	var appCatalog appcatalog.AppCatalog
+	{
+		c := appcatalog.Config{
+			G8sClient: config.G8sClient,
+			Logger:    config.Logger,
+
+			WatchNamespace: config.WatchNamespace,
+		}
+
+		appCatalog, err = appcatalog.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -158,6 +174,11 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 			return nil, microerror.Mask(err)
 		}
 
+		catalogCR, err := appCatalog.GetCatalogForApp(ctx, cr)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
 		restConfig, err := kubeConfig.NewRESTConfigForApp(ctx, cr)
 		if err != nil {
 			return nil, microerror.Mask(err)
@@ -174,8 +195,9 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 
 		c := controllercontext.Context{
-			G8sClient: g8sClient,
-			K8sClient: k8sClient,
+			AppCatalog: catalogCR,
+			G8sClient:  g8sClient,
+			K8sClient:  k8sClient,
 		}
 		ctx = controllercontext.NewContext(ctx, c)
 
