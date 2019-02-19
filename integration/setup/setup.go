@@ -7,16 +7,14 @@ import (
 	"fmt"
 	"os"
 	"testing"
-	"time"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
-	"github.com/giantswarm/backoff"
 	"github.com/giantswarm/e2e-harness/pkg/release"
 	"github.com/giantswarm/microerror"
-	"github.com/giantswarm/operatorkit/client/k8scrdclient"
 
 	"github.com/giantswarm/app-operator/integration/env"
 	"github.com/giantswarm/app-operator/integration/key"
+	"github.com/giantswarm/app-operator/integration/templates"
 )
 
 func Setup(m *testing.M, config Config) {
@@ -66,24 +64,17 @@ func installResources(ctx context.Context, config Config) error {
 	}
 
 	{
-		err = config.Release.InstallOperator(ctx, key.AppOperatorReleaseName(), release.NewVersion(env.CircleSHA()), "{}", v1alpha1.NewAppCRD())
+		err = config.Release.InstallOperator(ctx, "chart-operator", release.NewStableVersion(), templates.ChartOperatorValues, v1alpha1.NewChartCRD())
 		if err != nil {
 			return microerror.Mask(err)
 		}
 	}
 
-	// Ensure Chart CRD creation
 	{
-		c := k8scrdclient.Config{
-			K8sExtClient: config.Host.ExtClient(),
-			Logger:       config.Logger,
+		err = config.Release.InstallOperator(ctx, key.AppOperatorReleaseName(), release.NewVersion(env.CircleSHA()), "{}", v1alpha1.NewAppCRD())
+		if err != nil {
+			return microerror.Mask(err)
 		}
-
-		var crdClient *k8scrdclient.CRDClient
-		crdClient, err = k8scrdclient.New(c)
-		crdBackoff := backoff.NewMaxRetries(3, 1*time.Second)
-
-		err = crdClient.EnsureCreated(ctx, v1alpha1.NewChartCRD(), crdBackoff)
 	}
 
 	return nil
