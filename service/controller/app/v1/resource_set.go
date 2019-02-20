@@ -154,10 +154,10 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 			return nil, microerror.Mask(err)
 		}
 
-		// TODO: Remove if statement after in-cluster flag is implemented.
-		var k8sClient kubernetes.Interface
 		var g8sClient versioned.Interface
+		var k8sClient kubernetes.Interface
 
+		// TODO Remove once kubeconfig library supports InCluster.
 		if cr.Spec.KubeConfig.Secret.Name != "" {
 			restConfig, err := kubeConfig.NewRESTConfigForApp(ctx, cr)
 			if err != nil {
