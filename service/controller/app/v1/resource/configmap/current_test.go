@@ -29,13 +29,14 @@ func Test_Resource_GetCurrentState(t *testing.T) {
 			name: "case 0: basic match",
 			obj: &v1alpha1.App{
 				Spec: v1alpha1.AppSpec{
+					Name:      "test-app",
+					Namespace: "kube-system",
 					Config: v1alpha1.AppSpecConfig{
 						ConfigMap: v1alpha1.AppSpecConfigConfigMap{
-							Name:      "app-values",
+							Name:      "test-cluster-values",
 							Namespace: "default",
 						},
 					},
-					Namespace: "kube-system",
 				},
 			},
 			configMap: &corev1.ConfigMap{
@@ -43,7 +44,7 @@ func Test_Resource_GetCurrentState(t *testing.T) {
 					"key": "value",
 				},
 				ObjectMeta: metav1.ObjectMeta{
-					Name:      "app-values",
+					Name:      "test-app-values",
 					Namespace: "kube-system",
 				},
 			},
@@ -52,7 +53,7 @@ func Test_Resource_GetCurrentState(t *testing.T) {
 					"key": "value",
 				},
 				ObjectMeta: metav1.ObjectMeta{
-					Name:      "app-values",
+					Name:      "test-app-values",
 					Namespace: "kube-system",
 				},
 			},
@@ -61,13 +62,14 @@ func Test_Resource_GetCurrentState(t *testing.T) {
 			name: "case 1: no matching configmap",
 			obj: &v1alpha1.App{
 				Spec: v1alpha1.AppSpec{
+					Name:      "test-app",
+					Namespace: "kube-system",
 					Config: v1alpha1.AppSpecConfig{
 						ConfigMap: v1alpha1.AppSpecConfigConfigMap{
 							Name:      "app-values",
 							Namespace: "default",
 						},
 					},
-					Namespace: "kube-system",
 				},
 			},
 			configMap: &corev1.ConfigMap{
@@ -168,8 +170,20 @@ func Test_Resource_GetCurrentState(t *testing.T) {
 				t.Fatalf("error == %#v, want nil", err)
 			}
 
-			if !reflect.DeepEqual(configMap, tc.expectedConfigMap) {
-				t.Fatalf("want matching configmap \n %s", cmp.Diff(configMap, tc.expectedConfigMap))
+			if configMap == nil && tc.expectedConfigMap != nil {
+				t.Fatal("configmap == nil, want non-nil")
+			}
+
+			if configMap != nil {
+				if configMap.Name != tc.expectedConfigMap.Name {
+					t.Fatalf("name == %#q, want %#q", configMap.Name, tc.expectedConfigMap.Name)
+				}
+				if configMap.Namespace != tc.expectedConfigMap.Namespace {
+					t.Fatalf("namespace == %#q, want %#q", configMap.Namespace, tc.expectedConfigMap.Namespace)
+				}
+				if !reflect.DeepEqual(configMap.Data, tc.expectedConfigMap.Data) {
+					t.Fatalf("want matching data \n %s", cmp.Diff(configMap.Data, tc.expectedConfigMap.Data))
+				}
 			}
 		})
 	}
