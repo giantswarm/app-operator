@@ -46,8 +46,9 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	var indexResource controller.Resource
 	{
 		c := index.Config{
-			K8sClient: config.K8sClient,
-			Logger:    config.Logger,
+			K8sClient:   config.K8sClient,
+			Logger:      config.Logger,
+			ProjectName: config.ProjectName,
 		}
 
 		ops, err := index.New(c)
