@@ -22,7 +22,8 @@ type Config struct {
 	Logger    micrologger.Logger
 
 	// Settings.
-	ProjectName string
+	ProjectName    string
+	IndexNamespace string
 }
 
 // Resource implements the index resource.
@@ -32,7 +33,8 @@ type Resource struct {
 	logger    micrologger.Logger
 
 	// Settings.
-	projectName string
+	projectName    string
+	indexNamespace string
 }
 
 func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interface{}, error) {
@@ -73,6 +75,9 @@ func New(config Config) (*Resource, error) {
 	if config.ProjectName == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ProjectName must not be empty", config)
 	}
+	if config.IndexNamespace == "" {
+		return nil, microerror.Maskf(invalidConfigError, "%T.IndexNamespace must not be empty", config)
+	}
 
 	r := &Resource{
 		// Dependencies.
@@ -80,7 +85,8 @@ func New(config Config) (*Resource, error) {
 		logger:    config.Logger,
 
 		// Settings
-		projectName: config.ProjectName,
+		projectName:    config.ProjectName,
+		indexNamespace: config.IndexNamespace,
 	}
 
 	return r, nil

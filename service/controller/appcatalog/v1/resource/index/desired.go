@@ -45,7 +45,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 	configMap := &corev1.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      fmt.Sprintf("%s-index", cr.Name),
-			Namespace: cr.Namespace,
+			Namespace: r.indexNamespace,
 			Labels: label.ProcessLabels(cr.ObjectMeta.Labels,
 				map[string]string{label.ManagedBy: r.projectName},
 				map[string]string{label.AppOperatorVersion: ""}),

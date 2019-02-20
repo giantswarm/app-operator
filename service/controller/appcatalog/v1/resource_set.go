@@ -23,6 +23,7 @@ type ResourceSetConfig struct {
 
 	// Settings.
 	HandledVersionBundles []string
+	IndexNamespace        string
 	ProjectName           string
 }
 
@@ -42,6 +43,9 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	if config.ProjectName == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ProjectName must not be empty", config)
 	}
+	if config.IndexNamespace == "" {
+		return nil, microerror.Maskf(invalidConfigError, "%T.IndexNamespace must not be empty", config)
+	}
 
 	var indexResource controller.Resource
 	{
@@ -49,7 +53,8 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
 
-			ProjectName: config.ProjectName,
+			ProjectName:    config.ProjectName,
+			IndexNamespace: config.IndexNamespace,
 		}
 
 		ops, err := index.New(c)

@@ -46,7 +46,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 			expectedConfigMap: &corev1.ConfigMap{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "giantswarm-index",
-					Namespace: "default",
+					Namespace: "giantswarm",
 					Labels: map[string]string{
 						"giantswarm.io/managed-by": "app-operator",
 					},
@@ -98,7 +98,8 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 				K8sClient: k8sfake.NewSimpleClientset(),
 				Logger:    microloggertest.New(),
 
-				ProjectName: "app-operator",
+				ProjectName:    "app-operator",
+				IndexNamespace: "giantswarm",
 			}
 			r, err := New(c)
 			if err != nil {

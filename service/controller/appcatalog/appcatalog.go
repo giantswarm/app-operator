@@ -22,6 +22,7 @@ type Config struct {
 
 	ProjectName    string
 	WatchNamespace string
+	IndexNamespace string
 }
 
 type AppCatalog struct {
@@ -80,9 +81,10 @@ func NewAppCatalog(config Config) (*AppCatalog, error) {
 	var resourceSetV1 *controller.ResourceSet
 	{
 		c := v1.ResourceSetConfig{
-			K8sClient:   config.K8sClient,
-			Logger:      config.Logger,
-			ProjectName: config.ProjectName,
+			IndexNamespace: config.IndexNamespace,
+			K8sClient:      config.K8sClient,
+			Logger:         config.Logger,
+			ProjectName:    config.ProjectName,
 		}
 
 		resourceSetV1, err = v1.NewResourceSet(c)

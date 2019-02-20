@@ -111,6 +111,7 @@ func mainWithError() (err error) {
 	daemonCommand.PersistentFlags().String(f.Service.Kubernetes.TLS.CrtFile, "", "Certificate file path to use to authenticate with Kubernetes.")
 	daemonCommand.PersistentFlags().String(f.Service.Kubernetes.TLS.KeyFile, "", "Key file path to use to authenticate with Kubernetes.")
 	daemonCommand.PersistentFlags().String(f.Service.Kubernetes.Watch.Namespace, "default", "The namespace where appcatalog and app CRs are located.")
+	daemonCommand.PersistentFlags().String(f.Service.AppCatalog.IndexNamespace, "giantswarm", "The namespace where operator keep index file as configMap.")
 
 	newCommand.CobraCommand().Execute()
 

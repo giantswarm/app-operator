@@ -100,6 +100,7 @@ func New(config Config) (*Service, error) {
 
 			ProjectName:    config.ProjectName,
 			WatchNamespace: config.Viper.GetString(config.Flag.Service.Kubernetes.Watch.Namespace),
+			IndexNamespace: config.Viper.GetString(config.Flag.Service.AppCatalog.IndexNamespace),
 		}
 
 		appCatalogController, err = appcatalog.NewAppCatalog(c)
