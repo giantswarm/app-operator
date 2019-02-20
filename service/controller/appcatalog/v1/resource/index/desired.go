@@ -43,9 +43,11 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 
 	configMap := &v1.ConfigMap{
 		ObjectMeta: v12.ObjectMeta{
-			Name:        cr.Name,
-			Namespace:   cr.Namespace,
-			Labels:      label.ProcessLabels(r.projectName, "", cr.ObjectMeta.Labels),
+			Name:      cr.Name,
+			Namespace: cr.Namespace,
+			Labels: label.ProcessLabels(cr.ObjectMeta.Labels,
+				map[string]string{label.ManagedBy: r.projectName},
+				map[string]string{label.AppOperatorVersion: ""}),
 			Annotations: cr.ObjectMeta.Annotations,
 		},
 		Data: map[string]string{

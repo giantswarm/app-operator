@@ -3,6 +3,7 @@ package chart
 import (
 	"context"
 	"fmt"
+	"github.com/giantswarm/app-operator/pkg/label"
 	"net/url"
 	"path"
 
@@ -10,7 +11,6 @@ import (
 	"github.com/giantswarm/microerror"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"github.com/giantswarm/app-operator/pkg/label"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/controllercontext"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/key"
 	appcatalogkey "github.com/giantswarm/app-operator/service/controller/appcatalog/v1/key"
@@ -38,8 +38,13 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 			APIVersion: chartAPIVersion,
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			Name:        cr.Spec.Name,
-			Labels:      label.ProcessLabels(r.projectName, chartCustomResourceVersion, cr.ObjectMeta.Labels),
+			Name: cr.Spec.Name,
+			Labels: label.ProcessLabels(cr.ObjectMeta.Labels,
+				map[string]string{
+					label.ManagedBy:            r.projectName,
+					label.ChartOperatorVersion: chartCustomResourceVersion,
+				},
+				map[string]string{label.AppOperatorVersion: ""}),
 			Annotations: cr.ObjectMeta.Annotations,
 		},
 		Spec: v1alpha1.ChartSpec{
