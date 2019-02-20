@@ -11,13 +11,13 @@ func IsInvalidConfig(err error) bool {
 	return microerror.Cause(err) == invalidConfigError
 }
 
-var wrongTypeError = &microerror.Error{
-	Kind: "wrongTypeError",
+var invalidExecutionError = &microerror.Error{
+	Kind: "invalidExecutionError",
 }
 
-// IsWrongType asserts wrongTypeError.
-func IsWrongType(err error) bool {
-	return microerror.Cause(err) == wrongTypeError
+// IsInvalidExecution asserts invalidExecutionError.
+func IsInvalidExecution(err error) bool {
+	return microerror.Cause(err) == invalidExecutionError
 }
 
 var notFoundError = &microerror.Error{
@@ -27,4 +27,13 @@ var notFoundError = &microerror.Error{
 // IsNotFound asserts notFoundError.
 func IsNotFound(err error) bool {
 	return microerror.Cause(err) == notFoundError
+}
+
+var wrongTypeError = &microerror.Error{
+	Kind: "wrongTypeError",
+}
+
+// IsWrongType asserts wrongTypeError.
+func IsWrongType(err error) bool {
+	return microerror.Cause(err) == wrongTypeError
 }

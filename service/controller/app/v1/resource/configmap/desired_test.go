@@ -10,9 +10,11 @@ import (
 	"github.com/giantswarm/micrologger/microloggertest"
 	"github.com/google/go-cmp/cmp"
 	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	clientgofake "k8s.io/client-go/kubernetes/fake"
 
+	"github.com/giantswarm/app-operator/pkg/label"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/controllercontext"
 )
 
@@ -24,7 +26,52 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 		configMaps        []*corev1.ConfigMap
 		expectedConfigMap *corev1.ConfigMap
 		errorMatcher      func(error) bool
-	}{}
+	}{
+		{
+			name: "case 0: basic match with no catalog config",
+			obj: &v1alpha1.App{
+				Spec: v1alpha1.AppSpec{
+					Name:      "test-app",
+					Namespace: metav1.NamespaceSystem,
+					Catalog:   "app-catalog",
+					Config: v1alpha1.AppSpecConfig{
+						ConfigMap: v1alpha1.AppSpecConfigConfigMap{
+							Name:      "test-cluster-values",
+							Namespace: "giantswarm",
+						},
+					},
+				},
+			},
+			appCatalog: v1alpha1.AppCatalog{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "app-catalog",
+				},
+			},
+			configMaps: []*corev1.ConfigMap{
+				{
+					Data: map[string]string{
+						"values": "test",
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "test-cluster-values",
+						Namespace: "giantswarm",
+					},
+				},
+			},
+			expectedConfigMap: &corev1.ConfigMap{
+				Data: map[string]string{
+					"values": "test",
+				},
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "test-app-values",
+					Namespace: metav1.NamespaceSystem,
+					Labels: map[string]string{
+						label.ManagedBy: "app-operator",
+					},
+				},
+			},
+		},
+	}
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
@@ -76,6 +123,34 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 				if !reflect.DeepEqual(configMap.Data, tc.expectedConfigMap.Data) {
 					t.Fatalf("want matching data \n %s", cmp.Diff(configMap.Data, tc.expectedConfigMap.Data))
 				}
+			}
+		})
+	}
+}
+
+func Test_Resource_mergeData(t *testing.T) {
+	tests := []struct {
+		name         string
+		appData      map[string]string
+		catalogData  map[string]string
+		expectedData map[string]string
+		errorMatcher func(error) bool
+	}{}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			result, err := mergeData(tc.appData, tc.catalogData)
+			switch {
+			case err != nil && tc.errorMatcher == nil:
+				t.Fatalf("error == %#v, want nil", err)
+			case err == nil && tc.errorMatcher != nil:
+				t.Fatalf("error == nil, want non-nil")
+			case err != nil && !tc.errorMatcher(err):
+				t.Fatalf("error == %#v, want matching", err)
+			}
+
+			if !reflect.DeepEqual(result, tc.expectedData) {
+				t.Fatalf("want matching \n %s", cmp.Diff(result, tc.expectedData))
 			}
 		})
 	}

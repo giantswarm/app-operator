@@ -1,13 +1,17 @@
 package configmap
 
 import (
+	"fmt"
 	"reflect"
 
+	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes"
+
+	"github.com/giantswarm/app-operator/service/controller/app/v1/key"
 )
 
 const (
@@ -75,6 +79,10 @@ func New(config Config) (*Resource, error) {
 
 func (r *Resource) Name() string {
 	return Name
+}
+
+func configMapName(customResource v1alpha1.App) string {
+	return fmt.Sprintf("%s-values", key.AppName(customResource))
 }
 
 // equals asseses the equality of ConfigMaps with regards to distinguishing
