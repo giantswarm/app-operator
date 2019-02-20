@@ -6,7 +6,7 @@ import (
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/controller"
-	"k8s.io/api/core/v1"
+	corev1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes"
 )
 
@@ -18,8 +18,10 @@ const (
 // Config represents the configuration used to create a new index resource.
 type Config struct {
 	// Dependencies.
-	K8sClient   kubernetes.Interface
-	Logger      micrologger.Logger
+	K8sClient kubernetes.Interface
+	Logger    micrologger.Logger
+
+	// Settings.
 	ProjectName string
 }
 
@@ -66,14 +68,18 @@ func New(config Config) (*Resource, error) {
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
+
+	// Settings
 	if config.ProjectName == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ProjectName must not be empty", config)
 	}
 
 	r := &Resource{
 		// Dependencies.
-		k8sClient:   config.K8sClient,
-		logger:      config.Logger,
+		k8sClient: config.K8sClient,
+		logger:    config.Logger,
+
+		// Settings
 		projectName: config.ProjectName,
 	}
 
@@ -84,14 +90,14 @@ func (r *Resource) Name() string {
 	return Name
 }
 
-func toConfigMap(v interface{}) (*v1.ConfigMap, error) {
+func toConfigMap(v interface{}) (*corev1.ConfigMap, error) {
 	if v == nil {
 		return nil, nil
 	}
 
-	configMap, ok := v.(*v1.ConfigMap)
+	configMap, ok := v.(*corev1.ConfigMap)
 	if !ok {
-		return nil, microerror.Maskf(wrongTypeError, "expected '%T', got '%T'", &v1.ConfigMap{}, v)
+		return nil, microerror.Maskf(wrongTypeError, "expected '%T', got '%T'", &corev1.ConfigMap{}, v)
 	}
 
 	return configMap, nil

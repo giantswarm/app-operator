@@ -2,14 +2,15 @@ package index
 
 import (
 	"context"
+	"fmt"
 	"io/ioutil"
-	"k8s.io/api/core/v1"
 	"net/http"
 	"net/url"
 	"path"
 
 	"github.com/giantswarm/microerror"
-	v12 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/giantswarm/app-operator/pkg/label"
 	"github.com/giantswarm/app-operator/service/controller/appcatalog/v1/key"
@@ -32,7 +33,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 	}
 
 	if response.StatusCode != 200 {
-		return nil, microerror.Mask(indexNotFound)
+		return nil, microerror.Mask(notFound)
 	}
 
 	defer response.Body.Close()
@@ -41,9 +42,9 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		return nil, microerror.Mask(err)
 	}
 
-	configMap := &v1.ConfigMap{
-		ObjectMeta: v12.ObjectMeta{
-			Name:      cr.Name,
+	configMap := &corev1.ConfigMap{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      fmt.Sprintf("%s-index", cr.Name),
 			Namespace: cr.Namespace,
 			Labels: label.ProcessLabels(cr.ObjectMeta.Labels,
 				map[string]string{label.ManagedBy: r.projectName},

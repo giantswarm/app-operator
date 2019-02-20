@@ -20,11 +20,11 @@ func IsWrongType(err error) bool {
 	return microerror.Cause(err) == wrongTypeError
 }
 
-var indexNotFound = &microerror.Error{
-	Kind: "indexNotFound",
+var notFound = &microerror.Error{
+	Kind: "notFound",
 }
 
-// IsIndexNotFound asserts indexNotFound.
-func IsIndexNotFound(err error) bool {
-	return microerror.Cause(err) == indexNotFound
+// IsNotFound asserts notFound.
+func IsNotFound(err error) bool {
+	return microerror.Cause(err) == notFound
 }

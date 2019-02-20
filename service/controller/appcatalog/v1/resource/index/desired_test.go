@@ -10,7 +10,7 @@ import (
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/micrologger/microloggertest"
 	"github.com/google/go-cmp/cmp"
-	"k8s.io/api/core/v1"
+	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	k8sfake "k8s.io/client-go/kubernetes/fake"
 )
@@ -19,7 +19,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 	tests := []struct {
 		name              string
 		obj               *v1alpha1.AppCatalog
-		expectedConfigMap *v1.ConfigMap
+		expectedConfigMap *corev1.ConfigMap
 		h                 func(w http.ResponseWriter, r *http.Request)
 		errorMatcher      func(error) bool
 	}{
@@ -43,9 +43,9 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					LogoURL: "https://s.giantswarm.io/...",
 				},
 			},
-			expectedConfigMap: &v1.ConfigMap{
+			expectedConfigMap: &corev1.ConfigMap{
 				ObjectMeta: metav1.ObjectMeta{
-					Name:      "giantswarm",
+					Name:      "giantswarm-index",
 					Namespace: "default",
 					Labels: map[string]string{
 						"giantswarm.io/managed-by": "app-operator",
@@ -83,7 +83,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 				http.Error(w, "Not found", http.StatusNotFound)
 				return
 			},
-			errorMatcher: IsIndexNotFound,
+			errorMatcher: IsNotFound,
 		},
 	}
 
