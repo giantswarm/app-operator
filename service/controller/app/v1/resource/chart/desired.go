@@ -47,8 +47,8 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 			Namespace: cr.Spec.Namespace,
 			Config: v1alpha1.ChartSpecConfig{
 				ConfigMap: v1alpha1.ChartSpecConfigConfigMap{
-					Name:      key.ConfigMapName(cr),
-					Namespace: key.ConfigMapNamespace(cr),
+					Name:      key.AppConfigMapName(cr),
+					Namespace: key.AppConfigMapNamespace(cr),
 				},
 				Secret: v1alpha1.ChartSpecConfigSecret{
 					Name:      key.SecretName(cr),
