@@ -11,6 +11,7 @@ import (
 	"github.com/google/go-cmp/cmp"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
+	"github.com/giantswarm/app-operator/pkg/label"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/controllercontext"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/key"
 )
@@ -221,15 +222,16 @@ func Test_processLabels(t *testing.T) {
 	tests := []struct {
 		name           string
 		projectName    string
+		chartVersion   string
 		inputLabels    map[string]string
 		expectedLabels map[string]string
 	}{
 		{
-			name:        "case 0: basic match",
-			projectName: "app-operator",
+			name:         "case 0: basic match",
+			projectName:  "app-operator",
+			chartVersion: "1.0.0",
 			inputLabels: map[string]string{
-				"app-operator.giantswarm.io/version": "1.0.0",
-				"giantswarm.io/managed-by":           "release-operator",
+				"giantswarm.io/managed-by": "release-operator",
 			},
 			expectedLabels: map[string]string{
 				"chart-operator.giantswarm.io/version": "1.0.0",
@@ -237,14 +239,14 @@ func Test_processLabels(t *testing.T) {
 			},
 		},
 		{
-			name:        "case 1: extra labels still present",
-			projectName: "app-operator",
+			name:         "case 1: extra labels still present",
+			projectName:  "app-operator",
+			chartVersion: "1.0.0",
 			inputLabels: map[string]string{
-				"app":                                "prometheus",
-				"app-operator.giantswarm.io/version": "1.0.0",
-				"giantswarm.io/cluster":              "5xchu",
-				"giantswarm.io/managed-by":           "cluster-operator",
-				"giantswarm.io/organization":         "giantswarm",
+				"app":                        "prometheus",
+				"giantswarm.io/cluster":      "5xchu",
+				"giantswarm.io/managed-by":   "cluster-operator",
+				"giantswarm.io/organization": "giantswarm",
 			},
 			expectedLabels: map[string]string{
 				"app":                                  "prometheus",
@@ -255,11 +257,11 @@ func Test_processLabels(t *testing.T) {
 			},
 		},
 		{
-			name:        "case 2: empty inputs",
-			projectName: "app-operator",
+			name:         "case 2: empty inputs",
+			projectName:  "app-operator",
+			chartVersion: "",
 			expectedLabels: map[string]string{
-				"chart-operator.giantswarm.io/version": "1.0.0",
-				"giantswarm.io/managed-by":             "app-operator",
+				"giantswarm.io/managed-by": "app-operator",
 			},
 		},
 	}
@@ -267,7 +269,7 @@ func Test_processLabels(t *testing.T) {
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
 
-			result := processLabels(tc.projectName, tc.inputLabels)
+			result := label.ProcessLabels(tc.projectName, tc.chartVersion, tc.inputLabels)
 
 			if !reflect.DeepEqual(result, tc.expectedLabels) {
 				t.Fatalf("want matching \n %s", cmp.Diff(result, tc.expectedLabels))

@@ -39,7 +39,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		},
 		ObjectMeta: metav1.ObjectMeta{
 			Name:        cr.Spec.Name,
-			Labels:      processLabels(r.projectName, cr.ObjectMeta.Labels),
+			Labels:      label.ProcessLabels(r.projectName, chartCustomResourceVersion, cr.ObjectMeta.Labels),
 			Annotations: cr.ObjectMeta.Annotations,
 		},
 		Spec: v1alpha1.ChartSpec{
@@ -72,27 +72,4 @@ func generateTarballURL(baseURL string, appName string, version string) (string,
 	}
 	u.Path = path.Join(u.Path, fmt.Sprintf("%s-%s.tgz", appName, version))
 	return u.String(), nil
-}
-
-// processLabels ensures the chart-operator.giantswarm.io/version label is
-// present and the app-operator.giantswarm.io/version label is removed. It
-// also ensures the giantswarm.io/managed-by label is accurate.
-//
-// Any other labels added to the app custom resource are passed on to the chart
-// custom resource.
-func processLabels(projectName string, inputLabels map[string]string) map[string]string {
-	// These labels are required.
-	labels := map[string]string{
-		label.ChartOperatorVersion: chartCustomResourceVersion,
-		label.ManagedBy:            projectName,
-	}
-
-	for k, v := range inputLabels {
-		// These labels must be removed.
-		if k != label.ManagedBy && k != label.AppOperatorVersion {
-			labels[k] = v
-		}
-	}
-
-	return labels
 }
