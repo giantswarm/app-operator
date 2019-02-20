@@ -2,18 +2,11 @@ package index
 
 import (
 	"context"
-	"github.com/giantswarm/app-operator/pkg/label"
-	"github.com/giantswarm/app-operator/service/controller/appcatalog/v1/key"
-	"io/ioutil"
-	"k8s.io/api/core/v1"
-	v12 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"net/http"
-	"net/url"
-	"path"
 
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/controller"
+	"k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes"
 )
 
@@ -42,42 +35,6 @@ type Resource struct {
 
 func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interface{}, error) {
 	return nil, nil
-}
-
-func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interface{}, error) {
-	cr, err := key.ToCustomResource(obj)
-	if err != nil {
-		return nil, microerror.Mask(err)
-	}
-
-	storageURL, err := url.Parse(key.AppCatalogStorageURL(cr))
-	if err != nil {
-		return nil, microerror.Mask(err)
-	}
-	storageURL.Path = path.Join(storageURL.Path, "index.yaml")
-	response, err := http.Get(storageURL.String())
-	if err != nil {
-		return nil, microerror.Mask(err)
-	}
-
-	defer response.Body.Close()
-	content, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		return nil, microerror.Mask(err)
-	}
-
-	configMap := &v1.ConfigMap{
-		ObjectMeta: v12.ObjectMeta{
-			Name:        cr.Name,
-			Labels:      label.ProcessLabels(r.projectName, "", cr.ObjectMeta.Labels),
-			Annotations: cr.ObjectMeta.Annotations,
-		},
-		Data: map[string]string{
-			"index.yaml": string(content),
-		},
-	}
-
-	return configMap, nil
 }
 
 func (r *Resource) NewUpdatePatch(ctx context.Context, obj, currentState, desiredState interface{}) (*controller.Patch, error) {
@@ -125,4 +82,17 @@ func New(config Config) (*Resource, error) {
 
 func (r *Resource) Name() string {
 	return Name
+}
+
+func toConfigMap(v interface{}) (*v1.ConfigMap, error) {
+	if v == nil {
+		return nil, nil
+	}
+
+	configMap, ok := v.(*v1.ConfigMap)
+	if !ok {
+		return nil, microerror.Maskf(wrongTypeError, "expected '%T', got '%T'", &v1.ConfigMap{}, v)
+	}
+
+	return configMap, nil
 }
