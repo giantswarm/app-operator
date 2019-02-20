@@ -23,11 +23,11 @@ func ChartStatus(customResource v1alpha1.Chart) v1alpha1.ChartStatus {
 	return customResource.Status
 }
 
-func ConfigMapName(customResource v1alpha1.App) string {
+func AppConfigMapName(customResource v1alpha1.App) string {
 	return customResource.Spec.Config.ConfigMap.Name
 }
 
-func ConfigMapNamespace(customResource v1alpha1.App) string {
+func AppConfigMapNamespace(customResource v1alpha1.App) string {
 	return customResource.Spec.Config.ConfigMap.Namespace
 }
 
