@@ -31,6 +31,10 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		return nil, microerror.Mask(err)
 	}
 
+	if response.StatusCode != 200 {
+		return nil, microerror.Mask(indexNotFound)
+	}
+
 	defer response.Body.Close()
 	content, err := ioutil.ReadAll(response.Body)
 	if err != nil {

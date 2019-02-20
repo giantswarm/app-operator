@@ -19,3 +19,12 @@ var wrongTypeError = &microerror.Error{
 func IsWrongType(err error) bool {
 	return microerror.Cause(err) == wrongTypeError
 }
+
+var indexNotFound = &microerror.Error{
+	Kind: "indexNotFound",
+}
+
+// IsIndexNotFound asserts indexNotFound.
+func IsIndexNotFound(err error) bool {
+	return microerror.Cause(err) == indexNotFound
+}

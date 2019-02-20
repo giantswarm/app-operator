@@ -59,6 +59,32 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 				w.Write([]byte("test yaml"))
 			},
 		},
+		{
+			name: "case 1: index.yaml not found",
+			obj: &v1alpha1.AppCatalog{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "giantswarm",
+					Namespace: "default",
+					Labels: map[string]string{
+						"app-operator.giantswarm.io/version": "1.0.0",
+					},
+				},
+				Spec: v1alpha1.AppCatalogSpec{
+					Title:       "Giant Swarm",
+					Description: "Catalog of Apps by Giant Swarm",
+					Storage: v1alpha1.AppCatalogSpecStorage{
+						Type: "helm",
+						URL:  "https://giantswarm.github.com/app-catalog/",
+					},
+					LogoURL: "https://s.giantswarm.io/...",
+				},
+			},
+			h: func(w http.ResponseWriter, r *http.Request) {
+				http.Error(w, "Not found", http.StatusNotFound)
+				return
+			},
+			errorMatcher: IsIndexNotFound,
+		},
 	}
 
 	for _, tc := range tests {
