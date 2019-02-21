@@ -22,9 +22,8 @@ type ResourceSetConfig struct {
 	Logger    micrologger.Logger
 
 	// Settings.
-	HandledVersionBundles []string
-	IndexNamespace        string
-	ProjectName           string
+	IndexNamespace string
+	ProjectName    string
 }
 
 // NewResourceSet returns a configured AppCatalog controller ResourceSet.

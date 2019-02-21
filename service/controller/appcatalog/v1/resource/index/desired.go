@@ -33,7 +33,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 	}
 
 	if response.StatusCode != 200 {
-		return nil, microerror.Mask(notFound)
+		return nil, microerror.Mask(notFoundError)
 	}
 
 	defer response.Body.Close()
@@ -44,10 +44,11 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 
 	configMap := &corev1.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:        fmt.Sprintf("%s-index", cr.Name),
-			Namespace:   r.indexNamespace,
-			Labels:      map[string]string{label.ManagedBy: r.projectName},
-			Annotations: cr.ObjectMeta.Annotations,
+			Name:      fmt.Sprintf("%s-index", cr.Name),
+			Namespace: r.indexNamespace,
+			Labels: map[string]string{
+				label.ManagedBy: r.projectName,
+			},
 		},
 		Data: map[string]string{
 			"index.yaml": string(content),

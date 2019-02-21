@@ -27,11 +27,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 			name: "case 0: flawless flow",
 			obj: &v1alpha1.AppCatalog{
 				ObjectMeta: metav1.ObjectMeta{
-					Name:      "giantswarm",
-					Namespace: "default",
-					Labels: map[string]string{
-						"app-operator.giantswarm.io/version": "1.0.0",
-					},
+					Name: "giantswarm",
 				},
 				Spec: v1alpha1.AppCatalogSpec{
 					Title:       "Giant Swarm",
@@ -83,7 +79,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 				http.Error(w, "Not found", http.StatusNotFound)
 				return
 			},
-			errorMatcher: IsNotFound,
+			errorMatcher: IsNotFoundError,
 		},
 	}
 
