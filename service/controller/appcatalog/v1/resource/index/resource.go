@@ -2,6 +2,7 @@ package index
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
@@ -22,8 +23,8 @@ type Config struct {
 	Logger    micrologger.Logger
 
 	// Settings.
-	ProjectName    string
 	IndexNamespace string
+	ProjectName    string
 }
 
 // Resource implements the index resource.
@@ -107,4 +108,8 @@ func toConfigMap(v interface{}) (*corev1.ConfigMap, error) {
 	}
 
 	return configMap, nil
+}
+
+func configMapName(catalogName string) string {
+	return fmt.Sprintf("%s-index", catalogName)
 }

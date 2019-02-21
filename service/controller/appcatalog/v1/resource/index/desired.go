@@ -2,7 +2,6 @@ package index
 
 import (
 	"context"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -44,7 +43,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 
 	configMap := &corev1.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      fmt.Sprintf("%s-index", cr.Name),
+			Name:      configMapName(cr.Name),
 			Namespace: r.indexNamespace,
 			Labels: map[string]string{
 				label.ManagedBy: r.projectName,

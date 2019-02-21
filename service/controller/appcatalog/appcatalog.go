@@ -20,9 +20,9 @@ type Config struct {
 	K8sExtClient apiextensionsclient.Interface
 	Logger       micrologger.Logger
 
+	IndexNamespace string
 	ProjectName    string
 	WatchNamespace string
-	IndexNamespace string
 }
 
 type AppCatalog struct {

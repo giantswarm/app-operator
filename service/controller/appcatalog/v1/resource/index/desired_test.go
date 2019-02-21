@@ -94,8 +94,8 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 				K8sClient: k8sfake.NewSimpleClientset(),
 				Logger:    microloggertest.New(),
 
-				ProjectName:    "app-operator",
 				IndexNamespace: "giantswarm",
+				ProjectName:    "app-operator",
 			}
 			r, err := New(c)
 			if err != nil {
