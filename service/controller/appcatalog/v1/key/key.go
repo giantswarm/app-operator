@@ -2,9 +2,9 @@ package key
 
 import (
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
-	"github.com/giantswarm/microerror"
-
 	"github.com/giantswarm/app-operator/pkg/label"
+	"github.com/giantswarm/microerror"
+	corev1 "k8s.io/api/core/v1"
 )
 
 func AppCatalogTitle(customResource v1alpha1.AppCatalog) string {
@@ -33,6 +33,21 @@ func ToCustomResource(v interface{}) (v1alpha1.AppCatalog, error) {
 
 	if customResource == nil {
 		return v1alpha1.AppCatalog{}, microerror.Maskf(emptyValueError, "empty value cannot be converted to CustomObject")
+	}
+
+	return *customResource, nil
+}
+
+// ToConfigMap converts value to corev1.ConfigMap and returns it or error
+// if type does not match.
+func ToConfigMap(v interface{}) (corev1.ConfigMap, error) {
+	customResource, ok := v.(*corev1.ConfigMap)
+	if !ok {
+		return corev1.ConfigMap{}, microerror.Maskf(wrongTypeError, "expected '%T', got '%T'", &corev1.ConfigMap{}, v)
+	}
+
+	if customResource == nil {
+		return corev1.ConfigMap{}, microerror.Maskf(emptyValueError, "empty value cannot be converted to CustomObject")
 	}
 
 	return *customResource, nil
