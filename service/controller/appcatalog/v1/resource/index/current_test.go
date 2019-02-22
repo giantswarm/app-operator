@@ -11,8 +11,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/kubernetes/fake"
-
-	"github.com/giantswarm/app-operator/service/controller/appcatalog/v1/key"
 )
 
 func Test_Resource_GetCurrentState(t *testing.T) {
@@ -112,12 +110,12 @@ func Test_Resource_GetCurrentState(t *testing.T) {
 
 			if err == nil && tc.errorMatcher == nil {
 				if result != nil {
-					cm, err := key.ToConfigMap(result)
+					cm, err := toConfigMap(result)
 					if err != nil {
 						t.Fatalf("error == %#v, want nil", err)
 					}
 
-					if !reflect.DeepEqual(cm, *tc.returnedConfigMap) {
+					if !reflect.DeepEqual(*cm, *tc.returnedConfigMap) {
 						t.Fatalf("ConfigMap == %#v, want %#v", cm, tc.returnedConfigMap)
 					}
 				}
