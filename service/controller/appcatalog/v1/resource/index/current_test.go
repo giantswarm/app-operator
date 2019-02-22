@@ -17,7 +17,7 @@ func Test_Resource_GetCurrentState(t *testing.T) {
 	tests := []struct {
 		name              string
 		obj               interface{}
-		returnedConfigMap *corev1.ConfigMap
+		expectedConfigMap *corev1.ConfigMap
 		errorMatcher      func(error) bool
 	}{
 		{
@@ -40,7 +40,7 @@ func Test_Resource_GetCurrentState(t *testing.T) {
 					LogoURL: "https://s.giantswarm.io/...",
 				},
 			},
-			returnedConfigMap: &corev1.ConfigMap{
+			expectedConfigMap: &corev1.ConfigMap{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "giantswarm-index",
 					Namespace: "giantswarm",
@@ -73,15 +73,15 @@ func Test_Resource_GetCurrentState(t *testing.T) {
 					LogoURL: "https://s.giantswarm.io/...",
 				},
 			},
-			returnedConfigMap: nil,
+			expectedConfigMap: nil,
 		},
 	}
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
 			objs := make([]runtime.Object, 0, 0)
-			if tc.returnedConfigMap != nil {
-				objs = append(objs, tc.returnedConfigMap)
+			if tc.expectedConfigMap != nil {
+				objs = append(objs, tc.expectedConfigMap)
 			}
 
 			k8sClient := fake.NewSimpleClientset(objs...)
@@ -108,14 +108,18 @@ func Test_Resource_GetCurrentState(t *testing.T) {
 				t.Fatalf("error == %#v, want matching", err)
 			}
 
-			if result != nil {
+			if tc.expectedConfigMap == nil {
+				if result != nil {
+					t.Fatalf("expected nil ConfigMap got %#v", result)
+				}
+			} else {
 				cm, err := toConfigMap(result)
 				if err != nil {
 					t.Fatalf("error == %#v, want nil", err)
 				}
 
-				if !reflect.DeepEqual(*cm, *tc.returnedConfigMap) {
-					t.Fatalf("ConfigMap == %#v, want %#v", cm, tc.returnedConfigMap)
+				if !reflect.DeepEqual(*cm, *tc.expectedConfigMap) {
+					t.Fatalf("ConfigMap == %#v, want %#v", cm, tc.expectedConfigMap)
 				}
 			}
 		})
