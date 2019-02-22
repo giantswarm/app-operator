@@ -22,8 +22,8 @@ type ResourceSetConfig struct {
 	Logger    micrologger.Logger
 
 	// Settings.
-	HandledVersionBundles []string
-	ProjectName           string
+	IndexNamespace string
+	ProjectName    string
 }
 
 // NewResourceSet returns a configured AppCatalog controller ResourceSet.
@@ -42,12 +42,18 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	if config.ProjectName == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ProjectName must not be empty", config)
 	}
+	if config.IndexNamespace == "" {
+		return nil, microerror.Maskf(invalidConfigError, "%T.IndexNamespace must not be empty", config)
+	}
 
 	var indexResource controller.Resource
 	{
 		c := index.Config{
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
+
+			ProjectName:    config.ProjectName,
+			IndexNamespace: config.IndexNamespace,
 		}
 
 		ops, err := index.New(c)
