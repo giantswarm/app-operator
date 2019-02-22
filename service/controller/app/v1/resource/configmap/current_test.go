@@ -29,12 +29,7 @@ func Test_Resource_GetCurrentState(t *testing.T) {
 			name: "case 0: basic match",
 			obj: &v1alpha1.App{
 				Spec: v1alpha1.AppSpec{
-					Config: v1alpha1.AppSpecConfig{
-						ConfigMap: v1alpha1.AppSpecConfigConfigMap{
-							Name:      "app-values",
-							Namespace: "default",
-						},
-					},
+					Name:      "app",
 					Namespace: "kube-system",
 				},
 			},
@@ -61,12 +56,7 @@ func Test_Resource_GetCurrentState(t *testing.T) {
 			name: "case 1: no matching configmap",
 			obj: &v1alpha1.App{
 				Spec: v1alpha1.AppSpec{
-					Config: v1alpha1.AppSpecConfig{
-						ConfigMap: v1alpha1.AppSpecConfigConfigMap{
-							Name:      "app-values",
-							Namespace: "default",
-						},
-					},
+					Name:      "app",
 					Namespace: "kube-system",
 				},
 			},
@@ -85,12 +75,7 @@ func Test_Resource_GetCurrentState(t *testing.T) {
 			name: "case 2: namespace does not match",
 			obj: &v1alpha1.App{
 				Spec: v1alpha1.AppSpec{
-					Config: v1alpha1.AppSpecConfig{
-						ConfigMap: v1alpha1.AppSpecConfigConfigMap{
-							Name:      "app-values",
-							Namespace: "default",
-						},
-					},
+					Name:      "app",
 					Namespace: "kube-system",
 				},
 			},
@@ -109,12 +94,7 @@ func Test_Resource_GetCurrentState(t *testing.T) {
 			name: "case 3: no configmaps",
 			obj: &v1alpha1.App{
 				Spec: v1alpha1.AppSpec{
-					Config: v1alpha1.AppSpecConfig{
-						ConfigMap: v1alpha1.AppSpecConfigConfigMap{
-							Name:      "app-values",
-							Namespace: "default",
-						},
-					},
+					Name: "app",
 				},
 			},
 			expectedConfigMap: nil,
