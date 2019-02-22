@@ -34,12 +34,8 @@ type Resource struct {
 	logger    micrologger.Logger
 
 	// Settings.
-	projectName    string
 	indexNamespace string
-}
-
-func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interface{}, error) {
-	return nil, nil
+	projectName    string
 }
 
 func (r *Resource) NewUpdatePatch(ctx context.Context, obj, currentState, desiredState interface{}) (*controller.Patch, error) {
@@ -86,8 +82,8 @@ func New(config Config) (*Resource, error) {
 		logger:    config.Logger,
 
 		// Settings
-		projectName:    config.ProjectName,
 		indexNamespace: config.IndexNamespace,
+		projectName:    config.ProjectName,
 	}
 
 	return r, nil

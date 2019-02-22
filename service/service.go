@@ -98,9 +98,9 @@ func New(config Config) (*Service, error) {
 			K8sClient:    k8sClient,
 			K8sExtClient: k8sExtClient,
 
+			IndexNamespace: config.Viper.GetString(config.Flag.Service.AppCatalog.IndexNamespace),
 			ProjectName:    config.ProjectName,
 			WatchNamespace: config.Viper.GetString(config.Flag.Service.Kubernetes.Watch.Namespace),
-			IndexNamespace: config.Viper.GetString(config.Flag.Service.AppCatalog.IndexNamespace),
 		}
 
 		appCatalogController, err = appcatalog.NewAppCatalog(c)
