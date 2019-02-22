@@ -19,6 +19,8 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 
 	name := configMapName(cr.Name)
 
+	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding index configMap %#q", name))
+
 	cm, err := r.k8sClient.CoreV1().ConfigMaps(r.indexNamespace).Get(name, metav1.GetOptions{})
 	if errors.IsNotFound(err) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("did not find index configMap %#q", name))

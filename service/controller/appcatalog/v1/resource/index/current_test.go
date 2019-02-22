@@ -16,7 +16,7 @@ import (
 func Test_Resource_GetCurrentState(t *testing.T) {
 	tests := []struct {
 		name              string
-		obj               *v1alpha1.AppCatalog
+		obj               interface{}
 		returnedConfigMap *corev1.ConfigMap
 		errorMatcher      func(error) bool
 	}{
@@ -108,16 +108,14 @@ func Test_Resource_GetCurrentState(t *testing.T) {
 				t.Fatalf("error == %#v, want matching", err)
 			}
 
-			if err == nil && tc.errorMatcher == nil {
-				if result != nil {
-					cm, err := toConfigMap(result)
-					if err != nil {
-						t.Fatalf("error == %#v, want nil", err)
-					}
+			if result != nil {
+				cm, err := toConfigMap(result)
+				if err != nil {
+					t.Fatalf("error == %#v, want nil", err)
+				}
 
-					if !reflect.DeepEqual(*cm, *tc.returnedConfigMap) {
-						t.Fatalf("ConfigMap == %#v, want %#v", cm, tc.returnedConfigMap)
-					}
+				if !reflect.DeepEqual(*cm, *tc.returnedConfigMap) {
+					t.Fatalf("ConfigMap == %#v, want %#v", cm, tc.returnedConfigMap)
 				}
 			}
 		})
