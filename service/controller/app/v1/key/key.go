@@ -1,11 +1,21 @@
 package key
 
 import (
+	"fmt"
+
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/microerror"
 
 	"github.com/giantswarm/app-operator/pkg/label"
 )
+
+func AppConfigMapName(customResource v1alpha1.App) string {
+	return customResource.Spec.Config.ConfigMap.Name
+}
+
+func AppConfigMapNamespace(customResource v1alpha1.App) string {
+	return customResource.Spec.Config.ConfigMap.Namespace
+}
 
 func AppName(customResource v1alpha1.App) string {
 	return customResource.Spec.Name
@@ -24,11 +34,7 @@ func ChartStatus(customResource v1alpha1.Chart) v1alpha1.ChartStatus {
 }
 
 func ConfigMapName(customResource v1alpha1.App) string {
-	return customResource.Spec.Config.ConfigMap.Name
-}
-
-func ConfigMapNamespace(customResource v1alpha1.App) string {
-	return customResource.Spec.Config.ConfigMap.Namespace
+	return fmt.Sprintf("%s-values", AppName(customResource))
 }
 
 func Namespace(customResource v1alpha1.App) string {
