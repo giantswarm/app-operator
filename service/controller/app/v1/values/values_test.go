@@ -7,6 +7,48 @@ import (
 	"github.com/google/go-cmp/cmp"
 )
 
+const (
+	testComplexYaml = `
+Installation:
+  V1:
+    Provider:
+      AWS:
+        AvailabilityZone: 'eu-central-1a'
+        Region: 'eu-central-1'
+        Route53:
+          HostedZones:
+            API: 'Z1...'
+            Etcd: 'Z1...'
+            Ingress: 'Z1...'
+        VPCPeerID: 'vpc-123'`
+
+	testExtraYaml = `
+Test:
+  V1:
+    Provider:
+      Aws:
+        Region: 'eu-west-1'`
+
+	// TODO Fix bug with stipped quotes from YAML.
+	testMergedYaml = `Installation:
+  V1:
+    Provider:
+      AWS:
+        AvailabilityZone: eu-central-1a
+        Region: eu-central-1
+        Route53:
+          HostedZones:
+            API: Z1...
+            Etcd: Z1...
+            Ingress: Z1...
+        VPCPeerID: vpc-123
+Test:
+  V1:
+    Provider:
+      Aws:
+        Region: eu-west-1`
+)
+
 func Test_MergeConfigMapData(t *testing.T) {
 	tests := []struct {
 		name         string
@@ -16,13 +58,17 @@ func Test_MergeConfigMapData(t *testing.T) {
 		errorMatcher func(error) bool
 	}{
 		{
-			name:         "case 0: empty data",
+			name:         "case 0: empty data doesn't error",
+			expectedData: map[string]string{},
+		},
+		{
+			name:         "case 1: empty data",
 			appData:      map[string]string{},
 			catalogData:  map[string]string{},
 			expectedData: map[string]string{},
 		},
 		{
-			name: "case 1: only app data",
+			name: "case 2: only app data",
 			appData: map[string]string{
 				"values": "test: yaml",
 			},
@@ -32,7 +78,7 @@ func Test_MergeConfigMapData(t *testing.T) {
 			},
 		},
 		{
-			name:    "case 2: only catalog data",
+			name:    "case 3: only catalog data",
 			appData: map[string]string{},
 			catalogData: map[string]string{
 				"values": "test: yaml",
@@ -42,7 +88,7 @@ func Test_MergeConfigMapData(t *testing.T) {
 			},
 		},
 		{
-			name: "case 3: clashing app and catalog data",
+			name: "case 4: clashing app and catalog data",
 			appData: map[string]string{
 				"values": "test: yaml",
 			},
@@ -52,7 +98,7 @@ func Test_MergeConfigMapData(t *testing.T) {
 			errorMatcher: IsFailedExecution,
 		},
 		{
-			name: "case 4: merged simple app and catalog data",
+			name: "case 5: merged simple app and catalog data",
 			appData: map[string]string{
 				"values": "app: data",
 			},
@@ -60,11 +106,11 @@ func Test_MergeConfigMapData(t *testing.T) {
 				"values": "catalog: data",
 			},
 			expectedData: map[string]string{
-				"values": "app: data\ncatalog: data\n",
+				"values": "app: data\ncatalog: data",
 			},
 		},
 		{
-			name: "case 5: different app and catalog keys",
+			name: "case 6: different app and catalog keys",
 			appData: map[string]string{
 				"app": "app: data",
 			},
@@ -77,7 +123,7 @@ func Test_MergeConfigMapData(t *testing.T) {
 			},
 		},
 		{
-			name: "case 6: multiple app keys and single catalog key",
+			name: "case 7: multiple app keys and single catalog key",
 			appData: map[string]string{
 				"extra":  "app: data",
 				"values": "app: data",
@@ -87,11 +133,11 @@ func Test_MergeConfigMapData(t *testing.T) {
 			},
 			expectedData: map[string]string{
 				"extra":  "app: data",
-				"values": "app: data\ncatalog: data\n",
+				"values": "app: data\ncatalog: data",
 			},
 		},
 		{
-			name: "case 7: single app key and multiple catalog keys",
+			name: "case 8: single app key and multiple catalog keys",
 			appData: map[string]string{
 				"values": "app: data",
 			},
@@ -101,7 +147,48 @@ func Test_MergeConfigMapData(t *testing.T) {
 			},
 			expectedData: map[string]string{
 				"extra":  "catalog: data",
-				"values": "app: data\ncatalog: data\n",
+				"values": "app: data\ncatalog: data",
+			},
+		},
+		{
+			name: "case 9: complex app yaml and no catalog keys",
+			appData: map[string]string{
+				"values": testComplexYaml,
+			},
+			expectedData: map[string]string{
+				"values": testComplexYaml,
+			},
+		},
+		{
+			name: "case 10: complex catalog yaml and no app keys",
+			catalogData: map[string]string{
+				"values": testComplexYaml,
+			},
+			expectedData: map[string]string{
+				"values": testComplexYaml,
+			},
+		},
+		{
+			name: "case 11: complex clashing yaml",
+			appData: map[string]string{
+				"values": testComplexYaml,
+			},
+			catalogData: map[string]string{
+				"values": testComplexYaml,
+			},
+			errorMatcher: IsFailedExecution,
+		},
+		{
+			// TODO Fix bug with stipped quotes from YAML.
+			name: "case 12: merge yaml",
+			appData: map[string]string{
+				"values": testComplexYaml,
+			},
+			catalogData: map[string]string{
+				"values": testExtraYaml,
+			},
+			expectedData: map[string]string{
+				"values": testMergedYaml,
 			},
 		},
 	}
