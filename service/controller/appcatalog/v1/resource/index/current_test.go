@@ -11,6 +11,8 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/kubernetes/fake"
+
+	"github.com/giantswarm/app-operator/service/controller/appcatalog/v1/key"
 )
 
 func Test_Resource_GetCurrentState(t *testing.T) {
@@ -74,6 +76,11 @@ func Test_Resource_GetCurrentState(t *testing.T) {
 				},
 			},
 			expectedConfigMap: nil,
+		},
+		{
+			name:         "case 2: wrong obj type",
+			obj:          &v1alpha1.App{},
+			errorMatcher: key.IsWrongTypeError,
 		},
 	}
 
