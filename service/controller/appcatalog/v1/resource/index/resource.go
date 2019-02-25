@@ -1,13 +1,11 @@
 package index
 
 import (
-	"context"
 	"fmt"
 	"reflect"
 
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
-	"github.com/giantswarm/operatorkit/controller"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes"
 )
@@ -37,14 +35,6 @@ type Resource struct {
 	// Settings.
 	indexNamespace string
 	projectName    string
-}
-
-func (r *Resource) NewDeletePatch(ctx context.Context, obj, currentState, desiredState interface{}) (*controller.Patch, error) {
-	return nil, nil
-}
-
-func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange interface{}) error {
-	return nil
 }
 
 // New creates a new configured index resource.
