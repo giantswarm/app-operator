@@ -9,20 +9,20 @@ import (
 )
 
 func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange interface{}) error {
-	cm, err := toConfigMap(createChange)
+	configMap, err := toConfigMap(createChange)
 	if err != nil {
 		return microerror.Mask(err)
 	}
 
-	if cm.Name != "" {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("ensuring creation of index configMap %#q", cm.Name))
+	if configMap.Name != "" {
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("ensuring creation of index configMap %#q", configMap.Name))
 
-		_, err = r.k8sClient.CoreV1().ConfigMaps(r.indexNamespace).Create(cm)
+		_, err = r.k8sClient.CoreV1().ConfigMaps(r.indexNamespace).Create(configMap)
 		if err != nil {
 			return microerror.Mask(err)
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("ensured creation of index configMap %#q", cm.Name))
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("ensured creation of index configMap %#q", configMap.Name))
 	} else {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("no need to create index configmap"))
 	}

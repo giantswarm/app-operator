@@ -11,20 +11,20 @@ import (
 )
 
 func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange interface{}) error {
-	cm, err := toConfigMap(updateChange)
+	configMap, err := toConfigMap(updateChange)
 	if err != nil {
 		return microerror.Mask(err)
 	}
 
-	if cm.Name != "" {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("ensuring update of index configmap %#q", cm.Name))
+	if configMap.Name != "" {
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("ensuring update of index configmap %#q", configMap.Name))
 
-		_, err = r.k8sClient.CoreV1().ConfigMaps(r.indexNamespace).Update(cm)
+		_, err = r.k8sClient.CoreV1().ConfigMaps(r.indexNamespace).Update(configMap)
 		if err != nil {
 			return microerror.Mask(err)
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("ensured update of index configmap %#q", cm.Name))
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("ensured update of index configmap %#q", configMap.Name))
 	} else {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("no need to update index configmap"))
 	}
