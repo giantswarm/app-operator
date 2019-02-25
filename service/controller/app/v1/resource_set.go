@@ -155,11 +155,10 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 			return nil, microerror.Mask(err)
 		}
 
-		// TODO: Remove if statement after in-cluster flag is implemented.
 		var k8sClient kubernetes.Interface
 		var g8sClient versioned.Interface
 
-		if cr.Spec.KubeConfig.InCluster {
+		if key.InCluser(cr) {
 			g8sClient = config.G8sClient
 			k8sClient = config.K8sClient
 		} else {
