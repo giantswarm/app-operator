@@ -42,7 +42,7 @@ func (r *Resource) newCreateChange(ctx context.Context, currentResource, desired
 
 	createConfigMap := &corev1.ConfigMap{}
 
-	if isEmpty(currentConfigMap) {
+	if currentConfigMap == nil || isEmpty(currentConfigMap) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("the %#q configmap needs to be created", desiredConfigMap.Name))
 		createConfigMap = desiredConfigMap
 	} else {

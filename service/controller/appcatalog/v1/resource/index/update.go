@@ -63,7 +63,7 @@ func (r *Resource) newUpdateChange(ctx context.Context, currentResource, desired
 	r.logger.LogCtx(ctx, "level", "debug", "message", "finding out if the index configmap has to be updated")
 
 	updateConfigMap := &corev1.ConfigMap{}
-	isModified := !isEmpty(currentConfigMap) && !equals(currentConfigMap, desiredConfigMap)
+	isModified := currentConfigMap != nil && !isEmpty(currentConfigMap) && !equals(currentConfigMap, desiredConfigMap)
 	if isModified {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "the index configmap has to be updated")
 
