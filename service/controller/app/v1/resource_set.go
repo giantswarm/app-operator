@@ -159,7 +159,10 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		var k8sClient kubernetes.Interface
 		var g8sClient versioned.Interface
 
-		if cr.Spec.KubeConfig.Secret.Name != "" {
+		if cr.Spec.KubeConfig.InCluster {
+			g8sClient = config.G8sClient
+			k8sClient = config.K8sClient
+		} else {
 			restConfig, err := kubeConfig.NewRESTConfigForApp(ctx, cr)
 			if err != nil {
 				return nil, microerror.Mask(err)
@@ -174,9 +177,6 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 			if err != nil {
 				return nil, microerror.Mask(err)
 			}
-		} else {
-			g8sClient = config.G8sClient
-			k8sClient = config.K8sClient
 		}
 
 		c := controllercontext.Context{
