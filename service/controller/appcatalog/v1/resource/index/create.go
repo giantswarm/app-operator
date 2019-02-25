@@ -13,6 +13,7 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 	if err != nil {
 		return microerror.Mask(err)
 	}
+
 	if cm.Name != "" {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("ensuring creation of index configMap %#q", cm.Name))
 
@@ -25,6 +26,7 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 	} else {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("no need to create index configmap"))
 	}
+
 	return nil
 }
 

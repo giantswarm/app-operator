@@ -7,23 +7,24 @@ import (
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/controller"
 	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange interface{}) error {
-	configMap, err := toConfigMap(updateChange)
+	cm, err := toConfigMap(updateChange)
 	if err != nil {
 		return microerror.Mask(err)
 	}
 
-	if configMap.Name != "" {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("ensuring update of index configmap %#q", configMap.Name))
+	if cm.Name != "" {
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("ensuring update of index configmap %#q", cm.Name))
 
-		_, err = r.k8sClient.CoreV1().ConfigMaps(r.indexNamespace).Update(configMap)
+		_, err = r.k8sClient.CoreV1().ConfigMaps(r.indexNamespace).Update(cm)
 		if err != nil {
 			return microerror.Mask(err)
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("ensured update of index configmap %#q", configMap.Name))
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("ensured update of index configmap %#q", cm.Name))
 	} else {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("no need to update index configmap"))
 	}
@@ -66,9 +67,13 @@ func (r *Resource) newUpdateChange(ctx context.Context, currentResource, desired
 	isModified := currentConfigMap != nil && !isEmpty(currentConfigMap) && !equals(currentConfigMap, desiredConfigMap)
 	if isModified {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "the index configmap has to be updated")
+		latest, err := r.k8sClient.CoreV1().ConfigMaps(r.indexNamespace).Get(desiredConfigMap.GetName(), metav1.GetOptions{})
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
 
 		updateConfigMap = desiredConfigMap.DeepCopy()
-		updateConfigMap.ObjectMeta.ResourceVersion = currentConfigMap.ObjectMeta.ResourceVersion
+		updateConfigMap.ObjectMeta.ResourceVersion = latest.GetResourceVersion()
 
 		return updateConfigMap, nil
 	} else {

@@ -2,6 +2,7 @@ package index
 
 import (
 	"context"
+	"k8s.io/apimachinery/pkg/runtime"
 	"reflect"
 	"testing"
 
@@ -129,20 +130,23 @@ func Test_Resource_newUpdateChange(t *testing.T) {
 		},
 	}
 
-	c := Config{
-		K8sClient: fake.NewSimpleClientset(),
-		Logger:    microloggertest.New(),
-
-		ProjectName:    "app-operator",
-		IndexNamespace: "default",
-	}
-	r, err := New(c)
-	if err != nil {
-		t.Fatalf("error == %#v, want nil", err)
-	}
-
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
+			objs := make([]runtime.Object, 0, 0)
+			if tc.currentState != nil {
+				objs = append(objs, tc.currentState)
+			}
+			c := Config{
+				K8sClient: fake.NewSimpleClientset(objs...),
+				Logger:    microloggertest.New(),
+
+				ProjectName:    "app-operator",
+				IndexNamespace: "default",
+			}
+			r, err := New(c)
+			if err != nil {
+				t.Fatalf("error == %#v, want nil", err)
+			}
 			result, err := r.newUpdateChange(context.Background(), tc.currentState, tc.desiredState)
 			if err != nil {
 				t.Fatalf("error == %#v, want nil", err)
