@@ -59,11 +59,11 @@ func (r *Resource) newDeleteChange(ctx context.Context, obj, currentState, desir
 
 	isModified := !isEmpty(currentConfigMap) && equals(currentConfigMap, desiredConfigMap)
 	if isModified {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("the %#q index configMap needs to be deleted", desiredConfigMap.Name))
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("the %#q configMap needs to be deleted", desiredConfigMap.Name))
 
 		return desiredConfigMap, nil
 	} else {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("the %#q index configMap does not need to be deleted", desiredConfigMap.Name))
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("the %#q configMap does not need to be deleted", desiredConfigMap.Name))
 	}
 
 	return nil, nil
