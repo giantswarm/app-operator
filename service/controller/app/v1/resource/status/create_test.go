@@ -27,10 +27,10 @@ func Test_Resource_EnsureCreated(t *testing.T) {
 			name: "case 0: update status flow",
 			obj: &v1alpha1.App{
 				ObjectMeta: metav1.ObjectMeta{
-					Name:      "my-cool-prometheus",
+					Name:      "prometheus",
 					Namespace: "default",
 					Labels: map[string]string{
-						"app":                                "prometheus",
+						"app": "prometheus",
 						"app-operator.giantswarm.io/version": "1.0.0",
 						"giantswarm.io/managed-by":           "cluster-operator",
 					},
@@ -61,7 +61,7 @@ func Test_Resource_EnsureCreated(t *testing.T) {
 					Name:      "prometheus",
 					Namespace: "default",
 					Labels: map[string]string{
-						"app":                                  "prometheus",
+						"app": "prometheus",
 						"chart-operator.giantswarm.io/version": "1.0.0",
 						"giantswarm.io/managed-by":             "app-operator",
 					},
@@ -97,7 +97,7 @@ func Test_Resource_EnsureCreated(t *testing.T) {
 					Name:      "my-cool-prometheus",
 					Namespace: "default",
 					Labels: map[string]string{
-						"app":                                "prometheus",
+						"app": "prometheus",
 						"app-operator.giantswarm.io/version": "1.0.0",
 						"giantswarm.io/managed-by":           "cluster-operator",
 					},
@@ -134,7 +134,7 @@ func Test_Resource_EnsureCreated(t *testing.T) {
 					Name:      "prometheus",
 					Namespace: "default",
 					Labels: map[string]string{
-						"app":                                  "prometheus",
+						"app": "prometheus",
 						"chart-operator.giantswarm.io/version": "1.0.0",
 						"giantswarm.io/managed-by":             "app-operator",
 					},
@@ -166,7 +166,7 @@ func Test_Resource_EnsureCreated(t *testing.T) {
 					Name:      "my-cool-prometheus",
 					Namespace: "default",
 					Labels: map[string]string{
-						"app":                                "prometheus",
+						"app": "prometheus",
 						"app-operator.giantswarm.io/version": "1.0.0",
 						"giantswarm.io/managed-by":           "cluster-operator",
 					},
