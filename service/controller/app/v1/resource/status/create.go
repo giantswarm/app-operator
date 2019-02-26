@@ -50,11 +50,15 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	if !equals(desiredStatus, key.AppStatus(cr)) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("setting status for app %#q", name))
 
-		crCopy := cr.DeepCopy()
-		crCopy.ResourceVersion = chart.GetResourceVersion()
-		crCopy.Status = desiredStatus
+		// Get app CR again to ensure the resource version is correct.
+		currentCR, err := r.g8sClient.ApplicationV1alpha1().Apps(cr.Namespace).Get(name, metav1.GetOptions{})
+		if err != nil {
+			return microerror.Mask(err)
+		}
 
-		_, err = r.g8sClient.ApplicationV1alpha1().Apps(cr.Namespace).UpdateStatus(crCopy)
+		currentCR.Status = desiredStatus
+
+		_, err = r.g8sClient.ApplicationV1alpha1().Apps(cr.Namespace).UpdateStatus(currentCR)
 		if err != nil {
 			return microerror.Mask(err)
 		}
