@@ -158,7 +158,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		var k8sClient kubernetes.Interface
 		var g8sClient versioned.Interface
 
-		if key.InCluser(cr) {
+		if key.InCluster(cr) {
 			g8sClient = config.G8sClient
 			k8sClient = config.K8sClient
 		} else {

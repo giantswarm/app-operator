@@ -31,7 +31,7 @@ func ConfigMapNamespace(customResource v1alpha1.App) string {
 	return customResource.Spec.Config.ConfigMap.Namespace
 }
 
-func InCluser(customResource v1alpha1.App) bool {
+func InCluster(customResource v1alpha1.App) bool {
 	return customResource.Spec.KubeConfig.InCluster
 }
 
