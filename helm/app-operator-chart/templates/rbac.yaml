@@ -63,7 +63,7 @@ rules:
   - deployments
   verbs:
   - 'create'
- - apiGroups:
+- apiGroups:
   - ""
   resources:
   - configmaps
