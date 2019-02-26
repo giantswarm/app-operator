@@ -63,6 +63,12 @@ rules:
   - deployments
   verbs:
   - 'create'
+ - apiGroups:
+  - ""
+  resources:
+  - configmaps
+  verbs:
+  - "*"
 - nonResourceURLs:
   - "/"
   - "/healthz"
