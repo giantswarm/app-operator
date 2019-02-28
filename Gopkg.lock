@@ -303,7 +303,7 @@
   revision = "0926d9b7c5419173936b4556411a103bdf8d5966"
 
 [[projects]]
-  branch = "resource-configmap"
+  branch = "master"
   digest = "1:c1e6e0a74142b977a53bc6a80f1d2730cfbb0aa399b8602e3b59e229cae3affc"
   name = "github.com/giantswarm/operatorkit"
   packages = [
@@ -322,7 +322,7 @@
     "resource/configmap",
   ]
   pruneopts = "UT"
-  revision = "71b3186d3357ed7cf7f106e7e46dcceb75be9ea8"
+  revision = "9b85f61ceb90ed074402e1cb1ba005e4170ece9e"
 
 [[projects]]
   branch = "master"

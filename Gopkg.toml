@@ -65,8 +65,8 @@ required = [
   name = "github.com/giantswarm/micrologger"
 
 [[constraint]]
+  branch = "master"
   name = "github.com/giantswarm/operatorkit"
-  branch = "resource-configmap"
 
 [[constraint]]
   name = "github.com/google/go-cmp"
