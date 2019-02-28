@@ -15,10 +15,6 @@ import (
 	"github.com/giantswarm/app-operator/service/controller/appcatalog/v1/resource/index"
 )
 
-const (
-	configResource = "configmap"
-)
-
 // ResourceSetConfig contains necessary dependencies and settings for
 // AppCatalog controller ResourceSet configuration.
 type ResourceSetConfig struct {
@@ -70,7 +66,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
 
-			Name:        configResource,
+			Name:        index.Name,
 			StateGetter: stateGetter,
 		}
 
