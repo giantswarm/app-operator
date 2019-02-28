@@ -41,6 +41,10 @@ func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*
 		return nil, microerror.Mask(err)
 	}
 
+	if key.IsDeleted(cr) {
+		return []*corev1.ConfigMap{}, nil
+	}
+
 	configMap := &corev1.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      configMapName(cr.Name),
