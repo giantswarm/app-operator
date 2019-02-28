@@ -8,6 +8,7 @@ import (
 	"github.com/giantswarm/operatorkit/controller"
 	"github.com/giantswarm/operatorkit/controller/resource/metricsresource"
 	"github.com/giantswarm/operatorkit/controller/resource/retryresource"
+	"github.com/giantswarm/operatorkit/resource/configmap"
 	"k8s.io/client-go/kubernetes"
 
 	"github.com/giantswarm/app-operator/service/controller/appcatalog/v1/key"
@@ -56,7 +57,20 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 			IndexNamespace: config.IndexNamespace,
 		}
 
-		ops, err := index.New(c)
+		stateGetter, err := index.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		configOps := configmap.Config{
+			K8sClient: config.K8sClient,
+			Logger:    config.Logger,
+
+			Name:        config.ProjectName,
+			StateGetter: stateGetter,
+		}
+
+		ops, err := configmap.New(configOps)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}

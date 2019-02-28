@@ -113,7 +113,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 			}
 
 			if err == nil && tc.errorMatcher == nil {
-				configMap, err := toConfigMap(result)
+				configMap, err := toConfigMap(result[0])
 				if err != nil {
 					t.Fatalf("error == %#v, want nil", err)
 				}

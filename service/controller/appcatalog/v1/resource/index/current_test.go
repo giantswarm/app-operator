@@ -122,7 +122,7 @@ func Test_Resource_GetCurrentState(t *testing.T) {
 				t.Fatal("expected non-nil ConfigMap got nil")
 			}
 
-			cm, err := toConfigMap(result)
+			cm, err := toConfigMap(result[0])
 			if err != nil {
 				t.Fatalf("error == %#v, want nil", err)
 			}
