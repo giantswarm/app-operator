@@ -304,7 +304,7 @@
 
 [[projects]]
   branch = "resource-configmap"
-  digest = "1:30c41e00eff7dc3132a12a820537c1690085d21ac61f77d828e7d920e6baa6f7"
+  digest = "1:c1e6e0a74142b977a53bc6a80f1d2730cfbb0aa399b8602e3b59e229cae3affc"
   name = "github.com/giantswarm/operatorkit"
   packages = [
     "client/k8scrdclient",
@@ -322,7 +322,7 @@
     "resource/configmap",
   ]
   pruneopts = "UT"
-  revision = "a4ae7bccb6056e943e1d62601d4133243d4b42a0"
+  revision = "71b3186d3357ed7cf7f106e7e46dcceb75be9ea8"
 
 [[projects]]
   branch = "master"
