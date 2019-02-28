@@ -303,8 +303,8 @@
   revision = "0926d9b7c5419173936b4556411a103bdf8d5966"
 
 [[projects]]
-  branch = "master"
-  digest = "1:ae8b5040075fa96b5cf0b62a8ddf5104225404abb9b29467fd988544dbfaf469"
+  branch = "resource-configmap"
+  digest = "1:30c41e00eff7dc3132a12a820537c1690085d21ac61f77d828e7d920e6baa6f7"
   name = "github.com/giantswarm/operatorkit"
   packages = [
     "client/k8scrdclient",
@@ -319,9 +319,10 @@
     "controller/resource/retryresource",
     "informer",
     "informer/collector",
+    "resource/configmap",
   ]
   pruneopts = "UT"
-  revision = "07c6a937025573b73339f7b33ec5605f7f4a7b3a"
+  revision = "a4ae7bccb6056e943e1d62601d4133243d4b42a0"
 
 [[projects]]
   branch = "master"
@@ -1250,6 +1251,7 @@
     "github.com/giantswarm/operatorkit/controller/resource/metricsresource",
     "github.com/giantswarm/operatorkit/controller/resource/retryresource",
     "github.com/giantswarm/operatorkit/informer",
+    "github.com/giantswarm/operatorkit/resource/configmap",
     "github.com/giantswarm/versionbundle",
     "github.com/google/go-cmp/cmp",
     "github.com/spf13/viper",
