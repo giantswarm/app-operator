@@ -126,6 +126,20 @@ func Test_ConfigMapNamespace(t *testing.T) {
 	}
 }
 
+func Test_InCluster(t *testing.T) {
+	obj := v1alpha1.App{
+		Spec: v1alpha1.AppSpec{
+			KubeConfig: v1alpha1.AppSpecKubeConfig{
+				InCluster: true,
+			},
+		},
+	}
+
+	if !InCluster(obj) {
+		t.Fatalf("app namespace %#v, want %#v", InCluster(obj), true)
+	}
+}
+
 func Test_Namespace(t *testing.T) {
 	expectedName := "giant-swarm-namespace"
 

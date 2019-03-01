@@ -133,7 +133,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:d2ec14d311dbbb8dd49043ab8d55f7c0e62d300a1c01fa2f5f47a1e7d851dbcd"
+  digest = "1:366fbea7370a38fe01af3cd445f7475d10989ef2ce03e2b509227de4a532ecf6"
   name = "github.com/giantswarm/apiextensions"
   packages = [
     "pkg/apis/application/v1alpha1",
@@ -156,7 +156,7 @@
     "pkg/clientset/versioned/typed/release/v1alpha1/fake",
   ]
   pruneopts = "UT"
-  revision = "f7142f26f519703d5b2543338a05ed3f606dea5b"
+  revision = "acc7fb1e038354fe1eb44c434fea54c4122aa432"
 
 [[projects]]
   branch = "master"
@@ -304,7 +304,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:ae8b5040075fa96b5cf0b62a8ddf5104225404abb9b29467fd988544dbfaf469"
+  digest = "1:c1e6e0a74142b977a53bc6a80f1d2730cfbb0aa399b8602e3b59e229cae3affc"
   name = "github.com/giantswarm/operatorkit"
   packages = [
     "client/k8scrdclient",
@@ -319,9 +319,10 @@
     "controller/resource/retryresource",
     "informer",
     "informer/collector",
+    "resource/configmap",
   ]
   pruneopts = "UT"
-  revision = "07c6a937025573b73339f7b33ec5605f7f4a7b3a"
+  revision = "9b85f61ceb90ed074402e1cb1ba005e4170ece9e"
 
 [[projects]]
   branch = "master"
@@ -1250,6 +1251,7 @@
     "github.com/giantswarm/operatorkit/controller/resource/metricsresource",
     "github.com/giantswarm/operatorkit/controller/resource/retryresource",
     "github.com/giantswarm/operatorkit/informer",
+    "github.com/giantswarm/operatorkit/resource/configmap",
     "github.com/giantswarm/versionbundle",
     "github.com/google/go-cmp/cmp",
     "github.com/spf13/viper",

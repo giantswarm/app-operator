@@ -27,7 +27,7 @@ type Config struct {
 }
 
 // Resource implements the index resource.
-type Resource struct {
+type StateGetter struct {
 	// Dependencies.
 	k8sClient kubernetes.Interface
 	logger    micrologger.Logger
@@ -38,7 +38,7 @@ type Resource struct {
 }
 
 // New creates a new configured index resource.
-func New(config Config) (*Resource, error) {
+func New(config Config) (*StateGetter, error) {
 	// Dependencies.
 	if config.K8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
@@ -55,7 +55,7 @@ func New(config Config) (*Resource, error) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.IndexNamespace must not be empty", config)
 	}
 
-	r := &Resource{
+	r := &StateGetter{
 		// Dependencies.
 		k8sClient: config.K8sClient,
 		logger:    config.Logger,
@@ -68,7 +68,7 @@ func New(config Config) (*Resource, error) {
 	return r, nil
 }
 
-func (r *Resource) Name() string {
+func (r *StateGetter) Name() string {
 	return Name
 }
 
@@ -92,11 +92,6 @@ func equals(a, b *corev1.ConfigMap) bool {
 	}
 
 	return true
-}
-
-// isEmpty checks if a ConfigMap is empty.
-func isEmpty(c *corev1.ConfigMap) bool {
-	return equals(c, &corev1.ConfigMap{})
 }
 
 func toConfigMap(v interface{}) (*corev1.ConfigMap, error) {
