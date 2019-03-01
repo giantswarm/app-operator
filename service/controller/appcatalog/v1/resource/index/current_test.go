@@ -122,13 +122,15 @@ func Test_Resource_GetCurrentState(t *testing.T) {
 				t.Fatal("expected non-nil ConfigMap got nil")
 			}
 
-			cm, err := toConfigMap(result)
-			if err != nil {
-				t.Fatalf("error == %#v, want nil", err)
-			}
+			if len(result) == 1 {
+				cm, err := toConfigMap(result[0])
+				if err != nil {
+					t.Fatalf("error == %#v, want nil", err)
+				}
 
-			if tc.expectedConfigMap != nil && !reflect.DeepEqual(cm, tc.expectedConfigMap) {
-				t.Fatalf("ConfigMap == %#v, want %#v", cm, tc.expectedConfigMap)
+				if tc.expectedConfigMap != nil && !reflect.DeepEqual(cm, tc.expectedConfigMap) {
+					t.Fatalf("ConfigMap == %#v, want %#v", cm, tc.expectedConfigMap)
+				}
 			}
 		})
 	}
