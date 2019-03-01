@@ -37,6 +37,10 @@ func ConfigMapName(customResource v1alpha1.App) string {
 	return fmt.Sprintf("%s-values", AppName(customResource))
 }
 
+func InCluster(customResource v1alpha1.App) bool {
+	return customResource.Spec.KubeConfig.InCluster
+}
+
 func Namespace(customResource v1alpha1.App) string {
 	return customResource.Spec.Namespace
 }

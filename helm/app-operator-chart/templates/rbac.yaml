@@ -36,14 +36,7 @@ rules:
   verbs:
     - get
     - list
-    - watch
-- apiGroups:
-    - application.giantswarm.io
-  resources:
-    - apps
-  verbs:
-    - get
-    - list
+    - patch
     - watch
 - apiGroups:
   - "rbac.authorization.k8s.io"
@@ -70,6 +63,12 @@ rules:
   - deployments
   verbs:
   - 'create'
+- apiGroups:
+  - ""
+  resources:
+  - configmaps
+  verbs:
+  - "*"
 - nonResourceURLs:
   - "/"
   - "/healthz"

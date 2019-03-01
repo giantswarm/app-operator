@@ -1,4 +1,4 @@
-package index
+package configmap
 
 import "github.com/giantswarm/microerror"
 
@@ -15,16 +15,7 @@ var wrongTypeError = &microerror.Error{
 	Kind: "wrongTypeError",
 }
 
-// IsWrongType asserts wrongTypeError.
-func IsWrongType(err error) bool {
+// IsWrongTypeError asserts wrongTypeError.
+func IsWrongTypeError(err error) bool {
 	return microerror.Cause(err) == wrongTypeError
-}
-
-var notFoundError = &microerror.Error{
-	Kind: "notFoundError",
-}
-
-// IsNotFound asserts notFound.
-func IsNotFoundError(err error) bool {
-	return microerror.Cause(err) == notFoundError
 }
