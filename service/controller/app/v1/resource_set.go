@@ -105,7 +105,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 			return nil, microerror.Mask(err)
 		}
 	}
-	
+
 	var configMapResource controller.Resource
 	{
 		c := configmap.Config{
