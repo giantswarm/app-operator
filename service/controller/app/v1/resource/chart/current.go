@@ -18,7 +18,7 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 		return nil, microerror.Mask(err)
 	}
 
-	name := key.AppName(cr)
+	name := cr.ObjectMeta.Name
 
 	cc, err := controllercontext.FromContext(ctx)
 	if err != nil {
