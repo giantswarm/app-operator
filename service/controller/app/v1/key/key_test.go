@@ -8,6 +8,47 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
+func Test_AppConfigMapName(t *testing.T) {
+	expectedName := "giant-swarm-configmap-name"
+
+	obj := v1alpha1.App{
+		Spec: v1alpha1.AppSpec{
+			Name:    "giant-swarm-name",
+			Catalog: "giant-swarm-catalog-name",
+			Config: v1alpha1.AppSpecConfig{
+				ConfigMap: v1alpha1.AppSpecConfigConfigMap{
+					Name: "giant-swarm-configmap-name",
+				},
+			},
+		},
+	}
+
+	if AppConfigMapName(obj) != expectedName {
+		t.Fatalf("AppConfigMapName %#q, want %#q", AppConfigMapName(obj), expectedName)
+	}
+}
+
+func Test_AppConfigMapNamespace(t *testing.T) {
+	expectedName := "giant-swarm-configmap-namespace"
+
+	obj := v1alpha1.App{
+		Spec: v1alpha1.AppSpec{
+			Name:    "giant-swarm-name",
+			Catalog: "giant-swarm-catalog-name",
+			Config: v1alpha1.AppSpecConfig{
+				ConfigMap: v1alpha1.AppSpecConfigConfigMap{
+					Name:      "giant-swarm-configmap-name",
+					Namespace: "giant-swarm-configmap-namespace",
+				},
+			},
+		},
+	}
+
+	if AppConfigMapNamespace(obj) != expectedName {
+		t.Fatalf("AppConfigMapNamespace %#q, want %#q", AppConfigMapNamespace(obj), expectedName)
+	}
+}
+
 func Test_AppName(t *testing.T) {
 	expectedName := "giant-swarm-name"
 
@@ -85,44 +126,27 @@ func Test_ChartStatus(t *testing.T) {
 	}
 }
 
-func Test_ConfigMapName(t *testing.T) {
-	expectedName := "giant-swarm-configmap-name"
+func Test_ChartConfigMapName(t *testing.T) {
+	expectedName := "my-test-app-chart-values"
 
 	obj := v1alpha1.App{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "my-test-app",
+			Namespace: "giantswarn",
+		},
 		Spec: v1alpha1.AppSpec{
-			Name:    "giant-swarm-name",
-			Catalog: "giant-swarm-catalog-name",
+			Name:    "test-app",
+			Catalog: "test-catalog",
 			Config: v1alpha1.AppSpecConfig{
 				ConfigMap: v1alpha1.AppSpecConfigConfigMap{
-					Name: "giant-swarm-configmap-name",
+					Name: "test-app-value",
 				},
 			},
 		},
 	}
 
-	if ConfigMapName(obj) != expectedName {
-		t.Fatalf("configMap name %#q, want %#q", ConfigMapName(obj), expectedName)
-	}
-}
-
-func Test_ConfigMapNamespace(t *testing.T) {
-	expectedName := "giant-swarm-configmap-namespace"
-
-	obj := v1alpha1.App{
-		Spec: v1alpha1.AppSpec{
-			Name:    "giant-swarm-name",
-			Catalog: "giant-swarm-catalog-name",
-			Config: v1alpha1.AppSpecConfig{
-				ConfigMap: v1alpha1.AppSpecConfigConfigMap{
-					Name:      "giant-swarm-configmap-name",
-					Namespace: "giant-swarm-configmap-namespace",
-				},
-			},
-		},
-	}
-
-	if ConfigMapNamespace(obj) != expectedName {
-		t.Fatalf("configMap namespace %#q, want %#q", ConfigMapNamespace(obj), expectedName)
+	if ChartConfigMapName(obj) != expectedName {
+		t.Fatalf("chartConfigMapName %#q, want %#q", ChartConfigMapName(obj), expectedName)
 	}
 }
 
