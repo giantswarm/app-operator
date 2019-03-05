@@ -15,6 +15,9 @@ data:
       listen:
         address: 'http://0.0.0.0:{{ .Values.port }}'
     service:
+      appcatalog:
+        index:
+          namespace: '{{ .Values.namespace }}'
       kubernetes:
         incluster: true
         watch:
