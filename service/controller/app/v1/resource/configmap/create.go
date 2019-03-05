@@ -47,6 +47,10 @@ func (r *Resource) newCreateChange(ctx context.Context, currentResource, desired
 		return nil, microerror.Mask(err)
 	}
 
+	if desiredConfigMap == nil || desiredConfigMap.Name == "" {
+		return nil, nil
+	}
+
 	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding out if the %#q configmap has to be created", desiredConfigMap.Name))
 
 	createConfigMap := &corev1.ConfigMap{}

@@ -67,6 +67,10 @@ func (r *Resource) newUpdateChange(ctx context.Context, currentResource, desired
 		return nil, microerror.Mask(err)
 	}
 
+	if desiredConfigMap == nil || desiredConfigMap.Name == "" {
+		return nil, nil
+	}
+
 	r.logger.LogCtx(ctx, "level", "debug", "message", "finding out if the configmap has to be updated")
 
 	updateConfigMap := &corev1.ConfigMap{}
