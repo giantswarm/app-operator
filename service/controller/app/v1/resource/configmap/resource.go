@@ -13,9 +13,6 @@ import (
 const (
 	// Name is the identifier of the resource.
 	Name = "configmapv1"
-
-	// valuesKey is the data key when getting values from a configmap.
-	valuesKey = "values"
 )
 
 // Config represents the configuration used to create a new configmap resource.
