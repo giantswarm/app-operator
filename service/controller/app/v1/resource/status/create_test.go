@@ -27,7 +27,7 @@ func Test_Resource_EnsureCreated(t *testing.T) {
 			name: "case 0: update status flow",
 			obj: &v1alpha1.App{
 				ObjectMeta: metav1.ObjectMeta{
-					Name:      "my-cool-prometheus",
+					Name:      "prometheus",
 					Namespace: "default",
 					Labels: map[string]string{
 						"app":                                "prometheus",
