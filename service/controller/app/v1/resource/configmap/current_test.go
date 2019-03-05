@@ -28,6 +28,10 @@ func Test_Resource_GetCurrentState(t *testing.T) {
 		{
 			name: "case 0: basic match",
 			obj: &v1alpha1.App{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "test-app",
+					Namespace: "giantswarm",
+				},
 				Spec: v1alpha1.AppSpec{
 					Config: v1alpha1.AppSpecConfig{
 						ConfigMap: v1alpha1.AppSpecConfigConfigMap{
@@ -43,7 +47,7 @@ func Test_Resource_GetCurrentState(t *testing.T) {
 					"key": "value",
 				},
 				ObjectMeta: metav1.ObjectMeta{
-					Name:      "app-values",
+					Name:      "test-app-chart-values",
 					Namespace: "kube-system",
 				},
 			},
@@ -52,7 +56,7 @@ func Test_Resource_GetCurrentState(t *testing.T) {
 					"key": "value",
 				},
 				ObjectMeta: metav1.ObjectMeta{
-					Name:      "app-values",
+					Name:      "test-app-chart-values",
 					Namespace: "kube-system",
 				},
 			},
