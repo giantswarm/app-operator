@@ -1,11 +1,25 @@
 package key
 
 import (
+	"fmt"
+
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/microerror"
 
 	"github.com/giantswarm/app-operator/pkg/label"
 )
+
+// AppConfigMapName returns the name of the configmap that stores app level
+// config for the provided app CR.
+func AppConfigMapName(customResource v1alpha1.App) string {
+	return customResource.Spec.Config.ConfigMap.Name
+}
+
+// AppConfigMapNamespace returns the namespace of the configmap that stores app
+// level config for the provided app CR.
+func AppConfigMapNamespace(customResource v1alpha1.App) string {
+	return customResource.Spec.Config.ConfigMap.Namespace
+}
 
 func AppName(customResource v1alpha1.App) string {
 	return customResource.Spec.Name
@@ -23,12 +37,10 @@ func ChartStatus(customResource v1alpha1.Chart) v1alpha1.ChartStatus {
 	return customResource.Status
 }
 
-func ConfigMapName(customResource v1alpha1.App) string {
-	return customResource.Spec.Config.ConfigMap.Name
-}
-
-func ConfigMapNamespace(customResource v1alpha1.App) string {
-	return customResource.Spec.Config.ConfigMap.Namespace
+// ChartConfigMapName returns the name of the configmap that stores config for
+// the chart CR that is generated for the provided app CR.
+func ChartConfigMapName(customResource v1alpha1.App) string {
+	return fmt.Sprintf("%s-chart-values", customResource.ObjectMeta.Name)
 }
 
 func InCluster(customResource v1alpha1.App) bool {
