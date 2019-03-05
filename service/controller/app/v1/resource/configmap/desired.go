@@ -35,8 +35,8 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 	configMap := &corev1.ConfigMap{
 		Data: data,
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      key.ConfigMapName(cr),
-			Namespace: cr.ObjectMeta.Namespace,
+			Name:      key.ChartConfigMapName(cr),
+			Namespace: key.Namespace(cr),
 			Labels: map[string]string{
 				label.ManagedBy: r.projectName,
 			},
@@ -69,7 +69,7 @@ func (r *Resource) mergeConfigMapData(ctx context.Context, cr v1alpha1.App) (map
 		return nil, microerror.Mask(err)
 	}
 
-	appConfigMapName := key.ConfigMapName(cr)
+	appConfigMapName := key.AppConfigMapName(cr)
 	catalogConfigMapName := appcatalogkey.ConfigMapName(cc.AppCatalog)
 
 	if appConfigMapName == "" && catalogConfigMapName == "" {
@@ -82,7 +82,7 @@ func (r *Resource) mergeConfigMapData(ctx context.Context, cr v1alpha1.App) (map
 	}
 
 	if appConfigMapName != "" && catalogConfigMapName == "" {
-		appConfigMap, err := r.getConfigMap(ctx, appConfigMapName, key.ConfigMapNamespace(cr))
+		appConfigMap, err := r.getConfigMap(ctx, appConfigMapName, key.AppConfigMapNamespace(cr))
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}

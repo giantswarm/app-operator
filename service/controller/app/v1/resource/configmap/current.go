@@ -18,7 +18,7 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 		return nil, microerror.Mask(err)
 	}
 
-	name := key.ConfigMapName(cr)
+	name := key.ChartConfigMapName(cr)
 	namespace := key.Namespace(cr)
 
 	cc, err := controllercontext.FromContext(ctx)
