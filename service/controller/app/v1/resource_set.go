@@ -28,6 +28,10 @@ type ResourceSetConfig struct {
 	Logger    micrologger.Logger
 
 	// Settings.
+<<<<<<< HEAD
+=======
+	ChartNamespace string
+>>>>>>> master
 	ProjectName    string
 	WatchNamespace string
 }
@@ -48,6 +52,9 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	}
 
 	// Settings.
+	if config.ChartNamespace == "" {
+		return nil, microerror.Maskf(invalidConfigError, "%T.ChartNamespace must not be empty", config)
+	}
 	if config.ProjectName == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ProjectName must not be empty", config)
 	}
@@ -89,6 +96,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 			G8sClient: config.G8sClient,
 			Logger:    config.Logger,
 
+			ChartNamespace: config.ChartNamespace,
 			ProjectName:    config.ProjectName,
 			WatchNamespace: config.WatchNamespace,
 		}
