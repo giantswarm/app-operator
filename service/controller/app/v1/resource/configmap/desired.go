@@ -22,14 +22,26 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		return nil, microerror.Mask(err)
 	}
 
-	data, err := r.mergeConfigMapData(ctx, cr)
+	cc, err := controllercontext.FromContext(ctx)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
 
-	if data == nil || len(data) == 0 {
-		// No data so return early.
+	appConfigMapName := key.AppConfigMapName(cr)
+	catalogConfigMapName := appcatalogkey.ConfigMapName(cc.AppCatalog)
+
+	if appConfigMapName == "" && catalogConfigMapName == "" {
+		// Return early as there is no config.
 		return nil, nil
+	}
+
+	if appConfigMapName != "" && catalogConfigMapName != "" {
+		return nil, microerror.Maskf(failedExecutionError, "merging app and catalog configmaps is not yet supported")
+	}
+
+	data, err := r.getConfigMapData(ctx, cr)
+	if err != nil {
+		return nil, microerror.Mask(err)
 	}
 
 	configMap := &corev1.ConfigMap{
@@ -61,7 +73,7 @@ func (r *Resource) getConfigMap(ctx context.Context, configMapName, configMapNam
 	return configMap, nil
 }
 
-func (r *Resource) mergeConfigMapData(ctx context.Context, cr v1alpha1.App) (map[string]string, error) {
+func (r *Resource) getConfigMapData(ctx context.Context, cr v1alpha1.App) (map[string]string, error) {
 	data := make(map[string]string)
 
 	cc, err := controllercontext.FromContext(ctx)
@@ -71,15 +83,6 @@ func (r *Resource) mergeConfigMapData(ctx context.Context, cr v1alpha1.App) (map
 
 	appConfigMapName := key.AppConfigMapName(cr)
 	catalogConfigMapName := appcatalogkey.ConfigMapName(cc.AppCatalog)
-
-	if appConfigMapName == "" && catalogConfigMapName == "" {
-		// Return early as there is no config.
-		return nil, nil
-	}
-
-	if appConfigMapName != "" && catalogConfigMapName != "" {
-		return nil, microerror.Maskf(failedExecutionError, "merging app and catalog configmaps is not yet supported")
-	}
 
 	if appConfigMapName != "" && catalogConfigMapName == "" {
 		appConfigMap, err := r.getConfigMap(ctx, appConfigMapName, key.AppConfigMapNamespace(cr))
