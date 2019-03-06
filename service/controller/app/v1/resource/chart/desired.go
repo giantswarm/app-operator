@@ -38,26 +38,27 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 			APIVersion: chartAPIVersion,
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			Name:        cr.Spec.Name,
+			Name:        cr.GetName(),
 			Namespace:   r.chartNamespace,
-			Labels:      processLabels(r.projectName, cr.ObjectMeta.Labels),
-			Annotations: cr.ObjectMeta.Annotations,
+			Labels:      processLabels(r.projectName, cr.GetLabels()),
+			Annotations: cr.GetAnnotations(),
 		},
 		Spec: v1alpha1.ChartSpec{
-			Name:      cr.ObjectMeta.Name,
-			Namespace: cr.Spec.Namespace,
-			Config: v1alpha1.ChartSpecConfig{
-				ConfigMap: v1alpha1.ChartSpecConfigConfigMap{
-					Name:      key.ConfigMapName(cr),
-					Namespace: key.ConfigMapNamespace(cr),
-				},
-				Secret: v1alpha1.ChartSpecConfigSecret{
-					Name:      key.SecretName(cr),
-					Namespace: key.SecretNamespace(cr),
-				},
-			},
+			Name:       cr.GetName(),
+			Namespace:  key.Namespace(cr),
 			TarballURL: tarballURL,
 		},
+	}
+
+	if key.AppConfigMapName(cr) != "" || appcatalogkey.ConfigMapName(cc.AppCatalog) != "" {
+		config := v1alpha1.ChartSpecConfig{
+			ConfigMap: v1alpha1.ChartSpecConfigConfigMap{
+				Name:      key.ChartConfigMapName(cr),
+				Namespace: key.Namespace(cr),
+			},
+		}
+
+		chartCR.Spec.Config = config
 	}
 
 	return chartCR, nil
@@ -65,7 +66,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 
 func generateTarballURL(baseURL string, appName string, version string) (string, error) {
 	if baseURL == "" || appName == "" || version == "" {
-		return "", microerror.Maskf(failedExecution, "baseURL %#q, appName %#q, release %#q should not be empty", baseURL, appName, version)
+		return "", microerror.Maskf(executionFailedError, "baseURL %#q, appName %#q, release %#q should not be empty", baseURL, appName, version)
 	}
 	u, err := url.Parse(baseURL)
 	if err != nil {

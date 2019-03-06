@@ -45,10 +45,6 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 							Name:      "giant-swarm-config",
 							Namespace: "giantswarm",
 						},
-						Secret: v1alpha1.AppSpecConfigSecret{
-							Name:      "giant-swarm-secret",
-							Namespace: "giantswarm",
-						},
 					},
 					KubeConfig: v1alpha1.AppSpecKubeConfig{
 						Secret: v1alpha1.AppSpecKubeConfigSecret{
@@ -82,7 +78,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					APIVersion: "application.giantswarm.io",
 				},
 				ObjectMeta: metav1.ObjectMeta{
-					Name:      "prometheus",
+					Name:      "my-cool-prometheus",
 					Namespace: "giantswarm",
 					Labels: map[string]string{
 						"app":                                  "prometheus",
@@ -93,14 +89,8 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 				Spec: v1alpha1.ChartSpec{
 					Config: v1alpha1.ChartSpecConfig{
 						ConfigMap: v1alpha1.ChartSpecConfigConfigMap{
-							Name:            "giant-swarm-config",
-							Namespace:       "giantswarm",
-							ResourceVersion: "",
-						},
-						Secret: v1alpha1.ChartSpecConfigSecret{
-							Name:            "giant-swarm-secret",
-							Namespace:       "giantswarm",
-							ResourceVersion: "",
+							Name:      "my-cool-prometheus-chart-values",
+							Namespace: "monitoring",
 						},
 					},
 					Name:       "my-cool-prometheus",
@@ -131,10 +121,6 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 							Name:      "giant-swarm-config",
 							Namespace: "giantswarm",
 						},
-						Secret: v1alpha1.AppSpecConfigSecret{
-							Name:      "giant-swarm-secret",
-							Namespace: "giantswarm",
-						},
 					},
 					KubeConfig: v1alpha1.AppSpecKubeConfig{
 						Secret: v1alpha1.AppSpecKubeConfigSecret{
@@ -162,7 +148,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					LogoURL: "https://s.giantswarm.io/...",
 				},
 			},
-			errorMatcher: IsFailedExecution,
+			errorMatcher: IsExecutionFailed,
 		},
 	}
 
