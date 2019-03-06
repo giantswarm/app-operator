@@ -31,7 +31,7 @@ func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange inte
 			return microerror.Mask(err)
 		}
 
-		err = cc.G8sClient.ApplicationV1alpha1().Charts(cr.ObjectMeta.Namespace).Delete(chart.Name, &metav1.DeleteOptions{})
+		err = cc.G8sClient.ApplicationV1alpha1().Charts(cr.GetNamespace()).Delete(chart.Name, &metav1.DeleteOptions{})
 		if apierrors.IsNotFound(err) {
 			// fall through
 		} else if err != nil {
