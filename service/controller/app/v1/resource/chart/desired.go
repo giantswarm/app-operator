@@ -39,6 +39,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		},
 		ObjectMeta: metav1.ObjectMeta{
 			Name:        cr.Spec.Name,
+			Namespace:   r.chartNamespace,
 			Labels:      processLabels(r.projectName, cr.ObjectMeta.Labels),
 			Annotations: cr.ObjectMeta.Annotations,
 		},
