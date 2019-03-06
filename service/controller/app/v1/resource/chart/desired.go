@@ -38,11 +38,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 			APIVersion: chartAPIVersion,
 		},
 		ObjectMeta: metav1.ObjectMeta{
-<<<<<<< HEAD
-			Name:        key.AppName(cr),
-=======
-			Name:        cr.Spec.Name,
->>>>>>> master
+			Name:        cr.GetName(),
 			Namespace:   r.chartNamespace,
 			Labels:      processLabels(r.projectName, cr.ObjectMeta.Labels),
 			Annotations: cr.ObjectMeta.Annotations,

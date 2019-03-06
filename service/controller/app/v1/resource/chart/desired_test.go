@@ -78,7 +78,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					APIVersion: "application.giantswarm.io",
 				},
 				ObjectMeta: metav1.ObjectMeta{
-					Name:      "prometheus",
+					Name:      "my-cool-prometheus",
 					Namespace: "giantswarm",
 					Labels: map[string]string{
 						"app":                                  "prometheus",
