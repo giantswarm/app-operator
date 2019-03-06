@@ -11,7 +11,7 @@ import (
 	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	"k8s.io/client-go/kubernetes"
 
-	"github.com/giantswarm/app-operator/service/controller/app/v1"
+	v1 "github.com/giantswarm/app-operator/service/controller/app/v1"
 )
 
 type Config struct {
@@ -20,6 +20,7 @@ type Config struct {
 	K8sExtClient apiextensionsclient.Interface
 	Logger       micrologger.Logger
 
+	ChartNamespace string
 	ProjectName    string
 	WatchNamespace string
 }
@@ -80,6 +81,7 @@ func NewApp(config Config) (*App, error) {
 	var resourceSetV1 *controller.ResourceSet
 	{
 		c := v1.ResourceSetConfig{
+			ChartNamespace: config.ChartNamespace,
 			G8sClient:      config.G8sClient,
 			K8sClient:      config.K8sClient,
 			Logger:         config.Logger,
