@@ -29,6 +29,7 @@ func Test_Service_New(t *testing.T) {
 					Source:      "test",
 				}
 
+				c.Viper.Set(c.Flag.Service.Chart.Namespace, "giantswarm")
 				c.Viper.Set(c.Flag.Service.AppCatalog.Index.Namespace, "giantswarm")
 				c.Viper.Set(c.Flag.Service.Kubernetes.Address, "kubernetes")
 				c.Viper.Set(c.Flag.Service.Kubernetes.InCluster, false)

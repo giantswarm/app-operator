@@ -28,9 +28,9 @@ type ResourceSetConfig struct {
 	Logger    micrologger.Logger
 
 	// Settings.
-	HandledVersionBundles []string
-	ProjectName           string
-	WatchNamespace        string
+	ChartNamespace string
+	ProjectName    string
+	WatchNamespace string
 }
 
 // NewResourceSet returns a configured App controller ResourceSet.
@@ -49,6 +49,9 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	}
 
 	// Settings.
+	if config.ChartNamespace == "" {
+		return nil, microerror.Maskf(invalidConfigError, "%T.ChartNamespace must not be empty", config)
+	}
 	if config.ProjectName == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ProjectName must not be empty", config)
 	}
@@ -90,6 +93,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 			G8sClient: config.G8sClient,
 			Logger:    config.Logger,
 
+			ChartNamespace: config.ChartNamespace,
 			ProjectName:    config.ProjectName,
 			WatchNamespace: config.WatchNamespace,
 		}
