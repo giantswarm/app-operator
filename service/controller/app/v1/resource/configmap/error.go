@@ -2,13 +2,13 @@ package configmap
 
 import "github.com/giantswarm/microerror"
 
-var failedExecutionError = &microerror.Error{
-	Kind: "failedExecution",
+var executionFailedError = &microerror.Error{
+	Kind: "executionFailed",
 }
 
-// IsFailedExecution asserts failedExecution
-func IsFailedExecution(err error) bool {
-	return microerror.Cause(err) == failedExecutionError
+// IsExecutionFailed asserts executionFailedError.
+func IsExecutionFailed(err error) bool {
+	return microerror.Cause(err) == executionFailedError
 }
 
 var invalidConfigError = &microerror.Error{

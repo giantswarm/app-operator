@@ -36,7 +36,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 	}
 
 	if appConfigMapName != "" && catalogConfigMapName != "" {
-		return nil, microerror.Maskf(failedExecutionError, "merging app and catalog configmaps is not yet supported")
+		return nil, microerror.Maskf(executionFailedError, "merging app and catalog configmaps is not yet supported")
 	}
 
 	data, err := r.getConfigMapData(ctx, cr)
