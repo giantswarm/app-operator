@@ -40,11 +40,11 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		ObjectMeta: metav1.ObjectMeta{
 			Name:        cr.GetName(),
 			Namespace:   r.chartNamespace,
-			Labels:      processLabels(r.projectName, cr.ObjectMeta.Labels),
-			Annotations: cr.ObjectMeta.Annotations,
+			Labels:      processLabels(r.projectName, cr.GetLabels()),
+			Annotations: cr.GetAnnotations(),
 		},
 		Spec: v1alpha1.ChartSpec{
-			Name:       cr.ObjectMeta.Name,
+			Name:       cr.GetName(),
 			Namespace:  key.Namespace(cr),
 			TarballURL: tarballURL,
 		},
