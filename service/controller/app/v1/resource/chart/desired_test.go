@@ -171,6 +171,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 				G8sClient: fake.NewSimpleClientset(),
 				Logger:    microloggertest.New(),
 
+				ChartNamespace: "giantswarm",
 				ProjectName:    "app-operator",
 				WatchNamespace: "default",
 			}
