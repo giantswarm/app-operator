@@ -3,6 +3,7 @@ package chart
 import (
 	"context"
 	"fmt"
+
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 
 	"github.com/giantswarm/microerror"
@@ -48,7 +49,7 @@ func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange inte
 			return microerror.Mask(err)
 		}
 
-		_, err = cc.G8sClient.ApplicationV1alpha1().Charts(cr.Namespace).Update(&chart)
+		_, err = cc.G8sClient.ApplicationV1alpha1().Charts(cr.ObjectMeta.Namespace).Update(&chart)
 		if err != nil {
 			return microerror.Mask(err)
 		}
