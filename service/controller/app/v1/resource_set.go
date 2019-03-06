@@ -28,10 +28,7 @@ type ResourceSetConfig struct {
 	Logger    micrologger.Logger
 
 	// Settings.
-<<<<<<< HEAD
-=======
 	ChartNamespace string
->>>>>>> master
 	ProjectName    string
 	WatchNamespace string
 }
