@@ -3,6 +3,7 @@ package chart
 import (
 	"context"
 	"fmt"
+
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 
 	"github.com/giantswarm/microerror"
@@ -11,24 +12,6 @@ import (
 	"github.com/giantswarm/app-operator/service/controller/app/v1/controllercontext"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/key"
 )
-
-func (r *Resource) NewUpdatePatch(ctx context.Context, obj, currentChart, desiredChart interface{}) (*controller.Patch, error) {
-	create, err := r.newCreateChange(ctx, currentChart, desiredChart)
-	if err != nil {
-		return nil, microerror.Mask(err)
-	}
-
-	update, err := r.newUpdateChange(ctx, currentChart, desiredChart)
-	if err != nil {
-		return nil, microerror.Mask(err)
-	}
-
-	patch := controller.NewPatch()
-	patch.SetCreateChange(create)
-	patch.SetUpdateChange(update)
-
-	return patch, nil
-}
 
 func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange interface{}) error {
 	cr, err := key.ToCustomResource(obj)
@@ -58,6 +41,24 @@ func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange inte
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("no need to update chart"))
 	}
 	return nil
+}
+
+func (r *Resource) NewUpdatePatch(ctx context.Context, obj, currentChart, desiredChart interface{}) (*controller.Patch, error) {
+	create, err := r.newCreateChange(ctx, currentChart, desiredChart)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	update, err := r.newUpdateChange(ctx, currentChart, desiredChart)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	patch := controller.NewPatch()
+	patch.SetCreateChange(create)
+	patch.SetUpdateChange(update)
+
+	return patch, nil
 }
 
 func (r *Resource) newUpdateChange(ctx context.Context, currentResource, desiredResource interface{}) (interface{}, error) {
