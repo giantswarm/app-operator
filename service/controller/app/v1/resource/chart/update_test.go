@@ -116,6 +116,7 @@ func Test_Resource_newUpdateChange(t *testing.T) {
 		G8sClient: fake.NewSimpleClientset(),
 		Logger:    microloggertest.New(),
 
+		ChartNamespace: "giantswarm",
 		ProjectName:    "app-operator",
 		WatchNamespace: "default",
 	}

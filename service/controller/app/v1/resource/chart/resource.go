@@ -25,6 +25,7 @@ type Config struct {
 	Logger    micrologger.Logger
 
 	// Settings.
+	ChartNamespace string
 	ProjectName    string
 	WatchNamespace string
 }
@@ -36,6 +37,7 @@ type Resource struct {
 	logger    micrologger.Logger
 
 	// Settings.
+	chartNamespace string
 	projectName    string
 	watchNamespace string
 }
@@ -49,6 +51,9 @@ func New(config Config) (*Resource, error) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
 
+	if config.ChartNamespace == "" {
+		return nil, microerror.Maskf(invalidConfigError, "%T.ChartNamespace must not be empty", config)
+	}
 	if config.ProjectName == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ProjectName must not be empty", config)
 	}
@@ -60,6 +65,7 @@ func New(config Config) (*Resource, error) {
 		g8sClient: config.G8sClient,
 		logger:    config.Logger,
 
+		chartNamespace: config.ChartNamespace,
 		projectName:    config.ProjectName,
 		watchNamespace: config.WatchNamespace,
 	}
