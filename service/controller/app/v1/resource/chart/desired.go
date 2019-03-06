@@ -38,12 +38,13 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 			APIVersion: chartAPIVersion,
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			Name:        key.AppName(cr),
-			Labels:      processLabels(r.projectName, cr.ObjectMeta.Labels),
-			Annotations: cr.ObjectMeta.Annotations,
+			Name:        cr.GetName(),
+			Namespace:   r.chartNamespace,
+			Labels:      processLabels(r.projectName, cr.GetLabels()),
+			Annotations: cr.GetAnnotations(),
 		},
 		Spec: v1alpha1.ChartSpec{
-			Name:       cr.ObjectMeta.Name,
+			Name:       cr.GetName(),
 			Namespace:  key.Namespace(cr),
 			TarballURL: tarballURL,
 		},
@@ -65,7 +66,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 
 func generateTarballURL(baseURL string, appName string, version string) (string, error) {
 	if baseURL == "" || appName == "" || version == "" {
-		return "", microerror.Maskf(failedExecutionError, "baseURL %#q, appName %#q, release %#q should not be empty", baseURL, appName, version)
+		return "", microerror.Maskf(executionFailedError, "baseURL %#q, appName %#q, release %#q should not be empty", baseURL, appName, version)
 	}
 	u, err := url.Parse(baseURL)
 	if err != nil {

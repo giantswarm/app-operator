@@ -40,7 +40,7 @@ func ChartStatus(customResource v1alpha1.Chart) v1alpha1.ChartStatus {
 // ChartConfigMapName returns the name of the configmap that stores config for
 // the chart CR that is generated for the provided app CR.
 func ChartConfigMapName(customResource v1alpha1.App) string {
-	return fmt.Sprintf("%s-chart-values", customResource.ObjectMeta.Name)
+	return fmt.Sprintf("%s-chart-values", customResource.GetName())
 }
 
 func InCluster(customResource v1alpha1.App) bool {

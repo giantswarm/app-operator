@@ -78,7 +78,8 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					APIVersion: "application.giantswarm.io",
 				},
 				ObjectMeta: metav1.ObjectMeta{
-					Name: "prometheus",
+					Name:      "my-cool-prometheus",
+					Namespace: "giantswarm",
 					Labels: map[string]string{
 						"app":                                  "prometheus",
 						"chart-operator.giantswarm.io/version": "1.0.0",
@@ -147,7 +148,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					LogoURL: "https://s.giantswarm.io/...",
 				},
 			},
-			errorMatcher: IsFailedExecution,
+			errorMatcher: IsExecutionFailed,
 		},
 	}
 
@@ -157,6 +158,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 				G8sClient: fake.NewSimpleClientset(),
 				Logger:    microloggertest.New(),
 
+				ChartNamespace: "giantswarm",
 				ProjectName:    "app-operator",
 				WatchNamespace: "default",
 			}
