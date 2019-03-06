@@ -148,7 +148,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					LogoURL: "https://s.giantswarm.io/...",
 				},
 			},
-			errorMatcher: IsFailedExecution,
+			errorMatcher: IsExecutionFailed,
 		},
 	}
 

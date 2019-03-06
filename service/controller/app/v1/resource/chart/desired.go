@@ -66,7 +66,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 
 func generateTarballURL(baseURL string, appName string, version string) (string, error) {
 	if baseURL == "" || appName == "" || version == "" {
-		return "", microerror.Maskf(failedExecutionError, "baseURL %#q, appName %#q, release %#q should not be empty", baseURL, appName, version)
+		return "", microerror.Maskf(executionFailedError, "baseURL %#q, appName %#q, release %#q should not be empty", baseURL, appName, version)
 	}
 	u, err := url.Parse(baseURL)
 	if err != nil {
