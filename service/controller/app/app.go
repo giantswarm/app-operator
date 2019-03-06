@@ -11,7 +11,7 @@ import (
 	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	"k8s.io/client-go/kubernetes"
 
-	v1 "github.com/giantswarm/app-operator/service/controller/app/v1"
+	"github.com/giantswarm/app-operator/service/controller/app/v1"
 )
 
 type Config struct {
