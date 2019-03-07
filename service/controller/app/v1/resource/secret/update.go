@@ -12,25 +12,25 @@ import (
 )
 
 func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange interface{}) error {
-	configMap, err := toSecret(updateChange)
+	secret, err := toSecret(updateChange)
 	if err != nil {
 		return microerror.Mask(err)
 	}
 
-	if !isEmpty(configMap) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating secret %#q in namespace %#q", configMap.Name, configMap.Namespace))
+	if !isEmpty(secret) {
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating secret %#q in namespace %#q", secret.Name, secret.Namespace))
 
 		cc, err := controllercontext.FromContext(ctx)
 		if err != nil {
 			return microerror.Mask(err)
 		}
 
-		_, err = cc.K8sClient.CoreV1().Secrets(configMap.Namespace).Update(configMap)
+		_, err = cc.K8sClient.CoreV1().Secrets(secret.Namespace).Update(secret)
 		if err != nil {
 			return microerror.Mask(err)
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updated secret %#q in namespace %#q", configMap.Name, configMap.Namespace))
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updated secret %#q in namespace %#q", secret.Name, secret.Namespace))
 	}
 
 	return nil

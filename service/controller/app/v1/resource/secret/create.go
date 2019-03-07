@@ -12,26 +12,26 @@ import (
 )
 
 func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange interface{}) error {
-	configMap, err := toSecret(createChange)
+	secret, err := toSecret(createChange)
 	if err != nil {
 		return microerror.Mask(err)
 	}
 
-	if !isEmpty(configMap) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating secret %#q in namespace %#q", configMap.Name, configMap.Namespace))
+	if !isEmpty(secret) {
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating secret %#q in namespace %#q", secret.Name, secret.Namespace))
 
 		cc, err := controllercontext.FromContext(ctx)
 		if err != nil {
 			return microerror.Mask(err)
 		}
 
-		_, err = cc.K8sClient.CoreV1().Secrets(configMap.Namespace).Create(configMap)
+		_, err = cc.K8sClient.CoreV1().Secrets(secret.Namespace).Create(secret)
 		if apierrors.IsAlreadyExists(err) {
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("already created secret %#q in namespace %#q", configMap.Name, configMap.Namespace))
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("already created secret %#q in namespace %#q", secret.Name, secret.Namespace))
 		} else if err != nil {
 			return microerror.Mask(err)
 		} else {
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("created secret %#q in namespace %#q", configMap.Name, configMap.Namespace))
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("created secret %#q in namespace %#q", secret.Name, secret.Namespace))
 		}
 	}
 
