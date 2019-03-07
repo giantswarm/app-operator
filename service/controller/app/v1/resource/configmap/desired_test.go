@@ -147,7 +147,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 			},
 		},
 		{
-			name: "case 3: basic match with app and catalog config",
+			name: "case 3: both app and catalog config causes error as merging is not yet implemented",
 			obj: &v1alpha1.App{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "my-test-app",
