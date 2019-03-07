@@ -83,6 +83,44 @@ func Test_ConfigMapNamespace(t *testing.T) {
 	}
 }
 
+func Test_SecretName(t *testing.T) {
+	expectedName := "giant-swarm-secret-name"
+
+	obj := v1alpha1.AppCatalog{
+		Spec: v1alpha1.AppCatalogSpec{
+			Config: v1alpha1.AppCatalogSpecConfig{
+				Secret: v1alpha1.AppCatalogSpecConfigSecret{
+					Name:      "giant-swarm-secret-name",
+					Namespace: "giant-swarm-secret-namespace",
+				},
+			},
+		},
+	}
+
+	if SecretName(obj) != expectedName {
+		t.Fatalf("SecretName %#q, want %#q", SecretName(obj), expectedName)
+	}
+}
+
+func Test_SecretNamespace(t *testing.T) {
+	expectedNamespace := "giant-swarm-secret-namespace"
+
+	obj := v1alpha1.AppCatalog{
+		Spec: v1alpha1.AppCatalogSpec{
+			Config: v1alpha1.AppCatalogSpecConfig{
+				Secret: v1alpha1.AppCatalogSpecConfigSecret{
+					Name:      "giant-swarm-secret-name",
+					Namespace: "giant-swarm-secret-namespace",
+				},
+			},
+		},
+	}
+
+	if SecretNamespace(obj) != expectedNamespace {
+		t.Fatalf("SecretNamespace %#q, want %#q", SecretNamespace(obj), expectedNamespace)
+	}
+}
+
 func Test_ToCustomResource(t *testing.T) {
 	testCases := []struct {
 		name           string
