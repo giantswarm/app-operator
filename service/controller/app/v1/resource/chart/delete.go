@@ -24,7 +24,7 @@ func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange inte
 	}
 
 	if chart.Name != "" {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleting the %#q chart", chart.Name))
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleting Chart CR %#q in namespace %#q", chart.Name, chart.Namespace))
 
 		cc, err := controllercontext.FromContext(ctx)
 		if err != nil {
@@ -33,14 +33,12 @@ func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange inte
 
 		err = cc.G8sClient.ApplicationV1alpha1().Charts(cr.GetNamespace()).Delete(chart.Name, &metav1.DeleteOptions{})
 		if apierrors.IsNotFound(err) {
-			// fall through
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("already deleted Chart CR %#q in namespace %#q", chart.Name, chart.Namespace))
 		} else if err != nil {
 			return microerror.Mask(err)
+		} else {
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleted Chart CR %#q in namespace %#q", chart.Name, chart.Namespace))
 		}
-
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleted the %#q chart", chart.Name))
-	} else {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "the chart does not need to be deleted")
 	}
 
 	return nil

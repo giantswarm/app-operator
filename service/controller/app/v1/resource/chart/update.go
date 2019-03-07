@@ -24,7 +24,7 @@ func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange inte
 	}
 
 	if chart.Name != "" {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("ensuring update of chart %#q", chart.Name))
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating Chart CR %#q in namespace %#q", chart.Name, chart.Namespace))
 
 		cc, err := controllercontext.FromContext(ctx)
 		if err != nil {
@@ -36,10 +36,9 @@ func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange inte
 			return microerror.Mask(err)
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("ensured update of chart %#q", chart.Name))
-	} else {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("no need to update chart"))
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updated Chart CR %#q in namespace %#q", chart.Name, chart.Namespace))
 	}
+
 	return nil
 }
 

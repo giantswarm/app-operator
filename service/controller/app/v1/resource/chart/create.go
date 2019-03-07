@@ -6,6 +6,7 @@ import (
 
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/microerror"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 
 	"github.com/giantswarm/app-operator/service/controller/app/v1/controllercontext"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/key"
@@ -22,7 +23,7 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 	}
 
 	if chart.Name != "" {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("ensuring creation of chart %#q", chart.Name))
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating Chart CR %#q in namespace %#q", chart.Name, chart.Namespace))
 
 		cc, err := controllercontext.FromContext(ctx)
 		if err != nil {
@@ -30,14 +31,15 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 		}
 
 		_, err = cc.G8sClient.ApplicationV1alpha1().Charts(cr.GetNamespace()).Create(&chart)
-		if err != nil {
+		if apierrors.IsAlreadyExists(err) {
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("already created Chart CR %#q in namespace %#q", chart.Name, chart.Namespace))
+		} else if err != nil {
 			return microerror.Mask(err)
+		} else {
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("created Chart CR %#q in namespace %#q", chart.Name, chart.Namespace))
 		}
-
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("ensured creation of chart %#q", chart.Name))
-	} else {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("no need to create chart"))
 	}
+
 	return nil
 }
 

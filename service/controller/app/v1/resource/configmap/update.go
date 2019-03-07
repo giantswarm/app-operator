@@ -18,7 +18,7 @@ func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange inte
 	}
 
 	if !isEmpty(configMap) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("ensuring update of configmap %#q", configMap.Name))
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating configmap %#q in namespace %#q", configMap.Name, configMap.Namespace))
 
 		cc, err := controllercontext.FromContext(ctx)
 		if err != nil {
@@ -30,9 +30,7 @@ func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange inte
 			return microerror.Mask(err)
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("ensured update of configmap %#q", configMap.Name))
-	} else {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("no need to update configmap"))
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updated configmap %#q in namespace %#q", configMap.Name, configMap.Namespace))
 	}
 
 	return nil

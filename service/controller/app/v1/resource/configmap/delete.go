@@ -19,7 +19,7 @@ func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange inte
 	}
 
 	if !isEmpty(configMap) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleting the %#q configmap", configMap.Name))
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleting configmap %#q in namespace %#q", configMap.Name, configMap.Namespace))
 
 		cc, err := controllercontext.FromContext(ctx)
 		if err != nil {
@@ -28,14 +28,12 @@ func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange inte
 
 		err = cc.K8sClient.CoreV1().ConfigMaps(configMap.Namespace).Delete(configMap.Name, &metav1.DeleteOptions{})
 		if apierrors.IsNotFound(err) {
-			// fall through
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("already deleted configmap %#q in namespace %#q", configMap.Name, configMap.Namespace))
 		} else if err != nil {
 			return microerror.Mask(err)
+		} else {
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleted Chart CR %#q in namespace %#q", configMap.Name, configMap.Namespace))
 		}
-
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleted the %#q configmap", configMap.Name))
-	} else {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("did not delete the %#q configmap", configMap.Name))
 	}
 
 	return nil
