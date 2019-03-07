@@ -17,7 +17,8 @@ func Test_AppConfigMapName(t *testing.T) {
 			Catalog: "giant-swarm-catalog-name",
 			Config: v1alpha1.AppSpecConfig{
 				ConfigMap: v1alpha1.AppSpecConfigConfigMap{
-					Name: "giant-swarm-configmap-name",
+					Name:      "giant-swarm-configmap-name",
+					Namespace: "giant-swarm-configmap-namespace",
 				},
 			},
 		},
@@ -29,7 +30,7 @@ func Test_AppConfigMapName(t *testing.T) {
 }
 
 func Test_AppConfigMapNamespace(t *testing.T) {
-	expectedName := "giant-swarm-configmap-namespace"
+	expectedNamespace := "giant-swarm-configmap-namespace"
 
 	obj := v1alpha1.App{
 		Spec: v1alpha1.AppSpec{
@@ -44,8 +45,8 @@ func Test_AppConfigMapNamespace(t *testing.T) {
 		},
 	}
 
-	if AppConfigMapNamespace(obj) != expectedName {
-		t.Fatalf("AppConfigMapNamespace %#q, want %#q", AppConfigMapNamespace(obj), expectedName)
+	if AppConfigMapNamespace(obj) != expectedNamespace {
+		t.Fatalf("AppConfigMapNamespace %#q, want %#q", AppConfigMapNamespace(obj), expectedNamespace)
 	}
 }
 
@@ -60,6 +61,45 @@ func Test_AppName(t *testing.T) {
 
 	if AppName(obj) != expectedName {
 		t.Fatalf("app name %#q, want %#q", AppName(obj), expectedName)
+	}
+}
+func Test_AppSecretName(t *testing.T) {
+	expectedName := "giant-swarm-secret-name"
+
+	obj := v1alpha1.App{
+		Spec: v1alpha1.AppSpec{
+			Name:    "giant-swarm-name",
+			Catalog: "giant-swarm-catalog-name",
+			Config: v1alpha1.AppSpecConfig{
+				Secret: v1alpha1.AppSpecConfigSecret{
+					Name: "giant-swarm-secret-name",
+				},
+			},
+		},
+	}
+
+	if AppSecretName(obj) != expectedName {
+		t.Fatalf("AppSecretName %#q, want %#q", AppSecretName(obj), expectedName)
+	}
+}
+
+func Test_AppSecretNamespace(t *testing.T) {
+	expectedNamespace := "giant-swarm-secret-namespace"
+
+	obj := v1alpha1.App{
+		Spec: v1alpha1.AppSpec{
+			Name:    "giant-swarm-name",
+			Catalog: "giant-swarm-catalog-name",
+			Config: v1alpha1.AppSpecConfig{
+				Secret: v1alpha1.AppSpecConfigSecret{
+					Namespace: "giant-swarm-secret-namespace",
+				},
+			},
+		},
+	}
+
+	if AppSecretNamespace(obj) != expectedNamespace {
+		t.Fatalf("AppSecretNamespace %#q, want %#q", AppSecretNamespace(obj), expectedNamespace)
 	}
 }
 
@@ -176,46 +216,6 @@ func Test_Namespace(t *testing.T) {
 
 	if Namespace(obj) != expectedName {
 		t.Fatalf("app namespace %#q, want %#q", Namespace(obj), expectedName)
-	}
-}
-
-func Test_SecretName(t *testing.T) {
-	expectedName := "giant-swarm-secret-name"
-
-	obj := v1alpha1.App{
-		Spec: v1alpha1.AppSpec{
-			Name:    "giant-swarm-name",
-			Catalog: "giant-swarm-catalog-name",
-			Config: v1alpha1.AppSpecConfig{
-				Secret: v1alpha1.AppSpecConfigSecret{
-					Name: "giant-swarm-secret-name",
-				},
-			},
-		},
-	}
-
-	if SecretName(obj) != expectedName {
-		t.Fatalf("secret name %#q, want %#q", SecretName(obj), expectedName)
-	}
-}
-
-func Test_SecretNamespace(t *testing.T) {
-	expectedName := "giant-swarm-secret-namespace"
-
-	obj := v1alpha1.App{
-		Spec: v1alpha1.AppSpec{
-			Name:    "giant-swarm-name",
-			Catalog: "giant-swarm-catalog-name",
-			Config: v1alpha1.AppSpecConfig{
-				Secret: v1alpha1.AppSpecConfigSecret{
-					Namespace: "giant-swarm-secret-namespace",
-				},
-			},
-		},
-	}
-
-	if SecretNamespace(obj) != expectedName {
-		t.Fatalf("secret namespace %#q, want %#q", SecretNamespace(obj), expectedName)
 	}
 }
 
