@@ -17,7 +17,7 @@ func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange inte
 		return microerror.Mask(err)
 	}
 
-	if configMap != nil {
+	if !isEmpty(configMap) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("ensuring update of configmap %#q", configMap.Name))
 
 		cc, err := controllercontext.FromContext(ctx)

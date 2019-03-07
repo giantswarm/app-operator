@@ -98,6 +98,10 @@ func equals(a, b *corev1.ConfigMap) bool {
 
 // isEmpty checks if a ConfigMap is empty.
 func isEmpty(c *corev1.ConfigMap) bool {
+	if c == nil {
+		return true
+	}
+
 	return equals(c, &corev1.ConfigMap{})
 }
 
