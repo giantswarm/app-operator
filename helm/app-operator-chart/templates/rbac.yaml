@@ -67,6 +67,7 @@ rules:
   - ""
   resources:
   - configmaps
+  - secrets
   verbs:
   - "*"
 - nonResourceURLs:
