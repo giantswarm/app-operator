@@ -74,33 +74,41 @@ func (r *Resource) getConfigMap(ctx context.Context, configMapName, configMapNam
 }
 
 func (r *Resource) getConfigMapData(ctx context.Context, cr v1alpha1.App) (map[string]string, error) {
-	data := make(map[string]string)
+	data, err := r.getConfigMapForApp(ctx, cr)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+	if len(data) > 0 {
+		return data, nil
+	}
 
 	cc, err := controllercontext.FromContext(ctx)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
 
-	appConfigMapName := key.AppConfigMapName(cr)
-	catalogConfigMapName := appcatalogkey.ConfigMapName(cc.AppCatalog)
-
-	if appConfigMapName != "" && catalogConfigMapName == "" {
-		appConfigMap, err := r.getConfigMap(ctx, appConfigMapName, key.AppConfigMapNamespace(cr))
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-
-		data = appConfigMap.Data
-	}
-
-	if appConfigMapName == "" && catalogConfigMapName != "" {
-		catalogConfigMap, err := r.getConfigMap(ctx, catalogConfigMapName, appcatalogkey.ConfigMapNamespace(cc.AppCatalog))
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-
-		data = catalogConfigMap.Data
+	data, err = r.getConfigMapForCatalog(ctx, cc.AppCatalog)
+	if err != nil {
+		return nil, microerror.Mask(err)
 	}
 
 	return data, nil
+}
+
+func (r *Resource) getConfigMapForApp(ctx context.Context, app v1alpha1.App) (map[string]string, error) {
+	configMap, err := r.getConfigMap(ctx, key.AppConfigMapName(app), key.AppConfigMapNamespace(app))
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	return configMap.Data, nil
+}
+
+func (r *Resource) getConfigMapForCatalog(ctx context.Context, catalog v1alpha1.AppCatalog) (map[string]string, error) {
+	configMap, err := r.getConfigMap(ctx, appcatalogkey.ConfigMapName(catalog), appcatalogkey.ConfigMapNamespace(catalog))
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	return configMap.Data, nil
 }
