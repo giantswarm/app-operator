@@ -25,6 +25,18 @@ func AppName(customResource v1alpha1.App) string {
 	return customResource.Spec.Name
 }
 
+// AppSecretName returns the name of the secret that stores app level
+// secrets for the provided app CR.
+func AppSecretName(customResource v1alpha1.App) string {
+	return customResource.Spec.Config.Secret.Name
+}
+
+// AppSecretNamespace returns the namespace of the secret that stores app
+// level secrets for the provided app CR.
+func AppSecretNamespace(customResource v1alpha1.App) string {
+	return customResource.Spec.Config.Secret.Namespace
+}
+
 func AppStatus(customResource v1alpha1.App) v1alpha1.AppStatus {
 	return customResource.Status
 }
@@ -43,20 +55,18 @@ func ChartConfigMapName(customResource v1alpha1.App) string {
 	return fmt.Sprintf("%s-chart-values", customResource.GetName())
 }
 
+// ChartSecretName returns the name of the secret that stores secrets for
+// the chart CR that is generated for the provided app CR.
+func ChartSecretName(customResource v1alpha1.App) string {
+	return fmt.Sprintf("%s-chart-secrets", customResource.GetName())
+}
+
 func InCluster(customResource v1alpha1.App) bool {
 	return customResource.Spec.KubeConfig.InCluster
 }
 
 func Namespace(customResource v1alpha1.App) string {
 	return customResource.Spec.Namespace
-}
-
-func SecretName(customResource v1alpha1.App) string {
-	return customResource.Spec.Config.Secret.Name
-}
-
-func SecretNamespace(customResource v1alpha1.App) string {
-	return customResource.Spec.Config.Secret.Namespace
 }
 
 // ToCustomResource converts value to v1alpha1.App and returns it or error
