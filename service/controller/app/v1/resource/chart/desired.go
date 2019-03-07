@@ -50,12 +50,25 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		},
 	}
 
-	if key.AppConfigMapName(cr) != "" || appcatalogkey.ConfigMapName(cc.AppCatalog) != "" {
-		config := v1alpha1.ChartSpecConfig{
-			ConfigMap: v1alpha1.ChartSpecConfigConfigMap{
+	if hasConfigMap(cr, cc.AppCatalog) || hasSecret(cr, cc.AppCatalog) {
+		config := v1alpha1.ChartSpecConfig{}
+
+		if hasConfigMap(cr, cc.AppCatalog) {
+			configMap := v1alpha1.ChartSpecConfigConfigMap{
 				Name:      key.ChartConfigMapName(cr),
 				Namespace: key.Namespace(cr),
-			},
+			}
+
+			config.ConfigMap = configMap
+		}
+
+		if hasSecret(cr, cc.AppCatalog) {
+			secret := v1alpha1.ChartSpecConfigSecret{
+				Name:      key.ChartSecretName(cr),
+				Namespace: key.Namespace(cr),
+			}
+
+			config.Secret = secret
 		}
 
 		chartCR.Spec.Config = config
@@ -74,6 +87,22 @@ func generateTarballURL(baseURL string, appName string, version string) (string,
 	}
 	u.Path = path.Join(u.Path, fmt.Sprintf("%s-%s.tgz", appName, version))
 	return u.String(), nil
+}
+
+func hasConfigMap(cr v1alpha1.App, appCatalog v1alpha1.AppCatalog) bool {
+	if key.AppConfigMapName(cr) != "" || appcatalogkey.ConfigMapName(appCatalog) != "" {
+		return true
+	}
+
+	return false
+}
+
+func hasSecret(cr v1alpha1.App, appCatalog v1alpha1.AppCatalog) bool {
+	if key.AppSecretName(cr) != "" || appcatalogkey.SecretName(appCatalog) != "" {
+		return true
+	}
+
+	return false
 }
 
 // processLabels ensures the chart-operator.giantswarm.io/version label is
