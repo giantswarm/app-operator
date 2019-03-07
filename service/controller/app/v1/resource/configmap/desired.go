@@ -63,7 +63,7 @@ func (r *Resource) getConfigMap(ctx context.Context, configMapName, configMapNam
 
 	configMap, err := r.k8sClient.CoreV1().ConfigMaps(configMapNamespace).Get(configMapName, metav1.GetOptions{})
 	if apierrors.IsNotFound(err) {
-		return nil, microerror.Maskf(notFoundError, "config map %#q in namespace %#q not found", configMapName, configMapNamespace)
+		return nil, microerror.Maskf(notFoundError, "configmap %#q in namespace %#q not found", configMapName, configMapNamespace)
 	} else if err != nil {
 		return nil, microerror.Mask(err)
 	}
