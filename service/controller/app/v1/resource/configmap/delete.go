@@ -18,7 +18,7 @@ func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange inte
 		return microerror.Mask(err)
 	}
 
-	if configMap.Name != "" {
+	if !isEmpty(configMap) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleting the %#q configmap", configMap.Name))
 
 		cc, err := controllercontext.FromContext(ctx)
@@ -63,15 +63,15 @@ func (r *Resource) newDeleteChange(ctx context.Context, obj, currentState, desir
 		return nil, microerror.Mask(err)
 	}
 
-	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding out if the %#q configMap has to be deleted", desiredConfigMap.Name))
+	r.logger.LogCtx(ctx, "level", "debug", "message", "finding out if the configMap has to be deleted")
 
 	isModified := !isEmpty(currentConfigMap) && equals(currentConfigMap, desiredConfigMap)
 	if isModified {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("the %#q configMap needs to be deleted", desiredConfigMap.Name))
+		r.logger.LogCtx(ctx, "level", "debug", "message", "the configMap needs to be deleted")
 
 		return desiredConfigMap, nil
 	} else {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("the %#q configMap does not need to be deleted", desiredConfigMap.Name))
+		r.logger.LogCtx(ctx, "level", "debug", "message", "the configMap does not need to be deleted")
 	}
 
 	return nil, nil

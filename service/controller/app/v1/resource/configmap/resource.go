@@ -1,7 +1,6 @@
 package configmap
 
 import (
-	"context"
 	"reflect"
 
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
@@ -14,9 +13,6 @@ import (
 const (
 	// Name is the identifier of the resource.
 	Name = "configmapv1"
-
-	// valuesKey is the data key when getting values from a configmap.
-	valuesKey = "values"
 )
 
 // Config represents the configuration used to create a new configmap resource.
@@ -74,10 +70,6 @@ func New(config Config) (*Resource, error) {
 	return r, nil
 }
 
-func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interface{}, error) {
-	return nil, nil
-}
-
 func (r *Resource) Name() string {
 	return Name
 }
@@ -106,6 +98,10 @@ func equals(a, b *corev1.ConfigMap) bool {
 
 // isEmpty checks if a ConfigMap is empty.
 func isEmpty(c *corev1.ConfigMap) bool {
+	if c == nil {
+		return true
+	}
+
 	return equals(c, &corev1.ConfigMap{})
 }
 

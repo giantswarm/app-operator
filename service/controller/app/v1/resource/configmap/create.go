@@ -16,7 +16,7 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 		return microerror.Mask(err)
 	}
 
-	if configMap.Name != "" {
+	if !isEmpty(configMap) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("ensuring creation of configmap %#q", configMap.Name))
 
 		cc, err := controllercontext.FromContext(ctx)
@@ -47,15 +47,15 @@ func (r *Resource) newCreateChange(ctx context.Context, currentResource, desired
 		return nil, microerror.Mask(err)
 	}
 
-	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding out if the %#q configmap has to be created", desiredConfigMap.Name))
+	r.logger.LogCtx(ctx, "level", "debug", "message", "finding out if the configmap has to be created")
 
 	createConfigMap := &corev1.ConfigMap{}
 
 	if isEmpty(currentConfigMap) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("the %#q configmap needs to be created", desiredConfigMap.Name))
+		r.logger.LogCtx(ctx, "level", "debug", "message", "the configmap needs to be created")
 		createConfigMap = desiredConfigMap
 	} else {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("the %#q configmap does not need to be created", desiredConfigMap.Name))
+		r.logger.LogCtx(ctx, "level", "debug", "message", "the configmap does not need to be created")
 	}
 
 	return createConfigMap, nil
