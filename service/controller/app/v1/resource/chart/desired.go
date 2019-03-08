@@ -27,6 +27,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		return nil, microerror.Mask(err)
 	}
 
+	config := generateConfig(cr, cc.AppCatalog)
 	tarballURL, err := generateTarballURL(appcatalogkey.AppCatalogStorageURL(cc.AppCatalog), key.AppName(cr), key.Version(cr))
 	if err != nil {
 		return nil, err
@@ -44,16 +45,21 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 			Annotations: cr.GetAnnotations(),
 		},
 		Spec: v1alpha1.ChartSpec{
+			Config:     config,
 			Name:       cr.GetName(),
 			Namespace:  key.Namespace(cr),
 			TarballURL: tarballURL,
 		},
 	}
 
-	if hasConfigMap(cr, cc.AppCatalog) || hasSecret(cr, cc.AppCatalog) {
-		config := v1alpha1.ChartSpecConfig{}
+	return chartCR, nil
+}
 
-		if hasConfigMap(cr, cc.AppCatalog) {
+func generateConfig(cr v1alpha1.App, appCatalog v1alpha1.AppCatalog) v1alpha1.ChartSpecConfig {
+	config := v1alpha1.ChartSpecConfig{}
+
+	if hasConfigMap(cr, appCatalog) || hasSecret(cr, appCatalog) {
+		if hasConfigMap(cr, appCatalog) {
 			configMap := v1alpha1.ChartSpecConfigConfigMap{
 				Name:      key.ChartConfigMapName(cr),
 				Namespace: key.Namespace(cr),
@@ -62,7 +68,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 			config.ConfigMap = configMap
 		}
 
-		if hasSecret(cr, cc.AppCatalog) {
+		if hasSecret(cr, appCatalog) {
 			secret := v1alpha1.ChartSpecConfigSecret{
 				Name:      key.ChartSecretName(cr),
 				Namespace: key.Namespace(cr),
@@ -70,11 +76,9 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 
 			config.Secret = secret
 		}
-
-		chartCR.Spec.Config = config
 	}
 
-	return chartCR, nil
+	return config
 }
 
 func generateTarballURL(baseURL string, appName string, version string) (string, error) {

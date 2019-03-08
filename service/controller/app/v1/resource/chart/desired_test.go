@@ -205,6 +205,201 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 	}
 }
 
+func Test_generateConfig(t *testing.T) {
+	tests := []struct {
+		name           string
+		cr             v1alpha1.App
+		appCatalog     v1alpha1.AppCatalog
+		expectedConfig v1alpha1.ChartSpecConfig
+	}{
+		{
+			name:           "case 0: no config",
+			cr:             v1alpha1.App{},
+			appCatalog:     v1alpha1.AppCatalog{},
+			expectedConfig: v1alpha1.ChartSpecConfig{},
+		},
+		{
+			name: "case 1: has a configmap from app",
+			cr: v1alpha1.App{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "test-app",
+				},
+				Spec: v1alpha1.AppSpec{
+					Config: v1alpha1.AppSpecConfig{
+						ConfigMap: v1alpha1.AppSpecConfigConfigMap{
+							Name:      "test-app-values",
+							Namespace: "default",
+						},
+					},
+					Namespace: "giantswarm",
+				},
+			},
+			appCatalog: v1alpha1.AppCatalog{},
+			expectedConfig: v1alpha1.ChartSpecConfig{
+				ConfigMap: v1alpha1.ChartSpecConfigConfigMap{
+					Name:      "test-app-chart-values",
+					Namespace: "giantswarm",
+				},
+			},
+		},
+		{
+			name: "case 2: has a secret from app",
+			cr: v1alpha1.App{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "test-app",
+				},
+				Spec: v1alpha1.AppSpec{
+					Config: v1alpha1.AppSpecConfig{
+						Secret: v1alpha1.AppSpecConfigSecret{
+							Name:      "test-app-values",
+							Namespace: "default",
+						},
+					},
+					Namespace: "giantswarm",
+				},
+			},
+			appCatalog: v1alpha1.AppCatalog{},
+			expectedConfig: v1alpha1.ChartSpecConfig{
+				Secret: v1alpha1.ChartSpecConfigSecret{
+					Name:      "test-app-chart-secrets",
+					Namespace: "giantswarm",
+				},
+			},
+		},
+		{
+			name: "case 3: has both a configmap and secret from app",
+			cr: v1alpha1.App{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "test-app",
+				},
+				Spec: v1alpha1.AppSpec{
+					Config: v1alpha1.AppSpecConfig{
+						ConfigMap: v1alpha1.AppSpecConfigConfigMap{
+							Name:      "test-app-values",
+							Namespace: "default",
+						},
+						Secret: v1alpha1.AppSpecConfigSecret{
+							Name:      "test-app-values",
+							Namespace: "default",
+						},
+					},
+					Namespace: "giantswarm",
+				},
+			},
+			appCatalog: v1alpha1.AppCatalog{},
+			expectedConfig: v1alpha1.ChartSpecConfig{
+				ConfigMap: v1alpha1.ChartSpecConfigConfigMap{
+					Name:      "test-app-chart-values",
+					Namespace: "giantswarm",
+				},
+				Secret: v1alpha1.ChartSpecConfigSecret{
+					Name:      "test-app-chart-secrets",
+					Namespace: "giantswarm",
+				},
+			},
+		},
+		{
+			name: "case 4: has a configmap from catalog",
+			cr: v1alpha1.App{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "test-app",
+				},
+				Spec: v1alpha1.AppSpec{
+					Namespace: "giantswarm",
+				},
+			},
+			appCatalog: v1alpha1.AppCatalog{
+				Spec: v1alpha1.AppCatalogSpec{
+					Config: v1alpha1.AppCatalogSpecConfig{
+						ConfigMap: v1alpha1.AppCatalogSpecConfigConfigMap{
+							Name:      "test-app-values",
+							Namespace: "default",
+						},
+					},
+				},
+			},
+			expectedConfig: v1alpha1.ChartSpecConfig{
+				ConfigMap: v1alpha1.ChartSpecConfigConfigMap{
+					Name:      "test-app-chart-values",
+					Namespace: "giantswarm",
+				},
+			},
+		},
+		{
+			name: "case 5: has a secret from catalog",
+			cr: v1alpha1.App{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "test-app",
+				},
+				Spec: v1alpha1.AppSpec{
+					Namespace: "giantswarm",
+				},
+			},
+			appCatalog: v1alpha1.AppCatalog{
+				Spec: v1alpha1.AppCatalogSpec{
+					Config: v1alpha1.AppCatalogSpecConfig{
+						Secret: v1alpha1.AppCatalogSpecConfigSecret{
+							Name:      "test-app-values",
+							Namespace: "default",
+						},
+					},
+				},
+			},
+			expectedConfig: v1alpha1.ChartSpecConfig{
+				Secret: v1alpha1.ChartSpecConfigSecret{
+					Name:      "test-app-chart-secrets",
+					Namespace: "giantswarm",
+				},
+			},
+		},
+		{
+			name: "case 6: has both a configmap and secret from catalog",
+			cr: v1alpha1.App{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "test-app",
+				},
+				Spec: v1alpha1.AppSpec{
+					Namespace: "giantswarm",
+				},
+			},
+			appCatalog: v1alpha1.AppCatalog{
+				Spec: v1alpha1.AppCatalogSpec{
+					Config: v1alpha1.AppCatalogSpecConfig{
+						ConfigMap: v1alpha1.AppCatalogSpecConfigConfigMap{
+							Name:      "test-app-values",
+							Namespace: "default",
+						},
+						Secret: v1alpha1.AppCatalogSpecConfigSecret{
+							Name:      "test-app-values",
+							Namespace: "default",
+						},
+					},
+				},
+			},
+			expectedConfig: v1alpha1.ChartSpecConfig{
+				ConfigMap: v1alpha1.ChartSpecConfigConfigMap{
+					Name:      "test-app-chart-values",
+					Namespace: "giantswarm",
+				},
+				Secret: v1alpha1.ChartSpecConfigSecret{
+					Name:      "test-app-chart-secrets",
+					Namespace: "giantswarm",
+				},
+			},
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			result := generateConfig(tc.cr, tc.appCatalog)
+
+			if !reflect.DeepEqual(result, tc.expectedConfig) {
+				t.Fatalf("want matching Config \n %s", cmp.Diff(result, tc.expectedConfig))
+			}
+		})
+	}
+}
+
 func Test_processLabels(t *testing.T) {
 	tests := []struct {
 		name           string
