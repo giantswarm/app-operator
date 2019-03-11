@@ -58,24 +58,22 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 func generateConfig(cr v1alpha1.App, appCatalog v1alpha1.AppCatalog) v1alpha1.ChartSpecConfig {
 	config := v1alpha1.ChartSpecConfig{}
 
-	if hasConfigMap(cr, appCatalog) || hasSecret(cr, appCatalog) {
-		if hasConfigMap(cr, appCatalog) {
-			configMap := v1alpha1.ChartSpecConfigConfigMap{
-				Name:      key.ChartConfigMapName(cr),
-				Namespace: key.Namespace(cr),
-			}
-
-			config.ConfigMap = configMap
+	if hasConfigMap(cr, appCatalog) {
+		configMap := v1alpha1.ChartSpecConfigConfigMap{
+			Name:      key.ChartConfigMapName(cr),
+			Namespace: key.Namespace(cr),
 		}
 
-		if hasSecret(cr, appCatalog) {
-			secret := v1alpha1.ChartSpecConfigSecret{
-				Name:      key.ChartSecretName(cr),
-				Namespace: key.Namespace(cr),
-			}
+		config.ConfigMap = configMap
+	}
 
-			config.Secret = secret
+	if hasSecret(cr, appCatalog) {
+		secret := v1alpha1.ChartSpecConfigSecret{
+			Name:      key.ChartSecretName(cr),
+			Namespace: key.Namespace(cr),
 		}
+
+		config.Secret = secret
 	}
 
 	return config
