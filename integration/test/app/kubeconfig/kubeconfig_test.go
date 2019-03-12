@@ -1,10 +1,11 @@
 // +build k8srequired
 
-package basic
+package kubeconfig
 
 import (
 	"fmt"
 	"golang.org/x/net/context"
+	"k8s.io/api/core/v1"
 	"testing"
 
 	"github.com/giantswarm/e2e-harness/pkg/release"
@@ -16,30 +17,45 @@ import (
 
 const (
 	namespace                 = "giantswarm"
+	targetNamespace           = "test"
 	customResourceReleaseName = "apiextensions-app-e2e-chart"
 	chartOperatorVersion      = "chart-operator.giantswarm.io/version"
 	testAppReleaseName        = "test-app"
 	testAppCatalogReleaseName = "test-app-catalog"
 )
 
-// TestAppLifecycle tests a chart CR can be created, updated and deleted
-// uaing a app, appCatalog CRs processed by app-operator.
-//
-// - Create app, appCatalog CRs using apiextensions-app-e2e-chart.
-// - Ensure chart CR specified in the app CR is deployed.
-//
-// - Update chart CR using apiextensions-app-e2e-chart.
-// - Ensure chart CR is redeployed using updated app CR information.
-//
-// - Delete apiextensions-app-e2e-chart.
-// - Ensure chart CR is deleted.
-//
-func TestAppLifecycle(t *testing.T) {
+func TestKubeConfighAppLifecycle(t *testing.T) {
 	ctx := context.Background()
 	var originalResourceVersion string
 
+	restConfig := config.Host.RestConfig()
+	bytes, err := config.KubeConfig.NewKubeConfigForRESTConfig(ctx, restConfig, "test-cluster", targetNamespace)
+	if err != nil {
+		t.Fatalf("expected nil got %#v", err)
+	}
+
+	_, err = config.Host.K8sClient().CoreV1().Secrets(namespace).Create(&v1.Secret{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "kubeConfig",
+			Namespace: namespace,
+		},
+		Data: map[string][]byte{
+			"kubeConfig": bytes,
+		},
+	})
+	if err != nil {
+		t.Fatalf("expected nil got %#v", err)
+	}
+
 	sampleChart := chartvalues.APIExtensionsAppE2EConfig{
 		App: chartvalues.APIExtensionsAppE2EConfigApp{
+			KubeConfig: chartvalues.APIExtensionsAppE2EConfigAppKubeConfig{
+				InCluster: false,
+				Secret: chartvalues.APIExtensionsAppE2EConfigAppConfigKubeConfigSecret{
+					Name:      "kubeConfig",
+					Namespace: namespace,
+				},
+			},
 			Name:      testAppReleaseName,
 			Namespace: namespace,
 			Catalog:   testAppCatalogReleaseName,

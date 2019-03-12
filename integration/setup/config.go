@@ -7,6 +7,7 @@ import (
 	"github.com/giantswarm/e2e-harness/pkg/release"
 	"github.com/giantswarm/e2esetup/k8s"
 	"github.com/giantswarm/helmclient"
+	"github.com/giantswarm/kubeconfig"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 )
@@ -17,11 +18,12 @@ const (
 )
 
 type Config struct {
-	Guest   *framework.Guest
-	Host    *framework.Host
-	K8s     *k8s.Setup
-	Release *release.Release
-	Logger  micrologger.Logger
+	Guest      *framework.Guest
+	Host       *framework.Host
+	K8s        *k8s.Setup
+	KubeConfig *kubeconfig.KubeConfig
+	Release    *release.Release
+	Logger     micrologger.Logger
 }
 
 func NewConfig() (Config, error) {
@@ -80,6 +82,19 @@ func NewConfig() (Config, error) {
 		}
 	}
 
+	var kubeConfig *kubeconfig.KubeConfig
+	{
+		c := kubeconfig.Config{
+			Logger:    logger,
+			K8sClient: host.K8sClient(),
+		}
+
+		kubeConfig, err = kubeconfig.New(c)
+		if err != nil {
+			return Config{}, microerror.Mask(err)
+		}
+	}
+
 	var helmClient *helmclient.Client
 	{
 		c := helmclient.Config{
@@ -115,11 +130,12 @@ func NewConfig() (Config, error) {
 	}
 
 	c := Config{
-		Guest:   guest,
-		Host:    host,
-		K8s:     k8sSetup,
-		Logger:  logger,
-		Release: newRelease,
+		Guest:      guest,
+		Host:       host,
+		K8s:        k8sSetup,
+		KubeConfig: kubeConfig,
+		Logger:     logger,
+		Release:    newRelease,
 	}
 
 	return c, nil
