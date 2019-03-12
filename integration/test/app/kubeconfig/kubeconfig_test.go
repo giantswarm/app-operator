@@ -36,7 +36,7 @@ func TestKubeConfighAppLifecycle(t *testing.T) {
 
 	_, err = config.Host.K8sClient().CoreV1().Secrets(namespace).Create(&v1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      "kubeConfig",
+			Name:      "kube-config",
 			Namespace: namespace,
 		},
 		Data: map[string][]byte{
@@ -52,7 +52,7 @@ func TestKubeConfighAppLifecycle(t *testing.T) {
 			KubeConfig: chartvalues.APIExtensionsAppE2EConfigAppKubeConfig{
 				InCluster: false,
 				Secret: chartvalues.APIExtensionsAppE2EConfigAppConfigKubeConfigSecret{
-					Name:      "kubeConfig",
+					Name:      "kube-config",
 					Namespace: namespace,
 				},
 			},
