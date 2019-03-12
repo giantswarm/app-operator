@@ -263,7 +263,7 @@
     "informer/collector",
     "resource/configmap"
   ]
-  revision = "07aebcccb819640d34221ed8fe94a37493c01e6c"
+  revision = "031a73d98e0a1d566b231919c97cbd823a5d3729"
 
 [[projects]]
   branch = "master"
