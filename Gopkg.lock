@@ -197,14 +197,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:07f0274adc61cf95d9e36269dc058c831e4f45d6b2118b4544c95e5d783d85ed"
+  digest = "1:4a0488fb0653d5c720676386e116471d054824055a1d5c0ca20bfa7643eebffe"
   name = "github.com/giantswarm/e2etemplates"
   packages = [
     "internal/render",
     "pkg/chartvalues",
   ]
   pruneopts = "UT"
-  revision = "0db133df315b795a4827efa42e573c5fd2074db5"
+  revision = "a30d02cb034c0bbb6c162af06ea950e988c889b7"
 
 [[projects]]
   branch = "master"
@@ -240,11 +240,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:a0cb97910b64163a2c21d74519f7889cbe33a8ae03f5a2e854ccd17d6e1e1cab"
+  digest = "1:61c669b9a973fb1bb0ecf793838a0091ea4207efb0d3cf2f167a6f5e77c73bbb"
   name = "github.com/giantswarm/kubeconfig"
   packages = ["."]
   pruneopts = "UT"
-  revision = "dabe1b7a122df6e31a39cd1268ca1b67a8086175"
+  revision = "469f455d3b2e27da8a72c49007f380fbee0ae653"
 
 [[projects]]
   branch = "master"
