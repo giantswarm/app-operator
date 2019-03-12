@@ -19,7 +19,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
-	name := key.AppName(cr)
+	name := cr.GetName()
 
 	cc, err := controllercontext.FromContext(ctx)
 	if err != nil {
@@ -30,7 +30,10 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 	chart, err := cc.G8sClient.ApplicationV1alpha1().Charts(r.watchNamespace).Get(name, metav1.GetOptions{})
 	if errors.IsNotFound(err) {
-		return microerror.Maskf(notFoundError, "chart %#q in namespace %#q", name, r.watchNamespace)
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("did not find chart %#q in namespace %#q", name, r.watchNamespace))
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		return nil
+
 	} else if err != nil {
 		return microerror.Mask(err)
 	}

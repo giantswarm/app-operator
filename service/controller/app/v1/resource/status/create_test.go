@@ -190,7 +190,9 @@ func Test_Resource_EnsureCreated(t *testing.T) {
 				},
 				Status: v1alpha1.AppStatus{},
 			},
-			errorMatcher: IsNotFound,
+			expectedStatus: v1alpha1.AppStatus{
+				Release: v1alpha1.AppStatusRelease{},
+			},
 		},
 	}
 
