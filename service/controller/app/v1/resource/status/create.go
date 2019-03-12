@@ -26,7 +26,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
-	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding status for chart %#q", name))
+	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding status for chart %#q in namespace %#q", name, r.watchNamespace))
 
 	chart, err := cc.G8sClient.ApplicationV1alpha1().Charts(r.watchNamespace).Get(name, metav1.GetOptions{})
 	if errors.IsNotFound(err) {
@@ -35,7 +35,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
-	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found status for chart %#q", name))
+	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found status for chart %#q in namespace %#q", name, r.watchNamespace))
 
 	chartStatus := key.ChartStatus(*chart)
 	desiredStatus := v1alpha1.AppStatus{
@@ -48,7 +48,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	}
 
 	if !equals(desiredStatus, key.AppStatus(cr)) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("setting status for app %#q", name))
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("setting status for app %#q in namespace %#q", name, r.watchNamespace))
 
 		// Get app CR again to ensure the resource version is correct.
 		currentCR, err := r.g8sClient.ApplicationV1alpha1().Apps(cr.Namespace).Get(name, metav1.GetOptions{})
@@ -63,9 +63,9 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			return microerror.Mask(err)
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("status set for app %#q", name))
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("status set for app %#q in namespace %#q", name, r.watchNamespace))
 	} else {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("status already set for app %#q", name))
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("status already set for app %#q in namespace %#q", name, r.watchNamespace))
 	}
 
 	return nil
