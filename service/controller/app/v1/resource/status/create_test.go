@@ -190,24 +190,6 @@ func Test_Resource_EnsureCreated(t *testing.T) {
 				},
 				Status: v1alpha1.AppStatus{},
 			},
-			chart: &v1alpha1.Chart{
-				ObjectMeta: metav1.ObjectMeta{
-					Name:      "my-other-chart",
-					Namespace: "default",
-				},
-				Spec: v1alpha1.ChartSpec{
-					Config:     v1alpha1.ChartSpecConfig{},
-					Name:       "prometheus",
-					Namespace:  "monitoring",
-					TarballURL: "https://giantswarm.github.com/app-catalog/prometheus-1.0.0.tgz",
-				},
-				Status: v1alpha1.ChartStatus{
-					Release: v1alpha1.ChartStatusRelease{
-						LastDeployed: v1alpha1.DeepCopyTime{time.Date(2019, 1, 1, 13, 0, 0, 0, time.UTC)},
-						Status:       "DEPLOYED",
-					},
-				},
-			},
 			errorMatcher: IsNotFound,
 		},
 	}
