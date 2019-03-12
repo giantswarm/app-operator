@@ -19,7 +19,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
-	name := key.AppName(cr)
+	name := cr.GetName()
 
 	cc, err := controllercontext.FromContext(ctx)
 	if err != nil {
