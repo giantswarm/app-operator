@@ -19,6 +19,7 @@ const (
 
 type Config struct {
 	Guest      *framework.Guest
+	HelmClient *helmclient.Client
 	Host       *framework.Host
 	K8s        *k8s.Setup
 	KubeConfig *kubeconfig.KubeConfig
@@ -131,6 +132,7 @@ func NewConfig() (Config, error) {
 
 	c := Config{
 		Guest:      guest,
+		HelmClient: helmClient,
 		Host:       host,
 		K8s:        k8sSetup,
 		KubeConfig: kubeConfig,

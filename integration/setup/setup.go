@@ -64,6 +64,13 @@ func installResources(ctx context.Context, config Config) error {
 	}
 
 	{
+		err = config.HelmClient.EnsureTillerInstalled(ctx)
+		if err != nil {
+			return microerror.Mask(err)
+		}
+	}
+
+	{
 		err = config.Release.InstallOperator(ctx, "chart-operator", release.NewStableVersion(), templates.ChartOperatorValues, v1alpha1.NewChartCRD())
 		if err != nil {
 			return microerror.Mask(err)
