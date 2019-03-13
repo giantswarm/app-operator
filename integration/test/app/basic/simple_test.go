@@ -37,6 +37,8 @@ const (
 func TestAppLifecycle(t *testing.T) {
 	ctx := context.Background()
 	var originalResourceVersion string
+	var chartValues string
+	var err error
 
 	sampleChart := chartvalues.APIExtensionsAppE2EConfig{
 		App: chartvalues.APIExtensionsAppE2EConfigApp{
@@ -59,14 +61,19 @@ func TestAppLifecycle(t *testing.T) {
 		Namespace: namespace,
 	}
 
-	// Test creation.
 	{
-		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating chart %#q", customResourceReleaseName))
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating chart value for release: %#q", customResourceReleaseName))
 
-		chartValues, err := chartvalues.NewAPIExtensionsAppE2E(sampleChart)
+		chartValues, err = chartvalues.NewAPIExtensionsAppE2E(sampleChart)
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
+
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("created chart value for release: %#q", customResourceReleaseName))
+	}
+
+	{
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("installing release: %#q", customResourceReleaseName))
 
 		chartInfo := release.NewStableChartInfo(customResourceReleaseName)
 		err = config.Release.Install(ctx, customResourceReleaseName, chartInfo, chartValues)
@@ -74,18 +81,35 @@ func TestAppLifecycle(t *testing.T) {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
 
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("installed release: %#q", customResourceReleaseName))
+	}
+
+	{
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("waiting for release deployed: %#q", customResourceReleaseName))
+
 		err = config.Release.WaitForStatus(ctx, fmt.Sprintf("%s-%s", namespace, customResourceReleaseName), "DEPLOYED")
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
 
-		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("created chart %#q", customResourceReleaseName))
+		config.Logger.LogCtx(ctx, "level", "debug", "message", "waited for release deployed")
+	}
 
-		tarballURL := "https://giantswarm.github.com/sample-catalog/test-app-1.0.0.tgz"
+	{
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("waiting for chart CR created: %#q", customResourceReleaseName))
+
 		err = ensure.WaitForUpdatedChartCR(ctx, ensure.Create, &config, namespace, testAppReleaseName, "")
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
+
+		config.Logger.LogCtx(ctx, "level", "debug", "message", "waited for chart CR created")
+	}
+
+	{
+		config.Logger.LogCtx(ctx, "level", "debug", "message", "getting chart CR and check tarball URL in spec")
+
+		tarballURL := "https://giantswarm.github.com/sample-catalog/test-app-1.0.0.tgz"
 		chart, err := config.Host.G8sClient().ApplicationV1alpha1().Charts(namespace).Get(testAppReleaseName, metav1.GetOptions{})
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
@@ -97,18 +121,24 @@ func TestAppLifecycle(t *testing.T) {
 			t.Fatalf("expected version label: %#q got %#q", "1.0.0", chart.Labels[chartOperatorVersion])
 		}
 		originalResourceVersion = chart.ObjectMeta.ResourceVersion
+
+		config.Logger.LogCtx(ctx, "level", "debug", "message", "checked tarball URL in chart CR")
 	}
 
-	// Test update
 	{
-		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating chart %#q", customResourceReleaseName))
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating chart value for release: %#q", customResourceReleaseName))
 
 		sampleChart.App.Version = "1.0.1"
-
-		chartValues, err := chartvalues.NewAPIExtensionsAppE2E(sampleChart)
+		chartValues, err = chartvalues.NewAPIExtensionsAppE2E(sampleChart)
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
+
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updated chart value for release: %#q", customResourceReleaseName))
+	}
+
+	{
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating release: %#q", customResourceReleaseName))
 
 		chartInfo := release.NewStableChartInfo(customResourceReleaseName)
 		err = config.Release.Update(ctx, customResourceReleaseName, chartInfo, chartValues)
@@ -116,12 +146,20 @@ func TestAppLifecycle(t *testing.T) {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
 
+		config.Logger.LogCtx(ctx, "level", "debug", "message", "updated release")
+	}
+
+	{
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("waiting for release deployed: %#q", customResourceReleaseName))
 		err = config.Release.WaitForStatus(ctx, fmt.Sprintf("%s-%s", namespace, customResourceReleaseName), "DEPLOYED")
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
+		config.Logger.LogCtx(ctx, "level", "debug", "message", "waited for release deployed")
+	}
 
-		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updated chart %#q", customResourceReleaseName))
+	{
+		config.Logger.LogCtx(ctx, "level", "debug", "message", "getting updated chart CR and check tarball URL in spec")
 
 		tarballURL := "https://giantswarm.github.com/sample-catalog/test-app-1.0.1.tgz"
 		err = ensure.WaitForUpdatedChartCR(ctx, ensure.Update, &config, namespace, testAppReleaseName, originalResourceVersion)
@@ -135,27 +173,40 @@ func TestAppLifecycle(t *testing.T) {
 		if chart.Spec.TarballURL != tarballURL {
 			t.Fatalf("expected tarballURL: %#v got %#v", tarballURL, chart.Spec.TarballURL)
 		}
+
+		config.Logger.LogCtx(ctx, "level", "debug", "message", "checked tarball URL in chart CR")
 	}
 
-	// Test deletion
 	{
-		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleting chart %#q", customResourceReleaseName))
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleting release %#q", customResourceReleaseName))
 
 		err := config.Release.Delete(ctx, customResourceReleaseName)
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
 
+		config.Logger.LogCtx(ctx, "level", "debug", "message", "deleted release")
+	}
+
+	{
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("waiting for release deleted: %#q", customResourceReleaseName))
+
 		err = config.Release.WaitForStatus(ctx, fmt.Sprintf("%s-%s", namespace, customResourceReleaseName), "DELETED")
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
 
-		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleted chart %#q", customResourceReleaseName))
+		config.Logger.LogCtx(ctx, "level", "debug", "message", "waited for release deleted")
+	}
+
+	{
+		config.Logger.LogCtx(ctx, "level", "debug", "message", "checking chart CR had been deleted")
 
 		err = ensure.WaitForUpdatedChartCR(ctx, ensure.Delete, &config, namespace, testAppReleaseName, "")
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
+
+		config.Logger.LogCtx(ctx, "level", "debug", "message", "checked chart CR had been deleted")
 	}
 }
