@@ -16,7 +16,7 @@ const (
 	namespace                 = "giantswarm"
 	customResourceReleaseName = "apiextensions-app-e2e-chart"
 	chartOperatorVersion      = "chart-operator.giantswarm.io/version"
-	testAppReleaseName        = "test-app"
+	testAppReleaseName        = "kubernetes-test-app-chart"
 	testAppCatalogReleaseName = "test-app-catalog"
 )
 
@@ -42,7 +42,7 @@ func TestAppLifecycle(t *testing.T) {
 			Name:      testAppReleaseName,
 			Namespace: namespace,
 			Catalog:   testAppCatalogReleaseName,
-			Version:   "1.0.0",
+			Version:   "0.2.14",
 		},
 		AppCatalog: chartvalues.APIExtensionsAppE2EConfigAppCatalog{
 			Name:  testAppCatalogReleaseName,
@@ -124,7 +124,7 @@ func TestAppLifecycle(t *testing.T) {
 	{
 		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating chart value for release %#q", customResourceReleaseName))
 
-		sampleChart.App.Version = "1.0.1"
+		sampleChart.App.Version = "0.2.16"
 		chartValues, err = chartvalues.NewAPIExtensionsAppE2E(sampleChart)
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
