@@ -42,7 +42,7 @@ func TestAppLifecycle(t *testing.T) {
 			Name:      testAppReleaseName,
 			Namespace: namespace,
 			Catalog:   testAppCatalogReleaseName,
-			Version:   "0.2.14",
+			Version:   "0.6.7",
 		},
 		AppCatalog: chartvalues.APIExtensionsAppE2EConfigAppCatalog{
 			Name:  testAppCatalogReleaseName,
@@ -106,7 +106,7 @@ func TestAppLifecycle(t *testing.T) {
 	{
 		config.Logger.LogCtx(ctx, "level", "debug", "message", "checking tarball URL in chart spec")
 
-		tarballURL := "https://giantswarm.github.com/sample-catalog/test-app-1.0.0.tgz"
+		tarballURL := "https://giantswarm.github.com/sample-catalog/kubernetes-test-app-chart-0.6.7.tgz"
 		chart, err := config.Host.G8sClient().ApplicationV1alpha1().Charts(namespace).Get(testAppReleaseName, metav1.GetOptions{})
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
@@ -124,7 +124,7 @@ func TestAppLifecycle(t *testing.T) {
 	{
 		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating chart value for release %#q", customResourceReleaseName))
 
-		sampleChart.App.Version = "0.2.16"
+		sampleChart.App.Version = "0.6.8"
 		chartValues, err = chartvalues.NewAPIExtensionsAppE2E(sampleChart)
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
@@ -169,7 +169,7 @@ func TestAppLifecycle(t *testing.T) {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
 
-		tarballURL := "https://giantswarm.github.com/sample-catalog/test-app-1.0.1.tgz"
+		tarballURL := "https://giantswarm.github.com/sample-catalog/kubernetes-test-app-chart-0.6.8.tgz"
 		if chart.Spec.TarballURL != tarballURL {
 			t.Fatalf("expected tarballURL: %#v got %#v", tarballURL, chart.Spec.TarballURL)
 		}
