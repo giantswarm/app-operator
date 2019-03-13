@@ -10,8 +10,6 @@ import (
 	"github.com/giantswarm/e2e-harness/pkg/release"
 	"github.com/giantswarm/e2etemplates/pkg/chartvalues"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-
-	"github.com/giantswarm/app-operator/integration/ensure"
 )
 
 const (
@@ -36,7 +34,6 @@ const (
 //
 func TestAppLifecycle(t *testing.T) {
 	ctx := context.Background()
-	var originalResourceVersion string
 	var chartValues string
 	var err error
 
@@ -98,7 +95,7 @@ func TestAppLifecycle(t *testing.T) {
 	{
 		config.Logger.LogCtx(ctx, "level", "debug", "message", "waiting for chart CR created")
 
-		err = ensure.WaitForUpdatedChartCR(ctx, ensure.Create, &config, namespace, testAppReleaseName, "")
+		err = config.Release.WaitForStatus(ctx, testAppReleaseName, "DEPLOYED")
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
@@ -120,7 +117,6 @@ func TestAppLifecycle(t *testing.T) {
 		if chart.Labels[chartOperatorVersion] != "1.0.0" {
 			t.Fatalf("expected version label: %#q got %#q", "1.0.0", chart.Labels[chartOperatorVersion])
 		}
-		originalResourceVersion = chart.ObjectMeta.ResourceVersion
 
 		config.Logger.LogCtx(ctx, "level", "debug", "message", "checked tarball URL in chart spec")
 	}
@@ -163,15 +159,17 @@ func TestAppLifecycle(t *testing.T) {
 	{
 		config.Logger.LogCtx(ctx, "level", "debug", "message", "checking tarball URL in chart spec")
 
-		tarballURL := "https://giantswarm.github.com/sample-catalog/test-app-1.0.1.tgz"
-		err = ensure.WaitForUpdatedChartCR(ctx, ensure.Update, &config, namespace, testAppReleaseName, originalResourceVersion)
+		err = config.Release.WaitForChartInfo(ctx, testAppReleaseName, "1.0.1")
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
+
 		chart, err := config.Host.G8sClient().ApplicationV1alpha1().Charts(namespace).Get(testAppReleaseName, metav1.GetOptions{})
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
+
+		tarballURL := "https://giantswarm.github.com/sample-catalog/test-app-1.0.1.tgz"
 		if chart.Spec.TarballURL != tarballURL {
 			t.Fatalf("expected tarballURL: %#v got %#v", tarballURL, chart.Spec.TarballURL)
 		}
@@ -204,7 +202,7 @@ func TestAppLifecycle(t *testing.T) {
 	{
 		config.Logger.LogCtx(ctx, "level", "debug", "message", "checking chart CR had been deleted")
 
-		err = ensure.WaitForUpdatedChartCR(ctx, ensure.Delete, &config, namespace, testAppReleaseName, "")
+		err = config.Release.WaitForStatus(ctx, testAppReleaseName, "DELETED")
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
