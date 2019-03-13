@@ -159,7 +159,7 @@ func TestAppLifecycle(t *testing.T) {
 	{
 		config.Logger.LogCtx(ctx, "level", "debug", "message", "checking tarball URL in chart spec")
 
-		err = config.Release.WaitForChartInfo(ctx, testAppReleaseName, "1.0.1")
+		err = config.Release.WaitForChartInfo(ctx, testAppReleaseName, "0.6.8")
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
