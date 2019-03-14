@@ -162,7 +162,9 @@
     "internal/render",
     "pkg/chartvalues"
   ]
-  revision = "0db133df315b795a4827efa42e573c5fd2074db5"
+  pruneopts = "UT"
+  revision = "a30d02cb034c0bbb6c162af06ea950e988c889b7"
+
 
 [[projects]]
   branch = "master"
@@ -190,9 +192,12 @@
 
 [[projects]]
   branch = "master"
+  digest = "1:61c669b9a973fb1bb0ecf793838a0091ea4207efb0d3cf2f167a6f5e77c73bbb"
   name = "github.com/giantswarm/kubeconfig"
   packages = ["."]
-  revision = "dabe1b7a122df6e31a39cd1268ca1b67a8086175"
+  pruneopts = "UT"
+  revision = "469f455d3b2e27da8a72c49007f380fbee0ae653"
+
 
 [[projects]]
   branch = "master"

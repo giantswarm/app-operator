@@ -52,6 +52,10 @@ jobs:
       TEST_DIR: "integration/test/app/basic"
     <<: *e2eTest
 
+  e2eTestAppKubeConfig:
+    environment:
+      TEST_DIR: "integration/test/app/kubeconfig"
+    <<: *e2eTest
 
 workflows:
   version: 2
@@ -60,5 +64,9 @@ workflows:
       - build
 
       - e2eTestAppBasic:
+          requires:
+            - build
+
+      - e2eTestAppKubeConfig:
           requires:
             - build
