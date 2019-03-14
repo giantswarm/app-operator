@@ -5,47 +5,28 @@ package kubeconfig
 import (
 	"fmt"
 	"golang.org/x/net/context"
-	"k8s.io/api/core/v1"
 	"testing"
 
 	"github.com/giantswarm/e2e-harness/pkg/release"
 	"github.com/giantswarm/e2etemplates/pkg/chartvalues"
+	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-
-	"github.com/giantswarm/app-operator/integration/ensure"
 )
 
 const (
 	namespace                 = "giantswarm"
-	targetNamespace           = "test"
 	customResourceReleaseName = "apiextensions-app-e2e-chart"
 	chartOperatorVersion      = "chart-operator.giantswarm.io/version"
-	testAppReleaseName        = "test-app"
+	targetNamespace           = "test"
+	testAppReleaseName        = "kubernetes-test-app-chart"
 	testAppCatalogReleaseName = "test-app-catalog"
 )
 
-func TestKubeConfighAppLifecycle(t *testing.T) {
+// TestAppLifecycleUsingKubeconfig perform same tests as TestAppLifeCycle except it using kubeConfig spec
+func TestAppLifecycleUsingKubeconfig(t *testing.T) {
 	ctx := context.Background()
-	var originalResourceVersion string
-
-	restConfig := config.Host.RestConfig()
-	bytes, err := config.KubeConfig.NewKubeConfigForRESTConfig(ctx, restConfig, "test-cluster", targetNamespace)
-	if err != nil {
-		t.Fatalf("expected nil got %#v", err)
-	}
-
-	_, err = config.Host.K8sClient().CoreV1().Secrets(namespace).Create(&v1.Secret{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      "kube-config",
-			Namespace: namespace,
-		},
-		Data: map[string][]byte{
-			"kubeConfig": bytes,
-		},
-	})
-	if err != nil {
-		t.Fatalf("expected nil got %#v", err)
-	}
+	var chartValues string
+	var err error
 
 	sampleChart := chartvalues.APIExtensionsAppE2EConfig{
 		App: chartvalues.APIExtensionsAppE2EConfigApp{
@@ -59,7 +40,7 @@ func TestKubeConfighAppLifecycle(t *testing.T) {
 			Name:      testAppReleaseName,
 			Namespace: namespace,
 			Catalog:   testAppCatalogReleaseName,
-			Version:   "1.0.0",
+			Version:   "0.6.7",
 		},
 		AppCatalog: chartvalues.APIExtensionsAppE2EConfigAppCatalog{
 			Name:  testAppCatalogReleaseName,
@@ -75,14 +56,44 @@ func TestKubeConfighAppLifecycle(t *testing.T) {
 		Namespace: namespace,
 	}
 
-	// Test creation.
 	{
-		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating chart %#q", customResourceReleaseName))
+		config.Logger.LogCtx(ctx, "level", "debug", "message", "creating kubeconfig secret")
 
-		chartValues, err := chartvalues.NewAPIExtensionsAppE2E(sampleChart)
+		restConfig := config.Host.RestConfig()
+		bytes, err := config.KubeConfig.NewKubeConfigForRESTConfig(ctx, restConfig, "test-cluster", targetNamespace)
+		if err != nil {
+			t.Fatalf("expected nil got %#v", err)
+		}
+
+		_, err = config.Host.K8sClient().CoreV1().Secrets(namespace).Create(&corev1.Secret{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      "kube-config",
+				Namespace: namespace,
+			},
+			Data: map[string][]byte{
+				"kubeConfig": bytes,
+			},
+		})
+		if err != nil {
+			t.Fatalf("expected nil got %#v", err)
+		}
+
+		config.Logger.LogCtx(ctx, "level", "debug", "message", "created kubeconfig secret")
+	}
+
+	{
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating chart value for release %#q", customResourceReleaseName))
+
+		chartValues, err = chartvalues.NewAPIExtensionsAppE2E(sampleChart)
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
+
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("created chart value for release %#q", customResourceReleaseName))
+	}
+
+	{
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("installing release %#q", customResourceReleaseName))
 
 		chartInfo := release.NewStableChartInfo(customResourceReleaseName)
 		err = config.Release.Install(ctx, customResourceReleaseName, chartInfo, chartValues)
@@ -90,18 +101,35 @@ func TestKubeConfighAppLifecycle(t *testing.T) {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
 
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("installed release %#q", customResourceReleaseName))
+	}
+
+	{
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("waiting for release %#q deployed", customResourceReleaseName))
+
 		err = config.Release.WaitForStatus(ctx, fmt.Sprintf("%s-%s", namespace, customResourceReleaseName), "DEPLOYED")
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
 
-		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("created chart %#q", customResourceReleaseName))
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("waited for release %#q deployed", customResourceReleaseName))
+	}
 
-		tarballURL := "https://giantswarm.github.com/sample-catalog/test-app-1.0.0.tgz"
-		err = ensure.WaitForUpdatedChartCR(ctx, ensure.Create, &config, namespace, testAppReleaseName, "")
+	{
+		config.Logger.LogCtx(ctx, "level", "debug", "message", "waiting for chart CR created")
+
+		err = config.Release.WaitForStatus(ctx, testAppReleaseName, "DEPLOYED")
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
+
+		config.Logger.LogCtx(ctx, "level", "debug", "message", "waited for chart CR created")
+	}
+
+	{
+		config.Logger.LogCtx(ctx, "level", "debug", "message", "checking tarball URL in chart spec")
+
+		tarballURL := "https://giantswarm.github.com/sample-catalog/kubernetes-test-app-chart-0.6.7.tgz"
 		chart, err := config.Host.G8sClient().ApplicationV1alpha1().Charts(namespace).Get(testAppReleaseName, metav1.GetOptions{})
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
@@ -112,19 +140,24 @@ func TestKubeConfighAppLifecycle(t *testing.T) {
 		if chart.Labels[chartOperatorVersion] != "1.0.0" {
 			t.Fatalf("expected version label: %#q got %#q", "1.0.0", chart.Labels[chartOperatorVersion])
 		}
-		originalResourceVersion = chart.ObjectMeta.ResourceVersion
+
+		config.Logger.LogCtx(ctx, "level", "debug", "message", "checked tarball URL in chart spec")
 	}
 
-	// Test update
 	{
-		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating chart %#q", customResourceReleaseName))
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating chart value for release %#q", customResourceReleaseName))
 
-		sampleChart.App.Version = "1.0.1"
-
-		chartValues, err := chartvalues.NewAPIExtensionsAppE2E(sampleChart)
+		sampleChart.App.Version = "0.6.8"
+		chartValues, err = chartvalues.NewAPIExtensionsAppE2E(sampleChart)
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
+
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updated chart value for release %#q", customResourceReleaseName))
+	}
+
+	{
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating release %#q", customResourceReleaseName))
 
 		chartInfo := release.NewStableChartInfo(customResourceReleaseName)
 		err = config.Release.Update(ctx, customResourceReleaseName, chartInfo, chartValues)
@@ -132,46 +165,71 @@ func TestKubeConfighAppLifecycle(t *testing.T) {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
 
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updated release %#q", customResourceReleaseName))
+	}
+
+	{
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("waiting for release %#q deployed", customResourceReleaseName))
+
 		err = config.Release.WaitForStatus(ctx, fmt.Sprintf("%s-%s", namespace, customResourceReleaseName), "DEPLOYED")
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
 
-		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updated chart %#q", customResourceReleaseName))
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("waited for release %#q deployed", customResourceReleaseName))
+	}
 
-		tarballURL := "https://giantswarm.github.com/sample-catalog/test-app-1.0.1.tgz"
-		err = ensure.WaitForUpdatedChartCR(ctx, ensure.Update, &config, namespace, testAppReleaseName, originalResourceVersion)
+	{
+		config.Logger.LogCtx(ctx, "level", "debug", "message", "checking tarball URL in chart spec")
+
+		err = config.Release.WaitForChartInfo(ctx, testAppReleaseName, "0.6.8")
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
+
 		chart, err := config.Host.G8sClient().ApplicationV1alpha1().Charts(namespace).Get(testAppReleaseName, metav1.GetOptions{})
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
+
+		tarballURL := "https://giantswarm.github.com/sample-catalog/kubernetes-test-app-chart-0.6.8.tgz"
 		if chart.Spec.TarballURL != tarballURL {
 			t.Fatalf("expected tarballURL: %#v got %#v", tarballURL, chart.Spec.TarballURL)
 		}
+
+		config.Logger.LogCtx(ctx, "level", "debug", "message", "checked tarball URL in chart spec")
 	}
 
-	// Test deletion
 	{
-		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleting chart %#q", customResourceReleaseName))
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleting release %#q", customResourceReleaseName))
 
 		err := config.Release.Delete(ctx, customResourceReleaseName)
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
 
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleted release %#q", customResourceReleaseName))
+	}
+
+	{
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("waiting for release %#q deleted", customResourceReleaseName))
+
 		err = config.Release.WaitForStatus(ctx, fmt.Sprintf("%s-%s", namespace, customResourceReleaseName), "DELETED")
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
 
-		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleted chart %#q", customResourceReleaseName))
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("waited for release %#q deleted", customResourceReleaseName))
+	}
 
-		err = ensure.WaitForUpdatedChartCR(ctx, ensure.Delete, &config, namespace, testAppReleaseName, "")
+	{
+		config.Logger.LogCtx(ctx, "level", "debug", "message", "checking chart CR had been deleted")
+
+		err = config.Release.WaitForStatus(ctx, testAppReleaseName, "DELETED")
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
+
+		config.Logger.LogCtx(ctx, "level", "debug", "message", "checked chart CR had been deleted")
 	}
 }
