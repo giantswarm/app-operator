@@ -9,6 +9,7 @@ import (
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned/fake"
 	"github.com/giantswarm/micrologger/microloggertest"
+	"github.com/google/go-cmp/cmp"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 
@@ -17,11 +18,11 @@ import (
 
 func Test_Resource_EnsureCreated(t *testing.T) {
 	tests := []struct {
-		name         string
-		obj          *v1alpha1.App
-		chart        *v1alpha1.Chart
-		status       v1alpha1.AppStatus
-		errorMatcher func(error) bool
+		name           string
+		obj            *v1alpha1.App
+		chart          *v1alpha1.Chart
+		expectedStatus v1alpha1.AppStatus
+		errorMatcher   func(error) bool
 	}{
 		{
 			name: "case 0: update status flow",
@@ -81,7 +82,7 @@ func Test_Resource_EnsureCreated(t *testing.T) {
 					Version: "0.1.1",
 				},
 			},
-			status: v1alpha1.AppStatus{
+			expectedStatus: v1alpha1.AppStatus{
 				AppVersion: "0.1",
 				Release: v1alpha1.AppStatusRelease{
 					Status:       "DEPLOYED",
@@ -152,7 +153,7 @@ func Test_Resource_EnsureCreated(t *testing.T) {
 					},
 				},
 			},
-			status: v1alpha1.AppStatus{
+			expectedStatus: v1alpha1.AppStatus{
 				Release: v1alpha1.AppStatusRelease{
 					LastDeployed: v1alpha1.DeepCopyTime{time.Date(2019, 1, 1, 13, 0, 0, 0, time.UTC)},
 					Status:       "DEPLOYED",
@@ -187,14 +188,11 @@ func Test_Resource_EnsureCreated(t *testing.T) {
 						},
 					},
 				},
-				Status: v1alpha1.AppStatus{
-					Release: v1alpha1.AppStatusRelease{
-						LastDeployed: v1alpha1.DeepCopyTime{time.Date(2019, 1, 1, 13, 0, 0, 0, time.UTC)},
-						Status:       "DEPLOYED",
-					},
-				},
+				Status: v1alpha1.AppStatus{},
 			},
-			errorMatcher: IsNotFound,
+			expectedStatus: v1alpha1.AppStatus{
+				Release: v1alpha1.AppStatusRelease{},
+			},
 		},
 	}
 
@@ -244,11 +242,10 @@ func Test_Resource_EnsureCreated(t *testing.T) {
 				if err != nil {
 					t.Fatalf("error == %#v, want nil", err)
 				}
-				if !reflect.DeepEqual(app.Status, tc.status) {
-					t.Fatalf("app.Status == %#v, want %#v", app.Status, tc.status)
+				if !reflect.DeepEqual(app.Status, tc.expectedStatus) {
+					t.Fatalf("want matching app.Status \n %s", cmp.Diff(app.Status, tc.expectedStatus))
 				}
 			}
-
 		})
 	}
 }
