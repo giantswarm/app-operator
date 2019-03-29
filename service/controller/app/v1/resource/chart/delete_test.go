@@ -21,15 +21,8 @@ func Test_Resource_newDeleteChange(t *testing.T) {
 		{
 			name: "case 0: chart should be deleted",
 			currentResource: &v1alpha1.Chart{
-				TypeMeta: metav1.TypeMeta{
-					Kind:       "Chart",
-					APIVersion: "application.giantswarm.io",
-				},
 				ObjectMeta: metav1.ObjectMeta{
 					Name: "prometheus",
-					Labels: map[string]string{
-						"app": "prometheus",
-					},
 				},
 				Spec: v1alpha1.ChartSpec{
 					Name:       "my-cool-prometheus",
@@ -38,15 +31,8 @@ func Test_Resource_newDeleteChange(t *testing.T) {
 				},
 			},
 			desiredResource: &v1alpha1.Chart{
-				TypeMeta: metav1.TypeMeta{
-					Kind:       "Chart",
-					APIVersion: "application.giantswarm.io",
-				},
 				ObjectMeta: metav1.ObjectMeta{
 					Name: "prometheus",
-					Labels: map[string]string{
-						"app": "prometheus",
-					},
 				},
 				Spec: v1alpha1.ChartSpec{
 					Name:       "my-cool-prometheus",
@@ -55,15 +41,8 @@ func Test_Resource_newDeleteChange(t *testing.T) {
 				},
 			},
 			expectedChart: &v1alpha1.Chart{
-				TypeMeta: metav1.TypeMeta{
-					Kind:       "Chart",
-					APIVersion: "application.giantswarm.io",
-				},
 				ObjectMeta: metav1.ObjectMeta{
 					Name: "prometheus",
-					Labels: map[string]string{
-						"app": "prometheus",
-					},
 				},
 				Spec: v1alpha1.ChartSpec{
 					Name:       "my-cool-prometheus",
@@ -75,15 +54,8 @@ func Test_Resource_newDeleteChange(t *testing.T) {
 		{
 			name: "case 1: chart should not deleted",
 			currentResource: &v1alpha1.Chart{
-				TypeMeta: metav1.TypeMeta{
-					Kind:       "Chart",
-					APIVersion: "application.giantswarm.io",
-				},
 				ObjectMeta: metav1.ObjectMeta{
 					Name: "prometheus",
-					Labels: map[string]string{
-						"app": "prometheus",
-					},
 				},
 				Spec: v1alpha1.ChartSpec{
 					Name:       "my-cool-prometheus",
@@ -92,10 +64,6 @@ func Test_Resource_newDeleteChange(t *testing.T) {
 				},
 			},
 			desiredResource: &v1alpha1.Chart{
-				TypeMeta: metav1.TypeMeta{
-					Kind:       "Chart",
-					APIVersion: "application.giantswarm.io",
-				},
 				ObjectMeta: metav1.ObjectMeta{
 					Name: "prometheus",
 					Labels: map[string]string{

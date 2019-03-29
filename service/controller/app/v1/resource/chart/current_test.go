@@ -33,48 +33,19 @@ func Test_Resource_GetCurrentState(t *testing.T) {
 				Spec: v1alpha1.AppSpec{
 					Catalog: "giantswarm",
 					Version: "1.0.0",
-					Config: v1alpha1.AppSpecConfig{
-						ConfigMap: v1alpha1.AppSpecConfigConfigMap{
-							Name:      "giant-swarm-config",
-							Namespace: "giantswarm",
-						},
-						Secret: v1alpha1.AppSpecConfigSecret{
-							Name:      "giant-swarm-secret",
-							Namespace: "giantswarm",
-						},
-					},
 					KubeConfig: v1alpha1.AppSpecKubeConfig{
-						Secret: v1alpha1.AppSpecKubeConfigSecret{
-							Name:      "",
-							Namespace: "",
-						},
+						InCluster: true,
 					},
 					Name:      "kubernetes-prometheus",
 					Namespace: "monitoring",
 				},
 			},
 			returnedChart: &v1alpha1.Chart{
-				TypeMeta: metav1.TypeMeta{
-					Kind:       "Chart",
-					APIVersion: "application.giantswarm.io",
-				},
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "kubernetes-prometheus",
 					Namespace: "default",
 				},
 				Spec: v1alpha1.ChartSpec{
-					Config: v1alpha1.ChartSpecConfig{
-						ConfigMap: v1alpha1.ChartSpecConfigConfigMap{
-							Name:            "giant-swarm-config",
-							Namespace:       "giantswarm",
-							ResourceVersion: "",
-						},
-						Secret: v1alpha1.ChartSpecConfigSecret{
-							Name:            "giant-swarm-secret",
-							Namespace:       "giantswarm",
-							ResourceVersion: "",
-						},
-					},
 					Name:       "my-cool-prometheus",
 					Namespace:  "monitoring",
 					TarballURL: "https://giantswarm.github.com/app-catalog/kubernetes-prometheus-1.0.0.tgz",
@@ -91,21 +62,8 @@ func Test_Resource_GetCurrentState(t *testing.T) {
 				Spec: v1alpha1.AppSpec{
 					Catalog: "giantswarm",
 					Version: "1.0.0",
-					Config: v1alpha1.AppSpecConfig{
-						ConfigMap: v1alpha1.AppSpecConfigConfigMap{
-							Name:      "giant-swarm-config",
-							Namespace: "giantswarm",
-						},
-						Secret: v1alpha1.AppSpecConfigSecret{
-							Name:      "giant-swarm-secret",
-							Namespace: "giantswarm",
-						},
-					},
 					KubeConfig: v1alpha1.AppSpecKubeConfig{
-						Secret: v1alpha1.AppSpecKubeConfigSecret{
-							Name:      "",
-							Namespace: "",
-						},
+						InCluster: true,
 					},
 					Name:      "kubernetes-prometheus",
 					Namespace: "monitoring",

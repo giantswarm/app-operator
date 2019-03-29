@@ -22,15 +22,8 @@ func Test_Resource_newCreateChange(t *testing.T) {
 			name:            "case 0: new chart should be created",
 			currentResource: &v1alpha1.Chart{},
 			desiredResource: &v1alpha1.Chart{
-				TypeMeta: metav1.TypeMeta{
-					Kind:       "Chart",
-					APIVersion: "application.giantswarm.io",
-				},
 				ObjectMeta: metav1.ObjectMeta{
 					Name: "prometheus",
-					Labels: map[string]string{
-						"app": "prometheus",
-					},
 				},
 				Spec: v1alpha1.ChartSpec{
 					Name:       "my-cool-prometheus",
@@ -39,15 +32,8 @@ func Test_Resource_newCreateChange(t *testing.T) {
 				},
 			},
 			expectedChart: &v1alpha1.Chart{
-				TypeMeta: metav1.TypeMeta{
-					Kind:       "Chart",
-					APIVersion: "application.giantswarm.io",
-				},
 				ObjectMeta: metav1.ObjectMeta{
 					Name: "prometheus",
-					Labels: map[string]string{
-						"app": "prometheus",
-					},
 				},
 				Spec: v1alpha1.ChartSpec{
 					Name:       "my-cool-prometheus",
@@ -59,15 +45,8 @@ func Test_Resource_newCreateChange(t *testing.T) {
 		{
 			name: "case 1: chart already exist",
 			currentResource: &v1alpha1.Chart{
-				TypeMeta: metav1.TypeMeta{
-					Kind:       "Chart",
-					APIVersion: "application.giantswarm.io",
-				},
 				ObjectMeta: metav1.ObjectMeta{
 					Name: "prometheus",
-					Labels: map[string]string{
-						"app": "prometheus",
-					},
 				},
 				Spec: v1alpha1.ChartSpec{
 					Name:       "my-cool-prometheus",
@@ -76,15 +55,8 @@ func Test_Resource_newCreateChange(t *testing.T) {
 				},
 			},
 			desiredResource: &v1alpha1.Chart{
-				TypeMeta: metav1.TypeMeta{
-					Kind:       "Chart",
-					APIVersion: "application.giantswarm.io",
-				},
 				ObjectMeta: metav1.ObjectMeta{
 					Name: "prometheus",
-					Labels: map[string]string{
-						"app": "prometheus",
-					},
 				},
 				Spec: v1alpha1.ChartSpec{
 					Name:       "my-cool-prometheus",
