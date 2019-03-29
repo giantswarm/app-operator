@@ -31,7 +31,7 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 			return microerror.Mask(err)
 		}
 
-		_, err = cc.G8sClient.ApplicationV1alpha1().Charts(cr.GetNamespace()).Create(&chart)
+		_, err = cc.G8sClient.ApplicationV1alpha1().Charts(cr.GetNamespace()).Create(chart)
 		if apierrors.IsAlreadyExists(err) {
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("already created Chart CR %#q in namespace %#q", chart.Name, chart.Namespace))
 		} else if err != nil {
@@ -60,7 +60,7 @@ func (r *Resource) newCreateChange(ctx context.Context, currentResource, desired
 
 	if isEmpty(currentChart) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("the %#q chart needs to be created", desiredChart.Name))
-		createChart = &desiredChart
+		createChart = desiredChart
 	} else {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("the %#q chart does not need to be created", desiredChart.Name))
 	}
