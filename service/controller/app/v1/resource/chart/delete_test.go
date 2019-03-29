@@ -8,6 +8,7 @@ import (
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned/fake"
 	"github.com/giantswarm/micrologger/microloggertest"
+	"github.com/google/go-cmp/cmp"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -19,7 +20,13 @@ func Test_Resource_newDeleteChange(t *testing.T) {
 		expectedChart   *v1alpha1.Chart
 	}{
 		{
-			name: "case 0: chart should be deleted",
+			name:            "case 0: empty current and desired, expected empty",
+			currentResource: &v1alpha1.Chart{},
+			desiredResource: &v1alpha1.Chart{},
+			expectedChart:   nil,
+		},
+		{
+			name: "case 1: chart should be deleted",
 			currentResource: &v1alpha1.Chart{
 				TypeMeta: metav1.TypeMeta{
 					Kind:       "Chart",
@@ -73,7 +80,7 @@ func Test_Resource_newDeleteChange(t *testing.T) {
 			},
 		},
 		{
-			name: "case 1: chart should not deleted",
+			name: "case 2: chart should not deleted",
 			currentResource: &v1alpha1.Chart{
 				TypeMeta: metav1.TypeMeta{
 					Kind:       "Chart",
@@ -132,13 +139,14 @@ func Test_Resource_newDeleteChange(t *testing.T) {
 				t.Fatalf("error = %v", err)
 				return
 			}
-			if tt.expectedChart == nil && got != nil {
-				t.Fatal("expected", nil, "got", got)
+
+			chart, err := toChart(got)
+			if err != nil {
+				t.Fatalf("error == %#v, want nil", err)
 			}
-			if got != nil {
-				if !reflect.DeepEqual(got, tt.expectedChart) {
-					t.Fatalf("got %v, want %v", got, tt.expectedChart)
-				}
+
+			if !reflect.DeepEqual(chart, tt.expectedChart) {
+				t.Fatalf("want matching chart \n %s", cmp.Diff(got, tt.expectedChart))
 			}
 		})
 	}
