@@ -12,7 +12,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/giantswarm/app-operator/service/controller/app/v1/controllercontext"
-	"github.com/giantswarm/app-operator/service/controller/app/v1/key"
 )
 
 func Test_Resource_GetDesiredState(t *testing.T) {
@@ -186,7 +185,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 			}
 
 			if err == nil && tc.errorMatcher == nil {
-				chart, err := key.ToChart(result)
+				chart, err := toChart(result)
 				if err != nil {
 					t.Fatalf("error == %#v, want nil", err)
 				}

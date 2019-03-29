@@ -18,7 +18,7 @@ func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange inte
 	if err != nil {
 		return microerror.Mask(err)
 	}
-	chart, err := key.ToChart(updateChange)
+	chart, err := toChart(updateChange)
 	if err != nil {
 		return microerror.Mask(err)
 	}
@@ -61,12 +61,12 @@ func (r *Resource) NewUpdatePatch(ctx context.Context, obj, currentChart, desire
 }
 
 func (r *Resource) newUpdateChange(ctx context.Context, currentResource, desiredResource interface{}) (interface{}, error) {
-	currentChart, err := key.ToChart(currentResource)
+	currentChart, err := toChart(currentResource)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
 
-	desiredChart, err := key.ToChart(desiredResource)
+	desiredChart, err := toChart(desiredResource)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
