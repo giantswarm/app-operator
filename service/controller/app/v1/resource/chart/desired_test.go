@@ -194,9 +194,11 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 				if !reflect.DeepEqual(chart.ObjectMeta, tc.expectedChart.ObjectMeta) {
 					t.Fatalf("want matching objectmeta \n %s", cmp.Diff(chart.ObjectMeta, tc.expectedChart.ObjectMeta))
 				}
+
 				if !reflect.DeepEqual(chart.Spec, tc.expectedChart.Spec) {
 					t.Fatalf("want matching spec \n %s", cmp.Diff(chart.Spec, tc.expectedChart.Spec))
 				}
+
 				if !reflect.DeepEqual(chart.TypeMeta, tc.expectedChart.TypeMeta) {
 					t.Fatalf("want matching typemeta \n %s", cmp.Diff(chart.TypeMeta, tc.expectedChart.TypeMeta))
 				}

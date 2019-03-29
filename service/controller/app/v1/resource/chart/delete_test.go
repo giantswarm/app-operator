@@ -7,7 +7,9 @@ import (
 
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned/fake"
+	"github.com/giantswarm/app-operator/service/controller/app/v1/key"
 	"github.com/giantswarm/micrologger/microloggertest"
+	"github.com/google/go-cmp/cmp"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -93,19 +95,22 @@ func Test_Resource_newDeleteChange(t *testing.T) {
 		t.Fatalf("error == %#v, want nil", err)
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got, err := r.newDeleteChange(context.Background(), nil, tt.currentResource, tt.desiredResource)
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			result, err := r.newDeleteChange(context.Background(), nil, tc.currentResource, tc.desiredResource)
 			if err != nil {
 				t.Fatalf("error = %v", err)
 				return
 			}
-			if tt.expectedChart == nil && got != nil {
-				t.Fatal("expected", nil, "got", got)
+
+			chart, err := key.ToChart(result)
+			if err != nil {
+				t.Fatalf("error == %#v, want nil", err)
 			}
-			if got != nil {
-				if !reflect.DeepEqual(got, tt.expectedChart) {
-					t.Fatalf("got %v, want %v", got, tt.expectedChart)
+
+			if result != nil {
+				if !reflect.DeepEqual(chart, tc.expectedChart) {
+					t.Fatalf("want matching chart \n %s", cmp.Diff(result, tc.expectedChart))
 				}
 			}
 		})

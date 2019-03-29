@@ -8,6 +8,7 @@ import (
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned/fake"
 	"github.com/giantswarm/micrologger/microloggertest"
+	"github.com/google/go-cmp/cmp"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -90,15 +91,16 @@ func Test_Resource_newUpdateChange(t *testing.T) {
 		t.Fatalf("error == %#v, want nil", err)
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got, err := r.newUpdateChange(context.Background(), tt.currentResource, tt.desiredResource)
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			result, err := r.newUpdateChange(context.Background(), tc.currentResource, tc.desiredResource)
 			if err != nil {
 				t.Fatalf("error == %#v, want nil", err)
 				return
 			}
-			if !reflect.DeepEqual(got, tt.expectedChart) {
-				t.Fatalf("Chart == %#v, want %#v", got, tt.expectedChart)
+
+			if !reflect.DeepEqual(result, tc.expectedChart) {
+				t.Fatalf("want matching chart \n %s", cmp.Diff(result, tc.expectedChart))
 			}
 		})
 	}

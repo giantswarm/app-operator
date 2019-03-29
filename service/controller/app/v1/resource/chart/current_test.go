@@ -8,6 +8,7 @@ import (
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned/fake"
 	"github.com/giantswarm/micrologger/microloggertest"
+	"github.com/google/go-cmp/cmp"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	k8sfake "k8s.io/client-go/kubernetes/fake"
@@ -122,7 +123,7 @@ func Test_Resource_GetCurrentState(t *testing.T) {
 					}
 
 					if !reflect.DeepEqual(chart, *tc.returnedChart) {
-						t.Fatalf("Chart == %#v, want %#v", chart, tc.returnedChart)
+						t.Fatalf("want matching chart \n %s", cmp.Diff(chart, tc.returnedChart))
 					}
 				}
 			}
