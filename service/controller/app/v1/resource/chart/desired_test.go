@@ -12,7 +12,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/giantswarm/app-operator/service/controller/app/v1/controllercontext"
-	"github.com/giantswarm/app-operator/service/controller/app/v1/key"
 )
 
 func Test_Resource_GetDesiredState(t *testing.T) {
@@ -30,7 +29,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					Name:      "my-cool-prometheus",
 					Namespace: "default",
 					Labels: map[string]string{
-						"app":                                "prometheus",
+						"app": "prometheus",
 						"app-operator.giantswarm.io/version": "1.0.0",
 						"giantswarm.io/managed-by":           "cluster-operator",
 					},
@@ -81,7 +80,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					Name:      "my-cool-prometheus",
 					Namespace: "giantswarm",
 					Labels: map[string]string{
-						"app":                                  "prometheus",
+						"app": "prometheus",
 						"chart-operator.giantswarm.io/version": "1.0.0",
 						"giantswarm.io/managed-by":             "app-operator",
 					},
@@ -106,7 +105,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					Name:      "my-cool-prometheus",
 					Namespace: "default",
 					Labels: map[string]string{
-						"app":                                "prometheus",
+						"app": "prometheus",
 						"app-operator.giantswarm.io/version": "1.0.0",
 						"giantswarm.io/managed-by":           "cluster-operator",
 					},
@@ -186,7 +185,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 			}
 
 			if err == nil && tc.errorMatcher == nil {
-				chart, err := key.ToChart(result)
+				chart, err := toChart(result)
 				if err != nil {
 					t.Fatalf("error == %#v, want nil", err)
 				}
@@ -423,14 +422,14 @@ func Test_processLabels(t *testing.T) {
 			name:        "case 1: extra labels still present",
 			projectName: "app-operator",
 			inputLabels: map[string]string{
-				"app":                                "prometheus",
+				"app": "prometheus",
 				"app-operator.giantswarm.io/version": "1.0.0",
 				"giantswarm.io/cluster":              "5xchu",
 				"giantswarm.io/managed-by":           "cluster-operator",
 				"giantswarm.io/organization":         "giantswarm",
 			},
 			expectedLabels: map[string]string{
-				"app":                                  "prometheus",
+				"app": "prometheus",
 				"chart-operator.giantswarm.io/version": "1.0.0",
 				"giantswarm.io/cluster":                "5xchu",
 				"giantswarm.io/managed-by":             "app-operator",
