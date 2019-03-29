@@ -17,7 +17,8 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 	if err != nil {
 		return microerror.Mask(err)
 	}
-	chart, err := key.ToChart(createChange)
+
+	chart, err := toChart(createChange)
 	if err != nil {
 		return microerror.Mask(err)
 	}
@@ -44,11 +45,11 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 }
 
 func (r *Resource) newCreateChange(ctx context.Context, currentResource, desiredResource interface{}) (interface{}, error) {
-	currentChart, err := key.ToChart(currentResource)
+	currentChart, err := toChart(currentResource)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
-	desiredChart, err := key.ToChart(desiredResource)
+	desiredChart, err := toChart(desiredResource)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}

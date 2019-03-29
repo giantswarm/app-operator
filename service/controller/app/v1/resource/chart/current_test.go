@@ -14,7 +14,6 @@ import (
 	k8sfake "k8s.io/client-go/kubernetes/fake"
 
 	"github.com/giantswarm/app-operator/service/controller/app/v1/controllercontext"
-	"github.com/giantswarm/app-operator/service/controller/app/v1/key"
 )
 
 func Test_Resource_GetCurrentState(t *testing.T) {
@@ -117,7 +116,7 @@ func Test_Resource_GetCurrentState(t *testing.T) {
 
 			if err == nil && tc.errorMatcher == nil {
 				if result != nil {
-					chart, err := key.ToChart(result)
+					chart, err := toChart(result)
 					if err != nil {
 						t.Fatalf("error == %#v, want nil", err)
 					}

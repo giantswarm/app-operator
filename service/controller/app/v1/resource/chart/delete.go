@@ -18,7 +18,8 @@ func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange inte
 	if err != nil {
 		return microerror.Mask(err)
 	}
-	chart, err := key.ToChart(deleteChange)
+
+	chart, err := toChart(deleteChange)
 	if err != nil {
 		return microerror.Mask(err)
 	}
@@ -57,11 +58,11 @@ func (r *Resource) NewDeletePatch(ctx context.Context, obj, currentState, desire
 }
 
 func (r *Resource) newDeleteChange(ctx context.Context, obj, currentState, desiredState interface{}) (interface{}, error) {
-	currentChart, err := key.ToChart(currentState)
+	currentChart, err := toChart(currentState)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
-	desiredChart, err := key.ToChart(desiredState)
+	desiredChart, err := toChart(desiredState)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}

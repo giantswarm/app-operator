@@ -98,3 +98,17 @@ func equals(a, b v1alpha1.Chart) bool {
 func isEmpty(c v1alpha1.Chart) bool {
 	return equals(c, v1alpha1.Chart{})
 }
+
+// toChart converts the input into a Chart.
+func toChart(v interface{}) (v1alpha1.Chart, error) {
+	if v == nil {
+		return v1alpha1.Chart{}, nil
+	}
+
+	chart, ok := v.(*v1alpha1.Chart)
+	if !ok {
+		return v1alpha1.Chart{}, microerror.Maskf(wrongTypeError, "expected '%T', got '%T'", &v1alpha1.Chart{}, v)
+	}
+
+	return *chart, nil
+}
