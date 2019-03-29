@@ -72,7 +72,7 @@ func (r *Resource) newDeleteChange(ctx context.Context, obj, currentState, desir
 	if isModified {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("the %#q chart needs to be deleted", desiredChart.Name))
 
-		return &desiredChart, nil
+		return desiredChart, nil
 	} else {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("the %#q chart does not need to be deleted", desiredChart.Name))
 	}
