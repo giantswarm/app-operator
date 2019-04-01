@@ -28,15 +28,8 @@ func Test_Resource_newDeleteChange(t *testing.T) {
 		{
 			name: "case 1: chart should be deleted",
 			currentResource: &v1alpha1.Chart{
-				TypeMeta: metav1.TypeMeta{
-					Kind:       "Chart",
-					APIVersion: "application.giantswarm.io",
-				},
 				ObjectMeta: metav1.ObjectMeta{
 					Name: "prometheus",
-					Labels: map[string]string{
-						"app": "prometheus",
-					},
 				},
 				Spec: v1alpha1.ChartSpec{
 					Name:       "my-cool-prometheus",
@@ -45,15 +38,8 @@ func Test_Resource_newDeleteChange(t *testing.T) {
 				},
 			},
 			desiredResource: &v1alpha1.Chart{
-				TypeMeta: metav1.TypeMeta{
-					Kind:       "Chart",
-					APIVersion: "application.giantswarm.io",
-				},
 				ObjectMeta: metav1.ObjectMeta{
 					Name: "prometheus",
-					Labels: map[string]string{
-						"app": "prometheus",
-					},
 				},
 				Spec: v1alpha1.ChartSpec{
 					Name:       "my-cool-prometheus",
@@ -62,15 +48,8 @@ func Test_Resource_newDeleteChange(t *testing.T) {
 				},
 			},
 			expectedChart: &v1alpha1.Chart{
-				TypeMeta: metav1.TypeMeta{
-					Kind:       "Chart",
-					APIVersion: "application.giantswarm.io",
-				},
 				ObjectMeta: metav1.ObjectMeta{
 					Name: "prometheus",
-					Labels: map[string]string{
-						"app": "prometheus",
-					},
 				},
 				Spec: v1alpha1.ChartSpec{
 					Name:       "my-cool-prometheus",
@@ -82,15 +61,8 @@ func Test_Resource_newDeleteChange(t *testing.T) {
 		{
 			name: "case 2: chart should not deleted",
 			currentResource: &v1alpha1.Chart{
-				TypeMeta: metav1.TypeMeta{
-					Kind:       "Chart",
-					APIVersion: "application.giantswarm.io",
-				},
 				ObjectMeta: metav1.ObjectMeta{
 					Name: "prometheus",
-					Labels: map[string]string{
-						"app": "prometheus",
-					},
 				},
 				Spec: v1alpha1.ChartSpec{
 					Name:       "my-cool-prometheus",
@@ -99,10 +71,6 @@ func Test_Resource_newDeleteChange(t *testing.T) {
 				},
 			},
 			desiredResource: &v1alpha1.Chart{
-				TypeMeta: metav1.TypeMeta{
-					Kind:       "Chart",
-					APIVersion: "application.giantswarm.io",
-				},
 				ObjectMeta: metav1.ObjectMeta{
 					Name: "prometheus",
 					Labels: map[string]string{
@@ -132,21 +100,21 @@ func Test_Resource_newDeleteChange(t *testing.T) {
 		t.Fatalf("error == %#v, want nil", err)
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got, err := r.newDeleteChange(context.Background(), nil, tt.currentResource, tt.desiredResource)
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			result, err := r.newDeleteChange(context.Background(), nil, tc.currentResource, tc.desiredResource)
 			if err != nil {
 				t.Fatalf("error = %v", err)
 				return
 			}
 
-			chart, err := toChart(got)
+			chart, err := toChart(result)
 			if err != nil {
 				t.Fatalf("error == %#v, want nil", err)
 			}
 
-			if !reflect.DeepEqual(chart, tt.expectedChart) {
-				t.Fatalf("want matching chart \n %s", cmp.Diff(got, tt.expectedChart))
+			if !reflect.DeepEqual(chart, tc.expectedChart) {
+				t.Fatalf("want matching chart \n %s", cmp.Diff(result, tc.expectedChart))
 			}
 		})
 	}

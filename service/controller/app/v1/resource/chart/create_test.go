@@ -8,6 +8,7 @@ import (
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned/fake"
 	"github.com/giantswarm/micrologger/microloggertest"
+	"github.com/google/go-cmp/cmp"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -22,15 +23,8 @@ func Test_Resource_newCreateChange(t *testing.T) {
 			name:            "case 0: new chart should be created",
 			currentResource: &v1alpha1.Chart{},
 			desiredResource: &v1alpha1.Chart{
-				TypeMeta: metav1.TypeMeta{
-					Kind:       "Chart",
-					APIVersion: "application.giantswarm.io",
-				},
 				ObjectMeta: metav1.ObjectMeta{
 					Name: "prometheus",
-					Labels: map[string]string{
-						"app": "prometheus",
-					},
 				},
 				Spec: v1alpha1.ChartSpec{
 					Name:       "my-cool-prometheus",
@@ -39,15 +33,8 @@ func Test_Resource_newCreateChange(t *testing.T) {
 				},
 			},
 			expectedChart: &v1alpha1.Chart{
-				TypeMeta: metav1.TypeMeta{
-					Kind:       "Chart",
-					APIVersion: "application.giantswarm.io",
-				},
 				ObjectMeta: metav1.ObjectMeta{
 					Name: "prometheus",
-					Labels: map[string]string{
-						"app": "prometheus",
-					},
 				},
 				Spec: v1alpha1.ChartSpec{
 					Name:       "my-cool-prometheus",
@@ -59,15 +46,8 @@ func Test_Resource_newCreateChange(t *testing.T) {
 		{
 			name: "case 1: chart already exist",
 			currentResource: &v1alpha1.Chart{
-				TypeMeta: metav1.TypeMeta{
-					Kind:       "Chart",
-					APIVersion: "application.giantswarm.io",
-				},
 				ObjectMeta: metav1.ObjectMeta{
 					Name: "prometheus",
-					Labels: map[string]string{
-						"app": "prometheus",
-					},
 				},
 				Spec: v1alpha1.ChartSpec{
 					Name:       "my-cool-prometheus",
@@ -76,15 +56,8 @@ func Test_Resource_newCreateChange(t *testing.T) {
 				},
 			},
 			desiredResource: &v1alpha1.Chart{
-				TypeMeta: metav1.TypeMeta{
-					Kind:       "Chart",
-					APIVersion: "application.giantswarm.io",
-				},
 				ObjectMeta: metav1.ObjectMeta{
 					Name: "prometheus",
-					Labels: map[string]string{
-						"app": "prometheus",
-					},
 				},
 				Spec: v1alpha1.ChartSpec{
 					Name:       "my-cool-prometheus",
@@ -109,15 +82,15 @@ func Test_Resource_newCreateChange(t *testing.T) {
 		t.Fatalf("error == %#v, want nil", err)
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got, err := r.newCreateChange(context.Background(), tt.currentResource, tt.desiredResource)
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			result, err := r.newCreateChange(context.Background(), tc.currentResource, tc.desiredResource)
 			if err != nil {
-				t.Errorf("Resource.newCreateChange() error = %v", err)
-				return
+				t.Fatalf("error == %#v, want nil", err)
 			}
-			if !reflect.DeepEqual(got, tt.expectedChart) {
-				t.Errorf("Resource.newCreateChange() = %v, want %v", got, tt.expectedChart)
+
+			if !reflect.DeepEqual(result, tc.expectedChart) {
+				t.Fatalf("want matching chart \n %s", cmp.Diff(result, tc.expectedChart))
 			}
 		})
 	}
