@@ -4,6 +4,7 @@ package kubeconfig
 
 import (
 	"fmt"
+	"github.com/giantswarm/kubeconfig"
 	"golang.org/x/net/context"
 	"testing"
 
@@ -60,7 +61,7 @@ func TestAppLifecycleUsingKubeconfig(t *testing.T) {
 		config.Logger.LogCtx(ctx, "level", "debug", "message", "creating kubeconfig secret")
 
 		restConfig := config.Host.RestConfig()
-		bytes, err := config.KubeConfig.NewKubeConfigForRESTConfig(ctx, restConfig, "test-cluster", targetNamespace)
+		bytes, err := kubeconfig.NewKubeConfigForRESTConfig(ctx, restConfig, "test-cluster", targetNamespace)
 		if err != nil {
 			t.Fatalf("expected nil got %#v", err)
 		}
