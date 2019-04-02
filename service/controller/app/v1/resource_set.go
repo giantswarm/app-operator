@@ -210,24 +210,19 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		var k8sClient kubernetes.Interface
 		var g8sClient versioned.Interface
 
-		if key.InCluster(cr) {
-			g8sClient = config.G8sClient
-			k8sClient = config.K8sClient
-		} else {
-			restConfig, err := kubeConfig.NewRESTConfigForApp(ctx, cr)
-			if err != nil {
-				return nil, microerror.Mask(err)
-			}
+		restConfig, err := kubeConfig.NewRESTConfigForApp(ctx, cr)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
 
-			g8sClient, err = versioned.NewForConfig(restConfig)
-			if err != nil {
-				return nil, microerror.Mask(err)
-			}
+		g8sClient, err = versioned.NewForConfig(restConfig)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
 
-			k8sClient, err = kubernetes.NewForConfig(restConfig)
-			if err != nil {
-				return nil, microerror.Mask(err)
-			}
+		k8sClient, err = kubernetes.NewForConfig(restConfig)
+		if err != nil {
+			return nil, microerror.Mask(err)
 		}
 
 		c := controllercontext.Context{
