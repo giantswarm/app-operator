@@ -19,11 +19,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:134311fb69e18b78799bd90cd6ab4129a9adeb205d333aed6dad08c4f0e1f9d0"
+  digest = "1:0db23fa47ee77851b62eaf35f47df704c22a0bdef1607d345212e07488ad738b"
   name = "github.com/giantswarm/apiextensions"
   packages = ["pkg/apis/application/v1alpha1"]
   pruneopts = "UT"
-  revision = "0584389c4f82e52ba980c14dc31434d922245a46"
+  revision = "d00b8e9f593269fb3cf755beadde710ba918daec"
 
 [[projects]]
   branch = "master"
@@ -209,17 +209,6 @@
   pruneopts = "UT"
   revision = "5f041e8faa004a95c88a202771f4cc3e991971e6"
   version = "v2.0.1"
-
-[[projects]]
-  digest = "1:3e39bafd6c2f4bf3c76c3bfd16a2e09e016510ad5db90dc02b88e2f565d6d595"
-  name = "github.com/spf13/afero"
-  packages = [
-    ".",
-    "mem",
-  ]
-  pruneopts = "UT"
-  revision = "f4711e4db9e9a1d3887343acb72b2bbfc2f686f5"
-  version = "v1.2.1"
 
 [[projects]]
   digest = "1:c1b1102241e7f645bc8e0c22ae352e8f0dc6484b6cb4d132fa9f24174e0119e2"
@@ -568,7 +557,6 @@
     "github.com/giantswarm/micrologger",
     "github.com/giantswarm/micrologger/microloggertest",
     "github.com/google/go-cmp/cmp",
-    "github.com/spf13/afero",
     "gopkg.in/yaml.v2",
     "k8s.io/api/core/v1",
     "k8s.io/apimachinery/pkg/api/errors",
