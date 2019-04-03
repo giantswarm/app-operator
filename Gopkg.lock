@@ -239,12 +239,12 @@
   revision = "85e779854c8e1b948bb2551e3750cfdae8ddfdbf"
 
 [[projects]]
-  branch = "incluster_mode"
+  branch = "master"
   digest = "1:33f8701353f25328d409be450cbcd17201033f1e060d3fbaecbfddec05895cb5"
   name = "github.com/giantswarm/kubeconfig"
   packages = ["."]
   pruneopts = "UT"
-  revision = "1c37bbb09797f39f1c8af385f780768204369213"
+  revision = "2c7a472873b005a410bf0e5bb6a096874cbece68"
 
 [[projects]]
   branch = "master"
