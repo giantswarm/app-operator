@@ -9,6 +9,7 @@ import (
 
 	"github.com/giantswarm/e2e-harness/pkg/release"
 	"github.com/giantswarm/e2etemplates/pkg/chartvalues"
+	"github.com/giantswarm/kubeconfig"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -60,7 +61,7 @@ func TestAppLifecycleUsingKubeconfig(t *testing.T) {
 		config.Logger.LogCtx(ctx, "level", "debug", "message", "creating kubeconfig secret")
 
 		restConfig := config.Host.RestConfig()
-		bytes, err := config.KubeConfig.NewKubeConfigForRESTConfig(ctx, restConfig, "test-cluster", targetNamespace)
+		bytes, err := kubeconfig.NewKubeConfigForRESTConfig(ctx, restConfig, "test-cluster", targetNamespace)
 		if err != nil {
 			t.Fatalf("expected nil got %#v", err)
 		}
