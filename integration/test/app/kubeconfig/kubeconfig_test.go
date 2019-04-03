@@ -4,12 +4,12 @@ package kubeconfig
 
 import (
 	"fmt"
-	"github.com/giantswarm/kubeconfig"
 	"golang.org/x/net/context"
 	"testing"
 
 	"github.com/giantswarm/e2e-harness/pkg/release"
 	"github.com/giantswarm/e2etemplates/pkg/chartvalues"
+	"github.com/giantswarm/kubeconfig"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
