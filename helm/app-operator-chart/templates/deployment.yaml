@@ -43,6 +43,7 @@ spec:
         - daemon
         - --config.dirs=/var/run/{{ .Values.name }}/configmap/
         - --config.files=config
+        - --service.kubernetes.watch.namespace=""
         livenessProbe:
           httpGet:
             path: /healthz
