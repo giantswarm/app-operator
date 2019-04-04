@@ -57,9 +57,6 @@ func New(config Config) (*Resource, error) {
 	if config.ProjectName == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ProjectName must not be empty", config)
 	}
-	if config.WatchNamespace == "" {
-		return nil, microerror.Maskf(invalidConfigError, "%T.WatchNamespace must not be empty", config)
-	}
 
 	r := &Resource{
 		g8sClient: config.G8sClient,

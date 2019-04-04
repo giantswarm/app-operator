@@ -35,10 +35,6 @@ func New(config Config) (*Resource, error) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
 
-	if config.WatchNamespace == "" {
-		return nil, microerror.Maskf(invalidConfigError, "%T.WatchNamespace must not be empty", config)
-	}
-
 	r := &Resource{
 		// Dependencies.
 		g8sClient: config.G8sClient,
