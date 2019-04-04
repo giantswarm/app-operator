@@ -21,4 +21,4 @@ data:
       kubernetes:
         incluster: true
         watch:
-          namespace: '{{ .Values.namespace }}'
+          namespace: ''
