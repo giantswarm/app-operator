@@ -24,7 +24,7 @@ func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange inte
 		return microerror.Mask(err)
 	}
 
-	if chart.Name != "" {
+	if chart != nil && chart.Name != "" {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleting Chart CR %#q in namespace %#q", chart.Name, chart.Namespace))
 
 		cc, err := controllercontext.FromContext(ctx)
