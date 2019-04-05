@@ -21,5 +21,4 @@ data:
       kubernetes:
         incluster: true
         watch:
-          {{ if .Values.watchNamespace }} namespace: '{{ .Values.watchNamespace }}' {{ else }} namespace: ''
-          {{ end }}
+          namespace: '{{ .Values.watchNamespace }}'
