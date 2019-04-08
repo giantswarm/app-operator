@@ -9,15 +9,9 @@ import (
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 
 	"github.com/giantswarm/app-operator/service/controller/app/v1/controllercontext"
-	"github.com/giantswarm/app-operator/service/controller/app/v1/key"
 )
 
 func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange interface{}) error {
-	cr, err := key.ToCustomResource(obj)
-	if err != nil {
-		return microerror.Mask(err)
-	}
-
 	chart, err := toChart(createChange)
 	if err != nil {
 		return microerror.Mask(err)
@@ -31,7 +25,7 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 			return microerror.Mask(err)
 		}
 
-		_, err = cc.G8sClient.ApplicationV1alpha1().Charts(cr.GetNamespace()).Create(chart)
+		_, err = cc.G8sClient.ApplicationV1alpha1().Charts(chart.Namespace).Create(chart)
 		if apierrors.IsAlreadyExists(err) {
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("already created Chart CR %#q in namespace %#q", chart.Name, chart.Namespace))
 		} else if err != nil {

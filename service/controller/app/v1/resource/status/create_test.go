@@ -215,7 +215,7 @@ func Test_Resource_EnsureCreated(t *testing.T) {
 				G8sClient: g8sClient,
 				Logger:    microloggertest.New(),
 
-				WatchNamespace: "default",
+				ChartNamespace: "default",
 			}
 			r, err := New(c)
 			if err != nil {

@@ -57,9 +57,6 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	if config.ProjectName == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ProjectName must not be empty", config)
 	}
-	if config.WatchNamespace == "" {
-		return nil, microerror.Maskf(invalidConfigError, "%T.WatchNamespace must not be empty", config)
-	}
 
 	var kubeConfig kubeconfig.Interface
 	{
@@ -161,7 +158,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 			G8sClient: config.G8sClient,
 			Logger:    config.Logger,
 
-			WatchNamespace: config.WatchNamespace,
+			ChartNamespace: config.ChartNamespace,
 		}
 
 		statusResource, err = status.New(c)

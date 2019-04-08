@@ -16,7 +16,7 @@ type Config struct {
 	G8sClient versioned.Interface
 	Logger    micrologger.Logger
 
-	WatchNamespace string
+	ChartNamespace string
 }
 
 // Resource implements the chartstatus resource.
@@ -24,7 +24,7 @@ type Resource struct {
 	g8sClient versioned.Interface
 	logger    micrologger.Logger
 
-	watchNamespace string
+	chartNamespace string
 }
 
 func New(config Config) (*Resource, error) {
@@ -35,16 +35,12 @@ func New(config Config) (*Resource, error) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
 
-	if config.WatchNamespace == "" {
-		return nil, microerror.Maskf(invalidConfigError, "%T.WatchNamespace must not be empty", config)
-	}
-
 	r := &Resource{
 		// Dependencies.
 		g8sClient: config.G8sClient,
 		logger:    config.Logger,
 
-		watchNamespace: config.WatchNamespace,
+		chartNamespace: config.ChartNamespace,
 	}
 
 	return r, nil

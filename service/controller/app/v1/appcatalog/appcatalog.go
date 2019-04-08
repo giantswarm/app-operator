@@ -43,10 +43,6 @@ func New(config Config) (*AppCatalog, error) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
 
-	if config.WatchNamespace == "" {
-		return nil, microerror.Maskf(invalidConfigError, "%T.WatchNamespace must not be empty", config)
-	}
-
 	a := &AppCatalog{
 		g8sClient: config.G8sClient,
 		logger:    config.Logger,
@@ -63,14 +59,14 @@ func (a *AppCatalog) GetCatalogForApp(ctx context.Context, customResource v1alph
 
 	a.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("looking for appCatalog %#q in namespace %#q", catalogName, a.watchNamespace))
 
-	appCatalog, err := a.g8sClient.ApplicationV1alpha1().AppCatalogs(a.watchNamespace).Get(catalogName, metav1.GetOptions{})
+	appCatalog, err := a.g8sClient.ApplicationV1alpha1().AppCatalogs().Get(catalogName, metav1.GetOptions{})
 	if apierrors.IsNotFound(err) {
 		return nil, microerror.Maskf(notFoundError, "appCatalog %#q in namespace %#q", catalogName, "default")
 	} else if err != nil {
 		return nil, microerror.Mask(err)
 	}
 
-	a.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found appCatalog %#q in namespace %#q", catalogName, a.watchNamespace))
+	a.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found appCatalog %#q", catalogName))
 
 	return appCatalog, nil
 }
