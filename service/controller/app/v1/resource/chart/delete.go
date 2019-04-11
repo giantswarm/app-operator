@@ -69,8 +69,8 @@ func (r *Resource) newDeleteChange(ctx context.Context, obj, currentState, desir
 
 	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding out if the %#q chart has to be deleted", desiredChart.Name))
 
-	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("currentchart : %#q ", currentChart))
-	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("desiredchart : %#q ", desiredChart))
+	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("currentchart : %#v ", currentChart))
+	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("desiredchart : %#v ", desiredChart))
 
 	isModified := !isEmpty(currentChart) && equals(currentChart, desiredChart)
 	if isModified {
