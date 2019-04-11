@@ -85,9 +85,6 @@ func equals(a, b *v1alpha1.Chart) bool {
 	if !reflect.DeepEqual(a.Labels, b.Labels) {
 		return false
 	}
-	if !reflect.DeepEqual(a.Annotations, b.Annotations) {
-		return false
-	}
 	return true
 }
 
