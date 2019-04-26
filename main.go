@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/giantswarm/microerror"
@@ -62,7 +63,7 @@ func mainWithError() (err error) {
 				panic(fmt.Sprintf("%#v\n", microerror.Maskf(err, "service.New")))
 			}
 
-			go newService.Boot()
+			go newService.Boot(context.Background())
 		}
 
 		// New custom server that bundles microkit endpoints.

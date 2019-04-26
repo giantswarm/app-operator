@@ -174,12 +174,12 @@ func New(config Config) (*Service, error) {
 }
 
 // Boot starts top level service implementation.
-func (s *Service) Boot() {
+func (s *Service) Boot(ctx context.Context) {
 	s.bootOnce.Do(func() {
-		go s.resourceCollector.Boot(context.Background())
+		go s.resourceCollector.Boot(ctx)
 
 		// Start the controllers.
-		go s.appCatalogController.Boot(context.Background())
-		go s.appController.Boot(context.Background())
+		go s.appCatalogController.Boot(ctx)
+		go s.appController.Boot(ctx)
 	})
 }
