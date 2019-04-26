@@ -40,7 +40,7 @@ type Service struct {
 	appController        *app.App
 	appCatalogController *appcatalog.AppCatalog
 	bootOnce             sync.Once
-	operatorCollector    *collector.Set
+	resourceCollector    *collector.Set
 }
 
 // New creates a new service with given configuration.
@@ -131,7 +131,7 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
-	var operatorCollector *collector.Set
+	var resourceCollector *collector.Set
 	{
 		c := collector.SetConfig{
 			G8sClient: g8sClient,
@@ -139,7 +139,7 @@ func New(config Config) (*Service, error) {
 			Logger:    config.Logger,
 		}
 
-		operatorCollector, err = collector.NewSet(c)
+		resourceCollector, err = collector.NewSet(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -167,7 +167,7 @@ func New(config Config) (*Service, error) {
 		appController:        appController,
 		appCatalogController: appCatalogController,
 		bootOnce:             sync.Once{},
-		operatorCollector:    operatorCollector,
+		resourceCollector:    resourceCollector,
 	}
 
 	return newService, nil
@@ -176,7 +176,7 @@ func New(config Config) (*Service, error) {
 // Boot starts top level service implementation.
 func (s *Service) Boot() {
 	s.bootOnce.Do(func() {
-		go s.operatorCollector.Boot(context.Background())
+		go s.resourceCollector.Boot(context.Background())
 
 		// Start the controllers.
 		go s.appCatalogController.Boot(context.Background())

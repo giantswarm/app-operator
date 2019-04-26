@@ -34,15 +34,15 @@ func NewSet(config SetConfig) (*Set, error) {
 
 	var err error
 
-	var appOperatorCollector *AppOperator
+	var appOperatorCollector *AppResource
 	{
-		c := AppOperatorConfig{
+		c := AppResourceConfig{
 			G8sClient: config.G8sClient,
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
 		}
 
-		appOperatorCollector, err = NewAppOperator(c)
+		appOperatorCollector, err = NewAppResource(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
