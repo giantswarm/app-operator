@@ -83,7 +83,7 @@ func Test_Resource_GetCurrentState(t *testing.T) {
 					Namespace: "default",
 				},
 			},
-			expectedSecret: nil,
+			expectedSecret: &corev1.Secret{},
 		},
 		{
 			name: "case 2: namespace does not match",
@@ -107,7 +107,7 @@ func Test_Resource_GetCurrentState(t *testing.T) {
 					Namespace: "default",
 				},
 			},
-			expectedSecret: nil,
+			expectedSecret: &corev1.Secret{},
 		},
 		{
 			name: "case 3: no secrets",
@@ -121,7 +121,7 @@ func Test_Resource_GetCurrentState(t *testing.T) {
 					},
 				},
 			},
-			expectedSecret: nil,
+			expectedSecret: &corev1.Secret{},
 		},
 	}
 

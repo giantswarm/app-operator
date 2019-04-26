@@ -26,7 +26,7 @@ func Test_Resource_newDeleteChange(t *testing.T) {
 			name:           "case 0: empty current and desired, expected empty",
 			currentState:   &corev1.Secret{},
 			desiredState:   &corev1.Secret{},
-			expectedSecret: nil,
+			expectedSecret: &corev1.Secret{},
 		},
 		{
 			name: "case 1: non empty current and desired, expected desired",
@@ -79,7 +79,7 @@ func Test_Resource_newDeleteChange(t *testing.T) {
 					Namespace: "default",
 				},
 			},
-			expectedSecret: nil,
+			expectedSecret: &corev1.Secret{},
 		},
 	}
 

@@ -83,7 +83,7 @@ func Test_Resource_GetCurrentState(t *testing.T) {
 					Namespace: "default",
 				},
 			},
-			expectedConfigMap: nil,
+			expectedConfigMap: &corev1.ConfigMap{},
 		},
 		{
 			name: "case 2: namespace does not match",
@@ -107,7 +107,7 @@ func Test_Resource_GetCurrentState(t *testing.T) {
 					Namespace: "default",
 				},
 			},
-			expectedConfigMap: nil,
+			expectedConfigMap: &corev1.ConfigMap{},
 		},
 		{
 			name: "case 3: no configmaps",
@@ -121,7 +121,7 @@ func Test_Resource_GetCurrentState(t *testing.T) {
 					},
 				},
 			},
-			expectedConfigMap: nil,
+			expectedConfigMap: &corev1.ConfigMap{},
 		},
 	}
 

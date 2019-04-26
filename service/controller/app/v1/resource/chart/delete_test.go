@@ -23,7 +23,7 @@ func Test_Resource_newDeleteChange(t *testing.T) {
 			name:            "case 0: empty current and desired, expected empty",
 			currentResource: &v1alpha1.Chart{},
 			desiredResource: &v1alpha1.Chart{},
-			expectedChart:   nil,
+			expectedChart:   &v1alpha1.Chart{},
 		},
 		{
 			name: "case 1: chart should be deleted",
@@ -83,7 +83,7 @@ func Test_Resource_newDeleteChange(t *testing.T) {
 					TarballURL: "https://giantswarm.github.com/app-catalog/kubernetes-prometheus-1.0.0.tgz",
 				},
 			},
-			expectedChart: nil,
+			expectedChart: &v1alpha1.Chart{},
 		},
 	}
 
