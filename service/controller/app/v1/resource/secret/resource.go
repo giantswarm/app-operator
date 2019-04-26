@@ -105,7 +105,7 @@ func isEmpty(s *corev1.Secret) bool {
 // toSecret converts the input into a Secret.
 func toSecret(v interface{}) (*corev1.Secret, error) {
 	if v == nil {
-		return nil, nil
+		return &corev1.Secret{}, nil
 	}
 
 	secret, ok := v.(*corev1.Secret)
