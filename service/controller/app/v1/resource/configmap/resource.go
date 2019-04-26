@@ -105,7 +105,7 @@ func isEmpty(c *corev1.ConfigMap) bool {
 // toConfigMap converts the input into a ConfigMap.
 func toConfigMap(v interface{}) (*corev1.ConfigMap, error) {
 	if v == nil {
-		return nil, nil
+		return &corev1.ConfigMap{}, nil
 	}
 
 	configMap, ok := v.(*corev1.ConfigMap)

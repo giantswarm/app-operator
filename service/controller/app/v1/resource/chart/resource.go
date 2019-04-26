@@ -100,7 +100,7 @@ func isEmpty(c *v1alpha1.Chart) bool {
 // toChart converts the input into a Chart.
 func toChart(v interface{}) (*v1alpha1.Chart, error) {
 	if v == nil {
-		return nil, nil
+		return &v1alpha1.Chart{}, nil
 	}
 
 	chart, ok := v.(*v1alpha1.Chart)
