@@ -74,7 +74,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 			configMaps: []*corev1.ConfigMap{
 				{
 					Data: map[string]string{
-						"values": "cluster: yaml",
+						"values": "cluster: yaml\n",
 					},
 					ObjectMeta: metav1.ObjectMeta{
 						Name:      "test-cluster-values",
@@ -84,7 +84,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 			},
 			expectedConfigMap: &corev1.ConfigMap{
 				Data: map[string]string{
-					"values": "cluster: yaml",
+					"values": "cluster: yaml\n",
 				},
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "my-prometheus-chart-values",
@@ -125,7 +125,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 			configMaps: []*corev1.ConfigMap{
 				{
 					Data: map[string]string{
-						"values": "catalog: yaml",
+						"values": "catalog: yaml\n",
 					},
 					ObjectMeta: metav1.ObjectMeta{
 						Name:      "test-catalog-values",
@@ -135,7 +135,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 			},
 			expectedConfigMap: &corev1.ConfigMap{
 				Data: map[string]string{
-					"values": "catalog: yaml",
+					"values": "catalog: yaml\n",
 				},
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "my-test-app-chart-values",
@@ -147,15 +147,16 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 			},
 		},
 		{
-			name: "case 3: both app and catalog config causes error as merging is not yet implemented",
+			name: "case 3: non-intersecting catalog and app config are merged",
 			obj: &v1alpha1.App{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "my-test-app",
 					Namespace: "giantswarm",
 				},
 				Spec: v1alpha1.AppSpec{
-					Name:    "test-app",
-					Catalog: "test-catalog",
+					Name:      "test-app",
+					Namespace: "giantswarm",
+					Catalog:   "test-catalog",
 					Config: v1alpha1.AppSpecConfig{
 						ConfigMap: v1alpha1.AppSpecConfigConfigMap{
 							Name:      "test-cluster-values",
@@ -181,7 +182,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 			configMaps: []*corev1.ConfigMap{
 				{
 					Data: map[string]string{
-						"values": "catalog: yaml",
+						"values": "catalog: yaml\n",
 					},
 					ObjectMeta: metav1.ObjectMeta{
 						Name:      "test-catalog-values",
@@ -190,7 +191,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 				},
 				{
 					Data: map[string]string{
-						"values": "cluster: yaml",
+						"values": "cluster: yaml\n",
 					},
 					ObjectMeta: metav1.ObjectMeta{
 						Name:      "test-cluster-values",
@@ -198,7 +199,84 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					},
 				},
 			},
-			errorMatcher: IsExecutionFailed,
+			expectedConfigMap: &corev1.ConfigMap{
+				Data: map[string]string{
+					"values": "catalog: yaml\ncluster: yaml\n",
+				},
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "my-test-app-chart-values",
+					Namespace: "giantswarm",
+					Labels: map[string]string{
+						label.ManagedBy: "app-operator",
+					},
+				},
+			},
+		},
+		{
+			name: "case 4: intersecting catalog and app config are merged, app is preferred",
+			obj: &v1alpha1.App{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "my-test-app",
+					Namespace: "giantswarm",
+				},
+				Spec: v1alpha1.AppSpec{
+					Name:      "test-app",
+					Namespace: "giantswarm",
+					Catalog:   "test-catalog",
+					Config: v1alpha1.AppSpecConfig{
+						ConfigMap: v1alpha1.AppSpecConfigConfigMap{
+							Name:      "test-cluster-values",
+							Namespace: "giantswarm",
+						},
+					},
+				},
+			},
+			appCatalog: v1alpha1.AppCatalog{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "test-catalog",
+				},
+				Spec: v1alpha1.AppCatalogSpec{
+					Title: "test-catalog",
+					Config: v1alpha1.AppCatalogSpecConfig{
+						ConfigMap: v1alpha1.AppCatalogSpecConfigConfigMap{
+							Name:      "test-catalog-values",
+							Namespace: "giantswarm",
+						},
+					},
+				},
+			},
+			configMaps: []*corev1.ConfigMap{
+				{
+					Data: map[string]string{
+						"values": "test: catalog\n",
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "test-catalog-values",
+						Namespace: "giantswarm",
+					},
+				},
+				{
+					Data: map[string]string{
+						"values": "test: app\n",
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "test-cluster-values",
+						Namespace: "giantswarm",
+					},
+				},
+			},
+			expectedConfigMap: &corev1.ConfigMap{
+				Data: map[string]string{
+					"values": "test: app\n",
+				},
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "my-test-app-chart-values",
+					Namespace: "giantswarm",
+					Labels: map[string]string{
+						label.ManagedBy: "app-operator",
+					},
+				},
+			},
 		},
 	}
 

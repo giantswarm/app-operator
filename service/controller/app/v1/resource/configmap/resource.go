@@ -115,3 +115,15 @@ func toConfigMap(v interface{}) (*corev1.ConfigMap, error) {
 
 	return configMap, nil
 }
+
+// toByteSliceMap converts from a string map to a byte slice map so the input
+// can be merged.
+func toByteSliceMap(input map[string]string) map[string][]byte {
+	result := map[string][]byte{}
+
+	for k, v := range input {
+		result[k] = []byte(v)
+	}
+
+	return result
+}

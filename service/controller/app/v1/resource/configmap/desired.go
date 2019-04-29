@@ -5,7 +5,9 @@ import (
 	"fmt"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
+	"github.com/giantswarm/helmclient"
 	"github.com/giantswarm/microerror"
+	yaml "gopkg.in/yaml.v2"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -35,17 +37,34 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		return nil, nil
 	}
 
-	if appConfigMapName != "" && catalogConfigMapName != "" {
-		return nil, microerror.Maskf(executionFailedError, "merging app and catalog configmaps is not yet supported")
+	// We get the catalog level values if configured.
+	catalogData, err := r.getConfigMapForCatalog(ctx, cc.AppCatalog)
+	if err != nil {
+		return nil, microerror.Mask(err)
 	}
 
-	data, err := r.getConfigMapData(ctx, cr)
+	// We get the app level values if configured.
+	appData, err := r.getConfigMapForApp(ctx, cr)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	// Values are merged and in case of intersecting values the app level
+	// secrets are preferred.
+	mergedData, err := helmclient.MergeValues(toByteSliceMap(catalogData), toByteSliceMap(appData))
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	valuesYAML, err := yaml.Marshal(mergedData)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
 
 	configMap := &corev1.ConfigMap{
-		Data: data,
+		Data: map[string]string{
+			"values": string(valuesYAML),
+		},
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      key.ChartConfigMapName(cr),
 			Namespace: key.Namespace(cr),
@@ -71,28 +90,6 @@ func (r *Resource) getConfigMap(ctx context.Context, configMapName, configMapNam
 	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found configmap %#q in namespace %#q", configMapName, configMapNamespace))
 
 	return configMap, nil
-}
-
-func (r *Resource) getConfigMapData(ctx context.Context, cr v1alpha1.App) (map[string]string, error) {
-	data, err := r.getConfigMapForApp(ctx, cr)
-	if err != nil {
-		return nil, microerror.Mask(err)
-	}
-	if len(data) > 0 {
-		return data, nil
-	}
-
-	cc, err := controllercontext.FromContext(ctx)
-	if err != nil {
-		return nil, microerror.Mask(err)
-	}
-
-	data, err = r.getConfigMapForCatalog(ctx, cc.AppCatalog)
-	if err != nil {
-		return nil, microerror.Mask(err)
-	}
-
-	return data, nil
 }
 
 func (r *Resource) getConfigMapForApp(ctx context.Context, app v1alpha1.App) (map[string]string, error) {
