@@ -31,6 +31,8 @@ func main() {
 }
 
 func mainWithError() (err error) {
+	ctx := context.Background()
+
 	// Create a new logger that is used by all packages.
 	var newLogger micrologger.Logger
 	{
@@ -63,7 +65,7 @@ func mainWithError() (err error) {
 				panic(fmt.Sprintf("%#v\n", microerror.Maskf(err, "service.New")))
 			}
 
-			go newService.Boot(context.Background())
+			go newService.Boot(ctx)
 		}
 
 		// New custom server that bundles microkit endpoints.
