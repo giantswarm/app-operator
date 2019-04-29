@@ -74,7 +74,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 			secrets: []*corev1.Secret{
 				{
 					Data: map[string][]byte{
-						"secrets": []byte("cluster: yaml"),
+						"secrets": []byte("cluster: yaml\n"),
 					},
 					ObjectMeta: metav1.ObjectMeta{
 						Name:      "test-cluster-secrets",
@@ -84,7 +84,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 			},
 			expectedSecret: &corev1.Secret{
 				Data: map[string][]byte{
-					"secrets": []byte("cluster: yaml"),
+					"values": []byte("cluster: yaml\n"),
 				},
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "my-prometheus-chart-secrets",
@@ -125,7 +125,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 			secrets: []*corev1.Secret{
 				{
 					Data: map[string][]byte{
-						"secrets": []byte("catalog: yaml"),
+						"secrets": []byte("catalog: yaml\n"),
 					},
 					ObjectMeta: metav1.ObjectMeta{
 						Name:      "test-catalog-secrets",
@@ -135,7 +135,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 			},
 			expectedSecret: &corev1.Secret{
 				Data: map[string][]byte{
-					"secrets": []byte("catalog: yaml"),
+					"values": []byte("catalog: yaml\n"),
 				},
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "my-test-app-chart-secrets",
@@ -147,14 +147,13 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 			},
 		},
 		{
-			name: "case 3: both app and catalog secrets causes error as merging is not yet implemented",
+			name: "case 3: non-intersecting catalog and app secrets are merged",
 			obj: &v1alpha1.App{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "my-test-app",
 					Namespace: "giantswarm",
 				},
 				Spec: v1alpha1.AppSpec{
-					Name:    "test-app",
 					Catalog: "test-catalog",
 					Config: v1alpha1.AppSpecConfig{
 						Secret: v1alpha1.AppSpecConfigSecret{
@@ -162,6 +161,8 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 							Namespace: "giantswarm",
 						},
 					},
+					Name:      "test-app",
+					Namespace: "giantswarm",
 				},
 			},
 			appCatalog: v1alpha1.AppCatalog{
@@ -180,25 +181,102 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 			},
 			secrets: []*corev1.Secret{
 				{
-					StringData: map[string]string{
-						"values": "catalog: yaml",
+					Data: map[string][]byte{
+						"values": []byte("catalog: yaml\n"),
 					},
 					ObjectMeta: metav1.ObjectMeta{
-						Name:      "test-catalog-values",
+						Name:      "test-catalog-secrets",
 						Namespace: "giantswarm",
 					},
 				},
 				{
-					StringData: map[string]string{
-						"values": "cluster: yaml",
+					Data: map[string][]byte{
+						"values": []byte("cluster: yaml\n"),
 					},
 					ObjectMeta: metav1.ObjectMeta{
-						Name:      "test-cluster-values",
+						Name:      "test-cluster-secrets",
 						Namespace: "giantswarm",
 					},
 				},
 			},
-			errorMatcher: IsExecutionFailed,
+			expectedSecret: &corev1.Secret{
+				Data: map[string][]byte{
+					"values": []byte("catalog: yaml\ncluster: yaml\n"),
+				},
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "my-test-app-chart-secrets",
+					Namespace: "giantswarm",
+					Labels: map[string]string{
+						label.ManagedBy: "app-operator",
+					},
+				},
+			},
+		},
+		{
+			name: "case 4: intersecting catalog and app secrets, app overwrites catalog",
+			obj: &v1alpha1.App{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "my-test-app",
+					Namespace: "giantswarm",
+				},
+				Spec: v1alpha1.AppSpec{
+					Catalog: "test-catalog",
+					Config: v1alpha1.AppSpecConfig{
+						Secret: v1alpha1.AppSpecConfigSecret{
+							Name:      "test-cluster-secrets",
+							Namespace: "giantswarm",
+						},
+					},
+					Name:      "test-app",
+					Namespace: "giantswarm",
+				},
+			},
+			appCatalog: v1alpha1.AppCatalog{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "test-catalog",
+				},
+				Spec: v1alpha1.AppCatalogSpec{
+					Title: "test-catalog",
+					Config: v1alpha1.AppCatalogSpecConfig{
+						Secret: v1alpha1.AppCatalogSpecConfigSecret{
+							Name:      "test-catalog-secrets",
+							Namespace: "giantswarm",
+						},
+					},
+				},
+			},
+			secrets: []*corev1.Secret{
+				{
+					Data: map[string][]byte{
+						"values": []byte("catalog: yaml\ntest: catalog\n"),
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "test-catalog-secrets",
+						Namespace: "giantswarm",
+					},
+				},
+				{
+					Data: map[string][]byte{
+						"values": []byte("cluster: yaml\ntest: app\n"),
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "test-cluster-secrets",
+						Namespace: "giantswarm",
+					},
+				},
+			},
+			expectedSecret: &corev1.Secret{
+				Data: map[string][]byte{
+					"values": []byte("catalog: yaml\ncluster: yaml\ntest: app\n"),
+				},
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "my-test-app-chart-secrets",
+					Namespace: "giantswarm",
+					Labels: map[string]string{
+						label.ManagedBy: "app-operator",
+					},
+				},
+			},
 		},
 	}
 
@@ -256,10 +334,23 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 				if !reflect.DeepEqual(secret.ObjectMeta, tc.expectedSecret.ObjectMeta) {
 					t.Fatalf("want matching objectmeta \n %s", cmp.Diff(secret.ObjectMeta, tc.expectedSecret.ObjectMeta))
 				}
-				if !reflect.DeepEqual(secret.StringData, tc.expectedSecret.StringData) {
-					t.Fatalf("want matching data \n %s", cmp.Diff(secret.StringData, tc.expectedSecret.StringData))
+				if !reflect.DeepEqual(secret.Data, tc.expectedSecret.Data) {
+					data := toStringMap(secret.Data)
+					expectedData := toStringMap(tc.expectedSecret.Data)
+
+					t.Fatalf("want matching data \n %s", cmp.Diff(data, expectedData))
 				}
 			}
 		})
 	}
+}
+
+func toStringMap(input map[string][]byte) map[string]string {
+	result := map[string]string{}
+
+	for k, v := range input {
+		result[k] = string(v)
+	}
+
+	return result
 }
