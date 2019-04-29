@@ -15,6 +15,7 @@ import (
 	"k8s.io/client-go/rest"
 
 	"github.com/giantswarm/app-operator/flag"
+	"github.com/giantswarm/app-operator/service/collector"
 	"github.com/giantswarm/app-operator/service/controller/app"
 	"github.com/giantswarm/app-operator/service/controller/appcatalog"
 )
@@ -39,6 +40,7 @@ type Service struct {
 	appController        *app.App
 	appCatalogController *appcatalog.AppCatalog
 	bootOnce             sync.Once
+	operatorCollector    *collector.Set
 }
 
 // New creates a new service with given configuration.
@@ -129,6 +131,20 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
+	var operatorCollector *collector.Set
+	{
+		c := collector.SetConfig{
+			G8sClient: g8sClient,
+			K8sClient: k8sClient,
+			Logger:    config.Logger,
+		}
+
+		operatorCollector, err = collector.NewSet(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var versionService *version.Service
 	{
 		versionConfig := version.Config{
@@ -151,16 +167,19 @@ func New(config Config) (*Service, error) {
 		appController:        appController,
 		appCatalogController: appCatalogController,
 		bootOnce:             sync.Once{},
+		operatorCollector:    operatorCollector,
 	}
 
 	return newService, nil
 }
 
 // Boot starts top level service implementation.
-func (s *Service) Boot() {
+func (s *Service) Boot(ctx context.Context) {
 	s.bootOnce.Do(func() {
+		go s.operatorCollector.Boot(ctx)
+
 		// Start the controllers.
-		go s.appCatalogController.Boot(context.Background())
-		go s.appController.Boot(context.Background())
+		go s.appCatalogController.Boot(ctx)
+		go s.appController.Boot(ctx)
 	})
 }
