@@ -5,7 +5,9 @@ import (
 	"fmt"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
+	"github.com/giantswarm/helmclient"
 	"github.com/giantswarm/microerror"
+	yaml "gopkg.in/yaml.v2"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -35,17 +37,34 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		return nil, nil
 	}
 
-	if appSecretName != "" && catalogSecretName != "" {
-		return nil, microerror.Maskf(executionFailedError, "merging app and catalog secrets is not yet supported")
+	// We get the catalog level secrets if configured.
+	catalogData, err := r.getSecretDataForCatalog(ctx, cc.AppCatalog)
+	if err != nil {
+		return nil, microerror.Mask(err)
 	}
 
-	data, err := r.getSecretData(ctx, cr)
+	// We get the app level secrets if configured.
+	appData, err := r.getSecretDataForApp(ctx, cr)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	// Secrets are merged and in case of intersecting values the app level
+	// secrets are preferred.
+	mergedData, err := helmclient.MergeValues(catalogData, appData)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	secretsYAML, err := yaml.Marshal(mergedData)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
 
 	secret := &corev1.Secret{
-		Data: data,
+		Data: map[string][]byte{
+			"values": secretsYAML,
+		},
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      key.ChartSecretName(cr),
 			Namespace: key.Namespace(cr),
@@ -73,29 +92,11 @@ func (r *Resource) getSecret(ctx context.Context, secretName, secretNamespace st
 	return secret, nil
 }
 
-func (r *Resource) getSecretData(ctx context.Context, cr v1alpha1.App) (map[string][]byte, error) {
-	data, err := r.getSecretForApp(ctx, cr)
-	if err != nil {
-		return nil, microerror.Mask(err)
-	}
-	if len(data) > 0 {
-		return data, nil
+func (r *Resource) getSecretDataForApp(ctx context.Context, app v1alpha1.App) (map[string][]byte, error) {
+	if key.AppSecretName(app) == "" {
+		return map[string][]byte{}, nil
 	}
 
-	cc, err := controllercontext.FromContext(ctx)
-	if err != nil {
-		return nil, microerror.Mask(err)
-	}
-
-	data, err = r.getSecretForCatalog(ctx, cc.AppCatalog)
-	if err != nil {
-		return nil, microerror.Mask(err)
-	}
-
-	return data, nil
-}
-
-func (r *Resource) getSecretForApp(ctx context.Context, app v1alpha1.App) (map[string][]byte, error) {
 	secret, err := r.getSecret(ctx, key.AppSecretName(app), key.AppSecretNamespace(app))
 	if err != nil {
 		return nil, microerror.Mask(err)
@@ -104,7 +105,11 @@ func (r *Resource) getSecretForApp(ctx context.Context, app v1alpha1.App) (map[s
 	return secret.Data, nil
 }
 
-func (r *Resource) getSecretForCatalog(ctx context.Context, catalog v1alpha1.AppCatalog) (map[string][]byte, error) {
+func (r *Resource) getSecretDataForCatalog(ctx context.Context, catalog v1alpha1.AppCatalog) (map[string][]byte, error) {
+	if appcatalogkey.SecretName(catalog) == "" {
+		return map[string][]byte{}, nil
+	}
+
 	secret, err := r.getSecret(ctx, appcatalogkey.SecretName(catalog), appcatalogkey.SecretNamespace(catalog))
 	if err != nil {
 		return nil, microerror.Mask(err)
