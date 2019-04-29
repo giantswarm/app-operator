@@ -10,15 +10,15 @@ import (
 
 // AppResourceConfig is this collector's configuration struct.
 type AppResourceConfig struct {
-	K8sClient kubernetes.Interface
 	G8sClient versioned.Interface
+	K8sClient kubernetes.Interface
 	Logger    micrologger.Logger
 }
 
 // AppResource is the main struct for this collector.
 type AppResource struct {
-	k8sClient kubernetes.Interface
 	g8sClient versioned.Interface
+	k8sClient kubernetes.Interface
 	logger    micrologger.Logger
 }
 
