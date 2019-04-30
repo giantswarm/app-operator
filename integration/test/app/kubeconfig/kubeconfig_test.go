@@ -3,8 +3,8 @@
 package kubeconfig
 
 import (
+	"context"
 	"fmt"
-	"golang.org/x/net/context"
 	"testing"
 
 	"github.com/giantswarm/e2e-harness/pkg/release"
@@ -12,6 +12,8 @@ import (
 	"github.com/giantswarm/kubeconfig"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
+	"github.com/giantswarm/app-operator/integration/key"
 )
 
 const (

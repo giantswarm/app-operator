@@ -3,13 +3,15 @@
 package basic
 
 import (
+	"context"
 	"fmt"
-	"golang.org/x/net/context"
 	"testing"
 
 	"github.com/giantswarm/e2e-harness/pkg/release"
 	"github.com/giantswarm/e2etemplates/pkg/chartvalues"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
+	"github.com/giantswarm/app-operator/integration/key"
 )
 
 const (
