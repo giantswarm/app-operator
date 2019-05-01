@@ -5,9 +5,7 @@ import (
 	"fmt"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
-	"github.com/giantswarm/helmclient"
 	"github.com/giantswarm/microerror"
-	yaml "gopkg.in/yaml.v2"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -15,6 +13,7 @@ import (
 	"github.com/giantswarm/app-operator/pkg/label"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/controllercontext"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/key"
+	"github.com/giantswarm/app-operator/service/controller/app/v1/values"
 	appcatalogkey "github.com/giantswarm/app-operator/service/controller/appcatalog/v1/key"
 )
 
@@ -51,20 +50,13 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 
 	// Secrets are merged and in case of intersecting values the app level
 	// secrets are preferred.
-	mergedData, err := helmclient.MergeValues(catalogData, appData)
-	if err != nil {
-		return nil, microerror.Mask(err)
-	}
-
-	secretsYAML, err := yaml.Marshal(mergedData)
+	mergedData, err := values.MergeSecretData(catalogData, appData)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
 
 	secret := &corev1.Secret{
-		Data: map[string][]byte{
-			"values": secretsYAML,
-		},
+		Data: mergedData,
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      key.ChartSecretName(cr),
 			Namespace: key.Namespace(cr),
