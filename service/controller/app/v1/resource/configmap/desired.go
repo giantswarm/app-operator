@@ -77,7 +77,12 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 	return configMap, nil
 }
 
-func (r *Resource) getConfigMap(ctx context.Context, configMapName, configMapNamespace string) (*corev1.ConfigMap, error) {
+func (r *Resource) getConfigMap(ctx context.Context, configMapName, configMapNamespace string) (map[string]string, error) {
+	if configMapName == "" {
+		// Return early as no configmap has been specified.
+		return nil, nil
+	}
+
 	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("looking for configmap %#q in namespace %#q", configMapName, configMapNamespace))
 
 	configMap, err := r.k8sClient.CoreV1().ConfigMaps(configMapNamespace).Get(configMapName, metav1.GetOptions{})
@@ -89,7 +94,7 @@ func (r *Resource) getConfigMap(ctx context.Context, configMapName, configMapNam
 
 	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found configmap %#q in namespace %#q", configMapName, configMapNamespace))
 
-	return configMap, nil
+	return configMap.Data, nil
 }
 
 func (r *Resource) getConfigMapForApp(ctx context.Context, app v1alpha1.App) (map[string]string, error) {
@@ -98,7 +103,7 @@ func (r *Resource) getConfigMapForApp(ctx context.Context, app v1alpha1.App) (ma
 		return nil, microerror.Mask(err)
 	}
 
-	return configMap.Data, nil
+	return configMap, nil
 }
 
 func (r *Resource) getConfigMapForCatalog(ctx context.Context, catalog v1alpha1.AppCatalog) (map[string]string, error) {
@@ -107,5 +112,5 @@ func (r *Resource) getConfigMapForCatalog(ctx context.Context, catalog v1alpha1.
 		return nil, microerror.Mask(err)
 	}
 
-	return configMap.Data, nil
+	return configMap, nil
 }

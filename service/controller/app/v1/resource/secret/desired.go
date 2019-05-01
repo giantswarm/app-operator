@@ -77,7 +77,12 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 	return secret, nil
 }
 
-func (r *Resource) getSecret(ctx context.Context, secretName, secretNamespace string) (*corev1.Secret, error) {
+func (r *Resource) getSecret(ctx context.Context, secretName, secretNamespace string) (map[string][]byte, error) {
+	if secretName == "" {
+		// Return early as no secret has been specified.
+		return nil, nil
+	}
+
 	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("looking for secret %#q in namespace %#q", secretName, secretNamespace))
 
 	secret, err := r.k8sClient.CoreV1().Secrets(secretNamespace).Get(secretName, metav1.GetOptions{})
@@ -89,7 +94,7 @@ func (r *Resource) getSecret(ctx context.Context, secretName, secretNamespace st
 
 	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found secret %#q in namespace %#q", secretName, secretNamespace))
 
-	return secret, nil
+	return secret.Data, nil
 }
 
 func (r *Resource) getSecretDataForApp(ctx context.Context, app v1alpha1.App) (map[string][]byte, error) {
@@ -102,7 +107,7 @@ func (r *Resource) getSecretDataForApp(ctx context.Context, app v1alpha1.App) (m
 		return nil, microerror.Mask(err)
 	}
 
-	return secret.Data, nil
+	return secret, nil
 }
 
 func (r *Resource) getSecretDataForCatalog(ctx context.Context, catalog v1alpha1.AppCatalog) (map[string][]byte, error) {
@@ -115,5 +120,5 @@ func (r *Resource) getSecretDataForCatalog(ctx context.Context, catalog v1alpha1
 		return nil, microerror.Mask(err)
 	}
 
-	return secret.Data, nil
+	return secret, nil
 }
