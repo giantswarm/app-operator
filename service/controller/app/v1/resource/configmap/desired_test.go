@@ -278,6 +278,87 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 				},
 			},
 		},
+		{
+			name: "case 5: intersecting catalog, app and user config is merged, user is preferred",
+			obj: &v1alpha1.App{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "my-test-app",
+					Namespace: "giantswarm",
+				},
+				Spec: v1alpha1.AppSpec{
+					Name:      "test-app",
+					Namespace: "giantswarm",
+					Catalog:   "test-catalog",
+					Config: v1alpha1.AppSpecConfig{
+						ConfigMap: v1alpha1.AppSpecConfigConfigMap{
+							Name:      "test-cluster-values",
+							Namespace: "giantswarm",
+						},
+					},
+					UserConfig: v1alpha1.AppSpecConfig{
+						ConfigMap: v1alpha1.AppSpecConfigConfigMap{
+							Name:      "test-user-values",
+							Namespace: "giantswarm",
+						},
+					},
+				},
+			},
+			appCatalog: v1alpha1.AppCatalog{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "test-catalog",
+				},
+				Spec: v1alpha1.AppCatalogSpec{
+					Title: "test-catalog",
+					Config: v1alpha1.AppCatalogSpecConfig{
+						ConfigMap: v1alpha1.AppCatalogSpecConfigConfigMap{
+							Name:      "test-catalog-values",
+							Namespace: "giantswarm",
+						},
+					},
+				},
+			},
+			configMaps: []*corev1.ConfigMap{
+				{
+					Data: map[string]string{
+						"values": "catalog: test\ntest: catalog\n",
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "test-catalog-values",
+						Namespace: "giantswarm",
+					},
+				},
+				{
+					Data: map[string]string{
+						"values": "cluster: test\ntest: app\n",
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "test-cluster-values",
+						Namespace: "giantswarm",
+					},
+				},
+				{
+					Data: map[string]string{
+						"values": "user: test\ntest: user\n",
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "test-user-values",
+						Namespace: "giantswarm",
+					},
+				},
+			},
+			expectedConfigMap: &corev1.ConfigMap{
+				Data: map[string]string{
+					"values": "cluster: test\ncatalog: test\ntest: user\nuser: test\n",
+				},
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "my-test-app-chart-values",
+					Namespace: "giantswarm",
+					Labels: map[string]string{
+						label.ManagedBy: "app-operator",
+					},
+				},
+			},
+		},
 	}
 
 	for _, tc := range tests {
