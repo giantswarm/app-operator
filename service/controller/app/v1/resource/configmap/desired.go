@@ -79,8 +79,8 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 
 func (r *Resource) getConfigMap(ctx context.Context, configMapName, configMapNamespace string) (map[string]string, error) {
 	if configMapName == "" {
-		// Return early.
-		return map[string]string{}, nil
+		// Return early as no configmap has been specified.
+		return nil, nil
 	}
 
 	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("looking for configmap %#q in namespace %#q", configMapName, configMapNamespace))

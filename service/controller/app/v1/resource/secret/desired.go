@@ -79,8 +79,8 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 
 func (r *Resource) getSecret(ctx context.Context, secretName, secretNamespace string) (map[string][]byte, error) {
 	if secretName == "" {
-		//Return early.
-		return map[string][]byte{}, nil
+		// Return early as no secret has been specified.
+		return nil, nil
 	}
 
 	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("looking for secret %#q in namespace %#q", secretName, secretNamespace))
