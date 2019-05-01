@@ -84,6 +84,30 @@ func ToCustomResource(v interface{}) (v1alpha1.App, error) {
 	return *customResource, nil
 }
 
+// UserConfigMapName returns the name of the configmap that stores user level
+// config for the provided app CR.
+func UserConfigMapName(customResource v1alpha1.App) string {
+	return customResource.Spec.UserConfig.ConfigMap.Name
+}
+
+// UserConfigMapNamespace returns the namespace of the configmap that stores user
+// level config for the provided app CR.
+func UserConfigMapNamespace(customResource v1alpha1.App) string {
+	return customResource.Spec.UserConfig.ConfigMap.Namespace
+}
+
+// UserSecretName returns the name of the secret that stores user level
+// secrets for the provided app CR.
+func UserSecretName(customResource v1alpha1.App) string {
+	return customResource.Spec.UserConfig.Secret.Name
+}
+
+// UserSecretNamespace returns the namespace of the secret that stores user
+// level secrets for the provided app CR.
+func UserSecretNamespace(customResource v1alpha1.App) string {
+	return customResource.Spec.UserConfig.Secret.Namespace
+}
+
 func Version(customResource v1alpha1.App) string {
 	return customResource.Spec.Version
 }
