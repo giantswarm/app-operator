@@ -30,8 +30,9 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 
 	appSecretName := key.AppSecretName(cr)
 	catalogSecretName := appcatalogkey.SecretName(cc.AppCatalog)
+	userSecretName := key.UserSecretName(cr)
 
-	if appSecretName == "" && catalogSecretName == "" {
+	if appSecretName == "" && catalogSecretName == "" && userSecretName == "" {
 		// Return early as there is no secret.
 		return nil, nil
 	}
@@ -53,6 +54,21 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 	mergedData, err := values.MergeSecretData(catalogData, appData)
 	if err != nil {
 		return nil, microerror.Mask(err)
+	}
+
+	// We get the user level values if configured and merge them.
+	if userSecretName != "" {
+		userData, err := r.getUserSecretDataForApp(ctx, cr)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		// Secrets are merged again and in case of intersecting values the user
+		// level secrets are preferred.
+		mergedData, err = values.MergeSecretData(mergedData, userData)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
 	}
 
 	secret := &corev1.Secret{
@@ -90,10 +106,6 @@ func (r *Resource) getSecret(ctx context.Context, secretName, secretNamespace st
 }
 
 func (r *Resource) getSecretDataForApp(ctx context.Context, app v1alpha1.App) (map[string][]byte, error) {
-	if key.AppSecretName(app) == "" {
-		return map[string][]byte{}, nil
-	}
-
 	secret, err := r.getSecret(ctx, key.AppSecretName(app), key.AppSecretNamespace(app))
 	if err != nil {
 		return nil, microerror.Mask(err)
@@ -103,11 +115,16 @@ func (r *Resource) getSecretDataForApp(ctx context.Context, app v1alpha1.App) (m
 }
 
 func (r *Resource) getSecretDataForCatalog(ctx context.Context, catalog v1alpha1.AppCatalog) (map[string][]byte, error) {
-	if appcatalogkey.SecretName(catalog) == "" {
-		return map[string][]byte{}, nil
+	secret, err := r.getSecret(ctx, appcatalogkey.SecretName(catalog), appcatalogkey.SecretNamespace(catalog))
+	if err != nil {
+		return nil, microerror.Mask(err)
 	}
 
-	secret, err := r.getSecret(ctx, appcatalogkey.SecretName(catalog), appcatalogkey.SecretNamespace(catalog))
+	return secret, nil
+}
+
+func (r *Resource) getUserSecretDataForApp(ctx context.Context, app v1alpha1.App) (map[string][]byte, error) {
+	secret, err := r.getSecret(ctx, key.UserSecretName(app), key.UserSecretNamespace(app))
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
