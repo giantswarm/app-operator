@@ -10,14 +10,9 @@ import (
 	"github.com/giantswarm/operatorkit/controller"
 
 	"github.com/giantswarm/app-operator/service/controller/app/v1/controllercontext"
-	"github.com/giantswarm/app-operator/service/controller/app/v1/key"
 )
 
 func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange interface{}) error {
-	cr, err := key.ToCustomResource(obj)
-	if err != nil {
-		return microerror.Mask(err)
-	}
 	chart, err := toChart(updateChange)
 	if err != nil {
 		return microerror.Mask(err)
@@ -31,7 +26,7 @@ func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange inte
 			return microerror.Mask(err)
 		}
 
-		_, err = cc.G8sClient.ApplicationV1alpha1().Charts(cr.GetNamespace()).Update(chart)
+		_, err = cc.G8sClient.ApplicationV1alpha1().Charts(r.chartNamespace).Update(chart)
 		if err != nil {
 			return microerror.Mask(err)
 		}
