@@ -269,6 +269,46 @@ func Test_ToCustomResource(t *testing.T) {
 	}
 }
 
+func Test_UserConfigMapName(t *testing.T) {
+	expectedName := "giant-swarm-user-configmap-name"
+
+	obj := v1alpha1.App{
+		Spec: v1alpha1.AppSpec{
+			Name:    "giant-swarm-name",
+			Catalog: "giant-swarm-catalog-name",
+			UserConfig: v1alpha1.AppSpecConfig{
+				ConfigMap: v1alpha1.AppSpecConfigConfigMap{
+					Name: "giant-swarm-user-configmap-name",
+				},
+			},
+		},
+	}
+
+	if UserConfigMapName(obj) != expectedName {
+		t.Fatalf("UserConfigMapName %#q, want %#q", UserConfigMapName(obj), expectedName)
+	}
+}
+
+func Test_UserConfigMapNamespace(t *testing.T) {
+	expectedNamespace := "giant-swarm-user-configmap-namespace"
+
+	obj := v1alpha1.App{
+		Spec: v1alpha1.AppSpec{
+			Name:    "giant-swarm-name",
+			Catalog: "giant-swarm-catalog-name",
+			UserConfig: v1alpha1.AppSpecConfig{
+				ConfigMap: v1alpha1.AppSpecConfigConfigMap{
+					Namespace: "giant-swarm-user-configmap-namespace",
+				},
+			},
+		},
+	}
+
+	if UserConfigMapNamespace(obj) != expectedNamespace {
+		t.Fatalf("UserConfigMapNamespace %#q, want %#q", UserConfigMapNamespace(obj), expectedNamespace)
+	}
+}
+
 func Test_UserSecretName(t *testing.T) {
 	expectedName := "giant-swarm-user-secret-name"
 

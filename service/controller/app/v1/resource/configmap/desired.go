@@ -30,8 +30,9 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 
 	appConfigMapName := key.AppConfigMapName(cr)
 	catalogConfigMapName := appcatalogkey.ConfigMapName(cc.AppCatalog)
+	userConfigMapName := key.UserConfigMapName(cr)
 
-	if appConfigMapName == "" && catalogConfigMapName == "" {
+	if appConfigMapName == "" && catalogConfigMapName == "" && userConfigMapName == "" {
 		// Return early as there is no config.
 		return nil, nil
 	}
@@ -53,6 +54,21 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 	mergedData, err := values.MergeConfigMapData(catalogData, appData)
 	if err != nil {
 		return nil, microerror.Mask(err)
+	}
+
+	// We get the user level values if configured and merge them.
+	if userConfigMapName != "" {
+		userData, err := r.getUserConfigMapForApp(ctx, cr)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		// Config is merged again and in case of intersecting values the user
+		// level config is preferred.
+		mergedData, err = values.MergeConfigMapData(mergedData, userData)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
 	}
 
 	configMap := &corev1.ConfigMap{
@@ -100,6 +116,15 @@ func (r *Resource) getConfigMapForApp(ctx context.Context, app v1alpha1.App) (ma
 
 func (r *Resource) getConfigMapForCatalog(ctx context.Context, catalog v1alpha1.AppCatalog) (map[string]string, error) {
 	configMap, err := r.getConfigMap(ctx, appcatalogkey.ConfigMapName(catalog), appcatalogkey.ConfigMapNamespace(catalog))
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	return configMap, nil
+}
+
+func (r *Resource) getUserConfigMapForApp(ctx context.Context, app v1alpha1.App) (map[string]string, error) {
+	configMap, err := r.getConfigMap(ctx, key.UserConfigMapName(app), key.UserConfigMapNamespace(app))
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
