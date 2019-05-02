@@ -267,7 +267,90 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 			},
 			expectedSecret: &corev1.Secret{
 				Data: map[string][]byte{
+					// "test: app" overrides "test: catalog".
 					"values": []byte("catalog: yaml\ncluster: yaml\ntest: app\n"),
+				},
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "my-test-app-chart-secrets",
+					Namespace: "giantswarm",
+					Labels: map[string]string{
+						label.ManagedBy: "app-operator",
+					},
+				},
+			},
+		},
+		{
+			name: "case 5: intersecting catalog, app and user secrets are merged, user is preferred",
+			obj: &v1alpha1.App{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "my-test-app",
+					Namespace: "giantswarm",
+				},
+				Spec: v1alpha1.AppSpec{
+					Catalog: "test-catalog",
+					Config: v1alpha1.AppSpecConfig{
+						Secret: v1alpha1.AppSpecConfigSecret{
+							Name:      "test-cluster-secrets",
+							Namespace: "giantswarm",
+						},
+					},
+					Name:      "test-app",
+					Namespace: "giantswarm",
+					UserConfig: v1alpha1.AppSpecConfig{
+						Secret: v1alpha1.AppSpecConfigSecret{
+							Name:      "test-user-secrets",
+							Namespace: "giantswarm",
+						},
+					},
+				},
+			},
+			appCatalog: v1alpha1.AppCatalog{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "test-catalog",
+				},
+				Spec: v1alpha1.AppCatalogSpec{
+					Title: "test-catalog",
+					Config: v1alpha1.AppCatalogSpecConfig{
+						Secret: v1alpha1.AppCatalogSpecConfigSecret{
+							Name:      "test-catalog-secrets",
+							Namespace: "giantswarm",
+						},
+					},
+				},
+			},
+			secrets: []*corev1.Secret{
+				{
+					Data: map[string][]byte{
+						"values": []byte("catalog: test\ntest: catalog\n"),
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "test-catalog-secrets",
+						Namespace: "giantswarm",
+					},
+				},
+				{
+					Data: map[string][]byte{
+						"values": []byte("cluster: test\ntest: app\n"),
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "test-cluster-secrets",
+						Namespace: "giantswarm",
+					},
+				},
+				{
+					Data: map[string][]byte{
+						"values": []byte("user: test\ntest: user\n"),
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "test-user-secrets",
+						Namespace: "giantswarm",
+					},
+				},
+			},
+			expectedSecret: &corev1.Secret{
+				Data: map[string][]byte{
+					// "test: user" overrides "test: catalog" and "test: app".
+					"values": []byte("catalog: test\ncluster: test\ntest: user\nuser: test\n"),
 				},
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "my-test-app-chart-secrets",
