@@ -267,6 +267,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 			},
 			expectedSecret: &corev1.Secret{
 				Data: map[string][]byte{
+					// "test: app" overrides "test: catalog".
 					"values": []byte("catalog: yaml\ncluster: yaml\ntest: app\n"),
 				},
 				ObjectMeta: metav1.ObjectMeta{
@@ -348,6 +349,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 			},
 			expectedSecret: &corev1.Secret{
 				Data: map[string][]byte{
+					// "test: user" overrides "test: catalog" and "test: app".
 					"values": []byte("catalog: test\ncluster: test\ntest: user\nuser: test\n"),
 				},
 				ObjectMeta: metav1.ObjectMeta{

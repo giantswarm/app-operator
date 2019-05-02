@@ -10,15 +10,9 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/giantswarm/app-operator/service/controller/app/v1/controllercontext"
-	"github.com/giantswarm/app-operator/service/controller/app/v1/key"
 )
 
 func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange interface{}) error {
-	cr, err := key.ToCustomResource(obj)
-	if err != nil {
-		return microerror.Mask(err)
-	}
-
 	chart, err := toChart(deleteChange)
 	if err != nil {
 		return microerror.Mask(err)
@@ -32,7 +26,7 @@ func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange inte
 			return microerror.Mask(err)
 		}
 
-		err = cc.G8sClient.ApplicationV1alpha1().Charts(cr.GetNamespace()).Delete(chart.Name, &metav1.DeleteOptions{})
+		err = cc.G8sClient.ApplicationV1alpha1().Charts(chart.Namespace).Delete(chart.Name, &metav1.DeleteOptions{})
 		if apierrors.IsNotFound(err) {
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("already deleted Chart CR %#q in namespace %#q", chart.Name, chart.Namespace))
 		} else if err != nil {
