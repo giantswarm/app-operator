@@ -69,6 +69,18 @@ func Namespace(customResource v1alpha1.App) string {
 	return customResource.Spec.Namespace
 }
 
+// UserSecretName returns the name of the secret that stores user level
+// secrets for the provided app CR.
+func UserSecretName(customResource v1alpha1.App) string {
+	return customResource.Spec.UserConfig.Secret.Name
+}
+
+// UserSecretNamespace returns the namespace of the secret that stores user
+// level secrets for the provided app CR.
+func UserSecretNamespace(customResource v1alpha1.App) string {
+	return customResource.Spec.UserConfig.Secret.Namespace
+}
+
 // ToCustomResource converts value to v1alpha1.App and returns it or error
 // if type does not match.
 func ToCustomResource(v interface{}) (v1alpha1.App, error) {
