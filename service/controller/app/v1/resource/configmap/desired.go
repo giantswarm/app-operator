@@ -5,9 +5,7 @@ import (
 	"fmt"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
-	"github.com/giantswarm/helmclient"
 	"github.com/giantswarm/microerror"
-	yaml "gopkg.in/yaml.v2"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -15,6 +13,7 @@ import (
 	"github.com/giantswarm/app-operator/pkg/label"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/controllercontext"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/key"
+	"github.com/giantswarm/app-operator/service/controller/app/v1/values"
 	appcatalogkey "github.com/giantswarm/app-operator/service/controller/appcatalog/v1/key"
 )
 
@@ -49,22 +48,15 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		return nil, microerror.Mask(err)
 	}
 
-	// Values are merged and in case of intersecting values the app level
-	// secrets are preferred.
-	mergedData, err := helmclient.MergeValues(toByteSliceMap(catalogData), toByteSliceMap(appData))
-	if err != nil {
-		return nil, microerror.Mask(err)
-	}
-
-	valuesYAML, err := yaml.Marshal(mergedData)
+	// Config is merged and in case of intersecting values the app level
+	// config is preferred.
+	mergedData, err := values.MergeConfigMapData(catalogData, appData)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
 
 	configMap := &corev1.ConfigMap{
-		Data: map[string]string{
-			"values": string(valuesYAML),
-		},
+		Data: mergedData,
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      key.ChartConfigMapName(cr),
 			Namespace: key.Namespace(cr),
