@@ -348,7 +348,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 			},
 			expectedConfigMap: &corev1.ConfigMap{
 				Data: map[string]string{
-					"values": "cluster: test\ncatalog: test\ntest: user\nuser: test\n",
+					"values": "catalog: test\ncluster: test\ntest: user\nuser: test\n",
 				},
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "my-test-app-chart-values",
