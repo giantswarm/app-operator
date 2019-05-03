@@ -8,11 +8,10 @@ import (
 	"github.com/giantswarm/operatorkit/controller"
 	"github.com/giantswarm/operatorkit/controller/resource/metricsresource"
 	"github.com/giantswarm/operatorkit/controller/resource/retryresource"
-	"github.com/giantswarm/operatorkit/resource/configmap"
 	"k8s.io/client-go/kubernetes"
 
 	"github.com/giantswarm/app-operator/service/controller/appcatalog/v1/key"
-	"github.com/giantswarm/app-operator/service/controller/appcatalog/v1/resource/index"
+	"github.com/giantswarm/app-operator/service/controller/appcatalog/v1/resource/empty"
 )
 
 // ResourceSetConfig contains necessary dependencies and settings for
@@ -47,42 +46,13 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.IndexNamespace must not be empty", config)
 	}
 
-	var indexResource controller.Resource
+	var emptyResource controller.Resource
 	{
-		c := index.Config{
-			K8sClient: config.K8sClient,
-			Logger:    config.Logger,
-
-			ProjectName:    config.ProjectName,
-			IndexNamespace: config.IndexNamespace,
-		}
-
-		stateGetter, err := index.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-
-		configOps := configmap.Config{
-			K8sClient: config.K8sClient,
-			Logger:    config.Logger,
-
-			Name:        index.Name,
-			StateGetter: stateGetter,
-		}
-
-		ops, err := configmap.New(configOps)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-
-		indexResource, err = toCRUDResource(config.Logger, ops)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
+		emptyResource = empty.New()
 	}
 
 	resources := []controller.Resource{
-		indexResource,
+		emptyResource,
 	}
 
 	{
