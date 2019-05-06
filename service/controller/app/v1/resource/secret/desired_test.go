@@ -88,7 +88,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 				},
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "my-prometheus-chart-secrets",
-					Namespace: "monitoring",
+					Namespace: "giantswarm",
 					Labels: map[string]string{
 						label.ManagedBy: "app-operator",
 					},
@@ -383,6 +383,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 				K8sClient: clientgofake.NewSimpleClientset(objs...),
 				Logger:    microloggertest.New(),
 
+				ChartNamespace: "giantswarm",
 				ProjectName:    "app-operator",
 				WatchNamespace: "default",
 			}

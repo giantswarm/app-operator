@@ -96,6 +96,7 @@ func Test_Resource_newCreateChange(t *testing.T) {
 		K8sClient: clientgofake.NewSimpleClientset(),
 		Logger:    microloggertest.New(),
 
+		ChartNamespace: "giantswarm",
 		ProjectName:    "app-operator",
 		WatchNamespace: "default",
 	}

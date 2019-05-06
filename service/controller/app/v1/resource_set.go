@@ -115,6 +115,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
 
+			ChartNamespace: config.ChartNamespace,
 			ProjectName:    config.ProjectName,
 			WatchNamespace: config.WatchNamespace,
 		}
@@ -137,6 +138,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
 
+			ChartNamespace: config.ChartNamespace,
 			ProjectName:    config.ProjectName,
 			WatchNamespace: config.WatchNamespace,
 		}
