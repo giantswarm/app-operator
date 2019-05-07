@@ -12,6 +12,8 @@ type SetConfig struct {
 	G8sClient versioned.Interface
 	K8sClient kubernetes.Interface
 	Logger    micrologger.Logger
+
+	WatchNamespace string
 }
 
 // Set is basically only a wrapper for the operator's collector implementations.
