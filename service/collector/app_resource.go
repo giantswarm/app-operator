@@ -3,6 +3,7 @@ package collector
 import (
 	"context"
 	"fmt"
+
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
@@ -30,8 +31,6 @@ type AppResourceConfig struct {
 	G8sClient versioned.Interface
 	K8sClient kubernetes.Interface
 	Logger    micrologger.Logger
-
-	WatchNamespace string
 }
 
 // AppResource is the main struct for this collector.
@@ -39,8 +38,6 @@ type AppResource struct {
 	g8sClient versioned.Interface
 	k8sClient kubernetes.Interface
 	logger    micrologger.Logger
-
-	watchNamespace string
 }
 
 // NewAppResource creates a new AppResource metrics collector
@@ -59,15 +56,13 @@ func NewAppResource(config AppResourceConfig) (*AppResource, error) {
 		g8sClient: config.G8sClient,
 		k8sClient: config.K8sClient,
 		logger:    config.Logger,
-
-		watchNamespace: config.WatchNamespace,
 	}
 
 	return c, nil
 }
 
 func (c *AppResource) collectAppStatus(ctx context.Context, ch chan<- prometheus.Metric) {
-	r, err := c.g8sClient.ApplicationV1alpha1().Apps(c.watchNamespace).List(metav1.ListOptions{})
+	r, err := c.g8sClient.ApplicationV1alpha1().Apps("").List(metav1.ListOptions{})
 	if err != nil {
 		c.logger.LogCtx(ctx, "level", "error", "message", "could not get apps", "stack", fmt.Sprintf("%#v", err))
 	}

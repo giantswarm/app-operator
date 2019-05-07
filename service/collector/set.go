@@ -12,8 +12,6 @@ type SetConfig struct {
 	G8sClient versioned.Interface
 	K8sClient kubernetes.Interface
 	Logger    micrologger.Logger
-
-	WatchNamespace string
 }
 
 // Set is basically only a wrapper for the operator's collector implementations.
@@ -42,8 +40,6 @@ func NewSet(config SetConfig) (*Set, error) {
 			G8sClient: config.G8sClient,
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
-
-			WatchNamespace: config.WatchNamespace,
 		}
 
 		appOperatorCollector, err = NewAppResource(c)
