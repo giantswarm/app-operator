@@ -65,6 +65,7 @@ func (c *AppResource) collectAppStatus(ctx context.Context, ch chan<- prometheus
 	r, err := c.g8sClient.ApplicationV1alpha1().Apps("").List(metav1.ListOptions{})
 	if err != nil {
 		c.logger.LogCtx(ctx, "level", "error", "message", "could not get apps", "stack", fmt.Sprintf("%#v", err))
+		return
 	}
 
 	for _, app := range r.Items {
