@@ -42,6 +42,8 @@ func NewSet(config SetConfig) (*Set, error) {
 			G8sClient: config.G8sClient,
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
+
+			WatchNamespace: config.WatchNamespace,
 		}
 
 		appOperatorCollector, err = NewAppResource(c)
