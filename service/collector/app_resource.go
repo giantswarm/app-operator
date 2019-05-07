@@ -15,7 +15,7 @@ import (
 
 var (
 	appDesc *prometheus.Desc = prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, "", "app_status"),
+		prometheus.BuildFQName(namespace, "", "app"),
 		"Managed apps status.",
 		[]string{
 			labelName,
