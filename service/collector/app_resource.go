@@ -85,7 +85,6 @@ func (c *AppResource) collectAppStatus(ctx context.Context, ch chan<- prometheus
 // Collect is the main metrics collection function.
 func (c *AppResource) Collect(ch chan<- prometheus.Metric) error {
 	ctx := context.Background()
-
 	c.logger.LogCtx(ctx, "level", "debug", "message", "collecting metrics")
 
 	c.collectAppStatus(ctx, ch)
