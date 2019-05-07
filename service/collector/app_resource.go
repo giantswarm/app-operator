@@ -3,8 +3,6 @@ package collector
 import (
 	"context"
 	"fmt"
-	"sync"
-
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
@@ -95,22 +93,7 @@ func (c *AppResource) Collect(ch chan<- prometheus.Metric) error {
 
 	c.logger.LogCtx(ctx, "level", "debug", "message", "collecting metrics")
 
-	collectFuncs := []func(context.Context, chan<- prometheus.Metric){
-		c.collectAppStatus,
-	}
-
-	var wg sync.WaitGroup
-
-	for _, collectFunc := range collectFuncs {
-		wg.Add(1)
-
-		go func(collectFunc func(ctx context.Context, ch chan<- prometheus.Metric)) {
-			defer wg.Done()
-			collectFunc(ctx, ch)
-		}(collectFunc)
-	}
-
-	wg.Wait()
+	c.collectAppStatus(ctx, ch)
 
 	c.logger.LogCtx(ctx, "level", "debug", "message", "finished collecting metrics")
 	return nil
