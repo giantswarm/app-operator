@@ -45,6 +45,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		AppVersion: chartStatus.AppVersion,
 		Release: v1alpha1.AppStatusRelease{
 			LastDeployed: *chartStatus.Release.LastDeployed.DeepCopy(),
+			Reason:       chartStatus.Reason,
 			Status:       chartStatus.Release.Status,
 		},
 		Version: chartStatus.Version,
