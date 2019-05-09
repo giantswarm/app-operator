@@ -89,7 +89,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					Config: v1alpha1.ChartSpecConfig{
 						ConfigMap: v1alpha1.ChartSpecConfigConfigMap{
 							Name:      "my-cool-prometheus-chart-values",
-							Namespace: "monitoring",
+							Namespace: "giantswarm",
 						},
 					},
 					Name:       "my-cool-prometheus",
@@ -392,7 +392,7 @@ func Test_generateConfig(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			result := generateConfig(tc.cr, tc.appCatalog)
+			result := generateConfig(tc.cr, tc.appCatalog, "giantswarm")
 
 			if !reflect.DeepEqual(result, tc.expectedConfig) {
 				t.Fatalf("want matching Config \n %s", cmp.Diff(result, tc.expectedConfig))
