@@ -27,7 +27,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		return nil, microerror.Mask(err)
 	}
 
-	config := generateConfig(cr, cc.AppCatalog)
+	config := generateConfig(cr, cc.AppCatalog, r.chartNamespace)
 	tarballURL, err := generateTarballURL(appcatalogkey.AppCatalogStorageURL(cc.AppCatalog), key.AppName(cr), key.Version(cr))
 	if err != nil {
 		return nil, err
@@ -54,13 +54,13 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 	return chartCR, nil
 }
 
-func generateConfig(cr v1alpha1.App, appCatalog v1alpha1.AppCatalog) v1alpha1.ChartSpecConfig {
+func generateConfig(cr v1alpha1.App, appCatalog v1alpha1.AppCatalog, chartNamespace string) v1alpha1.ChartSpecConfig {
 	config := v1alpha1.ChartSpecConfig{}
 
 	if hasConfigMap(cr, appCatalog) {
 		configMap := v1alpha1.ChartSpecConfigConfigMap{
 			Name:      key.ChartConfigMapName(cr),
-			Namespace: key.Namespace(cr),
+			Namespace: chartNamespace,
 		}
 
 		config.ConfigMap = configMap
@@ -69,7 +69,7 @@ func generateConfig(cr v1alpha1.App, appCatalog v1alpha1.AppCatalog) v1alpha1.Ch
 	if hasSecret(cr, appCatalog) {
 		secret := v1alpha1.ChartSpecConfigSecret{
 			Name:      key.ChartSecretName(cr),
-			Namespace: key.Namespace(cr),
+			Namespace: chartNamespace,
 		}
 
 		config.Secret = secret
