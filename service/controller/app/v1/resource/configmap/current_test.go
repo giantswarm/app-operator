@@ -48,7 +48,7 @@ func Test_Resource_GetCurrentState(t *testing.T) {
 				},
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "test-app-chart-values",
-					Namespace: "kube-system",
+					Namespace: "giantswarm",
 				},
 			},
 			expectedConfigMap: &corev1.ConfigMap{
@@ -57,7 +57,7 @@ func Test_Resource_GetCurrentState(t *testing.T) {
 				},
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "test-app-chart-values",
-					Namespace: "kube-system",
+					Namespace: "giantswarm",
 				},
 			},
 		},

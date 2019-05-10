@@ -48,7 +48,7 @@ func Test_Resource_GetCurrentState(t *testing.T) {
 				},
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "test-app-chart-secrets",
-					Namespace: "kube-system",
+					Namespace: "giantswarm",
 				},
 			},
 			expectedSecret: &corev1.Secret{
@@ -57,7 +57,7 @@ func Test_Resource_GetCurrentState(t *testing.T) {
 				},
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "test-app-chart-secrets",
-					Namespace: "kube-system",
+					Namespace: "giantswarm",
 				},
 			},
 		},
