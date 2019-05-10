@@ -133,7 +133,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:9f4e97a0cad42efcb513103b11a4d3cab1866daf46bbcc975b5ca210c71c5421"
+  digest = "1:73215600773eac8399396c41e888a01d9f64a5ebdf8d3c381533f8793c2f2326"
   name = "github.com/giantswarm/apiextensions"
   packages = [
     "pkg/apis/application/v1alpha1",
@@ -322,6 +322,7 @@
     "flag/service/kubernetes/watch",
     "informer",
     "informer/collector",
+    "resource/configmap",
   ]
   pruneopts = "UT"
   revision = "dc60ddf19e89ce0a1ade4a52e94258734bf82dab"
@@ -1252,6 +1253,7 @@
     "github.com/giantswarm/operatorkit/controller/resource/retryresource",
     "github.com/giantswarm/operatorkit/flag/service/kubernetes",
     "github.com/giantswarm/operatorkit/informer",
+    "github.com/giantswarm/operatorkit/resource/configmap",
     "github.com/giantswarm/versionbundle",
     "github.com/google/go-cmp/cmp",
     "github.com/prometheus/client_golang/prometheus",
