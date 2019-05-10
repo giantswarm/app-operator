@@ -156,7 +156,7 @@
     "pkg/clientset/versioned/typed/release/v1alpha1/fake",
   ]
   pruneopts = "UT"
-  revision = "5294df621fba91f5e5b45730904a377623752242"
+  revision = "1e24c1b7127ec4461c8223d34fd12343c95267ee"
 
 [[projects]]
   branch = "master"
@@ -304,7 +304,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:5d59727f574a562e85fc922ad3ac15f4c23d2d6c0d41ad0a4db39ab87a3c0054"
+  digest = "1:06d85b7a32fefc8d774db32228e925c01fc7d95b209486d135cb51ccddcaf6c1"
   name = "github.com/giantswarm/operatorkit"
   packages = [
     "client/k8scrdclient",
@@ -436,11 +436,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:a9d2a46fc25a136a81f7bb71f77a85419afd63974e4dcb5b9abc637e0e7be9aa"
+  digest = "1:5136d279756f5a1496c9b8cac431683405aee7fef4f299cb98c2b348012f5254"
   name = "github.com/google/go-github"
   packages = ["github"]
   pruneopts = "UT"
-  revision = "1fef44b9b427e6c43f92b2f20918e496c275393f"
+  revision = "f2672b10d6f67bf407fac561982efa5f4690f68d"
 
 [[projects]]
   digest = "1:a63cff6b5d8b95638bfe300385d93b2a6d9d687734b863da8e09dc834510a690"

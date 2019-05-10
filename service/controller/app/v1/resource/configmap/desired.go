@@ -75,7 +75,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		Data: mergedData,
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      key.ChartConfigMapName(cr),
-			Namespace: key.Namespace(cr),
+			Namespace: r.chartNamespace,
 			Labels: map[string]string{
 				label.ManagedBy: r.projectName,
 			},
