@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/microerror"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -32,9 +33,11 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 		// Return early as secret does not exist.
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("did not find secret %#q in namespace %#q", name, r.chartNamespace))
 		return nil, nil
-	} else if err != nil {
+	} else if tenant.IsAPINotAvailable(err) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("could not find secret %#q in namespace %#q due to an error: %#q", name, r.chartNamespace, err))
 		return nil, nil
+	} else if err != nil {
+		return nil, microerror.Mask(err)
 	}
 
 	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found secret %#q in namespace %#q", name, r.chartNamespace))
