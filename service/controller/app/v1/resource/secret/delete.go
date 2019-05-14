@@ -52,25 +52,10 @@ func (r *Resource) NewDeletePatch(ctx context.Context, obj, currentState, desire
 }
 
 func (r *Resource) newDeleteChange(ctx context.Context, obj, currentState, desiredState interface{}) (interface{}, error) {
-	currentSecret, err := toSecret(currentState)
-	if err != nil {
-		return nil, microerror.Mask(err)
-	}
 	desiredSecret, err := toSecret(desiredState)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
 
-	r.logger.LogCtx(ctx, "level", "debug", "message", "finding out if the secret has to be deleted")
-
-	isModified := !isEmpty(currentSecret) && equals(currentSecret, desiredSecret)
-	if isModified {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "the secret needs to be deleted")
-
-		return desiredSecret, nil
-	} else {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "the secret does not need to be deleted")
-	}
-
-	return nil, nil
+	return desiredSecret, nil
 }

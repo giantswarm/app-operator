@@ -5,6 +5,7 @@ import (
 
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/microerror"
+	"k8s.io/apimachinery/pkg/api/meta"
 
 	"github.com/giantswarm/app-operator/pkg/label"
 )
@@ -63,6 +64,15 @@ func ChartSecretName(customResource v1alpha1.App) string {
 
 func InCluster(customResource v1alpha1.App) bool {
 	return customResource.Spec.KubeConfig.InCluster
+}
+
+func IsDeleted(obj interface{}) (bool, error) {
+	metaObject, err := meta.Accessor(obj)
+	if err != nil {
+		return false, microerror.Mask(err)
+	}
+
+	return metaObject.GetDeletionTimestamp() != nil, nil
 }
 
 func Namespace(customResource v1alpha1.App) string {

@@ -58,33 +58,6 @@ func Test_Resource_newDeleteChange(t *testing.T) {
 				},
 			},
 		},
-		{
-			name: "case 2: chart should not deleted",
-			currentResource: &v1alpha1.Chart{
-				ObjectMeta: metav1.ObjectMeta{
-					Name: "prometheus",
-				},
-				Spec: v1alpha1.ChartSpec{
-					Name:       "my-cool-prometheus",
-					Namespace:  "monitoring",
-					TarballURL: "https://giantswarm.github.com/app-catalog/kubernetes-prometheus-1.0.0.tgz",
-				},
-			},
-			desiredResource: &v1alpha1.Chart{
-				ObjectMeta: metav1.ObjectMeta{
-					Name: "prometheus",
-					Labels: map[string]string{
-						"app": "prometheus-1",
-					},
-				},
-				Spec: v1alpha1.ChartSpec{
-					Name:       "my-cool-prometheus",
-					Namespace:  "monitoring",
-					TarballURL: "https://giantswarm.github.com/app-catalog/kubernetes-prometheus-1.0.0.tgz",
-				},
-			},
-			expectedChart: &v1alpha1.Chart{},
-		},
 	}
 
 	c := Config{
