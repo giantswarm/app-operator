@@ -4,8 +4,9 @@ import (
 	"fmt"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
-	"github.com/giantswarm/app-operator/pkg/label"
 	"github.com/giantswarm/microerror"
+
+	"github.com/giantswarm/app-operator/pkg/label"
 )
 
 // AppConfigMapName returns the name of the configmap that stores app level
