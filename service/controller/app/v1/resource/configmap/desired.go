@@ -18,15 +18,6 @@ import (
 )
 
 func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interface{}, error) {
-	deleted, err := key.IsDeleted(obj)
-	if err != nil {
-		return nil, microerror.Mask(err)
-	}
-
-	if deleted {
-		return nil, nil
-	}
-
 	cr, err := key.ToCustomResource(obj)
 	if err != nil {
 		return nil, microerror.Mask(err)
