@@ -40,13 +40,13 @@ func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange inte
 }
 
 func (r *Resource) NewDeletePatch(ctx context.Context, obj, currentState, desiredState interface{}) (*controller.Patch, error) {
-	delete, err := r.newDeleteChange(ctx, obj, currentState, desiredState)
+	del, err := r.newDeleteChange(ctx, obj, currentState, desiredState)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
 
 	patch := controller.NewPatch()
-	patch.SetDeleteChange(delete)
+	patch.SetDeleteChange(del)
 
 	return patch, nil
 }
