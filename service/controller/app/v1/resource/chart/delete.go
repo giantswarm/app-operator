@@ -40,37 +40,22 @@ func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange inte
 }
 
 func (r *Resource) NewDeletePatch(ctx context.Context, obj, currentState, desiredState interface{}) (*controller.Patch, error) {
-	delete, err := r.newDeleteChange(ctx, obj, currentState, desiredState)
+	del, err := r.newDeleteChange(ctx, obj, currentState, desiredState)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
 
 	patch := controller.NewPatch()
-	patch.SetDeleteChange(delete)
+	patch.SetDeleteChange(del)
 
 	return patch, nil
 }
 
 func (r *Resource) newDeleteChange(ctx context.Context, obj, currentState, desiredState interface{}) (interface{}, error) {
-	currentChart, err := toChart(currentState)
-	if err != nil {
-		return nil, microerror.Mask(err)
-	}
 	desiredChart, err := toChart(desiredState)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
 
-	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding out if the %#q chart has to be deleted", desiredChart.Name))
-
-	isModified := !isEmpty(currentChart) && equals(currentChart, desiredChart)
-	if isModified {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("the %#q chart needs to be deleted", desiredChart.Name))
-
-		return desiredChart, nil
-	} else {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("the %#q chart does not need to be deleted", desiredChart.Name))
-	}
-
-	return nil, nil
+	return desiredChart, nil
 }

@@ -40,37 +40,22 @@ func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange inte
 }
 
 func (r *Resource) NewDeletePatch(ctx context.Context, obj, currentState, desiredState interface{}) (*controller.Patch, error) {
-	delete, err := r.newDeleteChange(ctx, obj, currentState, desiredState)
+	del, err := r.newDeleteChange(ctx, obj, currentState, desiredState)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
 
 	patch := controller.NewPatch()
-	patch.SetDeleteChange(delete)
+	patch.SetDeleteChange(del)
 
 	return patch, nil
 }
 
 func (r *Resource) newDeleteChange(ctx context.Context, obj, currentState, desiredState interface{}) (interface{}, error) {
-	currentConfigMap, err := toConfigMap(currentState)
-	if err != nil {
-		return nil, microerror.Mask(err)
-	}
 	desiredConfigMap, err := toConfigMap(desiredState)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
 
-	r.logger.LogCtx(ctx, "level", "debug", "message", "finding out if the configMap has to be deleted")
-
-	isModified := !isEmpty(currentConfigMap) && equals(currentConfigMap, desiredConfigMap)
-	if isModified {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "the configMap needs to be deleted")
-
-		return desiredConfigMap, nil
-	} else {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "the configMap does not need to be deleted")
-	}
-
-	return nil, nil
+	return desiredConfigMap, nil
 }

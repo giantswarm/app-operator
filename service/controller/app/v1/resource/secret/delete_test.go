@@ -29,7 +29,7 @@ func Test_Resource_newDeleteChange(t *testing.T) {
 			expectedSecret: &corev1.Secret{},
 		},
 		{
-			name: "case 1: non empty current and desired, expected desired",
+			name: "case 1: non empty current and empty desired, expected empty",
 			currentState: &corev1.Secret{
 				Data: map[string][]byte{
 					"key": []byte("value"),
@@ -39,46 +39,7 @@ func Test_Resource_newDeleteChange(t *testing.T) {
 					Namespace: "default",
 				},
 			},
-			desiredState: &corev1.Secret{
-				Data: map[string][]byte{
-					"key": []byte("value"),
-				},
-				ObjectMeta: metav1.ObjectMeta{
-					Name:      "app-values",
-					Namespace: "default",
-				},
-			},
-			expectedSecret: &corev1.Secret{
-				Data: map[string][]byte{
-					"key": []byte("value"),
-				},
-				ObjectMeta: metav1.ObjectMeta{
-					Name:      "app-values",
-					Namespace: "default",
-				},
-			},
-		},
-		{
-			name: "case 2: different current and desired, expected empty",
-			currentState: &corev1.Secret{
-				Data: map[string][]byte{
-					"another": []byte("value"),
-					"key":     []byte("value"),
-				},
-				ObjectMeta: metav1.ObjectMeta{
-					Name:      "app-values",
-					Namespace: "default",
-				},
-			},
-			desiredState: &corev1.Secret{
-				Data: map[string][]byte{
-					"key": []byte("value"),
-				},
-				ObjectMeta: metav1.ObjectMeta{
-					Name:      "app-values",
-					Namespace: "default",
-				},
-			},
+			desiredState:   &corev1.Secret{},
 			expectedSecret: &corev1.Secret{},
 		},
 	}

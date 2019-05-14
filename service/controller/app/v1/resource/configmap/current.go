@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/microerror"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -31,6 +32,9 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 	if apierrors.IsNotFound(err) {
 		// Return early as configmap does not exist.
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("did not find configmap %#q in namespace %#q", name, r.chartNamespace))
+		return nil, nil
+	} else if tenant.IsAPINotAvailable(err) {
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("could not find configmap %#q in namespace %#q", name, r.chartNamespace))
 		return nil, nil
 	} else if err != nil {
 		return nil, microerror.Mask(err)
