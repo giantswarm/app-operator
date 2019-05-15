@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/microerror"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -30,6 +31,9 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 	chart, err := cc.K8sClient.CoreV1().Secrets(r.chartNamespace).Get(name, metav1.GetOptions{})
 	if apierrors.IsNotFound(err) {
 		// Return early as secret does not exist.
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("did not find secret %#q in namespace %#q", name, r.chartNamespace))
+		return nil, nil
+	} else if tenant.IsAPINotAvailable(err) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("did not find secret %#q in namespace %#q", name, r.chartNamespace))
 		return nil, nil
 	} else if err != nil {

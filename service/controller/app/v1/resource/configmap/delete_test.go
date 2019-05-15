@@ -29,7 +29,7 @@ func Test_Resource_newDeleteChange(t *testing.T) {
 			expectedConfigMap: &corev1.ConfigMap{},
 		},
 		{
-			name: "case 1: non empty current and desired, expected desired",
+			name: "case 1: non empty current and empty desired, expected empty",
 			currentState: &corev1.ConfigMap{
 				Data: map[string]string{
 					"key": "value",
@@ -39,46 +39,7 @@ func Test_Resource_newDeleteChange(t *testing.T) {
 					Namespace: "default",
 				},
 			},
-			desiredState: &corev1.ConfigMap{
-				Data: map[string]string{
-					"key": "value",
-				},
-				ObjectMeta: metav1.ObjectMeta{
-					Name:      "app-values",
-					Namespace: "default",
-				},
-			},
-			expectedConfigMap: &corev1.ConfigMap{
-				Data: map[string]string{
-					"key": "value",
-				},
-				ObjectMeta: metav1.ObjectMeta{
-					Name:      "app-values",
-					Namespace: "default",
-				},
-			},
-		},
-		{
-			name: "case 2: different current and desired, expected empty",
-			currentState: &corev1.ConfigMap{
-				Data: map[string]string{
-					"another": "value",
-					"key":     "value",
-				},
-				ObjectMeta: metav1.ObjectMeta{
-					Name:      "app-values",
-					Namespace: "default",
-				},
-			},
-			desiredState: &corev1.ConfigMap{
-				Data: map[string]string{
-					"key": "value",
-				},
-				ObjectMeta: metav1.ObjectMeta{
-					Name:      "app-values",
-					Namespace: "default",
-				},
-			},
+			desiredState:      &corev1.ConfigMap{},
 			expectedConfigMap: &corev1.ConfigMap{},
 		},
 	}

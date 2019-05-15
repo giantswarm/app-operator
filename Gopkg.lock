@@ -133,7 +133,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:73215600773eac8399396c41e888a01d9f64a5ebdf8d3c381533f8793c2f2326"
+  digest = "1:9f4e97a0cad42efcb513103b11a4d3cab1866daf46bbcc975b5ca210c71c5421"
   name = "github.com/giantswarm/apiextensions"
   packages = [
     "pkg/apis/application/v1alpha1",
@@ -208,9 +208,12 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:21b55eca1f822f4a2b5eb42c789b25565ee6affdade65ae6015144ee2a9398ec"
+  digest = "1:08119f5e0765ddd55378346afcc64c074200e3c267aa460f8f4ae81c5bae877c"
   name = "github.com/giantswarm/errors"
-  packages = ["guest"]
+  packages = [
+    "guest",
+    "tenant",
+  ]
   pruneopts = "UT"
   revision = "f6706eb80f388ce182dcee855eab59c5eb872119"
 
@@ -322,7 +325,6 @@
     "flag/service/kubernetes/watch",
     "informer",
     "informer/collector",
-    "resource/configmap",
   ]
   pruneopts = "UT"
   revision = "dc60ddf19e89ce0a1ade4a52e94258734bf82dab"
@@ -1234,6 +1236,7 @@
     "github.com/giantswarm/e2e-harness/pkg/release",
     "github.com/giantswarm/e2esetup/k8s",
     "github.com/giantswarm/e2etemplates/pkg/chartvalues",
+    "github.com/giantswarm/errors/tenant",
     "github.com/giantswarm/exporterkit/collector",
     "github.com/giantswarm/helmclient",
     "github.com/giantswarm/kubeconfig",
@@ -1253,7 +1256,6 @@
     "github.com/giantswarm/operatorkit/controller/resource/retryresource",
     "github.com/giantswarm/operatorkit/flag/service/kubernetes",
     "github.com/giantswarm/operatorkit/informer",
-    "github.com/giantswarm/operatorkit/resource/configmap",
     "github.com/giantswarm/versionbundle",
     "github.com/google/go-cmp/cmp",
     "github.com/prometheus/client_golang/prometheus",
