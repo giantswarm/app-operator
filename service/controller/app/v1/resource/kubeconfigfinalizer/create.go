@@ -3,6 +3,7 @@ package kubeconfigfinalizer
 import (
 	"context"
 	"fmt"
+
 	"github.com/giantswarm/microerror"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -36,7 +37,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	finalizerTag := key.KubeConfigFinalizer(cr)
 
 	if !contains(kubeConfig.Finalizers, finalizerTag) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("setting finalizer for kubeconfig %#q in namespace %#q", name))
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("setting finalizer for kubeconfig %#q", name))
 
 		kubeConfig.Finalizers = append(kubeConfig.Finalizers)
 
@@ -45,7 +46,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			return microerror.Mask(err)
 		}
 	} else {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finalizer already set for kubeconfig %#q in namespace %#q", name))
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finalizer already set for kubeconfig %#q", name))
 	}
 	return nil
 }

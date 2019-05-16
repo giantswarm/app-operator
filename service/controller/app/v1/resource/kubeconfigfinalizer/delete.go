@@ -3,9 +3,12 @@ package kubeconfigfinalizer
 import (
 	"context"
 	"fmt"
-	"github.com/giantswarm/app-operator/service/controller/app/v1/key"
+
 	"github.com/giantswarm/microerror"
 	"k8s.io/apimachinery/pkg/api/errors"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
+	"github.com/giantswarm/app-operator/service/controller/app/v1/key"
 )
 
 func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
@@ -51,7 +54,7 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 func filter(finalizers []string, matching string) (ret []string) {
 	for _, f := range finalizers {
 		if f != matching {
-			ret = append(ret, s)
+			ret = append(ret, f)
 		}
 	}
 	return ret
