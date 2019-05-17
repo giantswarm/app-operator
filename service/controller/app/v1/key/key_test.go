@@ -204,6 +204,52 @@ func Test_InCluster(t *testing.T) {
 	}
 }
 
+func Test_KubecConfigFinalizer(t *testing.T) {
+	obj := v1alpha1.App{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: "my-test-app",
+		},
+	}
+
+	if KubeConfigFinalizer(obj) != "app-operator.giantswarm.io/my-test-app" {
+		t.Fatalf("kubeconfig finalizer name %#v, want %#v", KubeConfigFinalizer(obj), "app-operator.giantswarm.io/my-test-app")
+	}
+}
+
+func Test_KubecConfigSecretName(t *testing.T) {
+	obj := v1alpha1.App{
+		Spec: v1alpha1.AppSpec{
+			KubeConfig: v1alpha1.AppSpecKubeConfig{
+				InCluster: false,
+				Secret: v1alpha1.AppSpecKubeConfigSecret{
+					Name: "kubename",
+				},
+			},
+		},
+	}
+
+	if KubecConfigSecretName(obj) != "kubename" {
+		t.Fatalf("kubeconfig secret name %#v, want %#v", KubecConfigSecretName(obj), "kubename")
+	}
+}
+
+func Test_KubecConfigSecretNamespace(t *testing.T) {
+	obj := v1alpha1.App{
+		Spec: v1alpha1.AppSpec{
+			KubeConfig: v1alpha1.AppSpecKubeConfig{
+				InCluster: false,
+				Secret: v1alpha1.AppSpecKubeConfigSecret{
+					Namespace: "kubenamespace",
+				},
+			},
+		},
+	}
+
+	if KubecConfigSecretNamespace(obj) != "kubenamespace" {
+		t.Fatalf("kubeconfig secret namespace %#v, want %#v", KubecConfigSecretNamespace(obj), "kubenamespace")
+	}
+}
+
 func Test_Namespace(t *testing.T) {
 	expectedName := "giant-swarm-namespace"
 
