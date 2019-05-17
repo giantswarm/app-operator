@@ -10,10 +10,6 @@ const (
 	// ChartOperatorVersion is set for chart CRs managed by the operator.
 	ChartOperatorVersion = "chart-operator.giantswarm.io/version"
 
-	// FinalizerPrefix is used to determine if the kubeconfig resource is
-	// still need from specific app resource
-	FinalizerPrefix = "app-operator.giantswarm.io"
-
 	// ManagedBy is set for Kubernetes resources managed by the operator.
 	ManagedBy = "giantswarm.io/managed-by"
 )

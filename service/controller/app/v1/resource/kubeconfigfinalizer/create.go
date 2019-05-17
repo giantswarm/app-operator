@@ -18,19 +18,19 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	}
 
 	if key.InCluster(cr) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("In-cluster used"))
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("no need to put the finalizer"))
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("app %#q do not use kubeconfig secret since it would install the chart in the same cluster", cr.GetName()))
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 		return nil
 	}
 
 	name := key.KubecConfigSecretName(cr)
 	namespace := key.KubecConfigSecretNamespace(cr)
 
-	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding kubeconfig secret for app %#q", name))
+	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding kubeconfig secret %#q in namespace %#q", name, namespace))
 
 	kubeConfig, err := r.k8sClient.CoreV1().Secrets(namespace).Get(name, metav1.GetOptions{})
 	if errors.IsNotFound(err) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("did not find kubeconfig %#q", name))
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("did not find kubeconfig secret %#q in namespace %#q", name, namespace))
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 		return nil
 
@@ -38,12 +38,12 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
-	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found kubeconfig secret for app %#q", name))
+	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found kubeconfig secret %#q in namespace %#q", name, namespace))
 
 	finalizerTag := key.KubeConfigFinalizer(cr)
 
 	if !contains(kubeConfig.Finalizers, finalizerTag) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("setting finalizer for kubeconfig %#q", name))
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("setting finalizer for kubeconfig %#q in namespace %#q", name, namespace))
 
 		kubeConfig.Finalizers = append(kubeConfig.Finalizers, finalizerTag)
 
@@ -52,7 +52,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			return microerror.Mask(err)
 		}
 	} else {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finalizer already set for kubeconfig %#q", name))
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finalizer already set for kubeconfig secret %#q in namespace %#q", name, namespace))
 	}
 	return nil
 }

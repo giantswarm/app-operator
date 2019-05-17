@@ -18,6 +18,8 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 	}
 
 	if key.InCluster(cr) {
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("app %#q do not use kubeconfig secret since it installed the chart in the same cluster", cr.GetName()))
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 		return nil
 	}
 

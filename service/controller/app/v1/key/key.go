@@ -66,7 +66,7 @@ func InCluster(customResource v1alpha1.App) bool {
 }
 
 func KubeConfigFinalizer(customResource v1alpha1.App) string {
-	return fmt.Sprintf("%s/%s", label.FinalizerPrefix, customResource.GetName())
+	return fmt.Sprintf("app-operator.giantswarm.io/%s", customResource.GetName())
 }
 
 func KubecConfigSecretName(customResource v1alpha1.App) string {
