@@ -17,6 +17,12 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
+	if key.InCluster(cr) {
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("In-cluster used"))
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("no need to put the finalizer"))
+		return nil
+	}
+
 	name := key.KubecConfigSecretName(cr)
 	namespace := key.KubecConfigSecretNamespace(cr)
 

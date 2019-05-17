@@ -17,6 +17,10 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
+	if key.InCluster(cr) {
+		return nil
+	}
+
 	name := key.KubecConfigSecretName(cr)
 	namespace := key.KubecConfigSecretNamespace(cr)
 
