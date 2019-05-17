@@ -39,7 +39,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	if !contains(kubeConfig.Finalizers, finalizerTag) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("setting finalizer for kubeconfig %#q", name))
 
-		kubeConfig.Finalizers = append(kubeConfig.Finalizers)
+		kubeConfig.Finalizers = append(kubeConfig.Finalizers, finalizerTag)
 
 		_, err := r.k8sClient.CoreV1().Secrets(namespace).Update(kubeConfig)
 		if err != nil {
