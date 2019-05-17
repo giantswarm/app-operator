@@ -57,9 +57,9 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	return nil
 }
 
-func contains(s []string, e string) bool {
-	for _, a := range s {
-		if a == e {
+func contains(finalizers []string, matching string) bool {
+	for _, f := range finalizers {
+		if f == matching {
 			return true
 		}
 	}
