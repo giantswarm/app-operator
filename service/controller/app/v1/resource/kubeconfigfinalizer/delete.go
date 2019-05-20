@@ -51,6 +51,8 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 		if err != nil {
 			return microerror.Mask(err)
 		}
+
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finalizer clear for kubeconfig secret %#q in namespace %#q", name, namespace))
 	} else {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("kubeconfig secret %#q in namespace %#q do not have matching finalizer", name, namespace))
 	}
