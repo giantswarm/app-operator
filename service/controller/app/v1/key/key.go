@@ -65,6 +65,18 @@ func InCluster(customResource v1alpha1.App) bool {
 	return customResource.Spec.KubeConfig.InCluster
 }
 
+func KubeConfigFinalizer(customResource v1alpha1.App) string {
+	return fmt.Sprintf("app-operator.giantswarm.io/%s", customResource.GetName())
+}
+
+func KubecConfigSecretName(customResource v1alpha1.App) string {
+	return customResource.Spec.KubeConfig.Secret.Name
+}
+
+func KubecConfigSecretNamespace(customResource v1alpha1.App) string {
+	return customResource.Spec.KubeConfig.Secret.Namespace
+}
+
 func Namespace(customResource v1alpha1.App) string {
 	return customResource.Spec.Namespace
 }

@@ -17,6 +17,7 @@ import (
 	"github.com/giantswarm/app-operator/service/controller/app/v1/key"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/chart"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/configmap"
+	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/kubeconfigfinalizer"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/secret"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/status"
 )
@@ -131,6 +132,19 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 	}
 
+	var kubeconfigFinalizerResource controller.Resource
+	{
+		c := kubeconfigfinalizer.Config{
+			K8sClient: config.K8sClient,
+			Logger:    config.Logger,
+		}
+
+		kubeconfigFinalizerResource, err = kubeconfigfinalizer.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var secretResource controller.Resource
 	{
 		c := secret.Config{
@@ -174,6 +188,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		secretResource,
 		chartResource,
 		statusResource,
+		kubeconfigFinalizerResource,
 	}
 
 	{
