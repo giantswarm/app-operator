@@ -18,7 +18,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	}
 
 	if key.InCluster(cr) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("app %#q does not use a kubeconfig secret for apps in the control plane", cr.GetName()))
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("app %#q does not use a kubeconfig secret", cr.GetName()))
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 		return nil
 	}
