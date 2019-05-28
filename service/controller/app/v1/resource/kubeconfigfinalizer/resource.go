@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	Name = "kubeconfigv1"
+	Name = "kubeconfigfinalizerv1"
 )
 
 // Config represents the configuration used to create a new chartstatus resource.
