@@ -211,8 +211,8 @@ func Test_KubecConfigFinalizer(t *testing.T) {
 		},
 	}
 
-	if KubeConfigFinalizer(obj) != "app-operator.giantswarm.io/my-test-app" {
-		t.Fatalf("kubeconfig finalizer name %#v, want %#v", KubeConfigFinalizer(obj), "app-operator.giantswarm.io/my-test-app")
+	if KubeConfigFinalizer(obj) != "app-operator.giantswarm.io/app-my-test-app" {
+		t.Fatalf("kubeconfig finalizer name %#v, want %#v", KubeConfigFinalizer(obj), "app-operator.giantswarm.io/app-my-test-app")
 	}
 }
 
