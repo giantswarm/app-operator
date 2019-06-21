@@ -6,6 +6,7 @@ import (
 
 	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/microerror"
+	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
@@ -33,8 +34,23 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 		// Return early as configmap does not exist.
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("did not find configmap %#q in namespace %#q", name, r.chartNamespace))
 		return nil, nil
-	} else if tenant.IsAPINotAvailable(err) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("did not find configmap %#q in namespace %#q", name, r.chartNamespace))
+	} else if apierrors.IsTimeout(err) {
+		r.logger.LogCtx(ctx, "level", "debug", "message", "cluster api timeout.")
+
+		// We should not hammer API if it is not available, the cluster
+		// might be initializing. We will retry on next reconciliation loop.
+		resourcecanceledcontext.SetCanceled(ctx)
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+
+		return nil, nil
+	} else if !key.InCluster(cr) && tenant.IsAPINotAvailable(err) {
+		r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster is not available.")
+
+		// We should not hammer tenant API if it is not available, the tenant cluster
+		// might be initializing. We will retry on next reconciliation loop.
+		resourcecanceledcontext.SetCanceled(ctx)
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+
 		return nil, nil
 	} else if err != nil {
 		return nil, microerror.Mask(err)
