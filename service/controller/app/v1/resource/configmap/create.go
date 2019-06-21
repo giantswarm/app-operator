@@ -16,6 +16,10 @@ import (
 
 func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange interface{}) error {
 	cr, err := key.ToCustomResource(obj)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
 	configMap, err := toConfigMap(createChange)
 	if err != nil {
 		return microerror.Mask(err)
