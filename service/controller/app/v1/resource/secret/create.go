@@ -4,7 +4,9 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/microerror"
+	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 
@@ -28,6 +30,15 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 		_, err = cc.K8sClient.CoreV1().Secrets(secret.Namespace).Create(secret)
 		if apierrors.IsAlreadyExists(err) {
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("already created secret %#q in namespace %#q", secret.Name, secret.Namespace))
+		} else if tenant.IsAPINotAvailable(err) {
+			r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster is not available.")
+
+			// We should not hammer tenant API if it is not available, the tenant cluster
+			// might be initializing. We will retry on next reconciliation loop.
+			resourcecanceledcontext.SetCanceled(ctx)
+			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+
+			return nil
 		} else if err != nil {
 			return microerror.Mask(err)
 		} else {
