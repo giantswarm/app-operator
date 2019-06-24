@@ -6,6 +6,9 @@ name: app-operator
 namespace: giantswarm
 port: 8000
 
+userID: 1000
+groupID: 1000
+
 replicas: 1
 
 image:
