@@ -4,6 +4,7 @@ package setup
 
 import (
 	"github.com/giantswarm/e2e-harness/pkg/framework"
+	"github.com/giantswarm/e2e-harness/pkg/harness"
 	"github.com/giantswarm/e2e-harness/pkg/release"
 	"github.com/giantswarm/e2esetup/k8s"
 	"github.com/giantswarm/helmclient"
@@ -60,8 +61,7 @@ func NewConfig() (Config, error) {
 		c := framework.HostConfig{
 			Logger: logger,
 
-			ClusterID:  "n/a",
-			VaultToken: "n/a",
+			ClusterID: "n/a",
 		}
 
 		host, err = framework.NewHost(c)
@@ -70,11 +70,25 @@ func NewConfig() (Config, error) {
 		}
 	}
 
+	var cpK8sClients *k8s.Clients
+	{
+		c := k8s.ClientsConfig{
+			Logger: logger,
+
+			KubeConfigPath: harness.DefaultKubeConfig,
+		}
+
+		cpK8sClients, err = k8s.NewClients(c)
+		if err != nil {
+			return Config{}, microerror.Mask(err)
+		}
+	}
+
 	var k8sSetup *k8s.Setup
 	{
 		c := k8s.SetupConfig{
-			K8sClient: host.K8sClient(),
-			Logger:    logger,
+			Clients: cpK8sClients,
+			Logger:  logger,
 		}
 
 		k8sSetup, err = k8s.NewSetup(c)
