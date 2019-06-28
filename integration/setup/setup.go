@@ -40,16 +40,6 @@ func Setup(m *testing.M, config Config) {
 		v = m.Run()
 	}
 
-	if !env.KeepResources() {
-		if !env.CircleCI() {
-			err := teardown(ctx, config)
-			if err != nil {
-				// teardown errors are logged inside the function.
-				v = 1
-			}
-		}
-	}
-
 	os.Exit(v)
 }
 
