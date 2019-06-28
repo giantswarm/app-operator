@@ -322,8 +322,8 @@ func Test_UserConfigMapName(t *testing.T) {
 		Spec: v1alpha1.AppSpec{
 			Name:    "giant-swarm-name",
 			Catalog: "giant-swarm-catalog-name",
-			UserConfig: v1alpha1.AppSpecConfig{
-				ConfigMap: v1alpha1.AppSpecConfigConfigMap{
+			UserConfig: v1alpha1.AppSpecUserConfig{
+				ConfigMap: v1alpha1.AppSpecUserConfigConfigMap{
 					Name: "giant-swarm-user-configmap-name",
 				},
 			},
@@ -342,8 +342,8 @@ func Test_UserConfigMapNamespace(t *testing.T) {
 		Spec: v1alpha1.AppSpec{
 			Name:    "giant-swarm-name",
 			Catalog: "giant-swarm-catalog-name",
-			UserConfig: v1alpha1.AppSpecConfig{
-				ConfigMap: v1alpha1.AppSpecConfigConfigMap{
+			UserConfig: v1alpha1.AppSpecUserConfig{
+				ConfigMap: v1alpha1.AppSpecUserConfigConfigMap{
 					Namespace: "giant-swarm-user-configmap-namespace",
 				},
 			},
@@ -362,8 +362,8 @@ func Test_UserSecretName(t *testing.T) {
 		Spec: v1alpha1.AppSpec{
 			Name:    "giant-swarm-name",
 			Catalog: "giant-swarm-catalog-name",
-			UserConfig: v1alpha1.AppSpecConfig{
-				Secret: v1alpha1.AppSpecConfigSecret{
+			UserConfig: v1alpha1.AppSpecUserConfig{
+				Secret: v1alpha1.AppSpecUserConfigSecret{
 					Name: "giant-swarm-user-secret-name",
 				},
 			},
@@ -382,8 +382,8 @@ func Test_UserSecretNamespace(t *testing.T) {
 		Spec: v1alpha1.AppSpec{
 			Name:    "giant-swarm-name",
 			Catalog: "giant-swarm-catalog-name",
-			UserConfig: v1alpha1.AppSpecConfig{
-				Secret: v1alpha1.AppSpecConfigSecret{
+			UserConfig: v1alpha1.AppSpecUserConfig{
+				Secret: v1alpha1.AppSpecUserConfigSecret{
 					Namespace: "giant-swarm-user-secret-namespace",
 				},
 			},

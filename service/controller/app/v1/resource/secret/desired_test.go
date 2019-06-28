@@ -296,8 +296,8 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					},
 					Name:      "test-app",
 					Namespace: "giantswarm",
-					UserConfig: v1alpha1.AppSpecConfig{
-						Secret: v1alpha1.AppSpecConfigSecret{
+					UserConfig: v1alpha1.AppSpecUserConfig{
+						Secret: v1alpha1.AppSpecUserConfigSecret{
 							Name:      "test-user-secrets",
 							Namespace: "giantswarm",
 						},

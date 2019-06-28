@@ -295,8 +295,8 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 							Namespace: "giantswarm",
 						},
 					},
-					UserConfig: v1alpha1.AppSpecConfig{
-						ConfigMap: v1alpha1.AppSpecConfigConfigMap{
+					UserConfig: v1alpha1.AppSpecUserConfig{
+						ConfigMap: v1alpha1.AppSpecUserConfigConfigMap{
 							Name:      "test-user-values",
 							Namespace: "giantswarm",
 						},
