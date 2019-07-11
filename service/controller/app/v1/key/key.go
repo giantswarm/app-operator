@@ -6,6 +6,7 @@ import (
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/microerror"
 
+	"github.com/giantswarm/app-operator/pkg/annotation"
 	"github.com/giantswarm/app-operator/pkg/label"
 )
 
@@ -61,8 +62,28 @@ func ChartSecretName(customResource v1alpha1.App) string {
 	return fmt.Sprintf("%s-chart-secrets", customResource.GetName())
 }
 
+func CordonReason(customObject v1alpha1.App) string {
+	return customObject.GetAnnotations()[annotation.CordonReason]
+}
+
+func CordonUntil(customObject v1alpha1.App) string {
+	return customObject.GetAnnotations()[annotation.CordonUntilDate]
+}
+
 func InCluster(customResource v1alpha1.App) bool {
 	return customResource.Spec.KubeConfig.InCluster
+}
+
+func IsCordoned(customObject v1alpha1.App) bool {
+	_, reasonOk := customObject.Annotations[annotation.CordonReason]
+	_, untilOk := customObject.Annotations[annotation.CordonUntilDate]
+
+	if reasonOk && untilOk {
+		return true
+	} else {
+		return false
+	}
+
 }
 
 func KubeConfigFinalizer(customResource v1alpha1.App) string {
