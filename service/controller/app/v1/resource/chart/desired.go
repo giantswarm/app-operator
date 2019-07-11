@@ -110,7 +110,7 @@ func hasSecret(cr v1alpha1.App, appCatalog v1alpha1.AppCatalog) bool {
 }
 
 func replacePrefix(from string) string {
-	return strings.ReplaceAll(from, "app-operator.giantswarm.io", "chart-operator.giantswarm.io")
+	return strings.Replace(from, "app-operator.giantswarm.io", "chart-operator.giantswarm.io", 1)
 }
 
 // processAnnotations ensures necessary app-operator.giantswarm.io annotations
