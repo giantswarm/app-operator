@@ -83,7 +83,6 @@ func IsCordoned(customObject v1alpha1.App) bool {
 	} else {
 		return false
 	}
-
 }
 
 func KubeConfigFinalizer(customResource v1alpha1.App) string {
