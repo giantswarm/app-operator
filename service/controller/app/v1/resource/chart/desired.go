@@ -5,11 +5,13 @@ import (
 	"fmt"
 	"net/url"
 	"path"
+	"strings"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/microerror"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
+	"github.com/giantswarm/app-operator/pkg/annotation"
 	"github.com/giantswarm/app-operator/pkg/label"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/controllercontext"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/key"
@@ -39,9 +41,10 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 			APIVersion: chartAPIVersion,
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      cr.GetName(),
-			Namespace: r.chartNamespace,
-			Labels:    processLabels(r.projectName, cr.GetLabels()),
+			Annotations: processAnnotations(cr),
+			Name:        cr.GetName(),
+			Namespace:   r.chartNamespace,
+			Labels:      processLabels(r.projectName, cr.GetLabels()),
 		},
 		Spec: v1alpha1.ChartSpec{
 			Config:     config,
@@ -104,6 +107,31 @@ func hasSecret(cr v1alpha1.App, appCatalog v1alpha1.AppCatalog) bool {
 	}
 
 	return false
+}
+
+func replacePrefix(from string) string {
+	return strings.ReplaceAll(from, "app-operator.giantswarm.io", "chart-operator.giantswarm.io")
+}
+
+// processAnnotations ensures necessary app-operator.giantswarm.io annotations
+// are copied into the proper prefix in chart CR.
+func processAnnotations(cr v1alpha1.App) map[string]string {
+
+	if cr.GetAnnotations() == nil {
+		return nil
+	}
+
+	newAnnotations := map[string]string{}
+
+	if key.IsCordoned(cr) {
+		cordonReasonKey := replacePrefix(annotation.CordonReason)
+		newAnnotations[cordonReasonKey] = key.CordonReason(cr)
+
+		cordonUntilKey := replacePrefix(annotation.CordonUntilDate)
+		newAnnotations[cordonUntilKey] = key.CordonUntil(cr)
+	}
+
+	return newAnnotations
 }
 
 // processLabels ensures the chart-operator.giantswarm.io/version label is
