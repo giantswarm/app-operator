@@ -67,7 +67,7 @@ func CordonReason(customObject v1alpha1.App) string {
 }
 
 func CordonUntil(customObject v1alpha1.App) string {
-	return customObject.GetAnnotations()[annotation.CordonUntilDate]
+	return customObject.GetAnnotations()[annotation.CordonUntil]
 }
 
 func InCluster(customResource v1alpha1.App) bool {
@@ -76,7 +76,7 @@ func InCluster(customResource v1alpha1.App) bool {
 
 func IsCordoned(customObject v1alpha1.App) bool {
 	_, reasonOk := customObject.Annotations[annotation.CordonReason]
-	_, untilOk := customObject.Annotations[annotation.CordonUntilDate]
+	_, untilOk := customObject.Annotations[annotation.CordonUntil]
 
 	if reasonOk && untilOk {
 		return true

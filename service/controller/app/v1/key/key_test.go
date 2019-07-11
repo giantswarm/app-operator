@@ -214,7 +214,7 @@ func Test_CordonUntil(t *testing.T) {
 	obj := v1alpha1.App{
 		ObjectMeta: metav1.ObjectMeta{
 			Annotations: map[string]string{
-				annotation.CordonUntilDate: "2019-12-31T23:59:59Z",
+				annotation.CordonUntil: "2019-12-31T23:59:59Z",
 			},
 		},
 	}
@@ -249,8 +249,8 @@ func Test_IsCordoned(t *testing.T) {
 			chart: v1alpha1.App{
 				ObjectMeta: metav1.ObjectMeta{
 					Annotations: map[string]string{
-						annotation.CordonReason:    "testing manual upgrade",
-						annotation.CordonUntilDate: "2019-12-31T23:59:59Z",
+						annotation.CordonReason: "testing manual upgrade",
+						annotation.CordonUntil:  "2019-12-31T23:59:59Z",
 					},
 				},
 			},

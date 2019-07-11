@@ -7,7 +7,7 @@ const (
 	// the reason of why app-operator should not apply any update on this app CR.
 	CordonReason = "app-operator.giantswarm.io/cordon-reason"
 
-	// CordonUntilDate is the name of the annotation that indicates
+	// CordonUntil is the name of the annotation that indicates
 	// the expiration date of rule of this cordon.
-	CordonUntilDate = "app-operator.giantswarm.io/cordon-until"
+	CordonUntil = "app-operator.giantswarm.io/cordon-until"
 )

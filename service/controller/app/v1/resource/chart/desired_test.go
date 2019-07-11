@@ -155,8 +155,8 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 			obj: &v1alpha1.App{
 				ObjectMeta: metav1.ObjectMeta{
 					Annotations: map[string]string{
-						annotation.CordonReason:    "migrating job in process",
-						annotation.CordonUntilDate: "2019-12-31T23:59:59Z",
+						annotation.CordonReason: "migrating job in process",
+						annotation.CordonUntil:  "2019-12-31T23:59:59Z",
 					},
 					Name:      "my-cool-prometheus",
 					Namespace: "default",

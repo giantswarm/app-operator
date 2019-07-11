@@ -127,7 +127,7 @@ func processAnnotations(cr v1alpha1.App) map[string]string {
 		cordonReasonKey := replacePrefix(annotation.CordonReason)
 		newAnnotations[cordonReasonKey] = key.CordonReason(cr)
 
-		cordonUntilKey := replacePrefix(annotation.CordonUntilDate)
+		cordonUntilKey := replacePrefix(annotation.CordonUntil)
 		newAnnotations[cordonUntilKey] = key.CordonUntil(cr)
 	}
 
