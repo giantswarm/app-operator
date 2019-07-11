@@ -116,7 +116,6 @@ func replacePrefix(from string) string {
 // processAnnotations ensures necessary app-operator.giantswarm.io annotations
 // are copied into the proper prefix in chart CR.
 func processAnnotations(cr v1alpha1.App) map[string]string {
-
 	if cr.GetAnnotations() == nil {
 		return nil
 	}
