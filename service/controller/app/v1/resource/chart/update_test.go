@@ -76,6 +76,47 @@ func Test_Resource_newUpdateChange(t *testing.T) {
 			},
 			expectedChart: &v1alpha1.Chart{},
 		},
+		{
+			name: "case 1: chart should be update for cordon annotations",
+			currentResource: &v1alpha1.Chart{
+				ObjectMeta: metav1.ObjectMeta{
+					Annotations: map[string]string{
+						"chart-operator.giantswarm.io/values-md5-checksum": "52668444a530c7b296f9c620f8cb2632",
+					},
+					Name: "prometheus",
+				},
+				Spec: v1alpha1.ChartSpec{
+					Name:      "my-cool-prometheus",
+					Namespace: "monitoring",
+				},
+			},
+			desiredResource: &v1alpha1.Chart{
+				ObjectMeta: metav1.ObjectMeta{
+					Annotations: map[string]string{
+						"chart-operator.giantswarm.io/cordon-reason": "chart maintenance",
+						"chart-operator.giantswarm.io/cordon-until":  "2019-12-31T23:59:59Z",
+					},
+					Name: "prometheus",
+				},
+				Spec: v1alpha1.ChartSpec{
+					Name:      "my-cool-prometheus",
+					Namespace: "monitoring",
+				},
+			},
+			expectedChart: &v1alpha1.Chart{
+				ObjectMeta: metav1.ObjectMeta{
+					Annotations: map[string]string{
+						"chart-operator.giantswarm.io/cordon-reason": "chart maintenance",
+						"chart-operator.giantswarm.io/cordon-until":  "2019-12-31T23:59:59Z",
+					},
+					Name: "prometheus",
+				},
+				Spec: v1alpha1.ChartSpec{
+					Name:      "my-cool-prometheus",
+					Namespace: "monitoring",
+				},
+			},
+		},
 	}
 
 	c := Config{
