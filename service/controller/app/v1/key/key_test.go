@@ -6,6 +6,8 @@ import (
 
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
+	"github.com/giantswarm/app-operator/pkg/annotation"
 )
 
 func Test_AppConfigMapName(t *testing.T) {
@@ -190,6 +192,38 @@ func Test_ChartConfigMapName(t *testing.T) {
 	}
 }
 
+func Test_CordonReason(t *testing.T) {
+	expectedCordonReason := "manual upgrade"
+
+	obj := v1alpha1.App{
+		ObjectMeta: metav1.ObjectMeta{
+			Annotations: map[string]string{
+				annotation.CordonReason: "manual upgrade",
+			},
+		},
+	}
+
+	if CordonReason(obj) != expectedCordonReason {
+		t.Fatalf("cordon reason %#q, want %s", CordonReason(obj), expectedCordonReason)
+	}
+}
+
+func Test_CordonUntil(t *testing.T) {
+	expectedCordonUntil := "2019-12-31T23:59:59Z"
+
+	obj := v1alpha1.App{
+		ObjectMeta: metav1.ObjectMeta{
+			Annotations: map[string]string{
+				annotation.CordonUntil: "2019-12-31T23:59:59Z",
+			},
+		},
+	}
+
+	if CordonUntil(obj) != expectedCordonUntil {
+		t.Fatalf("cordon until %s, want %s", CordonUntil(obj), expectedCordonUntil)
+	}
+}
+
 func Test_InCluster(t *testing.T) {
 	obj := v1alpha1.App{
 		Spec: v1alpha1.AppSpec{
@@ -201,6 +235,39 @@ func Test_InCluster(t *testing.T) {
 
 	if !InCluster(obj) {
 		t.Fatalf("app namespace %#v, want %#v", InCluster(obj), true)
+	}
+}
+
+func Test_IsCordoned(t *testing.T) {
+	tests := []struct {
+		name           string
+		chart          v1alpha1.App
+		expectedResult bool
+	}{
+		{
+			name: "case 0: app cordoned",
+			chart: v1alpha1.App{
+				ObjectMeta: metav1.ObjectMeta{
+					Annotations: map[string]string{
+						annotation.CordonReason: "testing manual upgrade",
+						annotation.CordonUntil:  "2019-12-31T23:59:59Z",
+					},
+				},
+			},
+			expectedResult: true,
+		},
+		{
+			name:           "case 1: chart did not cordon",
+			chart:          v1alpha1.App{},
+			expectedResult: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := IsCordoned(tt.chart); got != tt.expectedResult {
+				t.Errorf("IsCordoned() = %v, want %v", got, tt.expectedResult)
+			}
+		})
 	}
 }
 
