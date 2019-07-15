@@ -4,10 +4,10 @@ package annotation
 
 const (
 	// CordonReason is the name of the annotation that indicates
-	// the reason of why app-operator should not apply any update on this app CR.
+	// the reason of why app-operator should not apply any update to this app CR.
 	CordonReason = "app-operator.giantswarm.io/cordon-reason"
 
 	// CordonUntil is the name of the annotation that indicates
-	// the expiration date of rule of this cordon.
+	// the expiration date for this cordon rule.
 	CordonUntil = "app-operator.giantswarm.io/cordon-until"
 )
