@@ -570,6 +570,21 @@ func Test_processAnnotations(t *testing.T) {
 				"chart-operator.giantswarm.io/cordon-until":  "2019-12-31T23:59:59Z",
 			},
 		},
+		{
+			name: "case 1: filter other annotations",
+			obj: &v1alpha1.App{
+				TypeMeta: metav1.TypeMeta{
+					Kind:       "Chart",
+					APIVersion: "application.giantswarm.io",
+				},
+				ObjectMeta: metav1.ObjectMeta{
+					Annotations: map[string]string{
+						"kubectl.kubernetes.io/last-applied-configuration": "application.giantswarm.io/v1alpha1",
+					},
+				},
+			},
+			expectedAnnotations: map[string]string{},
+		},
 	}
 
 	for _, tc := range tests {
