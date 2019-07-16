@@ -86,9 +86,9 @@ func equals(current, desired *v1alpha1.Chart) bool {
 		return false
 	}
 
-	desiredAnnotation := desired.GetAnnotations()
-	for currentAnnotationKey, currentValue := range current.GetAnnotations() {
-		if desiredValue, ok := desiredAnnotation[currentAnnotationKey]; ok {
+	desiredAnnotations := desired.GetAnnotations()
+	for currentKey, currentValue := range current.GetAnnotations() {
+		if desiredValue, ok := desiredAnnotations[currentKey]; ok {
 			if currentValue != desiredValue {
 				return false
 			}

@@ -53,7 +53,7 @@ func Test_Resource_newUpdateChange(t *testing.T) {
 			},
 		},
 		{
-			name: "case 1: chart should not be update",
+			name: "case 1: chart should not be updated",
 			currentResource: &v1alpha1.Chart{
 				ObjectMeta: metav1.ObjectMeta{
 					Name: "prometheus",
@@ -77,7 +77,7 @@ func Test_Resource_newUpdateChange(t *testing.T) {
 			expectedChart: &v1alpha1.Chart{},
 		},
 		{
-			name: "case 1: chart should be update for cordon annotations",
+			name: "case 2: chart should be updated for cordon annotations",
 			currentResource: &v1alpha1.Chart{
 				ObjectMeta: metav1.ObjectMeta{
 					Annotations: map[string]string{
