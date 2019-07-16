@@ -3,7 +3,6 @@ package collector
 import (
 	"context"
 	"fmt"
-	"github.com/giantswarm/app-operator/service/controller/app/v1/key"
 	"strings"
 	"time"
 
@@ -13,6 +12,8 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
+
+	"github.com/giantswarm/app-operator/service/controller/app/v1/key"
 )
 
 var (
