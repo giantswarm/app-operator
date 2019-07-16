@@ -75,15 +75,26 @@ func (r *Resource) Name() string {
 }
 
 // equals asseses the equality of ReleaseStates with regards to distinguishing fields.
-func equals(a, b *v1alpha1.Chart) bool {
-	if a.Name != b.Name {
+func equals(current, desired *v1alpha1.Chart) bool {
+	if current.Name != desired.Name {
 		return false
 	}
-	if !reflect.DeepEqual(a.Spec, b.Spec) {
+	if !reflect.DeepEqual(current.Spec, desired.Spec) {
 		return false
 	}
-	if !reflect.DeepEqual(a.Labels, b.Labels) {
+	if !reflect.DeepEqual(current.Labels, desired.Labels) {
 		return false
+	}
+
+	desiredAnnotations := desired.GetAnnotations()
+	for currentKey, currentValue := range current.GetAnnotations() {
+		if desiredValue, ok := desiredAnnotations[currentKey]; ok {
+			if currentValue != desiredValue {
+				return false
+			}
+		} else {
+			return false
+		}
 	}
 	return true
 }
