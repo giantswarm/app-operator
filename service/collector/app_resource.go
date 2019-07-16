@@ -3,6 +3,9 @@ package collector
 import (
 	"context"
 	"fmt"
+	"github.com/giantswarm/app-operator/service/controller/app/v1/key"
+	"strings"
+	"time"
 
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/microerror"
@@ -13,14 +16,23 @@ import (
 )
 
 var (
-	appDesc *prometheus.Desc = prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, "", "app_info"),
+	appDesc = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "app", "info"),
 		"Managed apps status.",
 		[]string{
 			labelName,
 			labelNamespace,
 			labelStatus,
 			labelVersion,
+		},
+		nil,
+	)
+
+	appCordonExpireTimeDesc = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "app", "cordon_expire_time_seconds"),
+		"A metric of the expire time of cordoned apps unix seconds.",
+		[]string{
+			labelName,
 		},
 		nil,
 	)
@@ -79,8 +91,23 @@ func (c *AppResource) collectAppStatus(ctx context.Context, ch chan<- prometheus
 			app.Status.Version,
 		)
 
-	}
+		if !key.IsCordoned(app) {
+			continue
+		}
 
+		t, err := convertToTime(key.CordonUntil(app))
+		if err != nil {
+			c.logger.Log("level", "warning", "message", "could not convert cordon-until", "stack", fmt.Sprintf("%#v", err))
+			continue
+		}
+
+		ch <- prometheus.MustNewConstMetric(
+			appCordonExpireTimeDesc,
+			prometheus.GaugeValue,
+			float64(t.Unix()),
+			key.AppName(app),
+		)
+	}
 }
 
 // Collect is the main metrics collection function.
@@ -98,5 +125,22 @@ func (c *AppResource) Collect(ch chan<- prometheus.Metric) error {
 // Describe emits the description for the metrics collected here.
 func (c *AppResource) Describe(ch chan<- *prometheus.Desc) error {
 	ch <- appDesc
+	ch <- appCordonExpireTimeDesc
 	return nil
+}
+
+func convertToTime(datetime string) (time.Time, error) {
+	layout := "2006-01-02T15:04:05"
+
+	split := strings.Split(datetime, ".")
+	if len(split) == 0 {
+		return time.Time{}, microerror.Maskf(invalidExecutionError, "%#q must have at least one item in order to collect metrics for the cordon expiration", datetime)
+	}
+
+	t, err := time.Parse(layout, split[0])
+	if err != nil {
+		return time.Time{}, microerror.Maskf(invalidExecutionError, "unavailable to %#q parsing: %#v", split[0], err.Error())
+	}
+
+	return t, nil
 }
