@@ -74,6 +74,25 @@ func NewAppResource(config AppResourceConfig) (*AppResource, error) {
 	return c, nil
 }
 
+// Collect is the main metrics collection function.
+func (c *AppResource) Collect(ch chan<- prometheus.Metric) error {
+	ctx := context.Background()
+
+	c.logger.LogCtx(ctx, "level", "debug", "message", "collecting metrics")
+
+	c.collectAppStatus(ctx, ch)
+
+	c.logger.LogCtx(ctx, "level", "debug", "message", "finished collecting metrics")
+	return nil
+}
+
+// Describe emits the description for the metrics collected here.
+func (c *AppResource) Describe(ch chan<- *prometheus.Desc) error {
+	ch <- appDesc
+	ch <- appCordonExpireTimeDesc
+	return nil
+}
+
 func (c *AppResource) collectAppStatus(ctx context.Context, ch chan<- prometheus.Metric) {
 	r, err := c.g8sClient.ApplicationV1alpha1().Apps("").List(metav1.ListOptions{})
 	if err != nil {
@@ -109,25 +128,6 @@ func (c *AppResource) collectAppStatus(ctx context.Context, ch chan<- prometheus
 			key.AppName(app),
 		)
 	}
-}
-
-// Collect is the main metrics collection function.
-func (c *AppResource) Collect(ch chan<- prometheus.Metric) error {
-	ctx := context.Background()
-
-	c.logger.LogCtx(ctx, "level", "debug", "message", "collecting metrics")
-
-	c.collectAppStatus(ctx, ch)
-
-	c.logger.LogCtx(ctx, "level", "debug", "message", "finished collecting metrics")
-	return nil
-}
-
-// Describe emits the description for the metrics collected here.
-func (c *AppResource) Describe(ch chan<- *prometheus.Desc) error {
-	ch <- appDesc
-	ch <- appCordonExpireTimeDesc
-	return nil
 }
 
 func convertToTime(datetime string) (time.Time, error) {
