@@ -80,7 +80,10 @@ func (c *AppResource) Collect(ch chan<- prometheus.Metric) error {
 
 	c.logger.LogCtx(ctx, "level", "debug", "message", "collecting metrics")
 
-	c.collectAppStatus(ctx, ch)
+	err := c.collectAppStatus(ctx, ch)
+	if err != nil {
+		return microerror.Mask(err)
+	}
 
 	c.logger.LogCtx(ctx, "level", "debug", "message", "finished collecting metrics")
 	return nil
@@ -93,11 +96,10 @@ func (c *AppResource) Describe(ch chan<- *prometheus.Desc) error {
 	return nil
 }
 
-func (c *AppResource) collectAppStatus(ctx context.Context, ch chan<- prometheus.Metric) {
+func (c *AppResource) collectAppStatus(ctx context.Context, ch chan<- prometheus.Metric) error {
 	r, err := c.g8sClient.ApplicationV1alpha1().Apps("").List(metav1.ListOptions{})
 	if err != nil {
-		c.logger.LogCtx(ctx, "level", "error", "message", "could not get apps", "stack", fmt.Sprintf("%#v", err))
-		return
+		return microerror.Mask(err)
 	}
 
 	for _, app := range r.Items {
@@ -128,6 +130,7 @@ func (c *AppResource) collectAppStatus(ctx context.Context, ch chan<- prometheus
 			key.AppName(app),
 		)
 	}
+	return nil
 }
 
 func convertToTime(datetime string) (time.Time, error) {
