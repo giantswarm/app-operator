@@ -34,6 +34,7 @@ var (
 		"A metric of the expire time of cordoned apps unix seconds.",
 		[]string{
 			labelName,
+			labelNamespace,
 		},
 		nil,
 	)
@@ -128,6 +129,7 @@ func (c *AppResource) collectAppStatus(ctx context.Context, ch chan<- prometheus
 			prometheus.GaugeValue,
 			float64(t.Unix()),
 			key.AppName(app),
+			key.Namespace(app),
 		)
 	}
 	return nil
