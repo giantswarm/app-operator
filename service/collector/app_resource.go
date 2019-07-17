@@ -133,17 +133,17 @@ func (c *AppResource) collectAppStatus(ctx context.Context, ch chan<- prometheus
 	return nil
 }
 
-func convertToTime(datetime string) (time.Time, error) {
+func convertToTime(input string) (time.Time, error) {
 	layout := "2006-01-02T15:04:05"
 
-	split := strings.Split(datetime, ".")
+	split := strings.Split(input, ".")
 	if len(split) == 0 {
-		return time.Time{}, microerror.Maskf(invalidExecutionError, "%#q must have at least one item in order to collect metrics for the cordon expiration", datetime)
+		return time.Time{}, microerror.Maskf(invalidExecutionError, "%#q must have at least one item in order to collect metrics for the cordon expiration", input)
 	}
 
 	t, err := time.Parse(layout, split[0])
 	if err != nil {
-		return time.Time{}, microerror.Maskf(invalidExecutionError, "unavailable to %#q parsing: %#v", split[0], err.Error())
+		return time.Time{}, microerror.Maskf(invalidExecutionError, "parsing timestamp %#q failed: %#v", split[0], err.Error())
 	}
 
 	return t, nil
