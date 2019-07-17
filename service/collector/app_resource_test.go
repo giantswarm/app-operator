@@ -28,6 +28,11 @@ func Test_convertToTime(t *testing.T) {
 			datetime:     "2019-12-31T23:59:59Z",
 			errorMatcher: IsInvalidExecution,
 		},
+		{
+			name:         "case 3: parsing error as wrong date",
+			datetime:     "2019-13-31T23:59:59Z",
+			errorMatcher: IsInvalidExecution,
+		},
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
