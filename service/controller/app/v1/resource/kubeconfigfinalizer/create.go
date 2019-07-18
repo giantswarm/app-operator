@@ -53,18 +53,17 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	finalizerTag := key.KubeConfigFinalizer(cr)
 
 	if !contains(kubeConfig.Finalizers, finalizerTag) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("setting finalizer for kubeconfig %#q in namespace %#q", name, namespace))
-
-		kubeConfig.Finalizers = append(kubeConfig.Finalizers, finalizerTag)
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finalizer already clear for kubeconfig secret %#q in namespace %#q", name, namespace))
+	} else {
+		// TODO: Before we remove this resource, let's delete all finalizers that we put on kubeconfig secrets
+		kubeConfig.Finalizers = filter(kubeConfig.Finalizers, finalizerTag)
 
 		_, err := r.k8sClient.CoreV1().Secrets(namespace).Update(kubeConfig)
 		if err != nil {
 			return microerror.Mask(err)
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finalizer set for kubeconfig %#q in namespace %#q", name, namespace))
-	} else {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finalizer already set for kubeconfig secret %#q in namespace %#q", name, namespace))
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finalizer cleared for kubeconfig %#q in namespace %#q", name, namespace))
 	}
 	return nil
 }
