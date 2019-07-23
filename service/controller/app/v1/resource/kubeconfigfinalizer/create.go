@@ -53,18 +53,20 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	finalizerTag := key.KubeConfigFinalizer(cr)
 
 	if !contains(kubeConfig.Finalizers, finalizerTag) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("setting finalizer for kubeconfig %#q in namespace %#q", name, namespace))
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finalizer already unset for kubeconfig secret %#q in namespace %#q", name, namespace))
+	} else {
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("removing finalizer for kubeconfig secret %#q in namespace %#q", name, namespace))
 
-		kubeConfig.Finalizers = append(kubeConfig.Finalizers, finalizerTag)
+		// TODO: After modifying all kubeconfig secrets in the installations, delete this resource
+		//     See https://github.com/giantswarm/giantswarm/issues/6522
+		kubeConfig.Finalizers = filter(kubeConfig.Finalizers, finalizerTag)
 
 		_, err := r.k8sClient.CoreV1().Secrets(namespace).Update(kubeConfig)
 		if err != nil {
 			return microerror.Mask(err)
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finalizer set for kubeconfig %#q in namespace %#q", name, namespace))
-	} else {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finalizer already set for kubeconfig secret %#q in namespace %#q", name, namespace))
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("removed finalizer for kubeconfig secret %#q in namespace %#q", name, namespace))
 	}
 	return nil
 }
