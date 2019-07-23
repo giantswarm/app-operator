@@ -63,7 +63,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			return microerror.Mask(err)
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finalizer cleared for kubeconfig %#q in namespace %#q", name, namespace))
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("removed finalizer for kubeconfig secret %#q in namespace %#q", name, namespace))
 	}
 	return nil
 }
