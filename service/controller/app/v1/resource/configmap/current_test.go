@@ -132,6 +132,8 @@ func Test_Resource_GetCurrentState(t *testing.T) {
 				objs = append(objs, tc.configMap)
 			}
 
+			objs = append(objs, &corev1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: "kube-system"}})
+
 			g8sClient := fake.NewSimpleClientset()
 			k8sClient := clientgofake.NewSimpleClientset(objs...)
 

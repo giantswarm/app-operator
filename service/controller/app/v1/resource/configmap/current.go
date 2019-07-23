@@ -3,6 +3,7 @@ package configmap
 import (
 	"context"
 	"fmt"
+	"github.com/giantswarm/operatorkit/controller/context/reconciliationcanceledcontext"
 
 	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/microerror"
@@ -18,6 +19,31 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 	cr, err := key.ToCustomResource(obj)
 	if err != nil {
 		return nil, microerror.Mask(err)
+	}
+
+	ns, err := r.k8sClient.CoreV1().Namespaces().Get(key.Namespace(cr), metav1.GetOptions{})
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	if ns.GetDeletionTimestamp() != nil {
+		currentCR, err := r.g8sClient.ApplicationV1alpha1().Apps(cr.Namespace).Get(cr.Name, metav1.GetOptions{})
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		currentCR.Finalizers = []string{}
+
+		_, err = r.g8sClient.ApplicationV1alpha1().Apps(cr.Namespace).Update(currentCR)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("namespace %#q is going to deleted, no need to reconcile app %#q", cr.Namespace, cr.Name))
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation")
+
+		reconciliationcanceledcontext.SetCanceled(ctx)
+		return nil, nil
 	}
 
 	name := key.ChartConfigMapName(cr)
