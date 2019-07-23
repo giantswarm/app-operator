@@ -3,10 +3,10 @@ package configmap
 import (
 	"context"
 	"fmt"
-	"github.com/giantswarm/operatorkit/controller/context/reconciliationcanceledcontext"
 
 	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/microerror"
+	"github.com/giantswarm/operatorkit/controller/context/reconciliationcanceledcontext"
 	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -39,7 +39,7 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 			return nil, microerror.Mask(err)
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("namespace %#q is going to deleted, no need to reconcile app %#q", cr.Namespace, cr.Name))
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("namespace %#q is going to be deleted, no need to reconcile app %#q", cr.Namespace, cr.Name))
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation")
 
 		reconciliationcanceledcontext.SetCanceled(ctx)
