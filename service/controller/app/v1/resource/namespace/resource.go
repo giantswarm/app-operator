@@ -27,7 +27,7 @@ type Config struct {
 	ProjectName string
 }
 
-// Resource implements the secret resource.
+// Resource implements the namespace resource.
 type Resource struct {
 	// Dependencies.
 	k8sClient kubernetes.Interface
