@@ -1,4 +1,4 @@
-package namespace
+package appnamespace
 
 import "github.com/giantswarm/microerror"
 

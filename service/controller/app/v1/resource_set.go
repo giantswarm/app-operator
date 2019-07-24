@@ -15,9 +15,9 @@ import (
 	"github.com/giantswarm/app-operator/service/controller/app/v1/appcatalog"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/controllercontext"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/key"
+	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/appnamespace"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/chart"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/configmap"
-	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/namespace"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/secret"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/status"
 )
@@ -134,14 +134,14 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 
 	var namespaceResource controller.Resource
 	{
-		c := namespace.Config{
+		c := appnamespace.Config{
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
 
 			ProjectName: config.ProjectName,
 		}
 
-		namespaceResource, err = namespace.New(c)
+		namespaceResource, err = appnamespace.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}

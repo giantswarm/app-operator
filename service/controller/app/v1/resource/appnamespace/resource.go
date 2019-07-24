@@ -1,4 +1,4 @@
-package namespace
+package appnamespace
 
 import (
 	"context"
@@ -14,10 +14,10 @@ import (
 
 const (
 	// Name is the identifier of the resource.
-	Name = "namespacev1"
+	Name = "appnamespacev1"
 )
 
-// Config represents the configuration used to create a new namespace resource.
+// Config represents the configuration used to create a new appnamespace resource.
 type Config struct {
 	// Dependencies.
 	K8sClient kubernetes.Interface
@@ -27,14 +27,14 @@ type Config struct {
 	ProjectName string
 }
 
-// Resource implements the namespace resource.
+// Resource implements the appnamespace resource.
 type Resource struct {
 	// Dependencies.
 	k8sClient kubernetes.Interface
 	logger    micrologger.Logger
 }
 
-// New creates a new configured namespace resource.
+// New creates a new configured appnamespace resource.
 func New(config Config) (*Resource, error) {
 	if config.K8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)

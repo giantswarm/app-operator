@@ -1,4 +1,4 @@
-package namespace
+package appnamespace
 
 import "context"
 
