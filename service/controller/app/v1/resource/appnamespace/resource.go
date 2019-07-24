@@ -57,6 +57,7 @@ func (*Resource) Name() string {
 	return Name
 }
 
+// addNamespaceStatusToContext checks whether the namespace of the app CR is deleting currently.
 func (r *Resource) addNamespaceStatusToContext(ctx context.Context, cr v1alpha1.App) error {
 	cc, err := controllercontext.FromContext(ctx)
 	if err != nil {
