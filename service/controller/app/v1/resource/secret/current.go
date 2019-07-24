@@ -20,6 +20,20 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 		return nil, microerror.Mask(err)
 	}
 
+	ns, err := r.k8sClient.CoreV1().Namespaces().Get(cr.Namespace, metav1.GetOptions{})
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	if ns.GetDeletionTimestamp() != nil {
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("namespace %#q is going to be deleted, no need to reconcile resource", cr.Namespace))
+
+		resourcecanceledcontext.SetCanceled(ctx)
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+
+		return nil, nil
+	}
+
 	name := key.ChartSecretName(cr)
 
 	cc, err := controllercontext.FromContext(ctx)
