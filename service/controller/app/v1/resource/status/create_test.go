@@ -10,10 +10,8 @@ import (
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned/fake"
 	"github.com/giantswarm/micrologger/microloggertest"
 	"github.com/google/go-cmp/cmp"
-	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
-	clientgofake "k8s.io/client-go/kubernetes/fake"
 
 	"github.com/giantswarm/app-operator/service/controller/app/v1/controllercontext"
 )
@@ -213,16 +211,8 @@ func Test_Resource_EnsureCreated(t *testing.T) {
 
 			g8sClient := fake.NewSimpleClientset(objs...)
 
-			ns := make([]runtime.Object, 0, 0)
-			if tc.obj != nil {
-				ns = append(ns, &corev1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: tc.obj.Namespace}})
-			}
-
-			k8sClient := clientgofake.NewSimpleClientset(ns...)
-
 			c := Config{
 				G8sClient: g8sClient,
-				K8sClient: k8sClient,
 				Logger:    microloggertest.New(),
 
 				ChartNamespace: "default",

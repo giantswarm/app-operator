@@ -2,6 +2,7 @@ package v1
 
 import (
 	"context"
+	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/namespace"
 
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/kubeconfig"
@@ -90,7 +91,6 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	{
 		c := chart.Config{
 			G8sClient: config.G8sClient,
-			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
 
 			ChartNamespace: config.ChartNamespace,
@@ -132,6 +132,21 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 	}
 
+	var namespaceResource controller.Resource
+	{
+		c := namespace.Config{
+			K8sClient: config.K8sClient,
+			Logger:    config.Logger,
+
+			ProjectName: config.ProjectName,
+		}
+
+		namespaceResource, err = namespace.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var secretResource controller.Resource
 	{
 		c := secret.Config{
@@ -159,7 +174,6 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	{
 		c := status.Config{
 			G8sClient: config.G8sClient,
-			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
 
 			ChartNamespace: config.ChartNamespace,
@@ -172,6 +186,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	}
 
 	resources := []controller.Resource{
+		namespaceResource,
 		configMapResource,
 		secretResource,
 		chartResource,

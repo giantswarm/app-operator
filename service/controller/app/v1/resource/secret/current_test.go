@@ -132,10 +132,6 @@ func Test_Resource_GetCurrentState(t *testing.T) {
 				objs = append(objs, tc.secret)
 			}
 
-			if tc.obj != nil {
-				objs = append(objs, &corev1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: tc.obj.Namespace}})
-			}
-
 			g8sClient := fake.NewSimpleClientset()
 			k8sClient := clientgofake.NewSimpleClientset(objs...)
 

@@ -20,25 +20,20 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 		return nil, microerror.Mask(err)
 	}
 
-	ns, err := r.k8sClient.CoreV1().Namespaces().Get(cr.Namespace, metav1.GetOptions{})
+	name := key.ChartConfigMapName(cr)
+
+	cc, err := controllercontext.FromContext(ctx)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
 
-	if ns.GetDeletionTimestamp() != nil {
+	if cc.Status.TenantCluster.IsDeleting {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("namespace %#q is going to be deleted, no need to reconcile resource", cr.Namespace))
 
 		resourcecanceledcontext.SetCanceled(ctx)
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 
 		return nil, nil
-	}
-
-	name := key.ChartConfigMapName(cr)
-
-	cc, err := controllercontext.FromContext(ctx)
-	if err != nil {
-		return nil, microerror.Mask(err)
 	}
 
 	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding configmap %#q in namespace %#q", name, r.chartNamespace))

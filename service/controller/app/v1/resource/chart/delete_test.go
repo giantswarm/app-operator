@@ -10,7 +10,6 @@ import (
 	"github.com/giantswarm/micrologger/microloggertest"
 	"github.com/google/go-cmp/cmp"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	k8sfake "k8s.io/client-go/kubernetes/fake"
 )
 
 func Test_Resource_newDeleteChange(t *testing.T) {
@@ -63,7 +62,6 @@ func Test_Resource_newDeleteChange(t *testing.T) {
 
 	c := Config{
 		G8sClient: fake.NewSimpleClientset(),
-		K8sClient: k8sfake.NewSimpleClientset(),
 		Logger:    microloggertest.New(),
 
 		ChartNamespace: "giantswarm",
