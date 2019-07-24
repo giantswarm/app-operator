@@ -20,7 +20,7 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 		return nil, microerror.Mask(err)
 	}
 
-	ns, err := r.k8sClient.CoreV1().Namespaces().Get(key.Namespace(cr), metav1.GetOptions{})
+	ns, err := r.k8sClient.CoreV1().Namespaces().Get(cr.Namespace, metav1.GetOptions{})
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
