@@ -246,6 +246,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 			if tc.obj != nil {
 				ns = append(ns, &corev1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: tc.obj.Namespace}})
 			}
+
 			k8sClient := k8sfake.NewSimpleClientset(ns...)
 
 			c := Config{
