@@ -1,13 +1,13 @@
 package chart
 
 import (
-	"k8s.io/client-go/kubernetes"
 	"reflect"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
+	"k8s.io/client-go/kubernetes"
 )
 
 const (
