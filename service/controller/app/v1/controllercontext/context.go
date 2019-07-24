@@ -17,6 +17,15 @@ type Context struct {
 	AppCatalog v1alpha1.AppCatalog
 	G8sClient  versioned.Interface
 	K8sClient  kubernetes.Interface
+	Status     Status
+}
+
+type Status struct {
+	TenantCluster TenantCluster
+}
+
+type TenantCluster struct {
+	IsDeleting bool
 }
 
 func NewContext(ctx context.Context, c Context) context.Context {
