@@ -2,7 +2,6 @@ package v1
 
 import (
 	"context"
-	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/namespace"
 
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/kubeconfig"
@@ -18,6 +17,7 @@ import (
 	"github.com/giantswarm/app-operator/service/controller/app/v1/key"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/chart"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/configmap"
+	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/namespace"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/secret"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/status"
 )
