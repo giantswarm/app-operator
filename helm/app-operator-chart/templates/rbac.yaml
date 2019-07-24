@@ -70,6 +70,12 @@ rules:
   - secrets
   verbs:
   - "*"
+- apiGroups:
+    - ""
+  resources:
+    - namespaces
+  verbs:
+    - get
 - nonResourceURLs:
   - "/"
   - "/healthz"
