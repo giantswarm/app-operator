@@ -69,10 +69,7 @@ func (r *Resource) addNamespaceStatusToContext(ctx context.Context, cr v1alpha1.
 	}
 
 	if ns.GetDeletionTimestamp() != nil {
-		//r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("namespace %#q is going to be deleted, no need to reconcile resource", cr.Namespace))
 		cc.Status.TenantCluster.IsDeleting = true
-		//resourcecanceledcontext.SetCanceled(ctx)
-		//r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 	} else {
 		cc.Status.TenantCluster.IsDeleting = false
 	}
