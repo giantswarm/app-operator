@@ -18,4 +18,6 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 	if err != nil {
 		return microerror.Mask(err)
 	}
+
+	return nil
 }
