@@ -21,6 +21,20 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
+	ns, err := r.k8sClient.CoreV1().Namespaces().Get(cr.Namespace, metav1.GetOptions{})
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
+	if ns.GetDeletionTimestamp() != nil {
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("namespace %#q is going to be deleted, no need to reconcile resource", cr.Namespace))
+
+		resourcecanceledcontext.SetCanceled(ctx)
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+
+		return nil
+	}
+
 	name := cr.GetName()
 
 	cc, err := controllercontext.FromContext(ctx)
