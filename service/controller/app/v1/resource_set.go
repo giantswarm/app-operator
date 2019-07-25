@@ -10,6 +10,7 @@ import (
 	"github.com/giantswarm/operatorkit/controller"
 	"github.com/giantswarm/operatorkit/resource/wrapper/metricsresource"
 	"github.com/giantswarm/operatorkit/resource/wrapper/retryresource"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 
 	"github.com/giantswarm/app-operator/service/controller/app/v1/appcatalog"
@@ -209,25 +210,44 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		var k8sClient kubernetes.Interface
 		var g8sClient versioned.Interface
 
-		restConfig, err := kubeConfig.NewRESTConfigForApp(ctx, cr)
-		if err != nil {
-			return nil, microerror.Mask(err)
+		var isDeleting bool
+		{
+			ns, err := config.K8sClient.CoreV1().Namespaces().Get(cr.Namespace, metav1.GetOptions{})
+			if err != nil {
+				return nil, microerror.Mask(err)
+			}
+
+			if ns.GetDeletionTimestamp() != nil {
+				isDeleting = true
+			}
 		}
 
-		g8sClient, err = versioned.NewForConfig(restConfig)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
+		if !isDeleting {
+			restConfig, err := kubeConfig.NewRESTConfigForApp(ctx, cr)
+			if err != nil {
+				return nil, microerror.Mask(err)
+			}
 
-		k8sClient, err = kubernetes.NewForConfig(restConfig)
-		if err != nil {
-			return nil, microerror.Mask(err)
+			g8sClient, err = versioned.NewForConfig(restConfig)
+			if err != nil {
+				return nil, microerror.Mask(err)
+			}
+
+			k8sClient, err = kubernetes.NewForConfig(restConfig)
+			if err != nil {
+				return nil, microerror.Mask(err)
+			}
 		}
 
 		c := controllercontext.Context{
 			AppCatalog: *catalogCR,
 			G8sClient:  g8sClient,
 			K8sClient:  k8sClient,
+			Status: controllercontext.Status{
+				TenantCluster: controllercontext.TenantCluster{
+					IsDeleting: isDeleting,
+				},
+			},
 		}
 		ctx = controllercontext.NewContext(ctx, c)
 
