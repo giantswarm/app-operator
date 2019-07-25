@@ -182,8 +182,8 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	}
 
 	resources := []controller.Resource{
-		clientsResource,
 		appNamespaceResource,
+		clientsResource,
 		configMapResource,
 		secretResource,
 		chartResource,
