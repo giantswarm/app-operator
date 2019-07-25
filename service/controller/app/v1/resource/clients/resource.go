@@ -88,11 +88,7 @@ func (r *Resource) addClientsToContext(ctx context.Context, cr v1alpha1.App) err
 		return microerror.Mask(err)
 	}
 
-	var k8sClient kubernetes.Interface
-	var g8sClient versioned.Interface
-
 	if !cc.Status.TenantCluster.IsDeleting {
-
 		var kubeConfig kubeconfig.Interface
 		{
 			c := kubeconfig.Config{
@@ -112,7 +108,7 @@ func (r *Resource) addClientsToContext(ctx context.Context, cr v1alpha1.App) err
 		}
 
 		if cc.G8sClient == nil {
-			g8sClient, err = versioned.NewForConfig(restConfig)
+			g8sClient, err := versioned.NewForConfig(restConfig)
 			if err != nil {
 				return microerror.Mask(err)
 			}
@@ -120,7 +116,7 @@ func (r *Resource) addClientsToContext(ctx context.Context, cr v1alpha1.App) err
 		}
 
 		if cc.K8sClient == nil {
-			k8sClient, err = kubernetes.NewForConfig(restConfig)
+			k8sClient, err := kubernetes.NewForConfig(restConfig)
 			if err != nil {
 				return microerror.Mask(err)
 			}
