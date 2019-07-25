@@ -4,19 +4,19 @@ import (
 	"context"
 
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
-	"github.com/giantswarm/kubeconfig"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/controller"
 	"github.com/giantswarm/operatorkit/resource/wrapper/metricsresource"
 	"github.com/giantswarm/operatorkit/resource/wrapper/retryresource"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 
 	"github.com/giantswarm/app-operator/service/controller/app/v1/appcatalog"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/controllercontext"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/key"
+	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/appnamespace"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/chart"
+	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/clients"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/configmap"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/secret"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/status"
@@ -59,19 +59,6 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ProjectName must not be empty", config)
 	}
 
-	var kubeConfig kubeconfig.Interface
-	{
-		c := kubeconfig.Config{
-			K8sClient: config.K8sClient,
-			Logger:    config.Logger,
-		}
-
-		kubeConfig, err = kubeconfig.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
 	var appCatalog *appcatalog.AppCatalog
 	{
 		c := appcatalog.Config{
@@ -82,6 +69,18 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 
 		appCatalog, err = appcatalog.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	var appNamespaceResource controller.Resource
+	{
+		c := appnamespace.Config{
+			K8sClient: config.K8sClient,
+			Logger:    config.Logger,
+		}
+		appNamespaceResource, err = appnamespace.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -104,6 +103,18 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 
 		chartResource, err = toCRUDResource(config.Logger, ops)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	var clientsResource controller.Resource
+	{
+		c := clients.Config{
+			K8sClient: config.K8sClient,
+			Logger:    config.Logger,
+		}
+		clientsResource, err = clients.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -171,6 +182,8 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	}
 
 	resources := []controller.Resource{
+		clientsResource,
+		appNamespaceResource,
 		configMapResource,
 		secretResource,
 		chartResource,
@@ -207,47 +220,8 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 			return nil, microerror.Mask(err)
 		}
 
-		var k8sClient kubernetes.Interface
-		var g8sClient versioned.Interface
-
-		var isDeleting bool
-		{
-			ns, err := config.K8sClient.CoreV1().Namespaces().Get(cr.Namespace, metav1.GetOptions{})
-			if err != nil {
-				return nil, microerror.Mask(err)
-			}
-
-			if ns.GetDeletionTimestamp() != nil {
-				isDeleting = true
-			}
-		}
-
-		if !isDeleting {
-			restConfig, err := kubeConfig.NewRESTConfigForApp(ctx, cr)
-			if err != nil {
-				return nil, microerror.Mask(err)
-			}
-
-			g8sClient, err = versioned.NewForConfig(restConfig)
-			if err != nil {
-				return nil, microerror.Mask(err)
-			}
-
-			k8sClient, err = kubernetes.NewForConfig(restConfig)
-			if err != nil {
-				return nil, microerror.Mask(err)
-			}
-		}
-
 		c := controllercontext.Context{
 			AppCatalog: *catalogCR,
-			G8sClient:  g8sClient,
-			K8sClient:  k8sClient,
-			Status: controllercontext.Status{
-				TenantCluster: controllercontext.TenantCluster{
-					IsDeleting: isDeleting,
-				},
-			},
 		}
 		ctx = controllercontext.NewContext(ctx, c)
 
