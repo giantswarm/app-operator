@@ -2,6 +2,7 @@ package clients
 
 import (
 	"context"
+	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/kubeconfig"
@@ -50,6 +51,38 @@ func New(config Config) (*Resource, error) {
 }
 
 func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
+	cr, err := key.ToCustomResource(obj)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
+	err = r.addClientsToContext(ctx, cr)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
+	return nil
+}
+
+func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
+	cr, err := key.ToCustomResource(obj)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
+	err = r.addClientsToContext(ctx, cr)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
+	return nil
+}
+
+func (*Resource) Name() string {
+	return Name
+}
+
+func (r *Resource) addClientsToContext(ctx context.Context, cr v1alpha1.App) error {
 	cc, err := controllercontext.FromContext(ctx)
 	if err != nil {
 		return microerror.Mask(err)
@@ -71,11 +104,6 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			if err != nil {
 				return microerror.Mask(err)
 			}
-		}
-
-		cr, err := key.ToCustomResource(obj)
-		if err != nil {
-			return microerror.Mask(err)
 		}
 
 		restConfig, err := kubeConfig.NewRESTConfigForApp(ctx, cr)
@@ -100,12 +128,4 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		}
 	}
 	return nil
-}
-
-func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
-	return nil
-}
-
-func (*Resource) Name() string {
-	return Name
 }
