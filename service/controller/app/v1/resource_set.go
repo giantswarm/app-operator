@@ -1,8 +1,6 @@
 package v1
 
 import (
-	"context"
-
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
@@ -11,9 +9,8 @@ import (
 	"github.com/giantswarm/operatorkit/resource/wrapper/retryresource"
 	"k8s.io/client-go/kubernetes"
 
-	"github.com/giantswarm/app-operator/service/controller/app/v1/appcatalog"
-	"github.com/giantswarm/app-operator/service/controller/app/v1/controllercontext"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/key"
+	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/appcatalog"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/appnamespace"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/chart"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/clients"
@@ -58,17 +55,13 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	if config.ProjectName == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ProjectName must not be empty", config)
 	}
-
-	var appCatalog *appcatalog.AppCatalog
+	var appcatalogResource controller.Resource
 	{
 		c := appcatalog.Config{
 			G8sClient: config.G8sClient,
 			Logger:    config.Logger,
-
-			WatchNamespace: config.WatchNamespace,
 		}
-
-		appCatalog, err = appcatalog.New(c)
+		appcatalogResource, err = appcatalog.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -183,6 +176,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 
 	resources := []controller.Resource{
 		appNamespaceResource,
+		appcatalogResource,
 		clientsResource,
 		configMapResource,
 		secretResource,
@@ -209,25 +203,6 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 	}
 
-	initCtxFunc := func(ctx context.Context, obj interface{}) (context.Context, error) {
-		cr, err := key.ToCustomResource(obj)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-
-		catalogCR, err := appCatalog.GetCatalogForApp(ctx, cr)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-
-		c := controllercontext.Context{
-			AppCatalog: *catalogCR,
-		}
-		ctx = controllercontext.NewContext(ctx, c)
-
-		return ctx, nil
-	}
-
 	handlesFunc := func(obj interface{}) bool {
 		cr, err := key.ToCustomResource(obj)
 		if err != nil {
@@ -245,7 +220,6 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	{
 		c := controller.ResourceSetConfig{
 			Handles:   handlesFunc,
-			InitCtx:   initCtxFunc,
 			Logger:    config.Logger,
 			Resources: resources,
 		}
