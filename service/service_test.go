@@ -27,6 +27,7 @@ func Test_Service_New(t *testing.T) {
 					GitCommit:   "test",
 					ProjectName: "chart-operator",
 					Source:      "test",
+					Version:     "test",
 				}
 
 				c.Viper.Set(c.Flag.Service.Chart.Namespace, "giantswarm")
