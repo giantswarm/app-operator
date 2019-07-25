@@ -18,7 +18,7 @@ const (
 	Name = "clientsv1"
 )
 
-// Config represents the configuration used to create a new appnamespace resource.
+// Config represents the configuration used to create a new clients resource.
 type Config struct {
 	// Dependencies.
 	K8sClient kubernetes.Interface
@@ -31,7 +31,7 @@ type Resource struct {
 	logger    micrologger.Logger
 }
 
-// New creates a new configured appnamespace resource.
+// New creates a new configured clients resource.
 func New(config Config) (*Resource, error) {
 	if config.K8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
