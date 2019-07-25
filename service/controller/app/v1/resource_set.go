@@ -1,7 +1,10 @@
 package v1
 
 import (
+	"context"
+
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
+	"github.com/giantswarm/app-operator/service/controller/app/v1/controllercontext"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/controller"
@@ -216,10 +219,18 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		return false
 	}
 
+	initCtxFunc := func(ctx context.Context, obj interface{}) (context.Context, error) {
+		cc := controllercontext.Context{}
+		ctx = controllercontext.NewContext(ctx, cc)
+
+		return ctx, nil
+	}
+
 	var resourceSet *controller.ResourceSet
 	{
 		c := controller.ResourceSetConfig{
 			Handles:   handlesFunc,
+			InitCtx:   initCtxFunc,
 			Logger:    config.Logger,
 			Resources: resources,
 		}
