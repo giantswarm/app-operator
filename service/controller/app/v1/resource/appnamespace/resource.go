@@ -10,7 +10,6 @@ import (
 	"k8s.io/client-go/kubernetes"
 
 	"github.com/giantswarm/app-operator/service/controller/app/v1/controllercontext"
-	"github.com/giantswarm/app-operator/service/controller/app/v1/key"
 )
 
 const (
@@ -48,24 +47,6 @@ func New(config Config) (*Resource, error) {
 
 	return r, nil
 
-}
-
-func (*Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
-	return nil
-}
-
-func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
-	cr, err := key.ToCustomResource(obj)
-	if err != nil {
-		return microerror.Mask(err)
-	}
-
-	err = r.addNamespaceStatusToContext(ctx, cr)
-	if err != nil {
-		return microerror.Mask(err)
-	}
-
-	return nil
 }
 
 func (*Resource) Name() string {

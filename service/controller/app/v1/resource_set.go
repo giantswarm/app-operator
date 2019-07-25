@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
-	"github.com/giantswarm/app-operator/service/controller/app/v1/controllercontext"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/controller"
@@ -12,6 +11,7 @@ import (
 	"github.com/giantswarm/operatorkit/resource/wrapper/retryresource"
 	"k8s.io/client-go/kubernetes"
 
+	"github.com/giantswarm/app-operator/service/controller/app/v1/controllercontext"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/key"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/appcatalog"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/appnamespace"
@@ -58,6 +58,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	if config.ProjectName == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ProjectName must not be empty", config)
 	}
+
 	var appcatalogResource controller.Resource
 	{
 		c := appcatalog.Config{
