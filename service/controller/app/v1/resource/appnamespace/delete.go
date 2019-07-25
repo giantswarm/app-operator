@@ -8,6 +8,8 @@ import (
 	"github.com/giantswarm/app-operator/service/controller/app/v1/key"
 )
 
+// EnsureDeleted checks whether the namespace this app CR belongs to
+// is being deleting currently.
 func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 	cr, err := key.ToCustomResource(obj)
 	if err != nil {

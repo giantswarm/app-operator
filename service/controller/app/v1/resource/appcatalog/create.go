@@ -8,6 +8,7 @@ import (
 	"github.com/giantswarm/app-operator/service/controller/app/v1/key"
 )
 
+// EnsureCreated gets the appCatalog CR specified in the provided app CR.
 func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	cr, err := key.ToCustomResource(obj)
 	if err != nil {

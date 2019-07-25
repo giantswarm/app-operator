@@ -20,7 +20,7 @@ const (
 	Name = "appcatalogv1"
 )
 
-// Config represents the configuration used to create a new clients resource.
+// Config represents the configuration used to create a new appcatalog resource.
 type Config struct {
 	// Dependencies.
 	G8sClient versioned.Interface

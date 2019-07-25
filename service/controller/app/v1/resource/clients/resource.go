@@ -53,6 +53,7 @@ func (*Resource) Name() string {
 	return Name
 }
 
+// addClientsToContext gets the k8sClient and g8sClient instance for Tenant cluster access.
 func (r *Resource) addClientsToContext(ctx context.Context, cr v1alpha1.App) error {
 	cc, err := controllercontext.FromContext(ctx)
 	if err != nil {
