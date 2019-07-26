@@ -111,6 +111,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
 		}
+
 		clientsResource, err = clients.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)

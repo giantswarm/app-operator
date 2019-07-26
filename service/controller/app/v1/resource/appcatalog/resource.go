@@ -57,7 +57,6 @@ func (*Resource) Name() string {
 
 // getCatalogForApp gets the appCatalog CR specified in the provided app CR.
 func (r *Resource) getCatalogForApp(ctx context.Context, customResource v1alpha1.App) error {
-
 	cc, err := controllercontext.FromContext(ctx)
 	if err != nil {
 		return microerror.Mask(err)
