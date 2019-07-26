@@ -127,7 +127,6 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 
 			ChartNamespace: config.ChartNamespace,
 			ProjectName:    config.ProjectName,
-			WatchNamespace: config.WatchNamespace,
 		}
 
 		ops, err := configmap.New(c)
@@ -150,7 +149,6 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 
 			ChartNamespace: config.ChartNamespace,
 			ProjectName:    config.ProjectName,
-			WatchNamespace: config.WatchNamespace,
 		}
 
 		ops, err := secret.New(c)

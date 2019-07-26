@@ -151,7 +151,6 @@ func Test_Resource_GetCurrentState(t *testing.T) {
 
 				ChartNamespace: "giantswarm",
 				ProjectName:    "app-operator",
-				WatchNamespace: "default",
 			}
 			r, err := New(c)
 			if err != nil {
