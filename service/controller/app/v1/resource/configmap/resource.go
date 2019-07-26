@@ -25,7 +25,6 @@ type Config struct {
 	// Settings.
 	ChartNamespace string
 	ProjectName    string
-	WatchNamespace string
 }
 
 // Resource implements the configmap resource.
@@ -38,7 +37,6 @@ type Resource struct {
 	// Settings.
 	chartNamespace string
 	projectName    string
-	watchNamespace string
 }
 
 // New creates a new configured configmap resource.
@@ -67,7 +65,6 @@ func New(config Config) (*Resource, error) {
 
 		chartNamespace: config.ChartNamespace,
 		projectName:    config.ProjectName,
-		watchNamespace: config.WatchNamespace,
 	}
 
 	return r, nil
