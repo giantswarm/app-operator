@@ -3,8 +3,42 @@ package values
 import (
 	"github.com/giantswarm/helmclient"
 	"github.com/giantswarm/microerror"
+	"github.com/giantswarm/micrologger"
 	yaml "gopkg.in/yaml.v2"
+	"k8s.io/client-go/kubernetes"
 )
+
+// Config represents the configuration used to create a new values service.
+type Config struct {
+	// Dependencies.
+	K8sClient kubernetes.Interface
+	Logger    micrologger.Logger
+}
+
+// Values implements the values service.
+type Values struct {
+	// Dependencies.
+	k8sClient kubernetes.Interface
+	logger    micrologger.Logger
+}
+
+// New creates a new configured values service.
+func New(config Config) (*Values, error) {
+	if config.K8sClient == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
+	}
+	if config.Logger == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
+	}
+
+	r := &Values{
+		// Dependencies.
+		k8sClient: config.K8sClient,
+		logger:    config.Logger,
+	}
+
+	return r, nil
+}
 
 // MergeConfigMapData merges configmap data into a single block of YAML that
 // is stored in the configmap associated with the relevant chart CR.
