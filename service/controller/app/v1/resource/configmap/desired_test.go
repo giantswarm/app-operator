@@ -16,6 +16,7 @@ import (
 
 	"github.com/giantswarm/app-operator/pkg/label"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/controllercontext"
+	"github.com/giantswarm/app-operator/service/controller/app/v1/values"
 )
 
 func Test_Resource_GetDesiredState(t *testing.T) {
@@ -361,6 +362,8 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 		},
 	}
 
+	var err error
+
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
 			objs := make([]runtime.Object, 0, 0)
@@ -376,10 +379,23 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 				ctx = controllercontext.NewContext(context.Background(), c)
 			}
 
+			var valuesService *values.Values
+			{
+				c := values.Config{
+					K8sClient: clientgofake.NewSimpleClientset(objs...),
+					Logger:    microloggertest.New(),
+				}
+
+				valuesService, err = values.New(c)
+				if err != nil {
+					t.Fatalf("error == %#v, want nil", err)
+				}
+			}
+
 			c := Config{
 				G8sClient: fake.NewSimpleClientset(),
-				K8sClient: clientgofake.NewSimpleClientset(objs...),
 				Logger:    microloggertest.New(),
+				Values:    valuesService,
 
 				ChartNamespace: "giantswarm",
 				ProjectName:    "app-operator",
