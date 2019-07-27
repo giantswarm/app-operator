@@ -62,21 +62,21 @@ func ChartSecretName(customResource v1alpha1.App) string {
 	return fmt.Sprintf("%s-chart-secrets", customResource.GetName())
 }
 
-func CordonReason(customObject v1alpha1.App) string {
-	return customObject.GetAnnotations()[annotation.CordonReason]
+func CordonReason(customResource v1alpha1.App) string {
+	return customResource.GetAnnotations()[annotation.CordonReason]
 }
 
-func CordonUntil(customObject v1alpha1.App) string {
-	return customObject.GetAnnotations()[annotation.CordonUntil]
+func CordonUntil(customResource v1alpha1.App) string {
+	return customResource.GetAnnotations()[annotation.CordonUntil]
 }
 
 func InCluster(customResource v1alpha1.App) bool {
 	return customResource.Spec.KubeConfig.InCluster
 }
 
-func IsCordoned(customObject v1alpha1.App) bool {
-	_, reasonOk := customObject.Annotations[annotation.CordonReason]
-	_, untilOk := customObject.Annotations[annotation.CordonUntil]
+func IsCordoned(customResource v1alpha1.App) bool {
+	_, reasonOk := customResource.Annotations[annotation.CordonReason]
+	_, untilOk := customResource.Annotations[annotation.CordonUntil]
 
 	if reasonOk && untilOk {
 		return true
