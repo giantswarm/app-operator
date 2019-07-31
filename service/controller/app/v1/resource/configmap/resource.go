@@ -7,7 +7,8 @@ import (
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/client-go/kubernetes"
+
+	"github.com/giantswarm/app-operator/service/controller/app/v1/values"
 )
 
 const (
@@ -19,8 +20,8 @@ const (
 type Config struct {
 	// Dependencies.
 	G8sClient versioned.Interface
-	K8sClient kubernetes.Interface
 	Logger    micrologger.Logger
+	Values    *values.Values
 
 	// Settings.
 	ChartNamespace string
@@ -31,8 +32,8 @@ type Config struct {
 type Resource struct {
 	// Dependencies.
 	g8sClient versioned.Interface
-	k8sClient kubernetes.Interface
 	logger    micrologger.Logger
+	values    *values.Values
 
 	// Settings.
 	chartNamespace string
@@ -44,11 +45,11 @@ func New(config Config) (*Resource, error) {
 	if config.G8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.G8sClient must not be empty", config)
 	}
-	if config.K8sClient == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
-	}
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
+	}
+	if config.Values == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.Values must not be empty", config)
 	}
 
 	if config.ChartNamespace == "" {
@@ -60,8 +61,8 @@ func New(config Config) (*Resource, error) {
 
 	r := &Resource{
 		g8sClient: config.G8sClient,
-		k8sClient: config.K8sClient,
 		logger:    config.Logger,
+		values:    config.Values,
 
 		chartNamespace: config.ChartNamespace,
 		projectName:    config.ProjectName,

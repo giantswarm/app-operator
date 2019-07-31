@@ -12,6 +12,8 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	clientgofake "k8s.io/client-go/kubernetes/fake"
+
+	"github.com/giantswarm/app-operator/service/controller/app/v1/values"
 )
 
 func Test_Resource_newDeleteChange(t *testing.T) {
@@ -44,10 +46,25 @@ func Test_Resource_newDeleteChange(t *testing.T) {
 		},
 	}
 
+	var err error
+
+	var valuesService *values.Values
+	{
+		c := values.Config{
+			K8sClient: clientgofake.NewSimpleClientset(),
+			Logger:    microloggertest.New(),
+		}
+
+		valuesService, err = values.New(c)
+		if err != nil {
+			t.Fatalf("error == %#v, want nil", err)
+		}
+	}
+
 	c := Config{
 		G8sClient: fake.NewSimpleClientset(),
-		K8sClient: clientgofake.NewSimpleClientset(),
 		Logger:    microloggertest.New(),
+		Values:    valuesService,
 
 		ChartNamespace: "giantswarm",
 		ProjectName:    "app-operator",

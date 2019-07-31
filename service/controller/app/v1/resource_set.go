@@ -20,6 +20,7 @@ import (
 	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/configmap"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/secret"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/status"
+	"github.com/giantswarm/app-operator/service/controller/app/v1/values"
 )
 
 // ResourceSetConfig contains necessary dependencies and settings for
@@ -57,6 +58,19 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	}
 	if config.ProjectName == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ProjectName must not be empty", config)
+	}
+
+	var valuesService *values.Values
+	{
+		c := values.Config{
+			K8sClient: config.K8sClient,
+			Logger:    config.Logger,
+		}
+
+		valuesService, err = values.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
 	}
 
 	var appcatalogResource controller.Resource
@@ -122,8 +136,8 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	{
 		c := configmap.Config{
 			G8sClient: config.G8sClient,
-			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
+			Values:    valuesService,
 
 			ChartNamespace: config.ChartNamespace,
 			ProjectName:    config.ProjectName,

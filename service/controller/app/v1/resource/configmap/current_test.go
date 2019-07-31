@@ -15,6 +15,7 @@ import (
 	clientgofake "k8s.io/client-go/kubernetes/fake"
 
 	"github.com/giantswarm/app-operator/service/controller/app/v1/controllercontext"
+	"github.com/giantswarm/app-operator/service/controller/app/v1/values"
 )
 
 func Test_Resource_GetCurrentState(t *testing.T) {
@@ -135,6 +136,8 @@ func Test_Resource_GetCurrentState(t *testing.T) {
 			g8sClient := fake.NewSimpleClientset()
 			k8sClient := clientgofake.NewSimpleClientset(objs...)
 
+			var err error
+
 			var ctx context.Context
 			{
 				c := controllercontext.Context{
@@ -144,10 +147,23 @@ func Test_Resource_GetCurrentState(t *testing.T) {
 				ctx = controllercontext.NewContext(context.Background(), c)
 			}
 
+			var valuesService *values.Values
+			{
+				c := values.Config{
+					K8sClient: clientgofake.NewSimpleClientset(),
+					Logger:    microloggertest.New(),
+				}
+
+				valuesService, err = values.New(c)
+				if err != nil {
+					t.Fatalf("error == %#v, want nil", err)
+				}
+			}
+
 			c := Config{
 				G8sClient: g8sClient,
-				K8sClient: k8sClient,
 				Logger:    microloggertest.New(),
+				Values:    valuesService,
 
 				ChartNamespace: "giantswarm",
 				ProjectName:    "app-operator",
