@@ -156,9 +156,8 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	var secretResource controller.Resource
 	{
 		c := secret.Config{
-			G8sClient: config.G8sClient,
-			K8sClient: config.K8sClient,
-			Logger:    config.Logger,
+			Logger: config.Logger,
+			Values: valuesService,
 
 			ChartNamespace: config.ChartNamespace,
 			ProjectName:    config.ProjectName,

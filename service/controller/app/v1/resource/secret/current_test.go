@@ -3,6 +3,7 @@ package secret
 import (
 	"context"
 	"reflect"
+	"strconv"
 	"testing"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
@@ -15,10 +16,11 @@ import (
 	clientgofake "k8s.io/client-go/kubernetes/fake"
 
 	"github.com/giantswarm/app-operator/service/controller/app/v1/controllercontext"
+	"github.com/giantswarm/app-operator/service/controller/app/v1/values"
 )
 
 func Test_Resource_GetCurrentState(t *testing.T) {
-	tests := []struct {
+	testCases := []struct {
 		name           string
 		obj            *v1alpha1.App
 		secret         *corev1.Secret
@@ -125,8 +127,23 @@ func Test_Resource_GetCurrentState(t *testing.T) {
 		},
 	}
 
-	for _, tc := range tests {
-		t.Run(tc.name, func(t *testing.T) {
+	var err error
+
+	var valuesService *values.Values
+	{
+		c := values.Config{
+			K8sClient: clientgofake.NewSimpleClientset(),
+			Logger:    microloggertest.New(),
+		}
+
+		valuesService, err = values.New(c)
+		if err != nil {
+			t.Fatalf("error == %#v, want nil", err)
+		}
+	}
+
+	for i, tc := range testCases {
+		t.Run(strconv.Itoa(i), func(t *testing.T) {
 			objs := make([]runtime.Object, 0, 0)
 			if tc.secret != nil {
 				objs = append(objs, tc.secret)
@@ -145,9 +162,8 @@ func Test_Resource_GetCurrentState(t *testing.T) {
 			}
 
 			c := Config{
-				G8sClient: g8sClient,
-				K8sClient: k8sClient,
-				Logger:    microloggertest.New(),
+				Logger: microloggertest.New(),
+				Values: valuesService,
 
 				ChartNamespace: "giantswarm",
 				ProjectName:    "app-operator",
