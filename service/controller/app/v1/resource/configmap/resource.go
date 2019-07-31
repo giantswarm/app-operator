@@ -3,7 +3,6 @@ package configmap
 import (
 	"reflect"
 
-	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	corev1 "k8s.io/api/core/v1"
@@ -19,9 +18,8 @@ const (
 // Config represents the configuration used to create a new configmap resource.
 type Config struct {
 	// Dependencies.
-	G8sClient versioned.Interface
-	Logger    micrologger.Logger
-	Values    *values.Values
+	Logger micrologger.Logger
+	Values *values.Values
 
 	// Settings.
 	ChartNamespace string
@@ -31,9 +29,8 @@ type Config struct {
 // Resource implements the configmap resource.
 type Resource struct {
 	// Dependencies.
-	g8sClient versioned.Interface
-	logger    micrologger.Logger
-	values    *values.Values
+	logger micrologger.Logger
+	values *values.Values
 
 	// Settings.
 	chartNamespace string
@@ -42,9 +39,6 @@ type Resource struct {
 
 // New creates a new configured configmap resource.
 func New(config Config) (*Resource, error) {
-	if config.G8sClient == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.G8sClient must not be empty", config)
-	}
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
@@ -60,9 +54,8 @@ func New(config Config) (*Resource, error) {
 	}
 
 	r := &Resource{
-		g8sClient: config.G8sClient,
-		logger:    config.Logger,
-		values:    config.Values,
+		logger: config.Logger,
+		values: config.Values,
 
 		chartNamespace: config.ChartNamespace,
 		projectName:    config.ProjectName,

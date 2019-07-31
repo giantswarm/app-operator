@@ -135,9 +135,8 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	var configMapResource controller.Resource
 	{
 		c := configmap.Config{
-			G8sClient: config.G8sClient,
-			Logger:    config.Logger,
-			Values:    valuesService,
+			Logger: config.Logger,
+			Values: valuesService,
 
 			ChartNamespace: config.ChartNamespace,
 			ProjectName:    config.ProjectName,
