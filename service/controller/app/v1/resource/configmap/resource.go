@@ -4,10 +4,11 @@ import (
 	"reflect"
 
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
-	"github.com/giantswarm/app-operator/service/controller/app/v1/values"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	corev1 "k8s.io/api/core/v1"
+
+	"github.com/giantswarm/app-operator/service/controller/app/v1/values"
 )
 
 const (
