@@ -7,12 +7,13 @@ import (
 	"testing"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
-	"github.com/giantswarm/app-operator/service/controller/app/v1/values"
 	"github.com/giantswarm/micrologger/microloggertest"
 	"github.com/google/go-cmp/cmp"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	clientgofake "k8s.io/client-go/kubernetes/fake"
+
+	"github.com/giantswarm/app-operator/service/controller/app/v1/values"
 )
 
 func Test_Resource_newUpdateChange(t *testing.T) {
