@@ -13,7 +13,22 @@ import (
 	appcatalogkey "github.com/giantswarm/app-operator/service/controller/appcatalog/v1/key"
 )
 
+<<<<<<< HEAD
 func (v *Values) MergeConfigMapData(ctx context.Context, app v1alpha1.App, appCatalog v1alpha1.AppCatalog) (map[string]string, error) {
+=======
+// MergeConfigMapData merges the data from the catalog, app and user configmaps
+// and returns a single set of values.
+func (v *Values) MergeConfigMapData(ctx context.Context, app v1alpha1.App, appCatalog v1alpha1.AppCatalog) (map[string]string, error) {
+	appConfigMapName := key.AppConfigMapName(app)
+	catalogConfigMapName := appcatalogkey.ConfigMapName(appCatalog)
+	userConfigMapName := key.UserConfigMapName(app)
+
+	if appConfigMapName == "" && catalogConfigMapName == "" && userConfigMapName == "" {
+		// Return early as there is no config.
+		return nil, nil
+	}
+
+>>>>>>> extract-cm-values
 	// We get the catalog level values if configured.
 	catalogData, err := v.getConfigMapForCatalog(ctx, appCatalog)
 	if err != nil {
