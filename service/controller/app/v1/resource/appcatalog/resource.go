@@ -27,6 +27,7 @@ type Config struct {
 	Logger    micrologger.Logger
 }
 
+// Resource implements the appcatalog resource.
 type Resource struct {
 	// Dependencies.
 	g8sClient versioned.Interface

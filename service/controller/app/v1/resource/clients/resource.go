@@ -25,6 +25,7 @@ type Config struct {
 	Logger    micrologger.Logger
 }
 
+// Resource implements the clients resource.
 type Resource struct {
 	// Dependencies.
 	k8sClient kubernetes.Interface
@@ -53,7 +54,8 @@ func (*Resource) Name() string {
 	return Name
 }
 
-// addClientsToContext gets the k8sClient and g8sClient instance for Tenant cluster access.
+// addClientsToContext adds g8s and k8s clients based on the kubeconfig
+// settings for the app CR.
 func (r *Resource) addClientsToContext(ctx context.Context, cr v1alpha1.App) error {
 	cc, err := controllercontext.FromContext(ctx)
 	if err != nil {

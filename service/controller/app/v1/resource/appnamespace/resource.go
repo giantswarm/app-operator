@@ -24,6 +24,7 @@ type Config struct {
 	Logger    micrologger.Logger
 }
 
+// Resource implements the appnamespace resource.
 type Resource struct {
 	// Dependencies.
 	k8sClient kubernetes.Interface
