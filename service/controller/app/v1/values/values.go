@@ -40,17 +40,6 @@ func New(config Config) (*Values, error) {
 	return r, nil
 }
 
-// MergeSecretData merges secret data into a single block of YAML that
-// is stored in the secret associated with the relevant chart CR.
-func MergeSecretData(destMap, srcMap map[string][]byte) (map[string][]byte, error) {
-	result, err := mergeData(destMap, srcMap)
-	if err != nil {
-		return nil, microerror.Mask(err)
-	}
-
-	return result, nil
-}
-
 // mergeData contains the shared logic that is common to merging configmap and
 // secret data.
 func mergeData(destMap, srcMap map[string][]byte) (map[string][]byte, error) {

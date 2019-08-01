@@ -7,7 +7,6 @@ import (
 	"testing"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
-	"github.com/giantswarm/apiextensions/pkg/clientset/versioned/fake"
 	"github.com/giantswarm/micrologger/microloggertest"
 	"github.com/google/go-cmp/cmp"
 	corev1 "k8s.io/api/core/v1"
@@ -130,9 +129,8 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 			}
 
 			c := Config{
-				G8sClient: fake.NewSimpleClientset(),
-				Logger:    microloggertest.New(),
-				Values:    valuesService,
+				Logger: microloggertest.New(),
+				Values: valuesService,
 
 				ChartNamespace: "giantswarm",
 				ProjectName:    "app-operator",

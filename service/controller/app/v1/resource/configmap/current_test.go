@@ -3,10 +3,10 @@ package configmap
 import (
 	"context"
 	"reflect"
+	"strconv"
 	"testing"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
-	"github.com/giantswarm/apiextensions/pkg/clientset/versioned/fake"
 	"github.com/giantswarm/micrologger/microloggertest"
 	"github.com/google/go-cmp/cmp"
 	corev1 "k8s.io/api/core/v1"
@@ -19,7 +19,7 @@ import (
 )
 
 func Test_Resource_GetCurrentState(t *testing.T) {
-	tests := []struct {
+	testCases := []struct {
 		name              string
 		obj               *v1alpha1.App
 		configMap         *corev1.ConfigMap
@@ -126,14 +126,13 @@ func Test_Resource_GetCurrentState(t *testing.T) {
 		},
 	}
 
-	for _, tc := range tests {
-		t.Run(tc.name, func(t *testing.T) {
+	for i, tc := range testCases {
+		t.Run(strconv.Itoa(i), func(t *testing.T) {
 			objs := make([]runtime.Object, 0, 0)
 			if tc.configMap != nil {
 				objs = append(objs, tc.configMap)
 			}
 
-			g8sClient := fake.NewSimpleClientset()
 			k8sClient := clientgofake.NewSimpleClientset(objs...)
 
 			var err error
@@ -141,7 +140,6 @@ func Test_Resource_GetCurrentState(t *testing.T) {
 			var ctx context.Context
 			{
 				c := controllercontext.Context{
-					G8sClient: g8sClient,
 					K8sClient: k8sClient,
 				}
 				ctx = controllercontext.NewContext(context.Background(), c)
@@ -161,9 +159,8 @@ func Test_Resource_GetCurrentState(t *testing.T) {
 			}
 
 			c := Config{
-				G8sClient: g8sClient,
-				Logger:    microloggertest.New(),
-				Values:    valuesService,
+				Logger: microloggertest.New(),
+				Values: valuesService,
 
 				ChartNamespace: "giantswarm",
 				ProjectName:    "app-operator",

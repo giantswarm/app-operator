@@ -3,10 +3,10 @@ package secret
 import (
 	"context"
 	"reflect"
+	"strconv"
 	"testing"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
-	"github.com/giantswarm/apiextensions/pkg/clientset/versioned/fake"
 	"github.com/giantswarm/micrologger/microloggertest"
 	"github.com/google/go-cmp/cmp"
 	corev1 "k8s.io/api/core/v1"
@@ -16,10 +16,11 @@ import (
 
 	"github.com/giantswarm/app-operator/pkg/label"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/controllercontext"
+	"github.com/giantswarm/app-operator/service/controller/app/v1/values"
 )
 
 func Test_Resource_GetDesiredState(t *testing.T) {
-	tests := []struct {
+	testCases := []struct {
 		name           string
 		obj            *v1alpha1.App
 		appCatalog     v1alpha1.AppCatalog
@@ -95,276 +96,12 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 				},
 			},
 		},
-		{
-			name: "case 2: basic match with catalog secrets",
-			obj: &v1alpha1.App{
-				ObjectMeta: metav1.ObjectMeta{
-					Name:      "my-test-app",
-					Namespace: "giantswarm",
-				},
-				Spec: v1alpha1.AppSpec{
-					Catalog:   "test-catalog",
-					Name:      "test-app",
-					Namespace: "giantswarm",
-				},
-			},
-			appCatalog: v1alpha1.AppCatalog{
-				ObjectMeta: metav1.ObjectMeta{
-					Name: "test-catalog",
-				},
-				Spec: v1alpha1.AppCatalogSpec{
-					Title: "test-catalog",
-					Config: v1alpha1.AppCatalogSpecConfig{
-						Secret: v1alpha1.AppCatalogSpecConfigSecret{
-							Name:      "test-catalog-secrets",
-							Namespace: "giantswarm",
-						},
-					},
-				},
-			},
-			secrets: []*corev1.Secret{
-				{
-					Data: map[string][]byte{
-						"secrets": []byte("catalog: yaml\n"),
-					},
-					ObjectMeta: metav1.ObjectMeta{
-						Name:      "test-catalog-secrets",
-						Namespace: "giantswarm",
-					},
-				},
-			},
-			expectedSecret: &corev1.Secret{
-				Data: map[string][]byte{
-					"values": []byte("catalog: yaml\n"),
-				},
-				ObjectMeta: metav1.ObjectMeta{
-					Name:      "my-test-app-chart-secrets",
-					Namespace: "giantswarm",
-					Labels: map[string]string{
-						label.ManagedBy: "app-operator",
-					},
-				},
-			},
-		},
-		{
-			name: "case 3: non-intersecting catalog and app secrets are merged",
-			obj: &v1alpha1.App{
-				ObjectMeta: metav1.ObjectMeta{
-					Name:      "my-test-app",
-					Namespace: "giantswarm",
-				},
-				Spec: v1alpha1.AppSpec{
-					Catalog: "test-catalog",
-					Config: v1alpha1.AppSpecConfig{
-						Secret: v1alpha1.AppSpecConfigSecret{
-							Name:      "test-cluster-secrets",
-							Namespace: "giantswarm",
-						},
-					},
-					Name:      "test-app",
-					Namespace: "giantswarm",
-				},
-			},
-			appCatalog: v1alpha1.AppCatalog{
-				ObjectMeta: metav1.ObjectMeta{
-					Name: "test-catalog",
-				},
-				Spec: v1alpha1.AppCatalogSpec{
-					Title: "test-catalog",
-					Config: v1alpha1.AppCatalogSpecConfig{
-						Secret: v1alpha1.AppCatalogSpecConfigSecret{
-							Name:      "test-catalog-secrets",
-							Namespace: "giantswarm",
-						},
-					},
-				},
-			},
-			secrets: []*corev1.Secret{
-				{
-					Data: map[string][]byte{
-						"values": []byte("catalog: yaml\n"),
-					},
-					ObjectMeta: metav1.ObjectMeta{
-						Name:      "test-catalog-secrets",
-						Namespace: "giantswarm",
-					},
-				},
-				{
-					Data: map[string][]byte{
-						"values": []byte("cluster: yaml\n"),
-					},
-					ObjectMeta: metav1.ObjectMeta{
-						Name:      "test-cluster-secrets",
-						Namespace: "giantswarm",
-					},
-				},
-			},
-			expectedSecret: &corev1.Secret{
-				Data: map[string][]byte{
-					"values": []byte("catalog: yaml\ncluster: yaml\n"),
-				},
-				ObjectMeta: metav1.ObjectMeta{
-					Name:      "my-test-app-chart-secrets",
-					Namespace: "giantswarm",
-					Labels: map[string]string{
-						label.ManagedBy: "app-operator",
-					},
-				},
-			},
-		},
-		{
-			name: "case 4: intersecting catalog and app secrets, app overwrites catalog",
-			obj: &v1alpha1.App{
-				ObjectMeta: metav1.ObjectMeta{
-					Name:      "my-test-app",
-					Namespace: "giantswarm",
-				},
-				Spec: v1alpha1.AppSpec{
-					Catalog: "test-catalog",
-					Config: v1alpha1.AppSpecConfig{
-						Secret: v1alpha1.AppSpecConfigSecret{
-							Name:      "test-cluster-secrets",
-							Namespace: "giantswarm",
-						},
-					},
-					Name:      "test-app",
-					Namespace: "giantswarm",
-				},
-			},
-			appCatalog: v1alpha1.AppCatalog{
-				ObjectMeta: metav1.ObjectMeta{
-					Name: "test-catalog",
-				},
-				Spec: v1alpha1.AppCatalogSpec{
-					Title: "test-catalog",
-					Config: v1alpha1.AppCatalogSpecConfig{
-						Secret: v1alpha1.AppCatalogSpecConfigSecret{
-							Name:      "test-catalog-secrets",
-							Namespace: "giantswarm",
-						},
-					},
-				},
-			},
-			secrets: []*corev1.Secret{
-				{
-					Data: map[string][]byte{
-						"values": []byte("catalog: yaml\ntest: catalog\n"),
-					},
-					ObjectMeta: metav1.ObjectMeta{
-						Name:      "test-catalog-secrets",
-						Namespace: "giantswarm",
-					},
-				},
-				{
-					Data: map[string][]byte{
-						"values": []byte("cluster: yaml\ntest: app\n"),
-					},
-					ObjectMeta: metav1.ObjectMeta{
-						Name:      "test-cluster-secrets",
-						Namespace: "giantswarm",
-					},
-				},
-			},
-			expectedSecret: &corev1.Secret{
-				Data: map[string][]byte{
-					// "test: app" overrides "test: catalog".
-					"values": []byte("catalog: yaml\ncluster: yaml\ntest: app\n"),
-				},
-				ObjectMeta: metav1.ObjectMeta{
-					Name:      "my-test-app-chart-secrets",
-					Namespace: "giantswarm",
-					Labels: map[string]string{
-						label.ManagedBy: "app-operator",
-					},
-				},
-			},
-		},
-		{
-			name: "case 5: intersecting catalog, app and user secrets are merged, user is preferred",
-			obj: &v1alpha1.App{
-				ObjectMeta: metav1.ObjectMeta{
-					Name:      "my-test-app",
-					Namespace: "giantswarm",
-				},
-				Spec: v1alpha1.AppSpec{
-					Catalog: "test-catalog",
-					Config: v1alpha1.AppSpecConfig{
-						Secret: v1alpha1.AppSpecConfigSecret{
-							Name:      "test-cluster-secrets",
-							Namespace: "giantswarm",
-						},
-					},
-					Name:      "test-app",
-					Namespace: "giantswarm",
-					UserConfig: v1alpha1.AppSpecUserConfig{
-						Secret: v1alpha1.AppSpecUserConfigSecret{
-							Name:      "test-user-secrets",
-							Namespace: "giantswarm",
-						},
-					},
-				},
-			},
-			appCatalog: v1alpha1.AppCatalog{
-				ObjectMeta: metav1.ObjectMeta{
-					Name: "test-catalog",
-				},
-				Spec: v1alpha1.AppCatalogSpec{
-					Title: "test-catalog",
-					Config: v1alpha1.AppCatalogSpecConfig{
-						Secret: v1alpha1.AppCatalogSpecConfigSecret{
-							Name:      "test-catalog-secrets",
-							Namespace: "giantswarm",
-						},
-					},
-				},
-			},
-			secrets: []*corev1.Secret{
-				{
-					Data: map[string][]byte{
-						"values": []byte("catalog: test\ntest: catalog\n"),
-					},
-					ObjectMeta: metav1.ObjectMeta{
-						Name:      "test-catalog-secrets",
-						Namespace: "giantswarm",
-					},
-				},
-				{
-					Data: map[string][]byte{
-						"values": []byte("cluster: test\ntest: app\n"),
-					},
-					ObjectMeta: metav1.ObjectMeta{
-						Name:      "test-cluster-secrets",
-						Namespace: "giantswarm",
-					},
-				},
-				{
-					Data: map[string][]byte{
-						"values": []byte("user: test\ntest: user\n"),
-					},
-					ObjectMeta: metav1.ObjectMeta{
-						Name:      "test-user-secrets",
-						Namespace: "giantswarm",
-					},
-				},
-			},
-			expectedSecret: &corev1.Secret{
-				Data: map[string][]byte{
-					// "test: user" overrides "test: catalog" and "test: app".
-					"values": []byte("catalog: test\ncluster: test\ntest: user\nuser: test\n"),
-				},
-				ObjectMeta: metav1.ObjectMeta{
-					Name:      "my-test-app-chart-secrets",
-					Namespace: "giantswarm",
-					Labels: map[string]string{
-						label.ManagedBy: "app-operator",
-					},
-				},
-			},
-		},
 	}
 
-	for _, tc := range tests {
-		t.Run(tc.name, func(t *testing.T) {
+	var err error
+
+	for i, tc := range testCases {
+		t.Run(strconv.Itoa(i), func(t *testing.T) {
 			objs := make([]runtime.Object, 0, 0)
 			for _, cm := range tc.secrets {
 				objs = append(objs, cm)
@@ -378,10 +115,22 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 				ctx = controllercontext.NewContext(context.Background(), c)
 			}
 
+			var valuesService *values.Values
+			{
+				c := values.Config{
+					K8sClient: clientgofake.NewSimpleClientset(objs...),
+					Logger:    microloggertest.New(),
+				}
+
+				valuesService, err = values.New(c)
+				if err != nil {
+					t.Fatalf("error == %#v, want nil", err)
+				}
+			}
+
 			c := Config{
-				G8sClient: fake.NewSimpleClientset(),
-				K8sClient: clientgofake.NewSimpleClientset(objs...),
-				Logger:    microloggertest.New(),
+				Logger: microloggertest.New(),
+				Values: valuesService,
 
 				ChartNamespace: "giantswarm",
 				ProjectName:    "app-operator",
