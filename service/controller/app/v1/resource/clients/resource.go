@@ -2,6 +2,7 @@ package clients
 
 import (
 	"context"
+	"github.com/giantswarm/helmclient"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
@@ -23,6 +24,8 @@ type Config struct {
 	// Dependencies.
 	K8sClient kubernetes.Interface
 	Logger    micrologger.Logger
+
+	TillerNamespace string
 }
 
 // Resource implements the clients resource.
@@ -30,6 +33,9 @@ type Resource struct {
 	// Dependencies.
 	k8sClient kubernetes.Interface
 	logger    micrologger.Logger
+
+	// Settings.
+	tillerNamespace string
 }
 
 // New creates a new configured clients resource.
@@ -41,10 +47,16 @@ func New(config Config) (*Resource, error) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
 
+	if config.TillerNamespace == "" {
+		config.TillerNamespace = "giantswarm"
+	}
+
 	r := &Resource{
 		// Dependencies.
 		k8sClient: config.K8sClient,
 		logger:    config.Logger,
+
+		tillerNamespace: config.TillerNamespace,
 	}
 
 	return r, nil
@@ -66,6 +78,10 @@ func (r *Resource) addClientsToContext(ctx context.Context, cr v1alpha1.App) err
 		return nil
 	}
 
+	if cc.G8sClient != nil && cc.K8sClient != nil {
+		return nil
+	}
+
 	var kubeConfig kubeconfig.Interface
 	{
 		c := kubeconfig.Config{
@@ -84,21 +100,67 @@ func (r *Resource) addClientsToContext(ctx context.Context, cr v1alpha1.App) err
 		return microerror.Mask(err)
 	}
 
-	if cc.G8sClient == nil {
-		g8sClient, err := versioned.NewForConfig(restConfig)
-		if err != nil {
-			return microerror.Mask(err)
-		}
-		cc.G8sClient = g8sClient
+	g8sClient, err := versioned.NewForConfig(restConfig)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+	cc.G8sClient = g8sClient
+
+	k8sClient, err := kubernetes.NewForConfig(restConfig)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+	cc.K8sClient = k8sClient
+
+	return nil
+}
+
+func (r *Resource) addHelmClientToContext(ctx context.Context, cr v1alpha1.App) error {
+	cc, err := controllercontext.FromContext(ctx)
+	if err != nil {
+		return microerror.Mask(err)
 	}
 
-	if cc.K8sClient == nil {
-		k8sClient, err := kubernetes.NewForConfig(restConfig)
+	if cc.Status.TenantCluster.IsDeleting {
+		return nil
+	}
+
+	if cc.HelmClient != nil {
+		return nil
+	}
+
+	var kubeConfig kubeconfig.Interface
+	{
+		c := kubeconfig.Config{
+			K8sClient: r.k8sClient,
+			Logger:    r.logger,
+		}
+
+		kubeConfig, err = kubeconfig.New(c)
 		if err != nil {
 			return microerror.Mask(err)
 		}
-		cc.K8sClient = k8sClient
 	}
+
+	restConfig, err := kubeConfig.NewRESTConfigForApp(ctx, cr)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
+	c := helmclient.Config{
+		K8sClient: cc.K8sClient,
+		Logger:    r.logger,
+
+		RestConfig:      restConfig,
+		TillerNamespace: r.tillerNamespace,
+	}
+
+	helmClient, err := helmclient.New(c)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
+	cc.HelmClient = helmClient
 
 	return nil
 }

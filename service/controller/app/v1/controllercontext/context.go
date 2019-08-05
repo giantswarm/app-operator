@@ -2,6 +2,7 @@ package controllercontext
 
 import (
 	"context"
+	"github.com/giantswarm/helmclient"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
@@ -16,6 +17,7 @@ const controllerKey contextKey = "controller"
 type Context struct {
 	AppCatalog v1alpha1.AppCatalog
 	G8sClient  versioned.Interface
+	HelmClient helmclient.Interface
 	K8sClient  kubernetes.Interface
 	Status     Status
 }
