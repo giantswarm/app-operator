@@ -79,10 +79,6 @@ func (r *Resource) addClientsToContext(ctx context.Context, cr v1alpha1.App) err
 		return nil
 	}
 
-	if cc.G8sClient != nil && cc.K8sClient != nil {
-		return nil
-	}
-
 	var kubeConfig kubeconfig.Interface
 	{
 		c := kubeconfig.Config{
