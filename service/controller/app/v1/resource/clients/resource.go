@@ -109,41 +109,6 @@ func (r *Resource) addClientsToContext(ctx context.Context, cr v1alpha1.App) err
 	}
 	cc.K8sClient = k8sClient
 
-	return nil
-}
-
-func (r *Resource) addHelmClientToContext(ctx context.Context, cr v1alpha1.App) error {
-	cc, err := controllercontext.FromContext(ctx)
-	if err != nil {
-		return microerror.Mask(err)
-	}
-
-	if cc.Status.TenantCluster.IsDeleting {
-		return nil
-	}
-
-	if cc.HelmClient != nil {
-		return nil
-	}
-
-	var kubeConfig kubeconfig.Interface
-	{
-		c := kubeconfig.Config{
-			K8sClient: r.k8sClient,
-			Logger:    r.logger,
-		}
-
-		kubeConfig, err = kubeconfig.New(c)
-		if err != nil {
-			return microerror.Mask(err)
-		}
-	}
-
-	restConfig, err := kubeConfig.NewRESTConfigForApp(ctx, cr)
-	if err != nil {
-		return microerror.Mask(err)
-	}
-
 	c := helmclient.Config{
 		K8sClient: cc.K8sClient,
 		Logger:    r.logger,
@@ -156,7 +121,6 @@ func (r *Resource) addHelmClientToContext(ctx context.Context, cr v1alpha1.App) 
 	if err != nil {
 		return microerror.Mask(err)
 	}
-
 	cc.HelmClient = helmClient
 
 	return nil
