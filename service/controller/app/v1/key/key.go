@@ -62,6 +62,10 @@ func ChartSecretName(customResource v1alpha1.App) string {
 	return fmt.Sprintf("%s-chart-secrets", customResource.GetName())
 }
 
+func ClusterValuesConfigMapName(customResource v1alpha1.App) string {
+	return fmt.Sprintf("%s-cluster-values", customResource.GetNamespace())
+}
+
 func CordonReason(customResource v1alpha1.App) string {
 	return customResource.GetAnnotations()[annotation.CordonReason]
 }

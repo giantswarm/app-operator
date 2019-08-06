@@ -9,6 +9,7 @@ import (
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/client/k8srestconfig"
+	"github.com/spf13/afero"
 	"github.com/spf13/viper"
 	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	"k8s.io/client-go/kubernetes"
@@ -113,9 +114,11 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
+	fs := afero.NewOsFs()
 	var appController *app.App
 	{
 		c := app.Config{
+			Fs:           fs,
 			G8sClient:    g8sClient,
 			Logger:       config.Logger,
 			K8sClient:    k8sClient,

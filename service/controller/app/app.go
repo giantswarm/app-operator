@@ -8,6 +8,7 @@ import (
 	"github.com/giantswarm/operatorkit/client/k8scrdclient"
 	"github.com/giantswarm/operatorkit/controller"
 	"github.com/giantswarm/operatorkit/informer"
+	"github.com/spf13/afero"
 	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	"k8s.io/client-go/kubernetes"
 
@@ -15,6 +16,7 @@ import (
 )
 
 type Config struct {
+	Fs           afero.Fs
 	G8sClient    versioned.Interface
 	K8sClient    kubernetes.Interface
 	K8sExtClient apiextensionsclient.Interface
@@ -32,6 +34,9 @@ type App struct {
 func NewApp(config Config) (*App, error) {
 	var err error
 
+	if config.Fs == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.Fs must not be empty", config)
+	}
 	if config.G8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.G8sClient must not be empty", config)
 	}
@@ -82,6 +87,7 @@ func NewApp(config Config) (*App, error) {
 	{
 		c := v1.ResourceSetConfig{
 			ChartNamespace: config.ChartNamespace,
+			Fs:             config.Fs,
 			G8sClient:      config.G8sClient,
 			K8sClient:      config.K8sClient,
 			Logger:         config.Logger,

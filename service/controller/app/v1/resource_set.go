@@ -9,6 +9,7 @@ import (
 	"github.com/giantswarm/operatorkit/controller"
 	"github.com/giantswarm/operatorkit/resource/wrapper/metricsresource"
 	"github.com/giantswarm/operatorkit/resource/wrapper/retryresource"
+	"github.com/spf13/afero"
 	"k8s.io/client-go/kubernetes"
 
 	"github.com/giantswarm/app-operator/service/controller/app/v1/controllercontext"
@@ -16,6 +17,7 @@ import (
 	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/appcatalog"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/appnamespace"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/chart"
+	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/chartoperator"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/clients"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/configmap"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/secret"
@@ -27,6 +29,7 @@ import (
 // AppConfig controller ResourceSet configuration.
 type ResourceSetConfig struct {
 	// Dependencies.
+	Fs        afero.Fs
 	G8sClient versioned.Interface
 	K8sClient kubernetes.Interface
 	Logger    micrologger.Logger
@@ -42,6 +45,9 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	var err error
 
 	// Dependencies.
+	if config.Fs == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.Fs must not be empty", config)
+	}
 	if config.G8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.G8sClient must not be empty", config)
 	}
@@ -92,6 +98,19 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 			Logger:    config.Logger,
 		}
 		appNamespaceResource, err = appnamespace.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	var chartOperatorResource controller.Resource
+	{
+		c := chartoperator.Config{
+			Fs:        config.Fs,
+			K8sClient: config.K8sClient,
+			Logger:    config.Logger,
+		}
+		chartOperatorResource, err = chartoperator.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -193,6 +212,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		appNamespaceResource,
 		appcatalogResource,
 		clientsResource,
+		chartOperatorResource,
 		configMapResource,
 		secretResource,
 		chartResource,
