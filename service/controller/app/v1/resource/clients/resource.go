@@ -97,31 +97,37 @@ func (r *Resource) addClientsToContext(ctx context.Context, cr v1alpha1.App) err
 		return microerror.Mask(err)
 	}
 
-	g8sClient, err := versioned.NewForConfig(restConfig)
-	if err != nil {
-		return microerror.Mask(err)
-	}
-	cc.G8sClient = g8sClient
-
-	k8sClient, err := kubernetes.NewForConfig(restConfig)
-	if err != nil {
-		return microerror.Mask(err)
-	}
-	cc.K8sClient = k8sClient
-
-	c := helmclient.Config{
-		K8sClient: cc.K8sClient,
-		Logger:    r.logger,
-
-		RestConfig:      restConfig,
-		TillerNamespace: r.tillerNamespace,
+	{
+		g8sClient, err := versioned.NewForConfig(restConfig)
+		if err != nil {
+			return microerror.Mask(err)
+		}
+		cc.G8sClient = g8sClient
 	}
 
-	helmClient, err := helmclient.New(c)
-	if err != nil {
-		return microerror.Mask(err)
+	{
+		k8sClient, err := kubernetes.NewForConfig(restConfig)
+		if err != nil {
+			return microerror.Mask(err)
+		}
+		cc.K8sClient = k8sClient
 	}
-	cc.HelmClient = helmClient
+
+	{
+		c := helmclient.Config{
+			K8sClient: cc.K8sClient,
+			Logger:    r.logger,
+
+			RestConfig:      restConfig,
+			TillerNamespace: r.tillerNamespace,
+		}
+
+		helmClient, err := helmclient.New(c)
+		if err != nil {
+			return microerror.Mask(err)
+		}
+		cc.HelmClient = helmClient
+	}
 
 	return nil
 }
