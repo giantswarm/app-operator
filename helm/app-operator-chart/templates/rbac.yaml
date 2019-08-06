@@ -73,6 +73,12 @@ rules:
 - apiGroups:
     - ""
   resources:
+    - pods
+  verbs:
+    - list
+- apiGroups:
+    - ""
+  resources:
     - namespaces
   verbs:
     - get
