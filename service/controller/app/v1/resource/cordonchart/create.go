@@ -14,6 +14,12 @@ import (
 	"github.com/giantswarm/app-operator/service/controller/app/v1/key"
 )
 
+type mergeSpec struct {
+	Op    string            `json:"op"`
+	Path  string            `json:"path"`
+	Value map[string]string `json:"value"`
+}
+
 func (r Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	cr, err := key.ToCustomResource(obj)
 	if err != nil {
@@ -40,9 +46,9 @@ func (r Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 	name := cr.GetName()
 
-	var mergeSpec []byte
+	var mergeByte []byte
 	{
-		merge := []MergeSpec{
+		merge := []mergeSpec{
 			{
 				Op:   "add",
 				Path: "/metadata/annotations",
@@ -53,13 +59,13 @@ func (r Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			},
 		}
 
-		mergeSpec, err = json.Marshal(merge)
+		mergeByte, err = json.Marshal(merge)
 		if err != nil {
 			return microerror.Mask(err)
 		}
 	}
 
-	_, err = cc.G8sClient.ApplicationV1alpha1().Charts(r.chartNamespace).Patch(name, types.JSONPatchType, mergeSpec)
+	_, err = cc.G8sClient.ApplicationV1alpha1().Charts(r.chartNamespace).Patch(name, types.JSONPatchType, mergeByte)
 	if err != nil {
 		return microerror.Mask(err)
 	}

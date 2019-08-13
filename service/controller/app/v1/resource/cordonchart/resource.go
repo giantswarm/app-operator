@@ -10,13 +10,7 @@ const (
 	Name = "cordonchartv1"
 )
 
-type MergeSpec struct {
-	Op    string            `json:"op"`
-	Path  string            `json:"path"`
-	Value map[string]string `json:"value"`
-	//Value string `json:"value"`
-}
-
+//Config represents the configuration used to create a new cordonchart resource.
 type Config struct {
 	// Dependencies.
 	Logger micrologger.Logger
@@ -25,6 +19,16 @@ type Config struct {
 	ChartNamespace string
 }
 
+// Resource implements the cordonchart resource.
+type Resource struct {
+	// Dependencies.
+	logger micrologger.Logger
+
+	// Settings.
+	chartNamespace string
+}
+
+// New creates a new configured cordonchart resource.
 func New(config Config) (*Resource, error) {
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
@@ -40,14 +44,6 @@ func New(config Config) (*Resource, error) {
 	}
 
 	return r, nil
-}
-
-type Resource struct {
-	// Dependencies.
-	logger micrologger.Logger
-
-	// Settings.
-	chartNamespace string
 }
 
 func (r Resource) Name() string {
