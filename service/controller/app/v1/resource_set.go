@@ -18,6 +18,7 @@ import (
 	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/chart"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/clients"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/configmap"
+	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/cordonchart"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/secret"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/status"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/values"
@@ -153,6 +154,20 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 	}
 
+	var cordonChartResource controller.Resource
+	{
+		c := cordonchart.Config{
+			Logger: config.Logger,
+
+			ChartNamespace: config.ChartNamespace,
+		}
+
+		cordonChartResource, err = cordonchart.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var secretResource controller.Resource
 	{
 		c := secret.Config{
@@ -193,6 +208,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		appNamespaceResource,
 		appcatalogResource,
 		clientsResource,
+		cordonChartResource,
 		configMapResource,
 		secretResource,
 		chartResource,
