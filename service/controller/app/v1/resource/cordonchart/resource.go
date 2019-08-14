@@ -73,12 +73,14 @@ func (r *Resource) addCordon(ctx context.Context, cr v1alpha1.App, client versio
 	{
 		patch := []patchSpec{
 			{
-				Op:   "add",
-				Path: "/metadata/annotations",
-				Value: map[string]string{
-					replacePrefix(annotation.CordonReason): key.CordonReason(cr),
-					replacePrefix(annotation.CordonUntil):  key.CordonUntil(cr),
-				},
+				Op:    "add",
+				Path:  replaceToEscape(fmt.Sprintf("/metadata/annotations/%s", replacePrefix(annotation.CordonUntil))),
+				Value: key.CordonUntil(cr),
+			},
+			{
+				Op:    "add",
+				Path:  replaceToEscape(fmt.Sprintf("/metadata/annotations/%s", replacePrefix(annotation.CordonReason))),
+				Value: key.CordonReason(cr),
 			},
 		}
 
