@@ -208,10 +208,10 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		appNamespaceResource,
 		appcatalogResource,
 		clientsResource,
-		cordonChartResource,
 		configMapResource,
 		secretResource,
 		chartResource,
+		cordonChartResource,
 		statusResource,
 	}
 
