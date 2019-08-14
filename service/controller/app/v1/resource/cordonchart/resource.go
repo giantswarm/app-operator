@@ -92,6 +92,7 @@ func (r *Resource) addCordon(ctx context.Context, cr v1alpha1.App, client versio
 	if err != nil {
 		return microerror.Mask(err)
 	}
+	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("added cordon annotations for chart CR %#q in namespace %#q", cr.Name, r.chartNamespace))
 
 	return nil
 }
@@ -122,6 +123,7 @@ func (r *Resource) deleteCordon(ctx context.Context, cr v1alpha1.App, client ver
 	if err != nil {
 		return microerror.Mask(err)
 	}
+	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleted cordon annotations for chart CR %#q in namespace %#q", cr.Name, r.chartNamespace))
 
 	return nil
 }
