@@ -2,35 +2,24 @@ package cordonchart
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
-	"k8s.io/apimachinery/pkg/types"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/giantswarm/app-operator/pkg/annotation"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/controllercontext"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/key"
 )
 
-type mergeSpec struct {
-	Op    string            `json:"op"`
-	Path  string            `json:"path"`
-	Value map[string]string `json:"value"`
-}
-
 func (r Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
-	cr, err := key.ToCustomResource(obj)
+	cc, err := controllercontext.FromContext(ctx)
 	if err != nil {
 		return microerror.Mask(err)
 	}
 
-	if !key.IsCordoned(cr) {
-		return nil
-	}
-
-	cc, err := controllercontext.FromContext(ctx)
+	cr, err := key.ToCustomResource(obj)
 	if err != nil {
 		return microerror.Mask(err)
 	}
@@ -44,31 +33,29 @@ func (r Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return nil
 	}
 
-	name := cr.GetName()
-
-	var mergeByte []byte
-	{
-		merge := []mergeSpec{
-			{
-				Op:   "add",
-				Path: "/metadata/annotations",
-				Value: map[string]string{
-					annotation.CordonReason: key.CordonReason(cr),
-					annotation.CordonUntil:  key.CordonUntil(cr),
-				},
-			},
+	if key.IsCordoned(cr) {
+		err := r.addCordon(ctx, cr, cc.G8sClient)
+		if err != nil {
+			return microerror.Mask(err)
+		}
+	} else {
+		chart, err := cc.G8sClient.ApplicationV1alpha1().Charts(r.chartNamespace).Get(cr.GetName(), metav1.GetOptions{})
+		if err != nil {
+			return microerror.Mask(err)
 		}
 
-		mergeByte, err = json.Marshal(merge)
+		orig := chart.GetAnnotations()
+		_, ok1 := orig[replacePrefix(annotation.CordonUntil)]
+		_, ok2 := orig[replacePrefix(annotation.CordonReason)]
+
+		if !ok1 || !ok2 {
+			return nil
+		}
+
+		err = r.deleteCordon(ctx, cr, cc.G8sClient)
 		if err != nil {
 			return microerror.Mask(err)
 		}
 	}
-
-	_, err = cc.G8sClient.ApplicationV1alpha1().Charts(r.chartNamespace).Patch(name, types.JSONPatchType, mergeByte)
-	if err != nil {
-		return microerror.Mask(err)
-	}
-
 	return nil
 }
