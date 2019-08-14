@@ -107,11 +107,11 @@ func (r *Resource) deleteCordon(ctx context.Context, cr v1alpha1.App, client ver
 		patch := []patchSpec{
 			{
 				Op:   "remove",
-				Path: replaceToEscape(fmt.Sprintf("/metadata/annotations/%s", replacePrefix(annotation.CordonUntil))),
+				Path: fmt.Sprintf("/metadata/annotations/%s", replaceToEscape(replacePrefix(annotation.CordonUntil))),
 			},
 			{
 				Op:   "remove",
-				Path: replaceToEscape(fmt.Sprintf("/metadata/annotations/%s", replacePrefix(annotation.CordonReason))),
+				Path: fmt.Sprintf("/metadata/annotations/%s", replaceToEscape(replacePrefix(annotation.CordonReason))),
 			},
 		}
 
