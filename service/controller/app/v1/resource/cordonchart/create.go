@@ -47,8 +47,8 @@ func (r Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	}
 
 	orig := chart.GetAnnotations()
-	_, ok1 := orig[replacePrefix(annotation.CordonUntil)]
-	_, ok2 := orig[replacePrefix(annotation.CordonReason)]
+	_, ok1 := orig[annotation.ReplacePrefix(annotation.CordonUntil)]
+	_, ok2 := orig[annotation.ReplacePrefix(annotation.CordonReason)]
 
 	if !ok1 || !ok2 {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("no need to patch annotations for chart CR %#q in namespace %#q", cr.Name, r.chartNamespace))

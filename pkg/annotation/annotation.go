@@ -2,6 +2,8 @@
 // https://github.com/giantswarm/fmt/blob/master/kubernetes/annotations_and_labels.md.
 package annotation
 
+import "strings"
+
 const (
 	// CordonReason is the name of the annotation that indicates
 	// the reason of why app-operator should not apply any update to this app CR.
@@ -11,3 +13,7 @@ const (
 	// the expiration date for this cordon rule.
 	CordonUntil = "app-operator.giantswarm.io/cordon-until"
 )
+
+func ReplacePrefix(from string) string {
+	return strings.Replace(from, "app-operator.giantswarm.io", "chart-operator.giantswarm.io", 1)
+}

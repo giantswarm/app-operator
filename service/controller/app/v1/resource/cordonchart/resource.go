@@ -76,12 +76,12 @@ func (r *Resource) addCordon(ctx context.Context, cr v1alpha1.App, client versio
 		patch := []patchSpec{
 			{
 				Op:    "add",
-				Path:  replaceToEscape(fmt.Sprintf("/metadata/annotations/%s", replacePrefix(annotation.CordonUntil))),
+				Path:  replaceToEscape(fmt.Sprintf("/metadata/annotations/%s", annotation.ReplacePrefix(annotation.CordonUntil))),
 				Value: key.CordonUntil(cr),
 			},
 			{
 				Op:    "add",
-				Path:  replaceToEscape(fmt.Sprintf("/metadata/annotations/%s", replacePrefix(annotation.CordonReason))),
+				Path:  replaceToEscape(fmt.Sprintf("/metadata/annotations/%s", annotation.ReplacePrefix(annotation.CordonReason))),
 				Value: key.CordonReason(cr),
 			},
 		}
@@ -110,11 +110,11 @@ func (r *Resource) deleteCordon(ctx context.Context, cr v1alpha1.App, client ver
 		patch := []patchSpec{
 			{
 				Op:   "remove",
-				Path: fmt.Sprintf("/metadata/annotations/%s", replaceToEscape(replacePrefix(annotation.CordonUntil))),
+				Path: fmt.Sprintf("/metadata/annotations/%s", replaceToEscape(annotation.ReplacePrefix(annotation.CordonUntil))),
 			},
 			{
 				Op:   "remove",
-				Path: fmt.Sprintf("/metadata/annotations/%s", replaceToEscape(replacePrefix(annotation.CordonReason))),
+				Path: fmt.Sprintf("/metadata/annotations/%s", replaceToEscape(annotation.ReplacePrefix(annotation.CordonReason))),
 			},
 		}
 
@@ -131,10 +131,6 @@ func (r *Resource) deleteCordon(ctx context.Context, cr v1alpha1.App, client ver
 	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleted cordon annotations for chart CR %#q in namespace %#q", cr.Name, r.chartNamespace))
 
 	return nil
-}
-
-func replacePrefix(from string) string {
-	return strings.Replace(from, "app-operator.giantswarm.io", "chart-operator.giantswarm.io", 1)
 }
 
 func replaceToEscape(from string) string {
