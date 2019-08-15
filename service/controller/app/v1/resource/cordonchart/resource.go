@@ -68,6 +68,8 @@ func (r Resource) Name() string {
 }
 
 func (r *Resource) addCordon(ctx context.Context, cr v1alpha1.App, client versioned.Interface) error {
+	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("adding cordon annotations for chart CR %#q in namespace %#q", cr.Name, r.chartNamespace))
+
 	var err error
 	var patchByte []byte
 	{
@@ -100,9 +102,10 @@ func (r *Resource) addCordon(ctx context.Context, cr v1alpha1.App, client versio
 }
 
 func (r *Resource) deleteCordon(ctx context.Context, cr v1alpha1.App, client versioned.Interface) error {
+	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleting cordon annotations for chart CR %#q in namespace %#q", cr.Name, r.chartNamespace))
+
 	var err error
 	var patchByte []byte
-
 	{
 		patch := []patchSpec{
 			{
