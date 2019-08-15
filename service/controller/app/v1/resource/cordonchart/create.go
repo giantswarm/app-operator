@@ -38,25 +38,26 @@ func (r Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		if err != nil {
 			return microerror.Mask(err)
 		}
-	} else {
-		chart, err := cc.G8sClient.ApplicationV1alpha1().Charts(r.chartNamespace).Get(cr.GetName(), metav1.GetOptions{})
-		if err != nil {
-			return microerror.Mask(err)
-		}
+		return nil
+	}
 
-		orig := chart.GetAnnotations()
-		_, ok1 := orig[replacePrefix(annotation.CordonUntil)]
-		_, ok2 := orig[replacePrefix(annotation.CordonReason)]
+	chart, err := cc.G8sClient.ApplicationV1alpha1().Charts(r.chartNamespace).Get(cr.GetName(), metav1.GetOptions{})
+	if err != nil {
+		return microerror.Mask(err)
+	}
 
-		if !ok1 || !ok2 {
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("no need to patch annotations for chart CR %#q in namespace %#q", cr.Name, r.chartNamespace))
-			return nil
-		}
+	orig := chart.GetAnnotations()
+	_, ok1 := orig[replacePrefix(annotation.CordonUntil)]
+	_, ok2 := orig[replacePrefix(annotation.CordonReason)]
 
-		err = r.deleteCordon(ctx, cr, cc.G8sClient)
-		if err != nil {
-			return microerror.Mask(err)
-		}
+	if !ok1 || !ok2 {
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("no need to patch annotations for chart CR %#q in namespace %#q", cr.Name, r.chartNamespace))
+		return nil
+	}
+
+	err = r.deleteCordon(ctx, cr, cc.G8sClient)
+	if err != nil {
+		return microerror.Mask(err)
 	}
 	return nil
 }
