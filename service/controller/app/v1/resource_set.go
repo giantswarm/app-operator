@@ -29,10 +29,10 @@ import (
 // AppConfig controller ResourceSet configuration.
 type ResourceSetConfig struct {
 	// Dependencies.
-	Fs        afero.Fs
-	G8sClient versioned.Interface
-	K8sClient kubernetes.Interface
-	Logger    micrologger.Logger
+	FileSystem afero.Fs
+	G8sClient  versioned.Interface
+	K8sClient  kubernetes.Interface
+	Logger     micrologger.Logger
 
 	// Settings.
 	ChartNamespace string
@@ -45,7 +45,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	var err error
 
 	// Dependencies.
-	if config.Fs == nil {
+	if config.FileSystem == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Fs must not be empty", config)
 	}
 	if config.G8sClient == nil {
@@ -106,9 +106,9 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	var chartOperatorResource controller.Resource
 	{
 		c := chartoperator.Config{
-			Fs:        config.Fs,
-			K8sClient: config.K8sClient,
-			Logger:    config.Logger,
+			FileSystem: config.FileSystem,
+			K8sClient:  config.K8sClient,
+			Logger:     config.Logger,
 		}
 		chartOperatorResource, err = chartoperator.New(c)
 		if err != nil {

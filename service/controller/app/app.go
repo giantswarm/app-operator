@@ -87,7 +87,7 @@ func NewApp(config Config) (*App, error) {
 	{
 		c := v1.ResourceSetConfig{
 			ChartNamespace: config.ChartNamespace,
-			Fs:             config.Fs,
+			FileSystem:     config.Fs,
 			G8sClient:      config.G8sClient,
 			K8sClient:      config.K8sClient,
 			Logger:         config.Logger,

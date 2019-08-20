@@ -21,8 +21,9 @@ import (
 
 const (
 	Name = "chartoperatorv1"
+)
 
-	defaultClusterDNSIP    = "172.31.0.10"
+const (
 	chartOperatorNamespace = "giantswarm"
 	chartOperatorRelease   = "chart-operator"
 	chartOperatorVersion   = "0.9.0"
@@ -31,9 +32,9 @@ const (
 // Config represents the configuration used to create a new clients resource.
 type Config struct {
 	// Dependencies.
-	Fs        afero.Fs
-	K8sClient kubernetes.Interface
-	Logger    micrologger.Logger
+	FileSystem afero.Fs
+	K8sClient  kubernetes.Interface
+	Logger     micrologger.Logger
 
 	// Settings.
 	RegistryDomain string
@@ -41,9 +42,9 @@ type Config struct {
 
 type Resource struct {
 	// Dependencies.
-	fs        afero.Fs
-	k8sClient kubernetes.Interface
-	logger    micrologger.Logger
+	fileSystem afero.Fs
+	k8sClient  kubernetes.Interface
+	logger     micrologger.Logger
 
 	// Settings.
 	registryDomain string
@@ -51,8 +52,8 @@ type Resource struct {
 
 // New creates a new configured chartoperator resource.
 func New(config Config) (*Resource, error) {
-	if config.Fs == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.Fs must not be empty", config)
+	if config.FileSystem == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.FileSystem must not be empty", config)
 	}
 	if config.K8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
@@ -67,9 +68,9 @@ func New(config Config) (*Resource, error) {
 
 	r := &Resource{
 		// Dependencies.
-		fs:        config.Fs,
-		k8sClient: config.K8sClient,
-		logger:    config.Logger,
+		fileSystem: config.FileSystem,
+		k8sClient:  config.K8sClient,
+		logger:     config.Logger,
 
 		// Settings.
 		registryDomain: config.RegistryDomain,
@@ -94,7 +95,7 @@ func (r Resource) installChartOperator(ctx context.Context, cr v1alpha1.App, hel
 		}
 
 		defer func() {
-			err := r.fs.Remove(tarballPath)
+			err := r.fileSystem.Remove(tarballPath)
 			if err != nil {
 				r.logger.LogCtx(ctx, "level", "error", "message", fmt.Sprintf("deletion of %#q failed", tarballPath), "stack", fmt.Sprintf("%#v", err))
 			}
@@ -107,12 +108,10 @@ func (r Resource) installChartOperator(ctx context.Context, cr v1alpha1.App, hel
 		cm, err := r.k8sClient.CoreV1().ConfigMaps(cr.Namespace).Get(name, metav1.GetOptions{})
 		if apierrors.IsNotFound(err) {
 			r.logger.LogCtx(ctx, "level", "warning", "message", fmt.Sprintf("no cluster-value %#q in control plane, operator will use default clusterDNSIP value", name))
-			clusterDNSIP = defaultClusterDNSIP
 		} else if err != nil {
 			return microerror.Mask(err)
 		} else {
 			var values map[string]string
-
 			err = yaml.Unmarshal([]byte(cm.Data["values"]), &values)
 			if err != nil {
 				return microerror.Mask(err)
@@ -124,16 +123,19 @@ func (r Resource) installChartOperator(ctx context.Context, cr v1alpha1.App, hel
 
 	var chartOperatorValue []byte
 	{
-		v := Values{
-			ChartResource: ChartResource{
-				Image: Image{
-					Registry: r.registryDomain,
+		v := map[string]interface{}{
+			"resource": map[string]interface{}{
+				"image": map[string]string{
+					"registry": r.registryDomain,
 				},
-				Tiller: Tiller{
-					Namespace: chartOperatorNamespace,
+				"tiller": map[string]string{
+					"namespace": chartOperatorNamespace,
 				},
 			},
-			ClusterDNSIP: clusterDNSIP,
+		}
+
+		if clusterDNSIP != "" {
+			v["clusterDNSIP"] = clusterDNSIP
 		}
 
 		chartOperatorValue, err = json.Marshal(v)
