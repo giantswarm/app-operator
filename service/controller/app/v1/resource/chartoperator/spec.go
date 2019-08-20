@@ -3,9 +3,13 @@ package chartoperator
 // Values represents the values to be passed to Helm commands related to
 // chart-operator chart.
 type Values struct {
-	ClusterDNSIP string `json:"clusterDNSIP"`
-	Image        Image  `json:"image"`
-	Tiller       Tiller `json:"tiller"`
+	ChartResource ChartResource `json:"resource"`
+	ClusterDNSIP  string        `json:"clusterDNSIP"`
+}
+
+type ChartResource struct {
+	Image  Image  `json:"image"`
+	Tiller Tiller `json:"tiller"`
 }
 
 // Image holds the image settings for chart-operator chart.

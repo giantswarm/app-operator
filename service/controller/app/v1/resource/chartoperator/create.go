@@ -22,7 +22,7 @@ func (r Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
-	// Check whether TC has chart-operator deployment yet and install it.
+	// Check whether TC has chart-operator deployment yet.
 	{
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding chartoperator release %#q in tenant cluster", chartOperatorRelease))
 		_, err := cc.HelmClient.GetReleaseContent(ctx, chartOperatorRelease)

@@ -125,13 +125,15 @@ func (r Resource) installChartOperator(ctx context.Context, cr v1alpha1.App, hel
 	var chartOperatorValue []byte
 	{
 		v := Values{
+			ChartResource: ChartResource{
+				Image: Image{
+					Registry: r.registryDomain,
+				},
+				Tiller: Tiller{
+					Namespace: chartOperatorNamespace,
+				},
+			},
 			ClusterDNSIP: clusterDNSIP,
-			Image: Image{
-				Registry: r.registryDomain,
-			},
-			Tiller: Tiller{
-				Namespace: chartOperatorNamespace,
-			},
 		}
 
 		chartOperatorValue, err = json.Marshal(v)
