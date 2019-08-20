@@ -14,8 +14,7 @@ import (
 )
 
 const (
-	namespace       = "giantswarm"
-	tillerNamespace = "giantswarm"
+	namespace = "giantswarm"
 )
 
 type Config struct {
@@ -117,7 +116,7 @@ func NewConfig() (Config, error) {
 			K8sClient: host.K8sClient(),
 
 			RestConfig:      host.RestConfig(),
-			TillerNamespace: tillerNamespace,
+			TillerNamespace: namespace,
 		}
 
 		helmClient, err = helmclient.New(c)
