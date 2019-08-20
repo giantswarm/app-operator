@@ -41,5 +41,6 @@ func (r Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found chartoperator release %#q", chartOperatorRelease))
 		}
 	}
+
 	return nil
 }
