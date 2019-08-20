@@ -9,7 +9,6 @@ import (
 	"github.com/giantswarm/helmclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
-	"github.com/giantswarm/operatorkit/controller/context/reconciliationcanceledcontext"
 	"github.com/spf13/afero"
 	"gopkg.in/yaml.v2"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -23,6 +22,7 @@ import (
 const (
 	Name = "chartoperatorv1"
 
+	defaultClusterDNSIP    = "172.31.0.10"
 	chartOperatorNamespace = "giantswarm"
 	chartOperatorRelease   = "chart-operator"
 	chartOperatorVersion   = "0.9.0"
@@ -101,16 +101,13 @@ func (r Resource) installChartOperator(ctx context.Context, cr v1alpha1.App, hel
 		}()
 	}
 
-	var chartOperatorValue []byte
+	var clusterDNSIP string
 	{
 		name := key.ClusterValuesConfigMapName(cr)
 		cm, err := r.k8sClient.CoreV1().ConfigMaps(cr.Namespace).Get(name, metav1.GetOptions{})
 		if apierrors.IsNotFound(err) {
-			// Stop reconciliation since we can't proceed without chart-operator
-			reconciliationcanceledcontext.SetCanceled(ctx)
-			return nil
-		} else if err != nil {
-			return microerror.Mask(err)
+			r.logger.LogCtx(ctx, "level", "warning", "message", fmt.Sprintf("no cluster-value %#q in control plane, operator will use default clusterDNSIP value", name))
+			clusterDNSIP = defaultClusterDNSIP
 		}
 
 		var values map[string]string
@@ -119,8 +116,13 @@ func (r Resource) installChartOperator(ctx context.Context, cr v1alpha1.App, hel
 			return microerror.Mask(err)
 		}
 
+		clusterDNSIP = values["clusterDNSIP"]
+	}
+
+	var chartOperatorValue []byte
+	{
 		v := Values{
-			ClusterDNSIP: values["clusterDNSIP"],
+			ClusterDNSIP: clusterDNSIP,
 			Image: Image{
 				Registry: r.registryDomain,
 			},
