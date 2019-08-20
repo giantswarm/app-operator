@@ -108,6 +108,8 @@ func (r Resource) installChartOperator(ctx context.Context, cr v1alpha1.App, hel
 		if apierrors.IsNotFound(err) {
 			r.logger.LogCtx(ctx, "level", "warning", "message", fmt.Sprintf("no cluster-value %#q in control plane, operator will use default clusterDNSIP value", name))
 			clusterDNSIP = defaultClusterDNSIP
+		} else if err != nil {
+			return microerror.Mask(err)
 		} else {
 			var values map[string]string
 
