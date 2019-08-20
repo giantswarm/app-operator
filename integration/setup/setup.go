@@ -14,7 +14,6 @@ import (
 
 	"github.com/giantswarm/app-operator/integration/env"
 	"github.com/giantswarm/app-operator/integration/key"
-	"github.com/giantswarm/app-operator/integration/templates"
 )
 
 func Setup(m *testing.M, config Config) {
@@ -60,12 +59,12 @@ func installResources(ctx context.Context, config Config) error {
 		}
 	}
 
-	{
-		err = config.Release.InstallOperator(ctx, "chart-operator", release.NewStableVersion(), templates.ChartOperatorValues, v1alpha1.NewChartCRD())
-		if err != nil {
-			return microerror.Mask(err)
-		}
-	}
+	//{
+	//	err = config.Release.InstallOperator(ctx, "chart-operator", release.NewStableVersion(), templates.ChartOperatorValues, v1alpha1.NewChartCRD())
+	//	if err != nil {
+	//		return microerror.Mask(err)
+	//	}
+	//}
 
 	{
 		err = config.Release.InstallOperator(ctx, key.AppOperatorReleaseName(), release.NewVersion(env.CircleSHA()), "{}", v1alpha1.NewAppCRD())
