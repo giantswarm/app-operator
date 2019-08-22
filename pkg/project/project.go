@@ -2,8 +2,8 @@ package project
 
 var (
 	description = "The app-operator manages apps in Kubernetes clusters."
-	name        = "app-operator"
 	gitSHA      = "n/a"
+	name        = "app-operator"
 	source      = "https://github.com/giantswarm/app-operator"
 	version     = "n/a"
 )

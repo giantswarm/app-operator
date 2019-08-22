@@ -50,6 +50,16 @@ func TestAppLifecycle(t *testing.T) {
 			Namespace: namespace,
 			Catalog:   testAppCatalogName,
 			Version:   "0.6.7",
+			Config: chartvalues.APIExtensionsAppE2EConfigAppConfig{
+				ConfigMap: chartvalues.APIExtensionsAppE2EConfigAppConfigConfigMap{
+					Name:      "test-app-values",
+					Namespace: "default",
+				},
+				Secret: chartvalues.APIExtensionsAppE2EConfigAppConfigSecret{
+					Name:      "test-app-secrets",
+					Namespace: "default",
+				},
+			},
 		},
 		AppCatalog: chartvalues.APIExtensionsAppE2EConfigAppCatalog{
 			Name:  testAppCatalogName,
@@ -63,6 +73,12 @@ func TestAppLifecycle(t *testing.T) {
 			Version: "1.0.0",
 		},
 		Namespace: namespace,
+		ConfigMap: chartvalues.APIExtensionsAppE2EConfigConfigMap{
+			ValuesYAML: `test: "values"`,
+		},
+		Secret: chartvalues.APIExtensionsAppE2EConfigSecret{
+			ValuesYAML: `test: "secret"`,
+		},
 	}
 
 	{
@@ -145,7 +161,7 @@ func TestAppLifecycle(t *testing.T) {
 		config.Logger.LogCtx(ctx, "level", "debug", "message", "checking tarball URL in chart spec")
 
 		tarballURL := "https://giantswarm.github.com/sample-catalog/kubernetes-test-app-chart-0.6.7.tgz"
-		chart, err := config.Host.G8sClient().ApplicationV1alpha1().Charts(namespace).Get(key.TestAppReleaseName(), metav1.GetOptions{})
+		chart, err := config.K8sClients.G8sClient().ApplicationV1alpha1().Charts(namespace).Get(key.TestAppReleaseName(), metav1.GetOptions{})
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
@@ -202,7 +218,7 @@ func TestAppLifecycle(t *testing.T) {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
 
-		chart, err := config.Host.G8sClient().ApplicationV1alpha1().Charts(namespace).Get(key.TestAppReleaseName(), metav1.GetOptions{})
+		chart, err := config.K8sClients.G8sClient().ApplicationV1alpha1().Charts(namespace).Get(key.TestAppReleaseName(), metav1.GetOptions{})
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}

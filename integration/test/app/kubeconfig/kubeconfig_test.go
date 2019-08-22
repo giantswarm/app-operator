@@ -9,10 +9,9 @@ import (
 
 	"github.com/giantswarm/e2e-harness/pkg/release"
 	"github.com/giantswarm/e2etemplates/pkg/chartvalues"
+	"github.com/giantswarm/kubeconfig"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/client-go/tools/clientcmd"
-	"k8s.io/client-go/tools/clientcmd/api"
 
 	"github.com/giantswarm/app-operator/integration/key"
 )
@@ -43,6 +42,16 @@ func TestAppLifecycleUsingKubeconfig(t *testing.T) {
 			Namespace: namespace,
 			Catalog:   testAppCatalogName,
 			Version:   "0.6.7",
+			Config: chartvalues.APIExtensionsAppE2EConfigAppConfig{
+				ConfigMap: chartvalues.APIExtensionsAppE2EConfigAppConfigConfigMap{
+					Name:      "test-app-values",
+					Namespace: "default",
+				},
+				Secret: chartvalues.APIExtensionsAppE2EConfigAppConfigSecret{
+					Name:      "test-app-secrets",
+					Namespace: "default",
+				},
+			},
 		},
 		AppCatalog: chartvalues.APIExtensionsAppE2EConfigAppCatalog{
 			Name:  testAppCatalogName,
@@ -56,6 +65,12 @@ func TestAppLifecycleUsingKubeconfig(t *testing.T) {
 			Version: "1.0.0",
 		},
 		Namespace: namespace,
+		ConfigMap: chartvalues.APIExtensionsAppE2EConfigConfigMap{
+			ValuesYAML: `test: "values"`,
+		},
+		Secret: chartvalues.APIExtensionsAppE2EConfigSecret{
+			ValuesYAML: `test: "secret"`,
+		},
 	}
 
 	// TODO: Remove kubeconfig setting after implement KIND test on app-operator
@@ -63,23 +78,13 @@ func TestAppLifecycleUsingKubeconfig(t *testing.T) {
 	{
 		config.Logger.LogCtx(ctx, "level", "debug", "message", "creating kubeconfig secret")
 
-		// Transform kubeconfig file to restconfig and flatten
-		var bytes []byte
-		{
-			c := clientcmd.GetConfigFromFileOrDie("/workdir/.shipyard/config")
-
-			err = api.FlattenConfig(c)
-			if err != nil {
-				t.Fatalf("expected nil got %#v", err)
-			}
-
-			bytes, err = clientcmd.Write(*c)
-			if err != nil {
-				t.Fatalf("expected nil got %#v", err)
-			}
+		restConfig := config.K8sClients.RestConfig()
+		bytes, err := kubeconfig.NewKubeConfigForRESTConfig(ctx, restConfig, "test-cluster", targetNamespace)
+		if err != nil {
+			t.Fatalf("expected nil got %#v", err)
 		}
 
-		_, err = config.Host.K8sClient().CoreV1().Secrets(namespace).Create(&corev1.Secret{
+		_, err = config.K8sClients.K8sClient().CoreV1().Secrets(namespace).Create(&corev1.Secret{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      "kube-config",
 				Namespace: namespace,
@@ -144,7 +149,7 @@ func TestAppLifecycleUsingKubeconfig(t *testing.T) {
 		config.Logger.LogCtx(ctx, "level", "debug", "message", "checking tarball URL in chart spec")
 
 		tarballURL := "https://giantswarm.github.com/sample-catalog/kubernetes-test-app-chart-0.6.7.tgz"
-		chart, err := config.Host.G8sClient().ApplicationV1alpha1().Charts(namespace).Get(key.TestAppReleaseName(), metav1.GetOptions{})
+		chart, err := config.K8sClients.G8sClient().ApplicationV1alpha1().Charts(namespace).Get(key.TestAppReleaseName(), metav1.GetOptions{})
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
@@ -201,7 +206,7 @@ func TestAppLifecycleUsingKubeconfig(t *testing.T) {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
 
-		chart, err := config.Host.G8sClient().ApplicationV1alpha1().Charts(namespace).Get(key.TestAppReleaseName(), metav1.GetOptions{})
+		chart, err := config.K8sClients.G8sClient().ApplicationV1alpha1().Charts(namespace).Get(key.TestAppReleaseName(), metav1.GetOptions{})
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
