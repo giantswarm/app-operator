@@ -12,6 +12,7 @@ import (
 	"github.com/giantswarm/kubeconfig"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/rest"
 
 	"github.com/giantswarm/app-operator/integration/key"
 )
@@ -60,7 +61,10 @@ func TestAppLifecycleUsingKubeconfig(t *testing.T) {
 	{
 		config.Logger.LogCtx(ctx, "level", "debug", "message", "creating kubeconfig secret")
 
-		restConfig := config.Host.RestConfig()
+		restConfig, err := rest.InClusterConfig()
+		if err != nil {
+			t.Fatalf("expected nil got %#v", err)
+		}
 		bytes, err := kubeconfig.NewKubeConfigForRESTConfig(ctx, restConfig, "test-cluster", targetNamespace)
 		if err != nil {
 			t.Fatalf("expected nil got %#v", err)
