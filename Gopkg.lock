@@ -197,14 +197,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:54fb7d3d2614cd1503a1981b5eedb591ce89ef6d79f9bd795eb8e71a6354f81b"
+  digest = "1:7d9e0bc15d745f8d5447ad05ac47b83120370a830845c396d9cf249f19077b93"
   name = "github.com/giantswarm/e2etemplates"
   packages = [
     "internal/render",
     "pkg/chartvalues",
   ]
   pruneopts = "UT"
-  revision = "8f55ebe96ce5fc597bc0689970ab6fa6dfa6dfb9"
+  revision = "599ebbc2809f9aae8cb4825044885fc146df3aa6"
 
 [[projects]]
   branch = "master"
@@ -1272,6 +1272,7 @@
     "github.com/giantswarm/versionbundle",
     "github.com/google/go-cmp/cmp",
     "github.com/prometheus/client_golang/prometheus",
+    "github.com/spf13/afero",
     "github.com/spf13/viper",
     "gopkg.in/yaml.v2",
     "k8s.io/api/core/v1",
@@ -1283,6 +1284,7 @@
     "k8s.io/client-go/kubernetes",
     "k8s.io/client-go/kubernetes/fake",
     "k8s.io/client-go/rest",
+    "k8s.io/helm/pkg/helm",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1
