@@ -39,9 +39,6 @@ func TestAppLifecycle(t *testing.T) {
 
 	sampleChart := chartvalues.APIExtensionsAppE2EConfig{
 		App: chartvalues.APIExtensionsAppE2EConfigApp{
-			KubeConfig: chartvalues.APIExtensionsAppE2EConfigAppKubeConfig{
-				InCluster: true,
-			},
 			Name:      key.TestAppReleaseName(),
 			Namespace: namespace,
 			Catalog:   testAppCatalogName,
