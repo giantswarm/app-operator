@@ -13,6 +13,7 @@ import (
 
 	"github.com/giantswarm/app-operator/pkg/annotation"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/controllercontext"
+	appcatalogkey "github.com/giantswarm/app-operator/service/controller/appcatalog/v1/key"
 )
 
 func Test_Resource_GetDesiredState(t *testing.T) {
@@ -148,7 +149,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					LogoURL: "https://s.giantswarm.io/...",
 				},
 			},
-			errorMatcher: IsExecutionFailed,
+			errorMatcher: appcatalogkey.IsExecutionFailed,
 		},
 		{
 			name: "case 2: cordoned app",

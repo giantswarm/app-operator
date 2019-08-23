@@ -1,8 +1,11 @@
 package key
 
 import (
+	"fmt"
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/microerror"
+	"net/url"
+	"path"
 
 	"github.com/giantswarm/app-operator/pkg/label"
 )
@@ -21,6 +24,18 @@ func ConfigMapName(customResource v1alpha1.AppCatalog) string {
 
 func ConfigMapNamespace(customResource v1alpha1.AppCatalog) string {
 	return customResource.Spec.Config.ConfigMap.Namespace
+}
+
+func GenerateTarballURL(baseURL string, appName string, version string) (string, error) {
+	if baseURL == "" || appName == "" || version == "" {
+		return "", microerror.Maskf(executionFailedError, "baseURL %#q, appName %#q, release %#q should not be empty", baseURL, appName, version)
+	}
+	u, err := url.Parse(baseURL)
+	if err != nil {
+		return "", microerror.Mask(err)
+	}
+	u.Path = path.Join(u.Path, fmt.Sprintf("%s-%s.tgz", appName, version))
+	return u.String(), nil
 }
 
 func IsDeleted(cr v1alpha1.AppCatalog) bool {

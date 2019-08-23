@@ -107,6 +107,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	{
 		c := chartoperator.Config{
 			FileSystem: config.FileSystem,
+			G8sClient:  config.G8sClient,
 			K8sClient:  config.K8sClient,
 			Logger:     config.Logger,
 		}

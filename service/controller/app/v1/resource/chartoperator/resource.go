@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
+	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/helmclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
@@ -17,6 +18,7 @@ import (
 	"k8s.io/helm/pkg/helm"
 
 	"github.com/giantswarm/app-operator/service/controller/app/v1/key"
+	appcatalogkey "github.com/giantswarm/app-operator/service/controller/appcatalog/v1/key"
 )
 
 const (
@@ -26,13 +28,13 @@ const (
 const (
 	chartOperatorNamespace = "giantswarm"
 	chartOperatorRelease   = "chart-operator"
-	chartOperatorVersion   = "0.9.0"
 )
 
 // Config represents the configuration used to create a new clients resource.
 type Config struct {
 	// Dependencies.
 	FileSystem afero.Fs
+	G8sClient  versioned.Interface
 	K8sClient  kubernetes.Interface
 	Logger     micrologger.Logger
 
@@ -43,6 +45,7 @@ type Config struct {
 type Resource struct {
 	// Dependencies.
 	fileSystem afero.Fs
+	g8sClient  versioned.Interface
 	k8sClient  kubernetes.Interface
 	logger     micrologger.Logger
 
@@ -54,6 +57,9 @@ type Resource struct {
 func New(config Config) (*Resource, error) {
 	if config.FileSystem == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.FileSystem must not be empty", config)
+	}
+	if config.G8sClient == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.G8sClient must not be empty", config)
 	}
 	if config.K8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
@@ -69,6 +75,7 @@ func New(config Config) (*Resource, error) {
 	r := &Resource{
 		// Dependencies.
 		fileSystem: config.FileSystem,
+		g8sClient:  config.G8sClient,
 		k8sClient:  config.K8sClient,
 		logger:     config.Logger,
 
@@ -86,9 +93,43 @@ func (r Resource) Name() string {
 func (r Resource) installChartOperator(ctx context.Context, cr v1alpha1.App, helmClient helmclient.Interface) error {
 	var err error
 
+	// check app CR for chart-operator and fetching app-catalog name and version.
+	var tarballURL string
+	{
+		r.logger.LogCtx(ctx, "level", "debug", "message", "finding a chart-operator app CR")
+		chartOperator, err := r.g8sClient.ApplicationV1alpha1().Apps(cr.Namespace).Get(chartOperatorRelease, metav1.GetOptions{})
+		if apierrors.IsNotFound(err) {
+			r.logger.LogCtx(ctx, "level", "debug", "message", "can't find a chart-operator app CR")
+
+			r.logger.LogCtx(ctx, "level", "debug", "message", "cancelling the resource")
+			return nil
+		} else if err != nil {
+			return microerror.Mask(err)
+		}
+		r.logger.LogCtx(ctx, "level", "debug", "message", "foung a chart-operator app CR")
+
+		catalogName := key.CatalogName(*chartOperator)
+
+		r.logger.LogCtx(ctx, "level", "debug", "message", "finding a appCatalog CR")
+		chartCatalog, err := r.g8sClient.ApplicationV1alpha1().AppCatalogs().Get(catalogName, metav1.GetOptions{})
+		if apierrors.IsNotFound(err) {
+			r.logger.LogCtx(ctx, "level", "debug", "message", "can't find a appCatalog CR")
+
+			r.logger.LogCtx(ctx, "level", "debug", "message", "cancelling the resource")
+			return nil
+		} else if err != nil {
+			return microerror.Mask(err)
+		}
+		r.logger.LogCtx(ctx, "level", "debug", "message", "foung a appCatalog CR")
+
+		tarballURL, err = appcatalogkey.GenerateTarballURL(appcatalogkey.AppCatalogStorageURL(*chartCatalog), chartOperatorRelease, key.Version(*chartOperator))
+		if err != nil {
+			return microerror.Mask(err)
+		}
+	}
+
 	var tarballPath string
 	{
-		tarballURL := fmt.Sprintf("https://giantswarm.github.io/giantswarm-catalog/chart-operator-%s.tgz", chartOperatorVersion)
 		tarballPath, err = helmClient.PullChartTarball(ctx, tarballURL)
 		if err != nil {
 			return microerror.Mask(err)

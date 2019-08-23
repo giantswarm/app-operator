@@ -2,9 +2,6 @@ package chart
 
 import (
 	"context"
-	"fmt"
-	"net/url"
-	"path"
 	"strings"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
@@ -30,7 +27,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 	}
 
 	config := generateConfig(cr, cc.AppCatalog, r.chartNamespace)
-	tarballURL, err := generateTarballURL(appcatalogkey.AppCatalogStorageURL(cc.AppCatalog), key.AppName(cr), key.Version(cr))
+	tarballURL, err := appcatalogkey.GenerateTarballURL(appcatalogkey.AppCatalogStorageURL(cc.AppCatalog), key.AppName(cr), key.Version(cr))
 	if err != nil {
 		return nil, err
 	}
@@ -79,18 +76,6 @@ func generateConfig(cr v1alpha1.App, appCatalog v1alpha1.AppCatalog, chartNamesp
 	}
 
 	return config
-}
-
-func generateTarballURL(baseURL string, appName string, version string) (string, error) {
-	if baseURL == "" || appName == "" || version == "" {
-		return "", microerror.Maskf(executionFailedError, "baseURL %#q, appName %#q, release %#q should not be empty", baseURL, appName, version)
-	}
-	u, err := url.Parse(baseURL)
-	if err != nil {
-		return "", microerror.Mask(err)
-	}
-	u.Path = path.Join(u.Path, fmt.Sprintf("%s-%s.tgz", appName, version))
-	return u.String(), nil
 }
 
 func hasConfigMap(cr v1alpha1.App, appCatalog v1alpha1.AppCatalog) bool {
