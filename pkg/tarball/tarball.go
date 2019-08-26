@@ -8,7 +8,7 @@ import (
 	"github.com/giantswarm/microerror"
 )
 
-func GenerateTarballURL(baseURL string, appName string, version string) (string, error) {
+func NewURL(baseURL string, appName string, version string) (string, error) {
 	if baseURL == "" || appName == "" || version == "" {
 		return "", microerror.Maskf(executionFailedError, "baseURL %#q, appName %#q, release %#q should not be empty", baseURL, appName, version)
 	}

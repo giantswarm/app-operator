@@ -26,8 +26,8 @@ const (
 )
 
 const (
-	chartOperatorNamespace = "giantswarm"
-	chartOperatorRelease   = "chart-operator"
+	namespace = "giantswarm"
+	release   = "chart-operator"
 )
 
 // Config represents the configuration used to create a new clients resource.
@@ -97,7 +97,7 @@ func (r Resource) installChartOperator(ctx context.Context, cr v1alpha1.App, hel
 	var tarballURL string
 	{
 		r.logger.LogCtx(ctx, "level", "debug", "message", "finding a chart-operator app CR")
-		chartOperator, err := r.g8sClient.ApplicationV1alpha1().Apps(cr.Namespace).Get(chartOperatorRelease, metav1.GetOptions{})
+		chartOperator, err := r.g8sClient.ApplicationV1alpha1().Apps(cr.Namespace).Get(release, metav1.GetOptions{})
 		if apierrors.IsNotFound(err) {
 			r.logger.LogCtx(ctx, "level", "debug", "message", "can't find a chart-operator app CR")
 
@@ -122,7 +122,7 @@ func (r Resource) installChartOperator(ctx context.Context, cr v1alpha1.App, hel
 		}
 		r.logger.LogCtx(ctx, "level", "debug", "message", "foung a appCatalog CR")
 
-		tarballURL, err = tarball.GenerateTarballURL(key.AppCatalogStorageURL(*chartCatalog), chartOperatorRelease, key.Version(*chartOperator))
+		tarballURL, err = tarball.NewURL(key.AppCatalogStorageURL(*chartCatalog), release, key.Version(*chartOperator))
 		if err != nil {
 			return microerror.Mask(err)
 		}
@@ -170,7 +170,7 @@ func (r Resource) installChartOperator(ctx context.Context, cr v1alpha1.App, hel
 					"registry": r.registryDomain,
 				},
 				"tiller": map[string]string{
-					"namespace": chartOperatorNamespace,
+					"namespace": namespace,
 				},
 			},
 		}
@@ -186,7 +186,7 @@ func (r Resource) installChartOperator(ctx context.Context, cr v1alpha1.App, hel
 	}
 
 	{
-		err = helmClient.InstallReleaseFromTarball(ctx, tarballPath, chartOperatorNamespace, helm.ReleaseName(chartOperatorRelease), helm.ValueOverrides(chartOperatorValue))
+		err = helmClient.InstallReleaseFromTarball(ctx, tarballPath, namespace, helm.ReleaseName(release), helm.ValueOverrides(chartOperatorValue))
 		if err != nil {
 			return microerror.Mask(err)
 		}
