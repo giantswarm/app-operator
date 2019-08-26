@@ -2,8 +2,6 @@ package chart
 
 import (
 	"context"
-	"strings"
-
 
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/microerror"
