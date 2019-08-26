@@ -10,6 +10,30 @@ import (
 	"github.com/giantswarm/app-operator/pkg/label"
 )
 
+func AppCatalogTitle(customResource v1alpha1.AppCatalog) string {
+	return customResource.Spec.Title
+}
+
+func AppCatalogStorageURL(customResource v1alpha1.AppCatalog) string {
+	return customResource.Spec.Storage.URL
+}
+
+func AppCatalogConfigMapName(customResource v1alpha1.AppCatalog) string {
+	return customResource.Spec.Config.ConfigMap.Name
+}
+
+func AppCatalogConfigMapNamespace(customResource v1alpha1.AppCatalog) string {
+	return customResource.Spec.Config.ConfigMap.Namespace
+}
+
+func AppCatalogSecretName(customResource v1alpha1.AppCatalog) string {
+	return customResource.Spec.Config.Secret.Name
+}
+
+func AppCatalogSecretNamespace(customResource v1alpha1.AppCatalog) string {
+	return customResource.Spec.Config.Secret.Namespace
+}
+
 // AppConfigMapName returns the name of the configmap that stores app level
 // config for the provided app CR.
 func AppConfigMapName(customResource v1alpha1.App) string {
@@ -60,6 +84,10 @@ func ChartConfigMapName(customResource v1alpha1.App) string {
 // the chart CR that is generated for the provided app CR.
 func ChartSecretName(customResource v1alpha1.App) string {
 	return fmt.Sprintf("%s-chart-secrets", customResource.GetName())
+}
+
+func ClusterValuesConfigMapName(customResource v1alpha1.App) string {
+	return fmt.Sprintf("%s-cluster-values", customResource.GetNamespace())
 }
 
 func CordonReason(customResource v1alpha1.App) string {

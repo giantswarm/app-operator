@@ -10,14 +10,13 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/giantswarm/app-operator/service/controller/app/v1/key"
-	appcatalogkey "github.com/giantswarm/app-operator/service/controller/appcatalog/v1/key"
 )
 
 // MergeConfigMapData merges the data from the catalog, app and user configmaps
 // and returns a single set of values.
 func (v *Values) MergeConfigMapData(ctx context.Context, app v1alpha1.App, appCatalog v1alpha1.AppCatalog) (map[string]string, error) {
 	appConfigMapName := key.AppConfigMapName(app)
-	catalogConfigMapName := appcatalogkey.ConfigMapName(appCatalog)
+	catalogConfigMapName := key.AppCatalogConfigMapName(appCatalog)
 	userConfigMapName := key.UserConfigMapName(app)
 
 	if appConfigMapName == "" && catalogConfigMapName == "" && userConfigMapName == "" {
@@ -92,7 +91,7 @@ func (v *Values) getConfigMapForApp(ctx context.Context, app v1alpha1.App) (map[
 }
 
 func (v *Values) getConfigMapForCatalog(ctx context.Context, catalog v1alpha1.AppCatalog) (map[string]string, error) {
-	configMap, err := v.getConfigMap(ctx, appcatalogkey.ConfigMapName(catalog), appcatalogkey.ConfigMapNamespace(catalog))
+	configMap, err := v.getConfigMap(ctx, key.AppCatalogConfigMapName(catalog), key.AppCatalogConfigMapNamespace(catalog))
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}

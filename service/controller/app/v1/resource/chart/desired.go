@@ -2,18 +2,15 @@ package chart
 
 import (
 	"context"
-	"fmt"
-	"net/url"
-	"path"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/microerror"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/giantswarm/app-operator/pkg/label"
+	"github.com/giantswarm/app-operator/pkg/tarball"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/controllercontext"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/key"
-	appcatalogkey "github.com/giantswarm/app-operator/service/controller/appcatalog/v1/key"
 )
 
 func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interface{}, error) {
@@ -28,7 +25,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 	}
 
 	config := generateConfig(cr, cc.AppCatalog, r.chartNamespace)
-	tarballURL, err := generateTarballURL(appcatalogkey.AppCatalogStorageURL(cc.AppCatalog), key.AppName(cr), key.Version(cr))
+	tarballURL, err := tarball.NewURL(key.AppCatalogStorageURL(cc.AppCatalog), key.AppName(cr), key.Version(cr))
 	if err != nil {
 		return nil, err
 	}
@@ -78,20 +75,8 @@ func generateConfig(cr v1alpha1.App, appCatalog v1alpha1.AppCatalog, chartNamesp
 	return config
 }
 
-func generateTarballURL(baseURL string, appName string, version string) (string, error) {
-	if baseURL == "" || appName == "" || version == "" {
-		return "", microerror.Maskf(executionFailedError, "baseURL %#q, appName %#q, release %#q should not be empty", baseURL, appName, version)
-	}
-	u, err := url.Parse(baseURL)
-	if err != nil {
-		return "", microerror.Mask(err)
-	}
-	u.Path = path.Join(u.Path, fmt.Sprintf("%s-%s.tgz", appName, version))
-	return u.String(), nil
-}
-
 func hasConfigMap(cr v1alpha1.App, appCatalog v1alpha1.AppCatalog) bool {
-	if key.AppConfigMapName(cr) != "" || appcatalogkey.ConfigMapName(appCatalog) != "" {
+	if key.AppConfigMapName(cr) != "" || key.AppCatalogConfigMapName(appCatalog) != "" {
 		return true
 	}
 
@@ -99,7 +84,7 @@ func hasConfigMap(cr v1alpha1.App, appCatalog v1alpha1.AppCatalog) bool {
 }
 
 func hasSecret(cr v1alpha1.App, appCatalog v1alpha1.AppCatalog) bool {
-	if key.AppSecretName(cr) != "" || appcatalogkey.SecretName(appCatalog) != "" {
+	if key.AppSecretName(cr) != "" || key.AppCatalogSecretName(appCatalog) != "" {
 		return true
 	}
 

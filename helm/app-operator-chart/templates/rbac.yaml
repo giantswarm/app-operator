@@ -73,6 +73,18 @@ rules:
 - apiGroups:
     - ""
   resources:
+    - pods
+  verbs:
+    - list
+- apiGroups:
+    - ""
+  resources:
+    - pods/portforward
+  verbs:
+    - create
+- apiGroups:
+    - ""
+  resources:
     - namespaces
   verbs:
     - get

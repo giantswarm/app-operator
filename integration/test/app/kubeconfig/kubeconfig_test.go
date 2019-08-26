@@ -9,9 +9,10 @@ import (
 
 	"github.com/giantswarm/e2e-harness/pkg/release"
 	"github.com/giantswarm/e2etemplates/pkg/chartvalues"
-	"github.com/giantswarm/kubeconfig"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/tools/clientcmd"
+	"k8s.io/client-go/tools/clientcmd/api"
 
 	"github.com/giantswarm/app-operator/integration/key"
 )
@@ -57,13 +58,25 @@ func TestAppLifecycleUsingKubeconfig(t *testing.T) {
 		Namespace: namespace,
 	}
 
+	// TODO: Remove kubeconfig setting after implement KIND test on app-operator
+	// issue: https://github.com/giantswarm/giantswarm/issues/4606
 	{
 		config.Logger.LogCtx(ctx, "level", "debug", "message", "creating kubeconfig secret")
 
-		restConfig := config.Host.RestConfig()
-		bytes, err := kubeconfig.NewKubeConfigForRESTConfig(ctx, restConfig, "test-cluster", targetNamespace)
-		if err != nil {
-			t.Fatalf("expected nil got %#v", err)
+		// Transform kubeconfig file to restconfig and flatten
+		var bytes []byte
+		{
+			c := clientcmd.GetConfigFromFileOrDie("/workdir/.shipyard/config")
+
+			err = api.FlattenConfig(c)
+			if err != nil {
+				t.Fatalf("expected nil got %#v", err)
+			}
+
+			bytes, err = clientcmd.Write(*c)
+			if err != nil {
+				t.Fatalf("expected nil got %#v", err)
+			}
 		}
 
 		_, err = config.Host.K8sClient().CoreV1().Secrets(namespace).Create(&corev1.Secret{
