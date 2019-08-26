@@ -122,7 +122,7 @@ func (r Resource) installChartOperator(ctx context.Context, cr v1alpha1.App, hel
 		}
 		r.logger.LogCtx(ctx, "level", "debug", "message", "foung a appCatalog CR")
 
-		tarballURL, err = appcatalogkey.GenerateTarballURL(appcatalogkey.AppCatalogStorageURL(*chartCatalog), chartOperatorRelease, key.Version(*chartOperator))
+		tarballURL, err = key.GenerateTarballURL(appcatalogkey.AppCatalogStorageURL(*chartCatalog), chartOperatorRelease, key.Version(*chartOperator))
 		if err != nil {
 			return microerror.Mask(err)
 		}
