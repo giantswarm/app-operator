@@ -13,7 +13,6 @@ import (
 
 	"github.com/giantswarm/app-operator/pkg/annotation"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/controllercontext"
-	"github.com/giantswarm/app-operator/service/controller/app/v1/key"
 )
 
 func Test_Resource_GetDesiredState(t *testing.T) {
@@ -22,7 +21,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 		obj           *v1alpha1.App
 		appCatalog    v1alpha1.AppCatalog
 		expectedChart *v1alpha1.Chart
-		errorMatcher  func(error) bool
+		error         bool
 	}{
 		{
 			name: "case 0: flawless flow",
@@ -149,7 +148,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					LogoURL: "https://s.giantswarm.io/...",
 				},
 			},
-			errorMatcher: key.IsExecutionFailed,
+			error: true,
 		},
 		{
 			name: "case 2: cordoned app",
@@ -262,15 +261,13 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 
 			result, err := r.GetDesiredState(ctx, tc.obj)
 			switch {
-			case err != nil && tc.errorMatcher == nil:
+			case err != nil && !tc.error:
 				t.Fatalf("error == %#v, want nil", err)
-			case err == nil && tc.errorMatcher != nil:
+			case err == nil && tc.error:
 				t.Fatalf("error == nil, want non-nil")
-			case err != nil && !tc.errorMatcher(err):
-				t.Fatalf("error == %#v, want matching", err)
 			}
 
-			if err == nil && tc.errorMatcher == nil {
+			if err == nil && !tc.error {
 				chart, err := toChart(result)
 				if err != nil {
 					t.Fatalf("error == %#v, want nil", err)

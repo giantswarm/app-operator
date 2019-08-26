@@ -10,14 +10,13 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/giantswarm/app-operator/service/controller/app/v1/key"
-	appcatalogkey "github.com/giantswarm/app-operator/service/controller/appcatalog/v1/key"
 )
 
 // MergeSecretData merges the data from the catalog, app and user secretss
 // and returns a single set of values.
 func (v *Values) MergeSecretData(ctx context.Context, app v1alpha1.App, appCatalog v1alpha1.AppCatalog) (map[string][]byte, error) {
 	appSecretName := key.AppSecretName(app)
-	catalogSecretName := appcatalogkey.SecretName(appCatalog)
+	catalogSecretName := key.AppCatalogSecretName(appCatalog)
 	userSecretName := key.UserSecretName(app)
 
 	if appSecretName == "" && catalogSecretName == "" && userSecretName == "" {
@@ -92,7 +91,7 @@ func (v *Values) getSecretDataForApp(ctx context.Context, app v1alpha1.App) (map
 }
 
 func (v *Values) getSecretDataForCatalog(ctx context.Context, catalog v1alpha1.AppCatalog) (map[string][]byte, error) {
-	secret, err := v.getSecret(ctx, appcatalogkey.SecretName(catalog), appcatalogkey.SecretNamespace(catalog))
+	secret, err := v.getSecret(ctx, key.AppCatalogSecretName(catalog), key.AppCatalogSecretNamespace(catalog))
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}

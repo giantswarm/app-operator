@@ -17,8 +17,8 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/helm/pkg/helm"
 
+	"github.com/giantswarm/app-operator/pkg/tarball"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/key"
-	appcatalogkey "github.com/giantswarm/app-operator/service/controller/appcatalog/v1/key"
 )
 
 const (
@@ -122,7 +122,7 @@ func (r Resource) installChartOperator(ctx context.Context, cr v1alpha1.App, hel
 		}
 		r.logger.LogCtx(ctx, "level", "debug", "message", "foung a appCatalog CR")
 
-		tarballURL, err = key.GenerateTarballURL(appcatalogkey.AppCatalogStorageURL(*chartCatalog), chartOperatorRelease, key.Version(*chartOperator))
+		tarballURL, err = tarball.GenerateTarballURL(key.AppCatalogStorageURL(*chartCatalog), chartOperatorRelease, key.Version(*chartOperator))
 		if err != nil {
 			return microerror.Mask(err)
 		}

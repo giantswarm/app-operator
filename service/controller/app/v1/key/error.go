@@ -11,15 +11,6 @@ func IsEmptyValueError(err error) bool {
 	return microerror.Cause(err) == emptyValueError
 }
 
-var executionFailedError = &microerror.Error{
-	Kind: "executionFailed",
-}
-
-// IsExecutionFailed asserts executionFailedError.
-func IsExecutionFailed(err error) bool {
-	return microerror.Cause(err) == executionFailedError
-}
-
 var wrongTypeError = &microerror.Error{
 	Kind: "wrongTypeError",
 }

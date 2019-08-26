@@ -10,9 +10,9 @@ import (
 
 	"github.com/giantswarm/app-operator/pkg/annotation"
 	"github.com/giantswarm/app-operator/pkg/label"
+	"github.com/giantswarm/app-operator/pkg/tarball"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/controllercontext"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/key"
-	appcatalogkey "github.com/giantswarm/app-operator/service/controller/appcatalog/v1/key"
 )
 
 func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interface{}, error) {
@@ -27,7 +27,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 	}
 
 	config := generateConfig(cr, cc.AppCatalog, r.chartNamespace)
-	tarballURL, err := key.GenerateTarballURL(appcatalogkey.AppCatalogStorageURL(cc.AppCatalog), key.AppName(cr), key.Version(cr))
+	tarballURL, err := tarball.GenerateTarballURL(key.AppCatalogStorageURL(cc.AppCatalog), key.AppName(cr), key.Version(cr))
 	if err != nil {
 		return nil, err
 	}
@@ -79,7 +79,7 @@ func generateConfig(cr v1alpha1.App, appCatalog v1alpha1.AppCatalog, chartNamesp
 }
 
 func hasConfigMap(cr v1alpha1.App, appCatalog v1alpha1.AppCatalog) bool {
-	if key.AppConfigMapName(cr) != "" || appcatalogkey.ConfigMapName(appCatalog) != "" {
+	if key.AppConfigMapName(cr) != "" || key.AppCatalogConfigMapName(appCatalog) != "" {
 		return true
 	}
 
@@ -87,7 +87,7 @@ func hasConfigMap(cr v1alpha1.App, appCatalog v1alpha1.AppCatalog) bool {
 }
 
 func hasSecret(cr v1alpha1.App, appCatalog v1alpha1.AppCatalog) bool {
-	if key.AppSecretName(cr) != "" || appcatalogkey.SecretName(appCatalog) != "" {
+	if key.AppSecretName(cr) != "" || key.AppCatalogSecretName(appCatalog) != "" {
 		return true
 	}
 
