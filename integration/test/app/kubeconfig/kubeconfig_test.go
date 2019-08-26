@@ -5,7 +5,6 @@ package kubeconfig
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
 	"testing"
 
 	"github.com/giantswarm/e2e-harness/pkg/release"
@@ -59,6 +58,8 @@ func TestAppLifecycleUsingKubeconfig(t *testing.T) {
 		Namespace: namespace,
 	}
 
+	// TODO: Remove kubeconfig setting after implement KIND test on app-operator
+	// issue: https://github.com/giantswarm/giantswarm/issues/4606
 	{
 		config.Logger.LogCtx(ctx, "level", "debug", "message", "creating kubeconfig secret")
 
@@ -66,10 +67,6 @@ func TestAppLifecycleUsingKubeconfig(t *testing.T) {
 		var bytes []byte
 		{
 			c := clientcmd.GetConfigFromFileOrDie("/workdir/.shipyard/config")
-			_, err := ioutil.ReadFile("/workdir/.shipyard/config")
-			if err != nil {
-				t.Fatalf("expected nil got %#v", err)
-			}
 
 			err = api.FlattenConfig(c)
 			if err != nil {
@@ -81,11 +78,6 @@ func TestAppLifecycleUsingKubeconfig(t *testing.T) {
 				t.Fatalf("expected nil got %#v", err)
 			}
 		}
-
-		//bytes, err := kubeconfig.NewKubeConfigForRESTConfig(ctx, restConfig, "test-cluster", targetNamespace)
-		//if err != nil {
-		//	t.Fatalf("expected nil got %#v", err)
-		//}
 
 		_, err = config.Host.K8sClient().CoreV1().Secrets(namespace).Create(&corev1.Secret{
 			ObjectMeta: metav1.ObjectMeta{
