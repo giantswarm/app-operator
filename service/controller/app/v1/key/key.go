@@ -2,8 +2,6 @@ package key
 
 import (
 	"fmt"
-	"net/url"
-	"path"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/microerror"
@@ -11,6 +9,30 @@ import (
 	"github.com/giantswarm/app-operator/pkg/annotation"
 	"github.com/giantswarm/app-operator/pkg/label"
 )
+
+func AppCatalogTitle(customResource v1alpha1.AppCatalog) string {
+	return customResource.Spec.Title
+}
+
+func AppCatalogStorageURL(customResource v1alpha1.AppCatalog) string {
+	return customResource.Spec.Storage.URL
+}
+
+func AppCatalogConfigMapName(customResource v1alpha1.AppCatalog) string {
+	return customResource.Spec.Config.ConfigMap.Name
+}
+
+func AppCatalogConfigMapNamespace(customResource v1alpha1.AppCatalog) string {
+	return customResource.Spec.Config.ConfigMap.Namespace
+}
+
+func AppCatalogSecretName(customResource v1alpha1.AppCatalog) string {
+	return customResource.Spec.Config.Secret.Name
+}
+
+func AppCatalogSecretNamespace(customResource v1alpha1.AppCatalog) string {
+	return customResource.Spec.Config.Secret.Namespace
+}
 
 // AppConfigMapName returns the name of the configmap that stores app level
 // config for the provided app CR.
@@ -158,16 +180,4 @@ func VersionLabel(customResource v1alpha1.App) string {
 	} else {
 		return ""
 	}
-}
-
-func GenerateTarballURL(baseURL string, appName string, version string) (string, error) {
-	if baseURL == "" || appName == "" || version == "" {
-		return "", microerror.Maskf(executionFailedError, "baseURL %#q, appName %#q, release %#q should not be empty", baseURL, appName, version)
-	}
-	u, err := url.Parse(baseURL)
-	if err != nil {
-		return "", microerror.Mask(err)
-	}
-	u.Path = path.Join(u.Path, fmt.Sprintf("%s-%s.tgz", appName, version))
-	return u.String(), nil
 }
