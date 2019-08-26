@@ -65,8 +65,8 @@ func TestAppLifecycleUsingKubeconfig(t *testing.T) {
 		// Transform kubeconfig file to restconfig and flatten
 		var bytes []byte
 		{
-			c := clientcmd.GetConfigFromFileOrDie("/home/circleci/.kube/config")
-			_, err := ioutil.ReadFile("/home/circleci/.kube/config")
+			c := clientcmd.GetConfigFromFileOrDie("/workdir/.shipyard/config")
+			_, err := ioutil.ReadFile("/workdir/.shipyard/config")
 			if err != nil {
 				t.Fatalf("expected nil got %#v", err)
 			}
