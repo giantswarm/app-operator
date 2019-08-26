@@ -5,6 +5,7 @@ package kubeconfig
 import (
 	"context"
 	"fmt"
+	"io/ioutil"
 	"testing"
 
 	"github.com/giantswarm/e2e-harness/pkg/release"
@@ -65,6 +66,10 @@ func TestAppLifecycleUsingKubeconfig(t *testing.T) {
 		var bytes []byte
 		{
 			c := clientcmd.GetConfigFromFileOrDie("/home/circleci/.kube/config")
+			_, err := ioutil.ReadFile("/home/circleci/.kube/config")
+			if err != nil {
+				t.Fatalf("expected nil got %#v", err)
+			}
 
 			err = api.FlattenConfig(c)
 			if err != nil {
