@@ -232,7 +232,7 @@ func TestAppLifecycleUsingKubeconfig(t *testing.T) {
 	{
 		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleting %#q app CR", key.TestAppReleaseName()))
 
-		err = config.Host.G8sClient().ApplicationV1alpha1().Apps(namespace).Delete(key.TestAppReleaseName(), &metav1.DeleteOptions{})
+		err = config.K8sClients.G8sClient().ApplicationV1alpha1().Apps(namespace).Delete(key.TestAppReleaseName(), &metav1.DeleteOptions{})
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
