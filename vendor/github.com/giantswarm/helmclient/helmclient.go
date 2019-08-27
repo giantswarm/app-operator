@@ -52,10 +52,9 @@ type Config struct {
 	K8sClient  kubernetes.Interface
 	Logger     micrologger.Logger
 
-	EnsureTillerInstalledMaxWait time.Duration
-	RestConfig                   *rest.Config
-	TillerImage                  string
-	TillerNamespace              string
+	RestConfig      *rest.Config
+	TillerImage     string
+	TillerNamespace string
 }
 
 // Client knows how to talk with a Helm Tiller server.
@@ -66,10 +65,9 @@ type Client struct {
 	k8sClient  kubernetes.Interface
 	logger     micrologger.Logger
 
-	ensureTillerInstalledMaxWait time.Duration
-	restConfig                   *rest.Config
-	tillerImage                  string
-	tillerNamespace              string
+	restConfig      *rest.Config
+	tillerImage     string
+	tillerNamespace string
 }
 
 // New creates a new configured Helm client.
@@ -84,12 +82,10 @@ func New(config Config) (*Client, error) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
 	}
 
-	if config.EnsureTillerInstalledMaxWait == 0 {
-		config.EnsureTillerInstalledMaxWait = defaultEnsureTillerInstalledMaxWait
-	}
 	if config.RestConfig == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.RestConfig must not be empty", config)
 	}
+
 	if config.TillerImage == "" {
 		config.TillerImage = defaultTillerImage
 	}
@@ -109,10 +105,10 @@ func New(config Config) (*Client, error) {
 		k8sClient:  config.K8sClient,
 		logger:     config.Logger,
 
-		ensureTillerInstalledMaxWait: config.EnsureTillerInstalledMaxWait,
-		restConfig:                   config.RestConfig,
-		tillerImage:                  config.TillerImage,
-		tillerNamespace:              config.TillerNamespace,
+		restConfig:      config.RestConfig,
+		tillerNamespace: config.TillerNamespace,
+
+		tillerImage: config.TillerImage,
 	}
 
 	return c, nil
@@ -664,9 +660,9 @@ func (c *Client) newTunnel() (*k8sportforward.Tunnel, error) {
 		return nil, nil
 	}
 
-	pod, err := getPod(c.k8sClient, c.tillerNamespace)
+	pod, err := getPod(c.k8sClient, tillerLabelSelector, c.tillerNamespace)
 	if IsNotFound(err) {
-		return nil, microerror.Maskf(tillerNotFoundError, "field selector: %#q label selector: %#q namespace: %#q", runningPodFieldSelector, tillerLabelSelector, c.tillerNamespace)
+		return nil, microerror.Maskf(tillerNotFoundError, "label selector: %#q namespace: %#q", tillerLabelSelector, c.tillerNamespace)
 	} else if err != nil {
 		return nil, microerror.Mask(err)
 	}
@@ -725,10 +721,9 @@ func filterList(rels []*hapirelease.Release) []*hapirelease.Release {
 	return uniq
 }
 
-func getPod(client kubernetes.Interface, namespace string) (*corev1.Pod, error) {
+func getPod(client kubernetes.Interface, labelSelector, namespace string) (*corev1.Pod, error) {
 	o := metav1.ListOptions{
-		FieldSelector: runningPodFieldSelector,
-		LabelSelector: tillerLabelSelector,
+		LabelSelector: labelSelector,
 	}
 	pods, err := client.CoreV1().Pods(namespace).List(o)
 	if err != nil {
@@ -739,7 +734,7 @@ func getPod(client kubernetes.Interface, namespace string) (*corev1.Pod, error) 
 		return nil, microerror.Maskf(tooManyResultsError, "%d", len(pods.Items))
 	}
 	if len(pods.Items) == 0 {
-		return nil, microerror.Mask(notFoundError)
+		return nil, microerror.Maskf(notFoundError, "%s", labelSelector)
 	}
 
 	return &pods.Items[0], nil

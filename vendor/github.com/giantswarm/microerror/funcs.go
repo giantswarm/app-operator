@@ -16,8 +16,6 @@ import (
 //
 func Stack(err error) string {
 	switch err.(type) {
-	case nil:
-		return fmt.Sprintf("%v", nil)
 	case *errgo.Err:
 		return fmt.Sprintf("%#v", err)
 	default:
