@@ -75,10 +75,10 @@ func TestAppLifecycle(t *testing.T) {
 		Namespace: namespace,
 		ConfigMap: chartvalues.APIExtensionsAppE2EConfigConfigMap{
 			ValuesYAML: `test: |
-  image:
-    registry: quay.io
-    repository: giantswarm/alpine-testing
-    tag: 0.1.1`,
+    image:
+      registry: quay.io
+      repository: giantswarm/alpine-testing
+      tag: 0.1.1`,
 		},
 		Secret: chartvalues.APIExtensionsAppE2EConfigSecret{
 			ValuesYAML: `secret: "test"`,
