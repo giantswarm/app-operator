@@ -33,7 +33,7 @@ const (
 // - Update chart CR using apiextensions-app-e2e-chart.
 // - Ensure chart CR is redeployed using updated app CR information.
 //
-// - Delete apiextensions-app-e2e-chart.
+// - Delete app CR
 // - Ensure chart CR is deleted.
 //
 func TestAppLifecycle(t *testing.T) {
@@ -242,7 +242,7 @@ func TestAppLifecycle(t *testing.T) {
 	{
 		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleting %#q app CR", key.TestAppReleaseName()))
 
-		err = config.Host.G8sClient().ApplicationV1alpha1().Apps(namespace).Delete(key.TestAppReleaseName(), &metav1.DeleteOptions{})
+		err = config.K8sClients.G8sClient().ApplicationV1alpha1().Apps(namespace).Delete(key.TestAppReleaseName(), &metav1.DeleteOptions{})
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
