@@ -215,6 +215,10 @@ func TestAppLifecycle(t *testing.T) {
 		config.Logger.LogCtx(ctx, "level", "debug", "message", "checked tarball URL in chart spec")
 	}
 
+	// TODO: Delete a release instead of app CR only if all resources not result in errors.
+	//
+	// See: https://github.com/giantswarm/giantswarm/issues/6825
+	//
 	{
 		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleting %#q app CR", key.TestAppReleaseName()))
 
