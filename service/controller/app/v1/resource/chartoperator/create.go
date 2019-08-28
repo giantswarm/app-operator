@@ -6,7 +6,6 @@ import (
 
 	"github.com/giantswarm/helmclient"
 	"github.com/giantswarm/microerror"
-	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
 
 	"github.com/giantswarm/app-operator/service/controller/app/v1/controllercontext"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/key"
@@ -25,9 +24,7 @@ func (r Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	if key.InCluster(cr) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("app %#q is targeting a control plance, no need to setup a chart operator", cr.Name))
 
-		resourcecanceledcontext.SetCanceled(ctx)
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
-
+		r.logger.LogCtx(ctx, "level", "debug", "message", "cancelling the resource")
 		return nil
 	}
 
