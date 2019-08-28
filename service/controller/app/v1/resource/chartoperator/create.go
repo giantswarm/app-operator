@@ -6,6 +6,7 @@ import (
 
 	"github.com/giantswarm/helmclient"
 	"github.com/giantswarm/microerror"
+	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
 
 	"github.com/giantswarm/app-operator/service/controller/app/v1/controllercontext"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/key"
@@ -19,6 +20,15 @@ func (r Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	cc, err := controllercontext.FromContext(ctx)
 	if err != nil {
 		return microerror.Mask(err)
+	}
+
+	if key.InCluster(cr) {
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("app %#q is targeting a control plance, no need to setup a chart operator", cr.Name))
+
+		resourcecanceledcontext.SetCanceled(ctx)
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+
+		return nil
 	}
 
 	// Check whether tenant cluster has a chart-operator helm release yet.
