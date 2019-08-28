@@ -17,6 +17,7 @@ import (
 	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/appcatalog"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/appnamespace"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/chart"
+	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/chartoperator"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/clients"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/configmap"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/secret"
@@ -102,8 +103,6 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 	}
 
-	/* Disable while issues with InCluster are fixed.
-
 	var chartOperatorResource controller.Resource
 	{
 		c := chartoperator.Config{
@@ -117,7 +116,6 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 			return nil, microerror.Mask(err)
 		}
 	}
-	*/
 
 	var chartResource controller.Resource
 	{
@@ -215,8 +213,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		appNamespaceResource,
 		appcatalogResource,
 		clientsResource,
-		// Disable while issues with InCluster are fixed.
-		//chartOperatorResource,
+		chartOperatorResource,
 		configMapResource,
 		secretResource,
 		chartResource,
