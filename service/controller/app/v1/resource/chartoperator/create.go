@@ -21,6 +21,13 @@ func (r Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
+	if key.InCluster(cr) {
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("app %#q in %#q uses InCluster kubeconfig no need to install chart operator", cr.Name, cr.Namespace))
+
+		r.logger.LogCtx(ctx, "level", "debug", "message", "cancelling the resource")
+		return nil
+	}
+
 	// Check whether tenant cluster has a chart-operator helm release yet.
 	{
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding chart-operator release %#q in tenant cluster", release))

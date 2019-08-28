@@ -9,14 +9,18 @@ import (
 
 	"github.com/giantswarm/e2e-harness/pkg/release"
 	"github.com/giantswarm/e2etemplates/pkg/chartvalues"
+	"github.com/spf13/afero"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/helm/pkg/helm"
 
 	"github.com/giantswarm/app-operator/integration/key"
+	"github.com/giantswarm/app-operator/integration/templates"
 )
 
 const (
-	namespace            = "giantswarm"
 	chartOperatorVersion = "chart-operator.giantswarm.io/version"
+	chartOperatorRelease = "chart-operator"
+	namespace            = "giantswarm"
 	testAppCatalogName   = "test-app-catalog"
 )
 
@@ -59,6 +63,37 @@ func TestAppLifecycle(t *testing.T) {
 			Version: "1.0.0",
 		},
 		Namespace: namespace,
+	}
+
+	{
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("installing chart operator"))
+
+		var tarballPath string
+		{
+			// TODO: Remove hard-coded tarballURL when VOO feature are ready to use.
+			//
+			//	See https://github.com/giantswarm/giantswarm/issues/6824
+			//
+			tarballURL := "https://giantswarm.github.io/giantswarm-catalog/chart-operator-0.9.0.tgz"
+			tarballPath, err = config.HelmClient.PullChartTarball(ctx, tarballURL)
+			if err != nil {
+				t.Fatalf("expected %#v got %#v", nil, err)
+			}
+
+			defer func() {
+				fs := afero.NewOsFs()
+				err := fs.Remove(tarballPath)
+				if err != nil {
+					t.Fatalf("expected %#v got %#v", nil, err)
+				}
+			}()
+		}
+		err = config.HelmClient.InstallReleaseFromTarball(ctx, tarballPath, namespace, helm.ReleaseName(chartOperatorRelease), helm.ValueOverrides([]byte(templates.ChartOperatorValues)))
+		if err != nil {
+			t.Fatalf("expected %#v got %#v", nil, err)
+		}
+
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("installed chart operator"))
 	}
 
 	{
@@ -180,26 +215,19 @@ func TestAppLifecycle(t *testing.T) {
 		config.Logger.LogCtx(ctx, "level", "debug", "message", "checked tarball URL in chart spec")
 	}
 
+	// TODO: Delete a release instead of app CR only if all resources not result in errors.
+	//
+	// See: https://github.com/giantswarm/giantswarm/issues/6825
+	//
 	{
-		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleting release %#q", key.CustomResourceReleaseName()))
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleting %#q app CR", key.TestAppReleaseName()))
 
-		err := config.Release.Delete(ctx, key.CustomResourceReleaseName())
+		err = config.Host.G8sClient().ApplicationV1alpha1().Apps(namespace).Delete(key.TestAppReleaseName(), &metav1.DeleteOptions{})
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
 
-		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleted release %#q", key.CustomResourceReleaseName()))
-	}
-
-	{
-		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("waiting for release %#q deleted", key.CustomResourceReleaseName()))
-
-		err = config.Release.WaitForStatus(ctx, fmt.Sprintf("%s-%s", namespace, key.CustomResourceReleaseName()), "DELETED")
-		if err != nil {
-			t.Fatalf("expected %#v got %#v", nil, err)
-		}
-
-		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("waited for release %#q deleted", key.CustomResourceReleaseName()))
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleted %#q app CR", key.TestAppReleaseName()))
 	}
 
 	{
