@@ -9,14 +9,18 @@ import (
 
 	"github.com/giantswarm/e2e-harness/pkg/release"
 	"github.com/giantswarm/e2etemplates/pkg/chartvalues"
+	"github.com/spf13/afero"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/helm/pkg/helm"
 
 	"github.com/giantswarm/app-operator/integration/key"
+	"github.com/giantswarm/app-operator/integration/templates"
 )
 
 const (
-	namespace            = "giantswarm"
 	chartOperatorVersion = "chart-operator.giantswarm.io/version"
+	chartOperatorRelease = "chart-operator"
+	namespace            = "giantswarm"
 	testAppCatalogName   = "test-app-catalog"
 )
 
@@ -59,6 +63,33 @@ func TestAppLifecycle(t *testing.T) {
 			Version: "1.0.0",
 		},
 		Namespace: namespace,
+	}
+
+	{
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("installing chart operator"))
+
+		var tarballPath string
+		{
+			tarballURL := "https://giantswarm.github.io/giantswarm-catalog/chart-operator-0.9.0.tgz"
+			tarballPath, err = config.HelmClient.PullChartTarball(ctx, tarballURL)
+			if err != nil {
+				t.Fatalf("expected %#v got %#v", nil, err)
+			}
+
+			defer func() {
+				fs := afero.NewOsFs()
+				err := fs.Remove(tarballPath)
+				if err != nil {
+					t.Fatalf("expected %#v got %#v", nil, err)
+				}
+			}()
+		}
+		err = config.HelmClient.InstallReleaseFromTarball(ctx, tarballPath, namespace, helm.ReleaseName(chartOperatorRelease), helm.ValueOverrides([]byte(templates.ChartOperatorValues)))
+		if err != nil {
+			t.Fatalf("expected %#v got %#v", nil, err)
+		}
+
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("installed chart operator"))
 	}
 
 	{
