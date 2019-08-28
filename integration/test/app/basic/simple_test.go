@@ -66,17 +66,6 @@ func TestAppLifecycle(t *testing.T) {
 	}
 
 	{
-		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("installing tiller"))
-
-		err = config.HelmClient.EnsureTillerInstalled(ctx)
-		if err != nil {
-			t.Fatalf("expected %#v got %#v", nil, err)
-		}
-
-		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("installed tiller"))
-	}
-
-	{
 		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("installing chart operator"))
 
 		var tarballPath string
