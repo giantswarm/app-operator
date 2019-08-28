@@ -8,7 +8,6 @@ import (
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/controller/context/reconciliationcanceledcontext"
-	"github.com/giantswarm/tenantcluster"
 )
 
 const (
@@ -57,18 +56,7 @@ func (r *Resource) ensureTillerInstalled(ctx context.Context, helmClient helmcli
 	var err error
 
 	err = helmClient.EnsureTillerInstalledWithValues(ctx, values)
-	if tenantcluster.IsTimeout(err) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "timeout fetching certificates")
-
-		// A timeout error here means that the app-operator certificate
-		// for the current tenant cluster was not found. We can't continue
-		// without a Helm client. We will retry during the next execution, when
-		// the certificate might be available.
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation")
-		reconciliationcanceledcontext.SetCanceled(ctx)
-
-		return nil
-	} else if helmclient.IsTillerNotFound(err) {
+	if helmclient.IsTillerNotFound(err) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "no healthy tiller pod found")
 
 		// Tiller may not be healthy and we cannot continue without a connection
