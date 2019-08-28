@@ -176,6 +176,14 @@
 
 [[projects]]
   branch = "master"
+  digest = "1:4921779f2626071ef5e2f063b1ca803aba03ff55b736dc8b1f109786248f4a92"
+  name = "github.com/giantswarm/certs"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "645efb99af631627de84ed3a5e6ed4572d3004fa"
+
+[[projects]]
+  branch = "master"
   digest = "1:169046d4e462ff71a713eee496624e77d9f9952f9ead947b9947bf5170e1fdbf"
   name = "github.com/giantswarm/e2e-harness"
   packages = [
@@ -328,6 +336,14 @@
   ]
   pruneopts = "UT"
   revision = "e5d2b8071b3678d427e342e6ae500b5059de778a"
+
+[[projects]]
+  branch = "master"
+  digest = "1:5efd37900322164c4a072f978a677e2b51d1d5e69b0385b40787335371e35294"
+  name = "github.com/giantswarm/tenantcluster"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "782e6be8a7290df9bcd38eacb77f637b26a262e4"
 
 [[projects]]
   branch = "master"
@@ -1264,11 +1280,13 @@
     "github.com/giantswarm/operatorkit/client/k8scrdclient",
     "github.com/giantswarm/operatorkit/client/k8srestconfig",
     "github.com/giantswarm/operatorkit/controller",
+    "github.com/giantswarm/operatorkit/controller/context/reconciliationcanceledcontext",
     "github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext",
     "github.com/giantswarm/operatorkit/flag/service/kubernetes",
     "github.com/giantswarm/operatorkit/informer",
     "github.com/giantswarm/operatorkit/resource/wrapper/metricsresource",
     "github.com/giantswarm/operatorkit/resource/wrapper/retryresource",
+    "github.com/giantswarm/tenantcluster",
     "github.com/giantswarm/versionbundle",
     "github.com/google/go-cmp/cmp",
     "github.com/prometheus/client_golang/prometheus",
@@ -1284,6 +1302,8 @@
     "k8s.io/client-go/kubernetes",
     "k8s.io/client-go/kubernetes/fake",
     "k8s.io/client-go/rest",
+    "k8s.io/client-go/tools/clientcmd",
+    "k8s.io/client-go/tools/clientcmd/api",
     "k8s.io/helm/pkg/helm",
   ]
   solver-name = "gps-cdcl"
