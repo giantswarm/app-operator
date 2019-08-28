@@ -70,6 +70,10 @@ func TestAppLifecycle(t *testing.T) {
 
 		var tarballPath string
 		{
+			// TODO: Remove hard-coded tarballURL when VOO feature are ready to use.
+			//
+			//	See https://github.com/giantswarm/giantswarm/issues/6824
+			//
 			tarballURL := "https://giantswarm.github.io/giantswarm-catalog/chart-operator-0.9.0.tgz"
 			tarballPath, err = config.HelmClient.PullChartTarball(ctx, tarballURL)
 			if err != nil {
