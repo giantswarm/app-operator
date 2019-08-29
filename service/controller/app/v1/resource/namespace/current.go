@@ -29,8 +29,8 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 	if key.InCluster(cr) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("app %#q in %#q uses InCluster kubeconfig no need to install a namespace", cr.Name, cr.Namespace))
 
-		resourcecanceledcontext.SetCanceled(ctx)
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		resourcecanceledcontext.SetCanceled(ctx)
 
 		return nil, nil
 	}
