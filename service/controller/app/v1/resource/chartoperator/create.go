@@ -3,6 +3,8 @@ package chartoperator
 import (
 	"context"
 	"fmt"
+	"github.com/giantswarm/errors/tenant"
+	"github.com/giantswarm/operatorkit/controller/context/reconciliationcanceledcontext"
 
 	"github.com/giantswarm/helmclient"
 	"github.com/giantswarm/microerror"
@@ -33,7 +35,26 @@ func (r Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding chart-operator release %#q in tenant cluster", release))
 
 		_, err := cc.HelmClient.GetReleaseContent(ctx, release)
-		if helmclient.IsReleaseNotFound(err) {
+		if helmclient.IsTillerNotFound(err) {
+			r.logger.LogCtx(ctx, "level", "debug", "message", "no healthy tiller pod found")
+
+			// Tiller may not be healthy and we cannot continue without a connection
+			// to Tiller. We will retry on next reconciliation loop.
+			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation")
+			reconciliationcanceledcontext.SetCanceled(ctx)
+
+			return nil
+		} else if tenant.IsAPINotAvailable(err) {
+			r.logger.LogCtx(ctx, "level", "debug", "message", "tenant API not available")
+
+			// We should not hammer tenant API if it is not available, the tenant
+			// cluster might be initializing. We will retry on next reconciliation
+			// loop.
+			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation")
+			reconciliationcanceledcontext.SetCanceled(ctx)
+
+			return nil
+		} else if helmclient.IsReleaseNotFound(err) {
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("did not find chart-perator release %#q in tenant cluster", release))
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("installing chart-operator release %#q in tenant cluster", release))
 
