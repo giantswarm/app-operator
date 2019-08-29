@@ -38,7 +38,7 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 	// Tenant cluster namespace is not deleted so cancel the resource. The
 	// namespace will be deleted when the tenant cluster resources are deleted.
 	if cc.Status.TenantCluster.IsDeleting {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("not deleting namespace %#q in tenant cluster %#q", namespace, key.ClusterID(&cr)))
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("not deleting namespace %#q in tenant cluster %#q", namespace, key.ClusterID(cr)))
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 		resourcecanceledcontext.SetCanceled(ctx)
 		return nil, nil
@@ -64,7 +64,7 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 			return nil, microerror.Mask(err)
 		} else {
 			ns = m
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("did not find namespace %#q in tenant cluster %#q", namespace, key.ClusterID(&cr)))
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("did not find namespace %#q in tenant cluster %#q", namespace, key.ClusterID(cr)))
 		}
 	}
 
