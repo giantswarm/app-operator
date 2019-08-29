@@ -86,6 +86,10 @@ func ChartSecretName(customResource v1alpha1.App) string {
 	return fmt.Sprintf("%s-chart-secrets", customResource.GetName())
 }
 
+func ClusterID(customResource v1alpha1.App) string {
+	return customResource.GetLabels()[label.Cluster]
+}
+
 func ClusterValuesConfigMapName(customResource v1alpha1.App) string {
 	return fmt.Sprintf("%s-cluster-values", customResource.GetNamespace())
 }
@@ -127,6 +131,10 @@ func KubecConfigSecretNamespace(customResource v1alpha1.App) string {
 
 func Namespace(customResource v1alpha1.App) string {
 	return customResource.Spec.Namespace
+}
+
+func OrganizationID(customResource v1alpha1.App) string {
+	return customResource.GetLabels()[label.Organization]
 }
 
 // ToCustomResource converts value to v1alpha1.App and returns it or error
