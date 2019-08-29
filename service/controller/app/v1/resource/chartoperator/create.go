@@ -3,11 +3,11 @@ package chartoperator
 import (
 	"context"
 	"fmt"
-	"github.com/giantswarm/errors/tenant"
-	"github.com/giantswarm/operatorkit/controller/context/reconciliationcanceledcontext"
 
+	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/helmclient"
 	"github.com/giantswarm/microerror"
+	"github.com/giantswarm/operatorkit/controller/context/reconciliationcanceledcontext"
 
 	"github.com/giantswarm/app-operator/service/controller/app/v1/controllercontext"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/key"
