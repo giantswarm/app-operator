@@ -227,11 +227,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:09167937b71fc5b5509c4fe66cfbb7d9725998a7a72b7c988fdc068e041446cf"
+  digest = "1:2cd674c429a514b951af9d61fb638ec1c431ce1a660f145bf6b6d467b7f903c2"
   name = "github.com/giantswarm/helmclient"
   packages = ["."]
   pruneopts = "UT"
-  revision = "194739f9cc7e4c910fd66955001469ca9d516201"
+  revision = "c17ff0598a86814a5d103c84b8efafd1a5339a1d"
 
 [[projects]]
   branch = "master"
@@ -1264,6 +1264,7 @@
     "github.com/giantswarm/operatorkit/client/k8scrdclient",
     "github.com/giantswarm/operatorkit/client/k8srestconfig",
     "github.com/giantswarm/operatorkit/controller",
+    "github.com/giantswarm/operatorkit/controller/context/reconciliationcanceledcontext",
     "github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext",
     "github.com/giantswarm/operatorkit/flag/service/kubernetes",
     "github.com/giantswarm/operatorkit/informer",
@@ -1284,6 +1285,8 @@
     "k8s.io/client-go/kubernetes",
     "k8s.io/client-go/kubernetes/fake",
     "k8s.io/client-go/rest",
+    "k8s.io/client-go/tools/clientcmd",
+    "k8s.io/client-go/tools/clientcmd/api",
     "k8s.io/helm/pkg/helm",
   ]
   solver-name = "gps-cdcl"

@@ -22,6 +22,7 @@ import (
 	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/configmap"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/secret"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/status"
+	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/tiller"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/values"
 )
 
@@ -209,10 +210,22 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 	}
 
+	var tillerResource controller.Resource
+	{
+		c := tiller.Config{
+			Logger: config.Logger,
+		}
+		tillerResource, err = tiller.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	resources := []controller.Resource{
 		appNamespaceResource,
 		appcatalogResource,
 		clientsResource,
+		tillerResource,
 		chartOperatorResource,
 		configMapResource,
 		secretResource,
