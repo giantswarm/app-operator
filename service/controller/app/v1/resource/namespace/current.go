@@ -21,6 +21,10 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
+	cc, err := controllercontext.FromContext(ctx)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
 
 	if key.InCluster(cr) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("app %#q in %#q uses InCluster kubeconfig no need to install a namespace", cr.Name, cr.Namespace))
@@ -31,37 +35,38 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 		return nil, nil
 	}
 
-	cc, err := controllercontext.FromContext(ctx)
-	if err != nil {
-		return nil, microerror.Mask(err)
+	// Tenant cluster namespace is not deleted so cancel the resource. The
+	// namespace will be deleted when the tenant cluster resources are deleted.
+	if cc.Status.TenantCluster.IsDeleting {
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("not deleting namespace %#q in tenant cluster %#q", namespace, key.ClusterID(&cr)))
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		resourcecanceledcontext.SetCanceled(ctx)
+		return nil, nil
 	}
 
-	r.logger.LogCtx(ctx, "level", "debug", "message", "looking for the namespace in the tenant cluster")
-
 	// Lookup the current state of the namespace.
-	var namespace *corev1.Namespace
+	var ns *corev1.Namespace
 	{
-		manifest, err := cc.K8sClient.CoreV1().Namespaces().Get(namespaceName, metav1.GetOptions{})
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding namespace %#q in tenant cluster %#q", namespace, key.ClusterID(cr)))
+
+		m, err := cc.K8sClient.CoreV1().Namespaces().Get(namespace, metav1.GetOptions{})
 		if apierrors.IsNotFound(err) {
-			r.logger.LogCtx(ctx, "level", "debug", "message", "did not find the namespace in the tenant cluster")
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found namespace %#q in tenant cluster %#q", namespace, key.ClusterID(cr)))
 			// fall through
 		} else if tenant.IsAPINotAvailable(err) {
-			r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster is not available")
-
-			// We can't continue without a successful K8s connection. Cluster
-			// may not be up yet. We will retry during the next execution.
-			reconciliationcanceledcontext.SetCanceled(ctx)
+			r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster api not available")
 			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation")
+			reconciliationcanceledcontext.SetCanceled(ctx)
 
 			return nil, nil
 
 		} else if err != nil {
 			return nil, microerror.Mask(err)
 		} else {
-			r.logger.LogCtx(ctx, "level", "debug", "message", "found the namespace in the tenant cluster")
-			namespace = manifest
+			ns = m
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("did not find namespace %#q in tenant cluster %#q", namespace, key.ClusterID(&cr)))
 		}
 	}
 
-	return namespace, nil
+	return ns, nil
 }

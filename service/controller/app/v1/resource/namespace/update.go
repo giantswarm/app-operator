@@ -19,20 +19,8 @@ func (r *Resource) NewUpdatePatch(ctx context.Context, obj, currentState, desire
 		return nil, microerror.Mask(err)
 	}
 
-	update, err := r.newUpdateChange(ctx, obj, currentState, desiredState)
-	if err != nil {
-		return nil, microerror.Mask(err)
-	}
-
 	patch := controller.NewPatch()
 	patch.SetCreateChange(create)
-	patch.SetUpdateChange(update)
 
 	return patch, nil
-}
-
-// newUpdateChange is a no-op because the namespace in the tenant cluster is not
-// updated.
-func (r *Resource) newUpdateChange(ctx context.Context, obj, currentState, desiredState interface{}) (interface{}, error) {
-	return nil, nil
 }

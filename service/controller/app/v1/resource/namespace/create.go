@@ -2,6 +2,7 @@ package namespace
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/microerror"
@@ -10,41 +11,42 @@ import (
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 
 	"github.com/giantswarm/app-operator/service/controller/app/v1/controllercontext"
+	"github.com/giantswarm/app-operator/service/controller/app/v1/key"
 )
 
 func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange interface{}) error {
-	namespaceToCreate, err := toNamespace(createChange)
+	cr, err := key.ToCustomResource(obj)
 	if err != nil {
 		return microerror.Mask(err)
 	}
-
 	cc, err := controllercontext.FromContext(ctx)
 	if err != nil {
 		return microerror.Mask(err)
 	}
+	ns, err := toNamespace(createChange)
+	if err != nil {
+		return microerror.Mask(err)
+	}
 
-	if namespaceToCreate != nil {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "creating namespace in the tenant cluster")
+	if ns != nil {
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating namespace %#q in tenant cluster %#q", ns.Name, key.ClusterID(cr)))
 
-		_, err = cc.K8sClient.CoreV1().Namespaces().Create(namespaceToCreate)
+		_, err = cc.K8sClient.CoreV1().Namespaces().Create(ns)
 		if apierrors.IsAlreadyExists(err) {
 			// fall through
 		} else if tenant.IsAPINotAvailable(err) {
-			r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster is not available.")
-
-			// We should not hammer tenant API if it is not available, the tenant cluster
-			// might be initializing. We will retry on next reconciliation loop.
-			resourcecanceledcontext.SetCanceled(ctx)
+			r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster not available")
 			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
-
+			resourcecanceledcontext.SetCanceled(ctx)
 			return nil
+
 		} else if err != nil {
 			return microerror.Mask(err)
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", "creating namespace in the tenant cluster: created")
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("created namespace %#q in tenant cluster %#q", ns.Name, key.ClusterID(cr)))
 	} else {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "creating namespace in the tenant cluster: already created")
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("did not create namespace %#q in tenant cluster %#q", namespace, key.ClusterID(cr)))
 	}
 
 	return nil
