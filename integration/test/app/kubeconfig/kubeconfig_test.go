@@ -75,7 +75,7 @@ func TestAppLifecycleUsingKubeconfig(t *testing.T) {
         tag: 0.1.1`,
 		},
 		Secret: chartvalues.APIExtensionsAppE2EConfigSecret{
-			ValuesYAML: `test: "secret"`,
+			ValuesYAML: `secret: "test"`,
 		},
 	}
 
