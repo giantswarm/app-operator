@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/giantswarm/e2e-harness/pkg/release"
+	"github.com/giantswarm/e2esetup/chart/env"
 	"github.com/giantswarm/e2etemplates/pkg/chartvalues"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -43,6 +44,16 @@ func TestAppLifecycleUsingKubeconfig(t *testing.T) {
 			Namespace: namespace,
 			Catalog:   testAppCatalogName,
 			Version:   "0.6.7",
+			Config: chartvalues.APIExtensionsAppE2EConfigAppConfig{
+				ConfigMap: chartvalues.APIExtensionsAppE2EConfigAppConfigConfigMap{
+					Name:      "test-app-values",
+					Namespace: "default",
+				},
+				Secret: chartvalues.APIExtensionsAppE2EConfigAppConfigSecret{
+					Name:      "test-app-secrets",
+					Namespace: "default",
+				},
+			},
 		},
 		AppCatalog: chartvalues.APIExtensionsAppE2EConfigAppCatalog{
 			Name:  testAppCatalogName,
@@ -56,30 +67,41 @@ func TestAppLifecycleUsingKubeconfig(t *testing.T) {
 			Version: "1.0.0",
 		},
 		Namespace: namespace,
+		ConfigMap: chartvalues.APIExtensionsAppE2EConfigConfigMap{
+			ValuesYAML: `test:
+      image:
+        registry: quay.io
+        repository: giantswarm/alpine-testing
+        tag: 0.1.1`,
+		},
+		Secret: chartvalues.APIExtensionsAppE2EConfigSecret{
+			ValuesYAML: `secret: "test"`,
+		},
 	}
 
-	// TODO: Remove kubeconfig setting after implement KIND test on app-operator
-	// issue: https://github.com/giantswarm/giantswarm/issues/4606
+	// Transform kubeconfig file to restconfig and flatten
+	var bytes []byte
+	{
+		c := clientcmd.GetConfigFromFileOrDie(env.KubeConfigPath())
+
+		err = api.FlattenConfig(c)
+		if err != nil {
+			t.Fatalf("expected nil got %#v", err)
+		}
+
+		// Normally KIND assign 127.0.0.1 as server address, that should change into kubernetes
+		c.Clusters["kind"].Server = "https://kubernetes.default.svc.cluster.local"
+
+		bytes, err = clientcmd.Write(*c)
+		if err != nil {
+			t.Fatalf("expected nil got %#v", err)
+		}
+	}
+
 	{
 		config.Logger.LogCtx(ctx, "level", "debug", "message", "creating kubeconfig secret")
 
-		// Transform kubeconfig file to restconfig and flatten
-		var bytes []byte
-		{
-			c := clientcmd.GetConfigFromFileOrDie("/workdir/.shipyard/config")
-
-			err = api.FlattenConfig(c)
-			if err != nil {
-				t.Fatalf("expected nil got %#v", err)
-			}
-
-			bytes, err = clientcmd.Write(*c)
-			if err != nil {
-				t.Fatalf("expected nil got %#v", err)
-			}
-		}
-
-		_, err = config.Host.K8sClient().CoreV1().Secrets(namespace).Create(&corev1.Secret{
+		_, err = config.K8sClients.K8sClient().CoreV1().Secrets(namespace).Create(&corev1.Secret{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      "kube-config",
 				Namespace: namespace,
@@ -144,7 +166,7 @@ func TestAppLifecycleUsingKubeconfig(t *testing.T) {
 		config.Logger.LogCtx(ctx, "level", "debug", "message", "checking tarball URL in chart spec")
 
 		tarballURL := "https://giantswarm.github.com/sample-catalog/kubernetes-test-app-chart-0.6.7.tgz"
-		chart, err := config.Host.G8sClient().ApplicationV1alpha1().Charts(namespace).Get(key.TestAppReleaseName(), metav1.GetOptions{})
+		chart, err := config.K8sClients.G8sClient().ApplicationV1alpha1().Charts(namespace).Get(key.TestAppReleaseName(), metav1.GetOptions{})
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
@@ -201,7 +223,7 @@ func TestAppLifecycleUsingKubeconfig(t *testing.T) {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
 
-		chart, err := config.Host.G8sClient().ApplicationV1alpha1().Charts(namespace).Get(key.TestAppReleaseName(), metav1.GetOptions{})
+		chart, err := config.K8sClients.G8sClient().ApplicationV1alpha1().Charts(namespace).Get(key.TestAppReleaseName(), metav1.GetOptions{})
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
@@ -217,7 +239,7 @@ func TestAppLifecycleUsingKubeconfig(t *testing.T) {
 	{
 		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleting %#q app CR", key.TestAppReleaseName()))
 
-		err = config.Host.G8sClient().ApplicationV1alpha1().Apps(namespace).Delete(key.TestAppReleaseName(), &metav1.DeleteOptions{})
+		err = config.K8sClients.G8sClient().ApplicationV1alpha1().Apps(namespace).Delete(key.TestAppReleaseName(), &metav1.DeleteOptions{})
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}

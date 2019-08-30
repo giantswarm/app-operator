@@ -33,7 +33,7 @@ const (
 // - Update chart CR using apiextensions-app-e2e-chart.
 // - Ensure chart CR is redeployed using updated app CR information.
 //
-// - Delete apiextensions-app-e2e-chart.
+// - Delete app CR
 // - Ensure chart CR is deleted.
 //
 func TestAppLifecycle(t *testing.T) {
@@ -50,6 +50,16 @@ func TestAppLifecycle(t *testing.T) {
 			Namespace: namespace,
 			Catalog:   testAppCatalogName,
 			Version:   "0.6.7",
+			Config: chartvalues.APIExtensionsAppE2EConfigAppConfig{
+				ConfigMap: chartvalues.APIExtensionsAppE2EConfigAppConfigConfigMap{
+					Name:      "test-app-values",
+					Namespace: "default",
+				},
+				Secret: chartvalues.APIExtensionsAppE2EConfigAppConfigSecret{
+					Name:      "test-app-secrets",
+					Namespace: "default",
+				},
+			},
 		},
 		AppCatalog: chartvalues.APIExtensionsAppE2EConfigAppCatalog{
 			Name:  testAppCatalogName,
@@ -63,6 +73,16 @@ func TestAppLifecycle(t *testing.T) {
 			Version: "1.0.0",
 		},
 		Namespace: namespace,
+		ConfigMap: chartvalues.APIExtensionsAppE2EConfigConfigMap{
+			ValuesYAML: `test:
+      image:
+        registry: quay.io
+        repository: giantswarm/alpine-testing
+        tag: 0.1.1`,
+		},
+		Secret: chartvalues.APIExtensionsAppE2EConfigSecret{
+			ValuesYAML: `secret: "test"`,
+		},
 	}
 
 	{
@@ -145,7 +165,7 @@ func TestAppLifecycle(t *testing.T) {
 		config.Logger.LogCtx(ctx, "level", "debug", "message", "checking tarball URL in chart spec")
 
 		tarballURL := "https://giantswarm.github.com/sample-catalog/kubernetes-test-app-chart-0.6.7.tgz"
-		chart, err := config.Host.G8sClient().ApplicationV1alpha1().Charts(namespace).Get(key.TestAppReleaseName(), metav1.GetOptions{})
+		chart, err := config.K8sClients.G8sClient().ApplicationV1alpha1().Charts(namespace).Get(key.TestAppReleaseName(), metav1.GetOptions{})
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
@@ -202,7 +222,7 @@ func TestAppLifecycle(t *testing.T) {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
 
-		chart, err := config.Host.G8sClient().ApplicationV1alpha1().Charts(namespace).Get(key.TestAppReleaseName(), metav1.GetOptions{})
+		chart, err := config.K8sClients.G8sClient().ApplicationV1alpha1().Charts(namespace).Get(key.TestAppReleaseName(), metav1.GetOptions{})
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
@@ -222,7 +242,7 @@ func TestAppLifecycle(t *testing.T) {
 	{
 		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleting %#q app CR", key.TestAppReleaseName()))
 
-		err = config.Host.G8sClient().ApplicationV1alpha1().Apps(namespace).Delete(key.TestAppReleaseName(), &metav1.DeleteOptions{})
+		err = config.K8sClients.G8sClient().ApplicationV1alpha1().Apps(namespace).Delete(key.TestAppReleaseName(), &metav1.DeleteOptions{})
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
