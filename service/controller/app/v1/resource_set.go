@@ -178,8 +178,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	var namespaceResource controller.Resource
 	{
 		c := namespace.Config{
-			K8sClient: config.K8sClient,
-			Logger:    config.Logger,
+			Logger: config.Logger,
 		}
 
 		ops, err := namespace.New(c)

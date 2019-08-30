@@ -4,7 +4,6 @@ import (
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/client-go/kubernetes"
 )
 
 const (
@@ -18,28 +17,22 @@ const (
 
 // Config represents the configuration used to create a new namespace resource.
 type Config struct {
-	K8sClient kubernetes.Interface
-	Logger    micrologger.Logger
+	Logger micrologger.Logger
 }
 
 // Resource implements the namespace resource.
 type Resource struct {
-	k8sClient kubernetes.Interface
-	logger    micrologger.Logger
+	logger micrologger.Logger
 }
 
 // New creates a new configured namespace resource.
 func New(config Config) (*Resource, error) {
-	if config.K8sClient == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
-	}
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
 	r := &Resource{
 		// Dependencies.
-		k8sClient: config.K8sClient,
-		logger:    config.Logger,
+		logger: config.Logger,
 	}
 
 	return r, nil
