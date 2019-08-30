@@ -85,6 +85,9 @@ func TestAppLifecycleUsingKubeconfig(t *testing.T) {
 			t.Fatalf("expected nil got %#v", err)
 		}
 
+		// Normally KIND assign 127.0.0.1 as server address, that should change into kubernetes
+		c.Clusters["kind"].Server = "https://kubernetes"
+
 		bytes, err = clientcmd.Write(*c)
 		if err != nil {
 			t.Fatalf("expected nil got %#v", err)
