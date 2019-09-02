@@ -27,7 +27,7 @@
 
 
 [[constraint]]
-  branch = "master"
+  branch = "app-cr-validation"
   name = "github.com/giantswarm/apiextensions"
 
 [[constraint]]

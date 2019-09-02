@@ -124,16 +124,16 @@
   version = "v1.4.7"
 
 [[projects]]
-  digest = "1:2cd7915ab26ede7d95b8749e6b1f933f1c6d5398030684e6505940a10f31cfda"
+  branch = "master"
+  digest = "1:08188cf7ce7027b22e88cc23da27f17349a0ba7746271a60cbe0a70266c2346f"
   name = "github.com/ghodss/yaml"
   packages = ["."]
   pruneopts = "UT"
-  revision = "0ca9ea5df5451ffdf184b4428c902747c2c11cd7"
-  version = "v1.0.0"
+  revision = "25d852aebe32c875e9c044af3eef9c7dc6bc777f"
 
 [[projects]]
-  branch = "master"
-  digest = "1:b2187e28e5904cbbd9d7da5bf6c9cad3db5fd6dacffaa0fa11717f4e1209555d"
+  branch = "app-cr-validation"
+  digest = "1:334cf7846e7b0d79057abd815af51b1961041667007d95e673f88d2b0ba2a4c0"
   name = "github.com/giantswarm/apiextensions"
   packages = [
     "pkg/apis/application/v1alpha1",
@@ -156,7 +156,7 @@
     "pkg/clientset/versioned/typed/release/v1alpha1/fake",
   ]
   pruneopts = "UT"
-  revision = "49bc8cba4c8e4eee46d81f3d9aa92d133c09e656"
+  revision = "b7770e3299369d9e6e3dd6edb9a45884162fb7fe"
 
 [[projects]]
   branch = "master"
@@ -188,15 +188,15 @@
   revision = "94388dde639308b70027f93cee0ae9012c989a6c"
 
 [[projects]]
-  branch = "master"
-  digest = "1:283fc6fbb0239ee3c2bd16582f0d78c8cd479684b4d692f8b60e8d6a31111aaa"
+  branch = "kubernetes-1.15.0"
+  digest = "1:9d0ca5b95fbb8fcc350009d2c162df8b254eaf4fe3af1228881d983d1ee13ed4"
   name = "github.com/giantswarm/e2esetup"
   packages = [
     "chart/env",
     "k8s",
   ]
   pruneopts = "UT"
-  revision = "a7944f007d0ed219e788966522e213b2bac1a897"
+  revision = "8701ec68b8153482335d70d618e373bba3ea89b6"
 
 [[projects]]
   branch = "master"
@@ -237,12 +237,12 @@
   revision = "c17ff0598a86814a5d103c84b8efafd1a5339a1d"
 
 [[projects]]
-  branch = "master"
-  digest = "1:98c9ad635693241a4a3276f0ed2f99a08420aaf20afce0732318b4574289f010"
+  branch = "app-cr-validation"
+  digest = "1:988815d6bebce2ded532f8a3ae8b8c217199c32e958ba0622e3ab7938a0476b6"
   name = "github.com/giantswarm/k8sclient"
   packages = ["."]
   pruneopts = "UT"
-  revision = "cb19a71151dd4a9b440cd8846630a9fb948d2515"
+  revision = "ed73fb09b4efca81c8640879efd6b31fb66c7924"
 
 [[projects]]
   branch = "master"
@@ -253,12 +253,12 @@
   revision = "85e779854c8e1b948bb2551e3750cfdae8ddfdbf"
 
 [[projects]]
-  branch = "master"
-  digest = "1:33f8701353f25328d409be450cbcd17201033f1e060d3fbaecbfddec05895cb5"
+  branch = "app-cr-validation"
+  digest = "1:f25d50e5fb7f3abc421421dbbd1ff669dffb903d51c71212a85fc0f21f6d0dd7"
   name = "github.com/giantswarm/kubeconfig"
   packages = ["."]
   pruneopts = "UT"
-  revision = "2c7a472873b005a410bf0e5bb6a096874cbece68"
+  revision = "6af8414cbdce26dbc375b88b5036c83540a23ca2"
 
 [[projects]]
   branch = "master"

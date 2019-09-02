@@ -2,7 +2,6 @@ package k8s
 
 import (
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
-	"github.com/giantswarm/e2esetup/chart/env"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
@@ -11,8 +10,6 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 )
 
-// ClientsConfig is DEPRECATED. Use https://github.com/giantswarm/k8sclient/
-// instead.
 type ClientsConfig struct {
 	Logger micrologger.Logger
 
@@ -28,15 +25,13 @@ type Clients struct {
 	restConfig *rest.Config
 }
 
-// NewClients is DEPRECATED. Use https://github.com/giantswarm/k8sclient/
-// instead.
 func NewClients(config ClientsConfig) (*Clients, error) {
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
 
 	if config.KubeConfigPath == "" {
-		config.KubeConfigPath = env.KubeConfigPath()
+		config.KubeConfigPath = e2eHarnessDefaultKubeconfig
 	}
 
 	var err error
@@ -88,15 +83,15 @@ func NewClients(config ClientsConfig) (*Clients, error) {
 	return c, nil
 }
 
-func (c *Clients) ExtClient() apiextensionsclient.Interface {
+func (c *Clients) ExtClient() *apiextensionsclient.Clientset {
 	return c.extClient
 }
 
-func (c *Clients) G8sClient() versioned.Interface {
+func (c *Clients) G8sClient() *versioned.Clientset {
 	return c.g8sClient
 }
 
-func (c *Clients) K8sClient() kubernetes.Interface {
+func (c *Clients) K8sClient() *kubernetes.Clientset {
 	return c.k8sClient
 }
 

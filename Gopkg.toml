@@ -45,11 +45,15 @@ required = [
   name = "github.com/docker/distribution"
 
 [[constraint]]
-  branch = "master"
+  branch = "app-cr-validation"
   name = "github.com/giantswarm/apiextensions"
 
 [[constraint]]
-  branch = "master"
+  branch = "app-cr-validation"
+  name = "github.com/giantswarm/k8sclient"
+
+[[constraint]]
+  branch = "app-cr-validation"
   name = "github.com/giantswarm/kubeconfig"
 
 [[constraint]]

@@ -19,11 +19,19 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:0db23fa47ee77851b62eaf35f47df704c22a0bdef1607d345212e07488ad738b"
+  digest = "1:08188cf7ce7027b22e88cc23da27f17349a0ba7746271a60cbe0a70266c2346f"
+  name = "github.com/ghodss/yaml"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "25d852aebe32c875e9c044af3eef9c7dc6bc777f"
+
+[[projects]]
+  branch = "app-cr-validation"
+  digest = "1:bf14179c04ac9f20d9641320ace53303e0bf617ef64c4c1dbdea04d39d398cc3"
   name = "github.com/giantswarm/apiextensions"
   packages = ["pkg/apis/application/v1alpha1"]
   pruneopts = "UT"
-  revision = "d00b8e9f593269fb3cf755beadde710ba918daec"
+  revision = "b7770e3299369d9e6e3dd6edb9a45884162fb7fe"
 
 [[projects]]
   branch = "master"
