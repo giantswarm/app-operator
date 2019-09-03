@@ -124,16 +124,16 @@
   version = "v1.4.7"
 
 [[projects]]
-  branch = "master"
-  digest = "1:08188cf7ce7027b22e88cc23da27f17349a0ba7746271a60cbe0a70266c2346f"
+  digest = "1:2cd7915ab26ede7d95b8749e6b1f933f1c6d5398030684e6505940a10f31cfda"
   name = "github.com/ghodss/yaml"
   packages = ["."]
   pruneopts = "UT"
-  revision = "25d852aebe32c875e9c044af3eef9c7dc6bc777f"
+  revision = "0ca9ea5df5451ffdf184b4428c902747c2c11cd7"
+  version = "v1.0.0"
 
 [[projects]]
   branch = "master"
-  digest = "1:b97d1fb3596f0ac07c080914955ab7d2e95dc79d250b8a57e2e1ac6ec72ecb8e"
+  digest = "1:b2187e28e5904cbbd9d7da5bf6c9cad3db5fd6dacffaa0fa11717f4e1209555d"
   name = "github.com/giantswarm/apiextensions"
   packages = [
     "pkg/apis/application/v1alpha1",
@@ -156,7 +156,7 @@
     "pkg/clientset/versioned/typed/release/v1alpha1/fake",
   ]
   pruneopts = "UT"
-  revision = "4b6cd0909e65326ee7b7daddcc0ce6b5e69ceaf4"
+  revision = "49bc8cba4c8e4eee46d81f3d9aa92d133c09e656"
 
 [[projects]]
   branch = "master"
