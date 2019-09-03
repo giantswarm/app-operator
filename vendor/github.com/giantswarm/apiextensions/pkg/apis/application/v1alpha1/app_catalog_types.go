@@ -60,7 +60,6 @@ spec:
                   required: ["name", "namespace"]
             logoURL:
               type: string
-              format: uri
             storage:
               type: object 
               properties:
