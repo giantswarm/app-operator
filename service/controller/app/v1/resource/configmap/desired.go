@@ -2,7 +2,6 @@ package configmap
 
 import (
 	"context"
-
 	"github.com/giantswarm/microerror"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -21,6 +20,10 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 	cc, err := controllercontext.FromContext(ctx)
 	if err != nil {
 		return nil, microerror.Mask(err)
+	}
+
+	if key.AppCatalogTitle(cc.AppCatalog) == "" {
+		return nil, nil
 	}
 
 	mergedData, err := r.values.MergeConfigMapData(ctx, cr, cc.AppCatalog)

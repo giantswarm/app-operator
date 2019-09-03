@@ -23,6 +23,10 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		return nil, microerror.Mask(err)
 	}
 
+	if key.AppCatalogTitle(cc.AppCatalog) == "" {
+		return nil, nil
+	}
+
 	mergedData, err := r.values.MergeSecretData(ctx, cr, cc.AppCatalog)
 	if err != nil {
 		return nil, microerror.Mask(err)

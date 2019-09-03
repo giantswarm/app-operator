@@ -24,6 +24,10 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		return nil, microerror.Mask(err)
 	}
 
+	if key.AppCatalogTitle(cc.AppCatalog) == "" {
+		return nil, nil
+	}
+
 	config := generateConfig(cr, cc.AppCatalog, r.chartNamespace)
 	tarballURL, err := tarball.NewURL(key.AppCatalogStorageURL(cc.AppCatalog), key.AppName(cr), key.Version(cr))
 	if err != nil {
