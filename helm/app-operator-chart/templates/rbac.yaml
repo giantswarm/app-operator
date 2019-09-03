@@ -39,6 +39,14 @@ rules:
     - patch
     - watch
 - apiGroups:
+    - application.giantswarm.io
+  resources:
+    - appcatalogs/status
+  verbs:
+    - create
+    - patch
+    - update
+- apiGroups:
   - "rbac.authorization.k8s.io"
   resources:
   - clusterrolebindings
