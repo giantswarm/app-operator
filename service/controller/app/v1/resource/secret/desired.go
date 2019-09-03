@@ -24,7 +24,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 	}
 
 	if cc.AppCatalog.Name == "" {
-		return corev1.Secret{
+		return &corev1.Secret{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      key.ChartSecretName(cr),
 				Namespace: r.chartNamespace,

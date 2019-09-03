@@ -25,7 +25,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 	}
 
 	if cc.AppCatalog.Name == "" {
-		return v1alpha1.App{
+		return &v1alpha1.Chart{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      cr.GetName(),
 				Namespace: r.chartNamespace,
