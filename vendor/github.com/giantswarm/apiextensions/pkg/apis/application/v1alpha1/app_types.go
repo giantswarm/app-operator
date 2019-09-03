@@ -129,7 +129,7 @@ func NewAppCRD() *apiextensionsv1beta1.CustomResourceDefinition {
 
 func NewAppTypeMeta() metav1.TypeMeta {
 	return metav1.TypeMeta{
-		APIVersion: SchemeGroupVersion.String(),
+		APIVersion: version,
 		Kind:       kindApp,
 	}
 }

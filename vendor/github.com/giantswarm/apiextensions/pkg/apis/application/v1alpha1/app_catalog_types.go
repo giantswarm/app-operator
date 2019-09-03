@@ -99,7 +99,7 @@ func NewAppCatalogCRD() *apiextensionsv1beta1.CustomResourceDefinition {
 
 func NewAppCatalogTypeMeta() metav1.TypeMeta {
 	return metav1.TypeMeta{
-		APIVersion: SchemeGroupVersion.String(),
+		APIVersion: version,
 		Kind:       kindAppCatalog,
 	}
 }

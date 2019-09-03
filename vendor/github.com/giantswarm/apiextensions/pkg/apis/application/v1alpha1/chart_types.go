@@ -95,7 +95,7 @@ func NewChartCRD() *apiextensionsv1beta1.CustomResourceDefinition {
 
 func NewChartTypeMeta() metav1.TypeMeta {
 	return metav1.TypeMeta{
-		APIVersion: SchemeGroupVersion.String(),
+		APIVersion: version,
 		Kind:       kindChart,
 	}
 }
