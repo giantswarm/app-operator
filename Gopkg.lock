@@ -133,7 +133,7 @@
 
 [[projects]]
   branch = "app-cr-validation"
-  digest = "1:334cf7846e7b0d79057abd815af51b1961041667007d95e673f88d2b0ba2a4c0"
+  digest = "1:5d5afaf7aaf3a33b06585ac312762ea082f9a9fc438990e451b822042b3f4f41"
   name = "github.com/giantswarm/apiextensions"
   packages = [
     "pkg/apis/application/v1alpha1",
@@ -156,7 +156,7 @@
     "pkg/clientset/versioned/typed/release/v1alpha1/fake",
   ]
   pruneopts = "UT"
-  revision = "b7770e3299369d9e6e3dd6edb9a45884162fb7fe"
+  revision = "aace593086c33b28d37e64773641240f338c2ea2"
 
 [[projects]]
   branch = "master"
