@@ -124,7 +124,7 @@ func init() {
 //         singular: app
 //
 func NewAppCRD() *apiextensionsv1beta1.CustomResourceDefinition {
-	return appCatalogCRD.DeepCopy()
+	return appCRD.DeepCopy()
 }
 
 func NewAppTypeMeta() metav1.TypeMeta {
