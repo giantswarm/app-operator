@@ -22,7 +22,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		return nil, microerror.Mask(err)
 	}
 
-	if key.AppCatalogTitle(cc.AppCatalog) == "" {
+	if cc.AppCatalog.Name == "" {
 		return nil, nil
 	}
 
