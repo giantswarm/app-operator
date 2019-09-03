@@ -3,7 +3,6 @@
 package setup
 
 import (
-	"github.com/giantswarm/e2e-harness/pkg/framework"
 	"github.com/giantswarm/e2e-harness/pkg/release"
 	"github.com/giantswarm/e2esetup/chart/env"
 	"github.com/giantswarm/e2esetup/k8s"
@@ -19,7 +18,6 @@ const (
 )
 
 type Config struct {
-	Guest      *framework.Guest
 	HelmClient *helmclient.Client
 	K8s        *k8s.Setup
 	K8sClients *k8sclient.Clients
@@ -36,21 +34,6 @@ func NewConfig() (Config, error) {
 		c := micrologger.Config{}
 
 		logger, err = micrologger.New(c)
-		if err != nil {
-			return Config{}, microerror.Mask(err)
-		}
-	}
-
-	var guest *framework.Guest
-	{
-		c := framework.GuestConfig{
-			Logger: logger,
-
-			ClusterID:    "n/a",
-			CommonDomain: "n/a",
-		}
-
-		guest, err = framework.NewGuest(c)
 		if err != nil {
 			return Config{}, microerror.Mask(err)
 		}
@@ -131,7 +114,6 @@ func NewConfig() (Config, error) {
 	}
 
 	c := Config{
-		Guest:      guest,
 		HelmClient: helmClient,
 		K8s:        k8sSetup,
 		K8sClients: cpK8sClients,
