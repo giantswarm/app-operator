@@ -62,8 +62,9 @@ func TestAppLifecycle(t *testing.T) {
 			},
 		},
 		AppCatalog: chartvalues.APIExtensionsAppE2EConfigAppCatalog{
-			Name:  testAppCatalogName,
-			Title: testAppCatalogName,
+			Name:    testAppCatalogName,
+			Title:   testAppCatalogName,
+			LogoURL: "/images/repo_icons/incubator.png",
 			Storage: chartvalues.APIExtensionsAppE2EConfigAppCatalogStorage{
 				Type: "helm",
 				URL:  "https://giantswarm.github.com/sample-catalog",
