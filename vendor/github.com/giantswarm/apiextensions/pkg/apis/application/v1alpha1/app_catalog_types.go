@@ -45,8 +45,6 @@ spec:
                       type: string
                     namespace:
                       type: string
-                    resourceVersion:
-                      type: string
                   required: ["name", "namespace"]
                 secret:
                   type: object
@@ -54,8 +52,6 @@ spec:
                     name:
                       type: string
                     namespace:
-                      type: string
-                    resourceVersion:
                       type: string
                   required: ["name", "namespace"]
             logoURL:
