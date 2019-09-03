@@ -2,6 +2,7 @@ package secret
 
 import (
 	"context"
+	"github.com/giantswarm/operatorkit/controller/context/finalizerskeptcontext"
 
 	"github.com/giantswarm/microerror"
 	corev1 "k8s.io/api/core/v1"
@@ -24,6 +25,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 	}
 
 	if cc.AppCatalog.Name == "" {
+		finalizerskeptcontext.SetKept(ctx)
 		return nil, nil
 	}
 

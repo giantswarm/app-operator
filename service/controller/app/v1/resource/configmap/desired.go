@@ -3,6 +3,7 @@ package configmap
 import (
 	"context"
 	"github.com/giantswarm/microerror"
+	"github.com/giantswarm/operatorkit/controller/context/finalizerskeptcontext"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
@@ -23,6 +24,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 	}
 
 	if cc.AppCatalog.Name == "" {
+		finalizerskeptcontext.SetKept(ctx)
 		return nil, nil
 	}
 

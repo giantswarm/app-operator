@@ -2,6 +2,7 @@ package chart
 
 import (
 	"context"
+	"github.com/giantswarm/operatorkit/controller/context/finalizerskeptcontext"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/microerror"
@@ -25,6 +26,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 	}
 
 	if cc.AppCatalog.Name == "" {
+		finalizerskeptcontext.SetKept(ctx)
 		return nil, nil
 	}
 
