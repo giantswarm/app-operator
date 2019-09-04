@@ -28,7 +28,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 	config := generateConfig(cr, cc.AppCatalog, r.chartNamespace)
 	tarballURL, err := tarball.NewURL(key.AppCatalogStorageURL(cc.AppCatalog), key.AppName(cr), key.Version(cr))
 	if err != nil {
-		r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("failed to generated tarball"), "stack", fmt.Sprintf("%#v", err))
+		r.logger.LogCtx(ctx, "level", "error", "message", fmt.Sprintf("failed to generated tarball"), "stack", fmt.Sprintf("%#v", err))
 	}
 
 	chartCR := &v1alpha1.Chart{
