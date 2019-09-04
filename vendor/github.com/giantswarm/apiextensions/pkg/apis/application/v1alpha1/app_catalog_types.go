@@ -94,7 +94,10 @@ func init() {
 //         singular: appcatalog
 //
 func NewAppCatalogCRD() *apiextensionsv1beta1.CustomResourceDefinition {
-	return appCatalogCRD.DeepCopy()
+	copyCRD := appCatalogCRD.DeepCopy()
+	copyCRD.ObjectMeta.ResourceVersion = ""
+
+	return copyCRD
 }
 
 func NewAppCatalogTypeMeta() metav1.TypeMeta {
