@@ -2,6 +2,7 @@ package chart
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/microerror"
@@ -24,19 +25,10 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		return nil, microerror.Mask(err)
 	}
 
-	if cc.AppCatalog.Name == "" {
-		return &v1alpha1.Chart{
-			ObjectMeta: metav1.ObjectMeta{
-				Name:      cr.GetName(),
-				Namespace: r.chartNamespace,
-			},
-		}, nil
-	}
-
 	config := generateConfig(cr, cc.AppCatalog, r.chartNamespace)
 	tarballURL, err := tarball.NewURL(key.AppCatalogStorageURL(cc.AppCatalog), key.AppName(cr), key.Version(cr))
 	if err != nil {
-		return nil, err
+		r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("failed to generated tarball"), "stack", fmt.Sprintf("%#v", err))
 	}
 
 	chartCR := &v1alpha1.Chart{

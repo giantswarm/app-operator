@@ -23,15 +23,6 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		return nil, microerror.Mask(err)
 	}
 
-	if cc.AppCatalog.Name == "" {
-		return &corev1.Secret{
-			ObjectMeta: metav1.ObjectMeta{
-				Name:      key.ChartSecretName(cr),
-				Namespace: r.chartNamespace,
-			},
-		}, nil
-	}
-
 	mergedData, err := r.values.MergeSecretData(ctx, cr, cc.AppCatalog)
 	if err != nil {
 		return nil, microerror.Mask(err)
