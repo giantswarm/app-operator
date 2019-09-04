@@ -25,6 +25,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		return nil, microerror.Mask(err)
 	}
 
+	mergedData, err := r.values.MergeSecretData(ctx, cr, cc.AppCatalog)
 	if apierrors.IsNotFound(err) {
 		r.logger.LogCtx(ctx, "level", "error", "message", fmt.Sprintf("dependent configMaps are not found"), "stack", fmt.Sprintf("%#v", err))
 		return nil, nil
