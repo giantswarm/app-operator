@@ -11,6 +11,7 @@ import (
 	"github.com/giantswarm/app-operator/pkg/label"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/controllercontext"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/key"
+	"github.com/giantswarm/app-operator/service/controller/app/v1/values"
 )
 
 func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interface{}, error) {
@@ -25,7 +26,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 	}
 
 	mergedData, err := r.values.MergeConfigMapData(ctx, cr, cc.AppCatalog)
-	if IsNotFound(err) {
+	if values.IsNotFound(err) {
 		r.logger.LogCtx(ctx, "level", "error", "message", fmt.Sprintf("dependent configMaps are not found"), "stack", fmt.Sprintf("%#v", err))
 		return nil, nil
 	} else if err != nil {
