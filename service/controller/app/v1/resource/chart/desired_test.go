@@ -147,7 +147,32 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					LogoURL: "https://s.giantswarm.io/...",
 				},
 			},
-			error: true,
+			expectedChart: &v1alpha1.Chart{
+				TypeMeta: metav1.TypeMeta{
+					Kind:       "Chart",
+					APIVersion: "application.giantswarm.io",
+				},
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "my-cool-prometheus",
+					Namespace: "giantswarm",
+					Labels: map[string]string{
+						"app":                                  "prometheus",
+						"chart-operator.giantswarm.io/version": "1.0.0",
+						"giantswarm.io/managed-by":             "app-operator",
+					},
+				},
+				Spec: v1alpha1.ChartSpec{
+					Config: v1alpha1.ChartSpecConfig{
+						ConfigMap: v1alpha1.ChartSpecConfigConfigMap{
+							Name:      "my-cool-prometheus-chart-values",
+							Namespace: "giantswarm",
+						},
+					},
+					Name:       "my-cool-prometheus",
+					Namespace:  "monitoring",
+					TarballURL: "",
+				},
+			},
 		},
 	}
 
