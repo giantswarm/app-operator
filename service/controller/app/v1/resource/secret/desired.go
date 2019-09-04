@@ -6,7 +6,6 @@ import (
 
 	"github.com/giantswarm/microerror"
 	corev1 "k8s.io/api/core/v1"
-	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/giantswarm/app-operator/pkg/label"
@@ -26,7 +25,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 	}
 
 	mergedData, err := r.values.MergeSecretData(ctx, cr, cc.AppCatalog)
-	if apierrors.IsNotFound(err) {
+	if IsNotFound(err) {
 		r.logger.LogCtx(ctx, "level", "error", "message", fmt.Sprintf("dependent configMaps are not found"), "stack", fmt.Sprintf("%#v", err))
 		return nil, nil
 	} else if err != nil {
