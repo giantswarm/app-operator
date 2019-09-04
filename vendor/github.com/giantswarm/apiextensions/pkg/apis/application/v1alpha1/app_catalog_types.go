@@ -45,6 +45,8 @@ spec:
                       type: string
                     namespace:
                       type: string
+                    resourceVersion:
+                      type: string
                   required: ["name", "namespace"]
                 secret:
                   type: object
@@ -52,6 +54,8 @@ spec:
                     name:
                       type: string
                     namespace:
+                      type: string
+                    resourceVersion:
                       type: string
                   required: ["name", "namespace"]
             logoURL:
@@ -94,15 +98,12 @@ func init() {
 //         singular: appcatalog
 //
 func NewAppCatalogCRD() *apiextensionsv1beta1.CustomResourceDefinition {
-	copyCRD := appCatalogCRD.DeepCopy()
-	copyCRD.ObjectMeta.ResourceVersion = ""
-
-	return copyCRD
+	return appCatalogCRD.DeepCopy()
 }
 
 func NewAppCatalogTypeMeta() metav1.TypeMeta {
 	return metav1.TypeMeta{
-		APIVersion: version,
+		APIVersion: SchemeGroupVersion.String(),
 		Kind:       kindAppCatalog,
 	}
 }
