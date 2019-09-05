@@ -2,6 +2,7 @@ package k8scrdclient
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/giantswarm/backoff"
 	"github.com/giantswarm/microerror"
@@ -41,6 +42,9 @@ func New(config Config) (*CRDClient, error) {
 // EnsureCreated ensures the given CRD exists, is active (aka. established) and
 // does not have conflicting names.
 func (c *CRDClient) EnsureCreated(ctx context.Context, customResource *apiextensionsv1beta1.CustomResourceDefinition, backOff backoff.Interface) error {
+	c.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("CRD OBJECT META %#v", customResource.ObjectMeta))
+	c.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("CRD %#v", customResource))
+
 	_, err := c.k8sExtClient.ApiextensionsV1beta1().CustomResourceDefinitions().Create(customResource)
 	if errors.IsAlreadyExists(err) {
 		// Fall trough. We need to check CRD status.
