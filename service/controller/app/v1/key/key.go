@@ -82,6 +82,14 @@ func AppStatus(customResource v1alpha1.App) v1alpha1.AppStatus {
 	return customResource.Status
 }
 
+func AppStatusRelease(customResource v1alpha1.App) *v1alpha1.AppStatusRelease {
+	if customResource.Status.Release != nil {
+		return customResource.Status.Release
+	}
+
+	return &v1alpha1.AppStatusRelease{}
+}
+
 func CatalogName(customResource v1alpha1.App) string {
 	return customResource.Spec.Catalog
 }

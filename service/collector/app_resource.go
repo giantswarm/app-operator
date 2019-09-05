@@ -104,13 +104,15 @@ func (c *AppResource) collectAppStatus(ctx context.Context, ch chan<- prometheus
 	}
 
 	for _, app := range r.Items {
+		release := key.AppStatusRelease(app)
+
 		ch <- prometheus.MustNewConstMetric(
 			appDesc,
 			prometheus.GaugeValue,
 			gaugeValue,
 			app.Name,
 			app.Namespace,
-			app.Status.Release.Status,
+			release.Status,
 			app.Status.Version,
 		)
 
