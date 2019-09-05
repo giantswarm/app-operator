@@ -39,14 +39,14 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					Name:      "prometheus",
 					Namespace: "monitoring",
 					Version:   "1.0.0",
-					Config: v1alpha1.AppSpecConfig{
+					Config: &v1alpha1.AppSpecConfig{
 						ConfigMap: v1alpha1.AppSpecConfigConfigMap{
 							Name:      "giant-swarm-config",
 							Namespace: "giantswarm",
 						},
 					},
 					KubeConfig: v1alpha1.AppSpecKubeConfig{
-						Secret: v1alpha1.AppSpecKubeConfigSecret{
+						Secret: &v1alpha1.AppSpecKubeConfigSecret{
 							Name:      "giantswarm-12345",
 							Namespace: "12345",
 						},
@@ -115,14 +115,14 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					Name:      "kubernetes-prometheus",
 					Namespace: "monitoring",
 					Version:   "1.0.0",
-					Config: v1alpha1.AppSpecConfig{
+					Config: &v1alpha1.AppSpecConfig{
 						ConfigMap: v1alpha1.AppSpecConfigConfigMap{
 							Name:      "giant-swarm-config",
 							Namespace: "giantswarm",
 						},
 					},
 					KubeConfig: v1alpha1.AppSpecKubeConfig{
-						Secret: v1alpha1.AppSpecKubeConfigSecret{
+						Secret: &v1alpha1.AppSpecKubeConfigSecret{
 							Name:      "giantswarm-12345",
 							Namespace: "12345",
 						},
@@ -224,7 +224,7 @@ func Test_generateConfig(t *testing.T) {
 					Name: "test-app",
 				},
 				Spec: v1alpha1.AppSpec{
-					Config: v1alpha1.AppSpecConfig{
+					Config: &v1alpha1.AppSpecConfig{
 						ConfigMap: v1alpha1.AppSpecConfigConfigMap{
 							Name:      "test-app-values",
 							Namespace: "default",
@@ -248,7 +248,7 @@ func Test_generateConfig(t *testing.T) {
 					Name: "test-app",
 				},
 				Spec: v1alpha1.AppSpec{
-					Config: v1alpha1.AppSpecConfig{
+					Config: &v1alpha1.AppSpecConfig{
 						Secret: v1alpha1.AppSpecConfigSecret{
 							Name:      "test-app-values",
 							Namespace: "default",
@@ -272,7 +272,7 @@ func Test_generateConfig(t *testing.T) {
 					Name: "test-app",
 				},
 				Spec: v1alpha1.AppSpec{
-					Config: v1alpha1.AppSpecConfig{
+					Config: &v1alpha1.AppSpecConfig{
 						ConfigMap: v1alpha1.AppSpecConfigConfigMap{
 							Name:      "test-app-values",
 							Namespace: "default",

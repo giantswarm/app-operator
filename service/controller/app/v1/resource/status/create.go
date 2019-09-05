@@ -63,7 +63,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	chartStatus := key.ChartStatus(*chart)
 	desiredStatus := v1alpha1.AppStatus{
 		AppVersion: chartStatus.AppVersion,
-		Release: v1alpha1.AppStatusRelease{
+		Release: &v1alpha1.AppStatusRelease{
 			LastDeployed: chartStatus.Release.LastDeployed,
 			Reason:       chartStatus.Reason,
 			Status:       chartStatus.Release.Status,

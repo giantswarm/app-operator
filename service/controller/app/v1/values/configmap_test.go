@@ -55,7 +55,7 @@ func Test_MergeConfigMapData(t *testing.T) {
 					Catalog:   "app-catalog",
 					Name:      "prometheus",
 					Namespace: "monitoring",
-					Config: v1alpha1.AppSpecConfig{
+					Config: &v1alpha1.AppSpecConfig{
 						ConfigMap: v1alpha1.AppSpecConfigConfigMap{
 							Name:      "test-cluster-values",
 							Namespace: "giantswarm",
@@ -136,7 +136,7 @@ func Test_MergeConfigMapData(t *testing.T) {
 					Name:      "test-app",
 					Namespace: "giantswarm",
 					Catalog:   "test-catalog",
-					Config: v1alpha1.AppSpecConfig{
+					Config: &v1alpha1.AppSpecConfig{
 						ConfigMap: v1alpha1.AppSpecConfigConfigMap{
 							Name:      "test-cluster-values",
 							Namespace: "giantswarm",
@@ -193,7 +193,7 @@ func Test_MergeConfigMapData(t *testing.T) {
 					Name:      "test-app",
 					Namespace: "giantswarm",
 					Catalog:   "test-catalog",
-					Config: v1alpha1.AppSpecConfig{
+					Config: &v1alpha1.AppSpecConfig{
 						ConfigMap: v1alpha1.AppSpecConfigConfigMap{
 							Name:      "test-cluster-values",
 							Namespace: "giantswarm",
@@ -250,13 +250,13 @@ func Test_MergeConfigMapData(t *testing.T) {
 					Name:      "test-app",
 					Namespace: "giantswarm",
 					Catalog:   "test-catalog",
-					Config: v1alpha1.AppSpecConfig{
+					Config: &v1alpha1.AppSpecConfig{
 						ConfigMap: v1alpha1.AppSpecConfigConfigMap{
 							Name:      "test-cluster-values",
 							Namespace: "giantswarm",
 						},
 					},
-					UserConfig: v1alpha1.AppSpecUserConfig{
+					UserConfig: &v1alpha1.AppSpecUserConfig{
 						ConfigMap: v1alpha1.AppSpecUserConfigConfigMap{
 							Name:      "test-user-values",
 							Namespace: "giantswarm",

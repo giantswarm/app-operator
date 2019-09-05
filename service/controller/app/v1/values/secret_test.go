@@ -55,7 +55,7 @@ func Test_MergeSecretData(t *testing.T) {
 					Catalog:   "app-catalog",
 					Name:      "prometheus",
 					Namespace: "monitoring",
-					Config: v1alpha1.AppSpecConfig{
+					Config: &v1alpha1.AppSpecConfig{
 						Secret: v1alpha1.AppSpecConfigSecret{
 							Name:      "test-cluster-secrets",
 							Namespace: "giantswarm",
@@ -134,7 +134,7 @@ func Test_MergeSecretData(t *testing.T) {
 				},
 				Spec: v1alpha1.AppSpec{
 					Catalog: "test-catalog",
-					Config: v1alpha1.AppSpecConfig{
+					Config: &v1alpha1.AppSpecConfig{
 						Secret: v1alpha1.AppSpecConfigSecret{
 							Name:      "test-cluster-secrets",
 							Namespace: "giantswarm",
@@ -191,7 +191,7 @@ func Test_MergeSecretData(t *testing.T) {
 				},
 				Spec: v1alpha1.AppSpec{
 					Catalog: "test-catalog",
-					Config: v1alpha1.AppSpecConfig{
+					Config: &v1alpha1.AppSpecConfig{
 						Secret: v1alpha1.AppSpecConfigSecret{
 							Name:      "test-cluster-secrets",
 							Namespace: "giantswarm",
@@ -249,7 +249,7 @@ func Test_MergeSecretData(t *testing.T) {
 				},
 				Spec: v1alpha1.AppSpec{
 					Catalog: "test-catalog",
-					Config: v1alpha1.AppSpecConfig{
+					Config: &v1alpha1.AppSpecConfig{
 						Secret: v1alpha1.AppSpecConfigSecret{
 							Name:      "test-cluster-secrets",
 							Namespace: "giantswarm",
@@ -257,7 +257,7 @@ func Test_MergeSecretData(t *testing.T) {
 					},
 					Name:      "test-app",
 					Namespace: "giantswarm",
-					UserConfig: v1alpha1.AppSpecUserConfig{
+					UserConfig: &v1alpha1.AppSpecUserConfig{
 						Secret: v1alpha1.AppSpecUserConfigSecret{
 							Name:      "test-user-secrets",
 							Namespace: "giantswarm",

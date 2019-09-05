@@ -41,7 +41,7 @@ func Test_Resource_EnsureCreated(t *testing.T) {
 					Name:      "prometheus",
 					Namespace: "monitoring",
 					Version:   "1.0.0",
-					Config: v1alpha1.AppSpecConfig{
+					Config: &v1alpha1.AppSpecConfig{
 						ConfigMap: v1alpha1.AppSpecConfigConfigMap{
 							Name:      "giant-swarm-config",
 							Namespace: "giantswarm",
@@ -84,7 +84,7 @@ func Test_Resource_EnsureCreated(t *testing.T) {
 			},
 			expectedStatus: v1alpha1.AppStatus{
 				AppVersion: "0.1",
-				Release: v1alpha1.AppStatusRelease{
+				Release: &v1alpha1.AppStatusRelease{
 					Status:       "DEPLOYED",
 					LastDeployed: v1alpha1.DeepCopyTime{time.Date(2019, 1, 1, 13, 0, 0, 0, time.UTC)},
 				},
@@ -108,7 +108,7 @@ func Test_Resource_EnsureCreated(t *testing.T) {
 					Name:      "prometheus",
 					Namespace: "monitoring",
 					Version:   "1.0.0",
-					Config: v1alpha1.AppSpecConfig{
+					Config: &v1alpha1.AppSpecConfig{
 						ConfigMap: v1alpha1.AppSpecConfigConfigMap{
 							Name:      "giant-swarm-config",
 							Namespace: "giantswarm",
@@ -120,7 +120,7 @@ func Test_Resource_EnsureCreated(t *testing.T) {
 					},
 				},
 				Status: v1alpha1.AppStatus{
-					Release: v1alpha1.AppStatusRelease{
+					Release: &v1alpha1.AppStatusRelease{
 						Status:       "DEPLOYED",
 						LastDeployed: v1alpha1.DeepCopyTime{time.Date(2019, 1, 1, 13, 0, 0, 0, time.UTC)},
 					},
@@ -154,7 +154,7 @@ func Test_Resource_EnsureCreated(t *testing.T) {
 				},
 			},
 			expectedStatus: v1alpha1.AppStatus{
-				Release: v1alpha1.AppStatusRelease{
+				Release: &v1alpha1.AppStatusRelease{
 					LastDeployed: v1alpha1.DeepCopyTime{time.Date(2019, 1, 1, 13, 0, 0, 0, time.UTC)},
 					Status:       "DEPLOYED",
 				},
@@ -177,7 +177,7 @@ func Test_Resource_EnsureCreated(t *testing.T) {
 					Name:      "prometheus",
 					Namespace: "monitoring",
 					Version:   "1.0.0",
-					Config: v1alpha1.AppSpecConfig{
+					Config: &v1alpha1.AppSpecConfig{
 						ConfigMap: v1alpha1.AppSpecConfigConfigMap{
 							Name:      "giant-swarm-config",
 							Namespace: "giantswarm",
@@ -190,9 +190,7 @@ func Test_Resource_EnsureCreated(t *testing.T) {
 				},
 				Status: v1alpha1.AppStatus{},
 			},
-			expectedStatus: v1alpha1.AppStatus{
-				Release: v1alpha1.AppStatusRelease{},
-			},
+			expectedStatus: v1alpha1.AppStatus{},
 		},
 	}
 

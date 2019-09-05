@@ -59,7 +59,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					Catalog:   "app-catalog",
 					Name:      "prometheus",
 					Namespace: "monitoring",
-					Config: v1alpha1.AppSpecConfig{
+					Config: &v1alpha1.AppSpecConfig{
 						Secret: v1alpha1.AppSpecConfigSecret{
 							Name:      "test-cluster-secrets",
 							Namespace: "giantswarm",
