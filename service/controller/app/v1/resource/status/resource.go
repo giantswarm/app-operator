@@ -5,6 +5,8 @@ import (
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
+
+	"github.com/giantswarm/app-operator/service/controller/app/v1/key"
 )
 
 const (
@@ -56,10 +58,14 @@ func equals(a, b v1alpha1.AppStatus) bool {
 	if a.AppVersion != b.AppVersion {
 		return false
 	}
-	if a.Release.LastDeployed != b.Release.LastDeployed {
+
+	releaseA := key.StatusRelease(a)
+	releaseB := key.StatusRelease(b)
+
+	if releaseA.LastDeployed != releaseB.LastDeployed {
 		return false
 	}
-	if a.Release.Status != b.Release.Status {
+	if releaseA.Status != releaseB.Status {
 		return false
 	}
 	if a.Version != b.Version {

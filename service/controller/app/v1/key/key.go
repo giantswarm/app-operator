@@ -161,6 +161,14 @@ func OrganizationID(customResource v1alpha1.App) string {
 	return customResource.GetLabels()[label.Organization]
 }
 
+func StatusRelease(status v1alpha1.AppStatus) *v1alpha1.AppStatusRelease {
+	if status.Release != nil {
+		return status.Release
+	}
+
+	return &v1alpha1.AppStatusRelease{}
+}
+
 // ToCustomResource converts value to v1alpha1.App and returns it or error
 // if type does not match.
 func ToCustomResource(v interface{}) (v1alpha1.App, error) {
