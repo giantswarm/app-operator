@@ -7,6 +7,7 @@ import (
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/controller"
+	"github.com/giantswarm/operatorkit/resource"
 	"github.com/giantswarm/operatorkit/resource/wrapper/metricsresource"
 	"github.com/giantswarm/operatorkit/resource/wrapper/retryresource"
 	"github.com/spf13/afero"
@@ -81,7 +82,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 	}
 
-	var appcatalogResource controller.Resource
+	var appcatalogResource resource.Interface
 	{
 		c := appcatalog.Config{
 			G8sClient: config.G8sClient,
@@ -93,7 +94,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 	}
 
-	var appNamespaceResource controller.Resource
+	var appNamespaceResource resource.Interface
 	{
 		c := appnamespace.Config{
 			K8sClient: config.K8sClient,
@@ -105,7 +106,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 	}
 
-	var chartOperatorResource controller.Resource
+	var chartOperatorResource resource.Interface
 	{
 		c := chartoperator.Config{
 			FileSystem: config.FileSystem,
@@ -119,7 +120,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 	}
 
-	var chartResource controller.Resource
+	var chartResource resource.Interface
 	{
 		c := chart.Config{
 			G8sClient: config.G8sClient,
@@ -141,7 +142,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 	}
 
-	var clientsResource controller.Resource
+	var clientsResource resource.Interface
 	{
 		c := clients.Config{
 			K8sClient: config.K8sClient,
@@ -154,7 +155,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 	}
 
-	var configMapResource controller.Resource
+	var configMapResource resource.Interface
 	{
 		c := configmap.Config{
 			Logger: config.Logger,
@@ -175,7 +176,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 	}
 
-	var namespaceResource controller.Resource
+	var namespaceResource resource.Interface
 	{
 		c := namespace.Config{
 			Logger: config.Logger,
@@ -192,7 +193,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 	}
 
-	var secretResource controller.Resource
+	var secretResource resource.Interface
 	{
 		c := secret.Config{
 			Logger: config.Logger,
@@ -213,7 +214,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 	}
 
-	var statusResource controller.Resource
+	var statusResource resource.Interface
 	{
 		c := status.Config{
 			G8sClient: config.G8sClient,
@@ -228,7 +229,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 	}
 
-	var tillerResource controller.Resource
+	var tillerResource resource.Interface
 	{
 		c := tiller.Config{
 			Logger: config.Logger,
@@ -239,7 +240,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 	}
 
-	resources := []controller.Resource{
+	resources := []resource.Interface{
 		appNamespaceResource,
 		appcatalogResource,
 		clientsResource,
