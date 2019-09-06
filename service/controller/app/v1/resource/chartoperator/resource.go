@@ -4,10 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"time"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
-	"github.com/giantswarm/helmclient"
+	"github.com/giantswarm/backoff"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/spf13/afero"
@@ -18,6 +19,7 @@ import (
 	"k8s.io/helm/pkg/helm"
 
 	"github.com/giantswarm/app-operator/pkg/tarball"
+	"github.com/giantswarm/app-operator/service/controller/app/v1/controllercontext"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/key"
 )
 
@@ -90,8 +92,11 @@ func (r Resource) Name() string {
 	return Name
 }
 
-func (r Resource) installChartOperator(ctx context.Context, cr v1alpha1.App, helmClient helmclient.Interface) error {
-	var err error
+func (r Resource) installChartOperator(ctx context.Context, cr v1alpha1.App) error {
+	cc, err := controllercontext.FromContext(ctx)
+	if err != nil {
+		return microerror.Mask(err)
+	}
 
 	// check app CR for chart-operator and fetching app-catalog name and version.
 	var tarballURL string
@@ -130,7 +135,7 @@ func (r Resource) installChartOperator(ctx context.Context, cr v1alpha1.App, hel
 
 	var tarballPath string
 	{
-		tarballPath, err = helmClient.PullChartTarball(ctx, tarballURL)
+		tarballPath, err = cc.HelmClient.PullChartTarball(ctx, tarballURL)
 		if err != nil {
 			return microerror.Mask(err)
 		}
@@ -186,11 +191,60 @@ func (r Resource) installChartOperator(ctx context.Context, cr v1alpha1.App, hel
 	}
 
 	{
-		err = helmClient.InstallReleaseFromTarball(ctx, tarballPath, namespace, helm.ReleaseName(release), helm.ValueOverrides(chartOperatorValue))
+		err = cc.HelmClient.InstallReleaseFromTarball(ctx, tarballPath, namespace, helm.ReleaseName(release), helm.ValueOverrides(chartOperatorValue))
 		if err != nil {
 			return microerror.Mask(err)
 		}
 	}
 
+	{
+		// We wait for the chart-operator deployment to be ready so the
+		// chart CRD is installed. This allows the chart
+		// resource to create CRs in the same reconcilation loop.
+		r.logger.LogCtx(ctx, "level", "debug", "message", "waiting for ready chart-operator deployment")
+
+		o := func() error {
+			err := r.checkDeploymentReady(ctx, cc.K8sClient)
+			if err != nil {
+				return microerror.Mask(err)
+			}
+
+			return nil
+		}
+
+		// Wait for chart-operator to be deployed. If it takes longer than
+		// the timeout the chartconfig CRs will be created during the next
+		// reconciliation loop.
+		b := backoff.NewConstant(30*time.Second, 5*time.Second)
+		n := func(err error, delay time.Duration) {
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("%#q deployment is not ready retrying in %s", release, delay), "stack", fmt.Sprintf("%#v", err))
+		}
+
+		err = backoff.RetryNotify(o, b, n)
+		if err != nil {
+			return microerror.Mask(err)
+		}
+
+		r.logger.LogCtx(ctx, "level", "debug", "message", "chart-operator deployment is ready")
+	}
+
+	return nil
+}
+
+// checkDeploymentReady checks for the specified deployment that the number of
+// ready replicas matches the desired state.
+func (r *Resource) checkDeploymentReady(ctx context.Context, k8sClient kubernetes.Interface) error {
+	deploy, err := k8sClient.AppsV1().Deployments(namespace).Get(release, metav1.GetOptions{})
+	if apierrors.IsNotFound(err) {
+		return microerror.Maskf(notReadyError, "deployment %#q not found", release)
+	} else if err != nil {
+		return microerror.Mask(err)
+	}
+
+	if deploy.Status.ReadyReplicas != *deploy.Spec.Replicas {
+		return microerror.Maskf(notReadyError, "deployment %#q want %d replicas %d ready", release, *deploy.Spec.Replicas, deploy.Status.ReadyReplicas)
+	}
+
+	// Deployment is ready.
 	return nil
 }

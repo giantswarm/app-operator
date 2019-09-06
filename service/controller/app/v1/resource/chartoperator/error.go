@@ -10,3 +10,12 @@ var invalidConfigError = &microerror.Error{
 func IsInvalidConfig(err error) bool {
 	return microerror.Cause(err) == invalidConfigError
 }
+
+var notReadyError = &microerror.Error{
+	Kind: "notReadyError",
+}
+
+// IsNotReady asserts notReadyError.
+func IsNotReady(err error) bool {
+	return microerror.Cause(err) == notReadyError
+}
