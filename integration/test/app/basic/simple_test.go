@@ -236,6 +236,20 @@ func TestAppLifecycle(t *testing.T) {
 	}
 
 	{
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("checking status for app CR %#q", key.TestAppReleaseName()))
+
+		cr, err := config.K8sClients.G8sClient().ApplicationV1alpha1().Apps("giantswarm").Get(key.TestAppReleaseName(), metav1.GetOptions{})
+		if err != nil {
+			t.Fatalf("expected %#v got %#v", nil, err)
+		}
+		if cr.Status.Release.Status != "DEPLOYED" {
+			t.Fatalf("expected CR release status %#q got %#q", "DEPLOYED", cr.Status.Release.Status)
+		}
+
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("checked status for app CR %#q", key.TestAppReleaseName()))
+	}
+
+	{
 		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleting release %#q", key.CustomResourceReleaseName()))
 
 		err := config.Release.Delete(ctx, key.CustomResourceReleaseName())
