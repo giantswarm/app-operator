@@ -145,7 +145,7 @@ func TestAppLifecycleUsingKubeconfig(t *testing.T) {
 			Spec: v1alpha1.AppSpec{
 				Catalog: "giantswarm",
 				KubeConfig: v1alpha1.AppSpecKubeConfig{
-					Secret: v1alpha1.AppSpecKubeConfigSecret{
+					Secret: &v1alpha1.AppSpecKubeConfigSecret{
 						Name:      "kube-config",
 						Namespace: "giantswarm",
 					},
