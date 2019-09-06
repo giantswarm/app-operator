@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/e2e-harness/pkg/release"
 	"github.com/giantswarm/e2esetup/chart/env"
 	"github.com/giantswarm/e2etemplates/pkg/chartvalues"
@@ -115,6 +116,50 @@ func TestAppLifecycleUsingKubeconfig(t *testing.T) {
 		}
 
 		config.Logger.LogCtx(ctx, "level", "debug", "message", "created kubeconfig secret")
+	}
+
+	{
+		config.Logger.LogCtx(ctx, "level", "debug", "message", "creating chart-operator app CR")
+
+		_, err = config.K8sClients.G8sClient().ApplicationV1alpha1().AppCatalogs().Create(&v1alpha1.AppCatalog{
+			ObjectMeta: metav1.ObjectMeta{
+				Name: "giantswarm",
+			},
+			Spec: v1alpha1.AppCatalogSpec{
+				Title: "Giant Swarm Catalog",
+				Storage: v1alpha1.AppCatalogSpecStorage{
+					Type: "helm",
+					URL:  "https://giantswarm.github.com/giantswarm-catalog/",
+				},
+			},
+		})
+		if err != nil {
+			t.Fatalf("expected nil got %#v", err)
+		}
+
+		_, err = config.K8sClients.G8sClient().ApplicationV1alpha1().Apps(namespace).Create(&v1alpha1.App{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      "chart-operator",
+				Namespace: "giantswarm",
+			},
+			Spec: v1alpha1.AppSpec{
+				Catalog: "giantswarm",
+				KubeConfig: v1alpha1.AppSpecKubeConfig{
+					Secret: v1alpha1.AppSpecKubeConfigSecret{
+						Name:      "kube-config",
+						Namespace: "giantswarm",
+					},
+				},
+				Name:      "chart-operator",
+				Namespace: "giantswarm",
+				Version:   "0.9.0",
+			},
+		})
+		if err != nil {
+			t.Fatalf("expected nil got %#v", err)
+		}
+
+		config.Logger.LogCtx(ctx, "level", "debug", "message", "created chart-operator app CR")
 	}
 
 	{
@@ -237,14 +282,14 @@ func TestAppLifecycleUsingKubeconfig(t *testing.T) {
 	}
 
 	{
-		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleting %#q app CR", key.TestAppReleaseName()))
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleting release %#q", key.CustomResourceReleaseName()))
 
-		err = config.K8sClients.G8sClient().ApplicationV1alpha1().Apps(namespace).Delete(key.TestAppReleaseName(), &metav1.DeleteOptions{})
+		err := config.Release.Delete(ctx, key.CustomResourceReleaseName())
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
 
-		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleted %#q app CR", key.TestAppReleaseName()))
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleted release %#q", key.CustomResourceReleaseName()))
 	}
 
 	{

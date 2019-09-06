@@ -2,6 +2,7 @@ package configmap
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/giantswarm/microerror"
 	corev1 "k8s.io/api/core/v1"
@@ -10,6 +11,7 @@ import (
 	"github.com/giantswarm/app-operator/pkg/label"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/controllercontext"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/key"
+	"github.com/giantswarm/app-operator/service/controller/app/v1/values"
 )
 
 func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interface{}, error) {
@@ -24,7 +26,10 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 	}
 
 	mergedData, err := r.values.MergeConfigMapData(ctx, cr, cc.AppCatalog)
-	if err != nil {
+	if values.IsNotFound(err) {
+		r.logger.LogCtx(ctx, "level", "warning", "message", fmt.Sprintf("dependent configMaps are not found"), "stack", fmt.Sprintf("%#v", err))
+		return nil, nil
+	} else if err != nil {
 		return nil, microerror.Mask(err)
 	}
 

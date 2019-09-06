@@ -198,14 +198,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:685e5fae5af29abf7b7a145bc9815eabdad2271a73c9170a095354f27b556850"
+  digest = "1:9c43ce4d2e3663745798dd3ac32e78f9f98ab11e6fb5b6b5d589c01663b60b44"
   name = "github.com/giantswarm/e2etemplates"
   packages = [
     "internal/render",
     "pkg/chartvalues",
   ]
   pruneopts = "UT"
-  revision = "3c13cb10233d192e095a85700b7f66605fa37e70"
+  revision = "e90a23caca67e712ad2f0448b773cca68e7466d8"
 
 [[projects]]
   branch = "master"
@@ -316,7 +316,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:ea12c5546fcade954db5ca2f724c92c5b3003554ef7f1314174ec203568b7591"
+  digest = "1:575cc0b4417c44e1753c7bc0de70d29b3e8ef92eb2d0f58e3a86ab7de29fec62"
   name = "github.com/giantswarm/operatorkit"
   packages = [
     "client/k8scrdclient",
@@ -331,12 +331,13 @@
     "flag/service/kubernetes/watch",
     "informer",
     "informer/collector",
+    "resource",
     "resource/wrapper/internal",
     "resource/wrapper/metricsresource",
     "resource/wrapper/retryresource",
   ]
   pruneopts = "UT"
-  revision = "e5d2b8071b3678d427e342e6ae500b5059de778a"
+  revision = "8a0fbd0dde5a82821baa1dbbea5d925bfbe7f37d"
 
 [[projects]]
   branch = "master"

@@ -6,6 +6,7 @@ import (
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/controller"
+	"github.com/giantswarm/operatorkit/resource"
 	"github.com/giantswarm/operatorkit/resource/wrapper/metricsresource"
 	"github.com/giantswarm/operatorkit/resource/wrapper/retryresource"
 	"k8s.io/client-go/kubernetes"
@@ -46,12 +47,12 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.IndexNamespace must not be empty", config)
 	}
 
-	var emptyResource controller.Resource
+	var emptyResource resource.Interface
 	{
 		emptyResource = empty.New()
 	}
 
-	resources := []controller.Resource{
+	resources := []resource.Interface{
 		emptyResource,
 	}
 
