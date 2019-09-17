@@ -11,8 +11,8 @@ import (
 	"github.com/giantswarm/backoff"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
+	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
 	"github.com/spf13/afero"
-	"gopkg.in/yaml.v2"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
@@ -21,6 +21,7 @@ import (
 	"github.com/giantswarm/app-operator/pkg/tarball"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/controllercontext"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/key"
+	"github.com/giantswarm/app-operator/service/controller/app/v1/values"
 )
 
 const (
@@ -39,9 +40,7 @@ type Config struct {
 	G8sClient  versioned.Interface
 	K8sClient  kubernetes.Interface
 	Logger     micrologger.Logger
-
-	// Settings.
-	RegistryDomain string
+	Values     *values.Values
 }
 
 type Resource struct {
@@ -50,6 +49,7 @@ type Resource struct {
 	g8sClient  versioned.Interface
 	k8sClient  kubernetes.Interface
 	logger     micrologger.Logger
+	values     *values.Values
 
 	// Settings.
 	registryDomain string
@@ -69,9 +69,8 @@ func New(config Config) (*Resource, error) {
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
-
-	if config.RegistryDomain == "" {
-		config.RegistryDomain = "quay.io"
+	if config.Values == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.Values must not be empty", config)
 	}
 
 	r := &Resource{
@@ -80,9 +79,7 @@ func New(config Config) (*Resource, error) {
 		g8sClient:  config.G8sClient,
 		k8sClient:  config.K8sClient,
 		logger:     config.Logger,
-
-		// Settings.
-		registryDomain: config.RegistryDomain,
+		values:     config.Values,
 	}
 
 	return r, nil
@@ -98,36 +95,45 @@ func (r Resource) installChartOperator(ctx context.Context, cr v1alpha1.App) err
 		return microerror.Mask(err)
 	}
 
+	var chartOperatorAppCR *v1alpha1.App
+	{
+		r.logger.LogCtx(ctx, "level", "debug", "message", "finding chart-operator app CR")
+
+		chartOperatorAppCR, err = r.g8sClient.ApplicationV1alpha1().Apps(cr.Namespace).Get(release, metav1.GetOptions{})
+		if apierrors.IsNotFound(err) {
+			r.logger.LogCtx(ctx, "level", "debug", "message", "can't find chart-operator app CR")
+			r.logger.LogCtx(ctx, "level", "debug", "message", "cancelling the resource")
+			resourcecanceledcontext.SetCanceled(ctx)
+			return nil
+		} else if err != nil {
+			return microerror.Mask(err)
+		}
+
+		r.logger.LogCtx(ctx, "level", "debug", "message", "found chart-operator app CR")
+	}
+
+	var appCatalogCR *v1alpha1.AppCatalog
+	{
+		r.logger.LogCtx(ctx, "level", "debug", "message", "finding appCatalog CR")
+
+		catalogName := key.CatalogName(*chartOperatorAppCR)
+		appCatalogCR, err = r.g8sClient.ApplicationV1alpha1().AppCatalogs().Get(catalogName, metav1.GetOptions{})
+		if apierrors.IsNotFound(err) {
+			r.logger.LogCtx(ctx, "level", "debug", "message", "can't find appCatalog CR")
+			r.logger.LogCtx(ctx, "level", "debug", "message", "cancelling the resource")
+			resourcecanceledcontext.SetCanceled(ctx)
+			return nil
+		} else if err != nil {
+			return microerror.Mask(err)
+		}
+
+		r.logger.LogCtx(ctx, "level", "debug", "message", "found appCatalog CR")
+	}
+
 	// check app CR for chart-operator and fetching app-catalog name and version.
 	var tarballURL string
 	{
-		r.logger.LogCtx(ctx, "level", "debug", "message", "finding a chart-operator app CR")
-		chartOperator, err := r.g8sClient.ApplicationV1alpha1().Apps(cr.Namespace).Get(release, metav1.GetOptions{})
-		if apierrors.IsNotFound(err) {
-			r.logger.LogCtx(ctx, "level", "debug", "message", "can't find a chart-operator app CR")
-
-			r.logger.LogCtx(ctx, "level", "debug", "message", "cancelling the resource")
-			return nil
-		} else if err != nil {
-			return microerror.Mask(err)
-		}
-		r.logger.LogCtx(ctx, "level", "debug", "message", "foung a chart-operator app CR")
-
-		catalogName := key.CatalogName(*chartOperator)
-
-		r.logger.LogCtx(ctx, "level", "debug", "message", "finding a appCatalog CR")
-		chartCatalog, err := r.g8sClient.ApplicationV1alpha1().AppCatalogs().Get(catalogName, metav1.GetOptions{})
-		if apierrors.IsNotFound(err) {
-			r.logger.LogCtx(ctx, "level", "debug", "message", "can't find a appCatalog CR")
-
-			r.logger.LogCtx(ctx, "level", "debug", "message", "cancelling the resource")
-			return nil
-		} else if err != nil {
-			return microerror.Mask(err)
-		}
-		r.logger.LogCtx(ctx, "level", "debug", "message", "foung a appCatalog CR")
-
-		tarballURL, err = tarball.NewURL(key.AppCatalogStorageURL(*chartCatalog), release, key.Version(*chartOperator))
+		tarballURL, err = tarball.NewURL(key.AppCatalogStorageURL(*appCatalogCR), release, key.Version(*chartOperatorAppCR))
 		if err != nil {
 			return microerror.Mask(err)
 		}
@@ -148,50 +154,21 @@ func (r Resource) installChartOperator(ctx context.Context, cr v1alpha1.App) err
 		}()
 	}
 
-	var clusterDNSIP string
+	var chartOperatorValues []byte
 	{
-		name := key.ClusterValuesConfigMapName(cr)
-		cm, err := r.k8sClient.CoreV1().ConfigMaps(cr.Namespace).Get(name, metav1.GetOptions{})
-		if apierrors.IsNotFound(err) {
-			r.logger.LogCtx(ctx, "level", "warning", "message", fmt.Sprintf("no cluster-value %#q in control plane, operator will use default clusterDNSIP value", name))
-		} else if err != nil {
+		values, err := r.values.MergeAll(ctx, *chartOperatorAppCR, *appCatalogCR)
+		if err != nil {
 			return microerror.Mask(err)
-		} else {
-			var values map[string]string
-			err = yaml.Unmarshal([]byte(cm.Data["values"]), &values)
-			if err != nil {
-				return microerror.Mask(err)
-			}
-
-			clusterDNSIP = values["clusterDNSIP"]
-		}
-	}
-
-	var chartOperatorValue []byte
-	{
-		v := map[string]interface{}{
-			"resource": map[string]interface{}{
-				"image": map[string]string{
-					"registry": r.registryDomain,
-				},
-				"tiller": map[string]string{
-					"namespace": namespace,
-				},
-			},
 		}
 
-		if clusterDNSIP != "" {
-			v["clusterDNSIP"] = clusterDNSIP
-		}
-
-		chartOperatorValue, err = json.Marshal(v)
+		chartOperatorValues, err = json.Marshal(values)
 		if err != nil {
 			return microerror.Mask(err)
 		}
 	}
 
 	{
-		err = cc.HelmClient.InstallReleaseFromTarball(ctx, tarballPath, namespace, helm.ReleaseName(release), helm.ValueOverrides(chartOperatorValue))
+		err = cc.HelmClient.InstallReleaseFromTarball(ctx, tarballPath, namespace, helm.ReleaseName(release), helm.ValueOverrides(chartOperatorValues))
 		if err != nil {
 			return microerror.Mask(err)
 		}

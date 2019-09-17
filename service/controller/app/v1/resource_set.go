@@ -113,6 +113,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 			G8sClient:  config.G8sClient,
 			K8sClient:  config.K8sClient,
 			Logger:     config.Logger,
+			Values:     valuesService,
 		}
 		chartOperatorResource, err = chartoperator.New(c)
 		if err != nil {
