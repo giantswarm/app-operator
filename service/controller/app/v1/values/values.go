@@ -1,6 +1,9 @@
 package values
 
 import (
+	"context"
+
+	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/helmclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
@@ -38,6 +41,27 @@ func New(config Config) (*Values, error) {
 	}
 
 	return r, nil
+}
+
+// MergeAll merges both configmap and secret values to produce a single set of
+// values that can be passed to Helm.
+func (v *Values) MergeAll(ctx context.Context, app v1alpha1.App, appCatalog v1alpha1.AppCatalog) (map[string]interface{}, error) {
+	configMapData, err := v.MergeConfigMapData(ctx, app, appCatalog)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	secretData, err := v.MergeSecretData(ctx, app, appCatalog)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	values, err := helmclient.MergeValues(toByteSliceMap(configMapData), secretData)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	return values, nil
 }
 
 // mergeData contains the shared logic that is common to merging configmap and
