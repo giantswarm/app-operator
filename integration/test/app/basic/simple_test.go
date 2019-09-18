@@ -94,7 +94,7 @@ func TestAppLifecycle(t *testing.T) {
 			//
 			//	See https://github.com/giantswarm/giantswarm/issues/6824
 			//
-			tarballURL := "https://giantswarm.github.io/giantswarm-catalog/chart-operator-0.9.0.tgz"
+			tarballURL := "https://giantswarm.github.io/default-catalog/chart-operator-0.10.2.tgz"
 			tarballPath, err = config.HelmClient.PullChartTarball(ctx, tarballURL)
 			if err != nil {
 				t.Fatalf("expected %#v got %#v", nil, err)
