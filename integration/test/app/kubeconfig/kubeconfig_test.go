@@ -123,13 +123,13 @@ func TestAppLifecycleUsingKubeconfig(t *testing.T) {
 
 		_, err = config.K8sClients.G8sClient().ApplicationV1alpha1().AppCatalogs().Create(&v1alpha1.AppCatalog{
 			ObjectMeta: metav1.ObjectMeta{
-				Name: "giantswarm",
+				Name: "default",
 			},
 			Spec: v1alpha1.AppCatalogSpec{
-				Title: "Giant Swarm Catalog",
+				Title: "Giant Swarm Default Catalog",
 				Storage: v1alpha1.AppCatalogSpecStorage{
 					Type: "helm",
-					URL:  "https://giantswarm.github.com/giantswarm-catalog/",
+					URL:  "https://giantswarm.github.com/default-catalog/",
 				},
 			},
 		})
