@@ -170,13 +170,11 @@ func (r Resource) installChartOperator(ctx context.Context, cr v1alpha1.App) err
 	var chartOperatorValue []byte
 	{
 		v := map[string]interface{}{
-			"resource": map[string]interface{}{
-				"image": map[string]string{
-					"registry": r.registryDomain,
-				},
-				"tiller": map[string]string{
-					"namespace": namespace,
-				},
+			"image": map[string]string{
+				"registry": r.registryDomain,
+			},
+			"tiller": map[string]string{
+				"namespace": namespace,
 			},
 		}
 
