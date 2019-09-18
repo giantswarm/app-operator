@@ -152,7 +152,7 @@ func TestAppLifecycleUsingKubeconfig(t *testing.T) {
 				},
 				Name:      "chart-operator",
 				Namespace: "giantswarm",
-				Version:   "0.9.0",
+				Version:   "0.10.2",
 			},
 		})
 		if err != nil {
