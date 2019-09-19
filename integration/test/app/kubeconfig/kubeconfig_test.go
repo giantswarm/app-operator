@@ -141,6 +141,9 @@ func TestAppLifecycleUsingKubeconfig(t *testing.T) {
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      "chart-operator",
 				Namespace: "giantswarm",
+				Labels: map[string]string{
+					"app-operator.giantswarm.io/version": "1.0.0",
+				},
 			},
 			Spec: v1alpha1.AppSpec{
 				Catalog: "default",
