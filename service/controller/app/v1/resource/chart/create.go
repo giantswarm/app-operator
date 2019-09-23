@@ -52,6 +52,11 @@ func (r *Resource) newCreateChange(ctx context.Context, currentResource, desired
 
 	createChart := &v1alpha1.Chart{}
 
+	if desiredChart.Name == "chart-operator" {
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("not creating %#q chart", desiredChart.Name))
+		return createChart, nil
+	}
+
 	if isEmpty(currentChart) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("the %#q chart needs to be created", desiredChart.Name))
 		createChart = desiredChart

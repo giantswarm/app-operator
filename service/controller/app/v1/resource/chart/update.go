@@ -69,6 +69,12 @@ func (r *Resource) newUpdateChange(ctx context.Context, currentResource, desired
 	r.logger.LogCtx(ctx, "level", "debug", "message", "finding out if the chart has to be updated")
 
 	updateChart := &v1alpha1.Chart{}
+
+	if desiredChart.Name == "chart-operator" {
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("not creating %#q chart", desiredChart.Name))
+		return updateChart, nil
+	}
+
 	isModified := !isEmpty(currentChart) && !equals(currentChart, desiredChart)
 	if isModified {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "the chart has to be updated")
