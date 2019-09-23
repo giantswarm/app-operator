@@ -189,7 +189,10 @@ func (r Resource) installChartOperator(ctx context.Context, cr v1alpha1.App) err
 	}
 
 	{
-		err = cc.HelmClient.InstallReleaseFromTarball(ctx, tarballPath, namespace, helm.ReleaseName(release), helm.ValueOverrides(chartOperatorValue))
+		err = cc.HelmClient.InstallReleaseFromTarball(ctx, tarballPath, namespace,
+			helm.InstallWait(true),
+			helm.ReleaseName(release),
+			helm.ValueOverrides(chartOperatorValue))
 		if err != nil {
 			return microerror.Mask(err)
 		}
