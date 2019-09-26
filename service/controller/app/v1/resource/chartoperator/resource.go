@@ -149,6 +149,7 @@ func (r Resource) installChartOperator(ctx context.Context, cr v1alpha1.App) err
 	}
 
 	var clusterDNSIP string
+	var externalDNSIP string
 	{
 		name := key.ClusterValuesConfigMapName(cr)
 		cm, err := r.k8sClient.CoreV1().ConfigMaps(cr.Namespace).Get(name, metav1.GetOptions{})
@@ -164,6 +165,7 @@ func (r Resource) installChartOperator(ctx context.Context, cr v1alpha1.App) err
 			}
 
 			clusterDNSIP = values["clusterDNSIP"]
+			externalDNSIP = values["externalDNSIP"]
 		}
 	}
 
@@ -180,6 +182,9 @@ func (r Resource) installChartOperator(ctx context.Context, cr v1alpha1.App) err
 
 		if clusterDNSIP != "" {
 			v["clusterDNSIP"] = clusterDNSIP
+		}
+		if externalDNSIP != "" {
+			v["externalDNSIP"] = externalDNSIP
 		}
 
 		chartOperatorValue, err = json.Marshal(v)
