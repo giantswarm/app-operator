@@ -149,12 +149,11 @@ func (r Resource) installChartOperator(ctx context.Context, cr v1alpha1.App) err
 	}
 
 	var clusterDNSIP string
-	var externalDNSIP string
 	{
 		name := key.ClusterValuesConfigMapName(cr)
 		cm, err := r.k8sClient.CoreV1().ConfigMaps(cr.Namespace).Get(name, metav1.GetOptions{})
 		if apierrors.IsNotFound(err) {
-			r.logger.LogCtx(ctx, "level", "warning", "message", fmt.Sprintf("no cluster-value %#q in control plane, operator will use default clusterDNSIP value", name))
+			r.logger.LogCtx(ctx, "level", "warning", "message", fmt.Sprintf("no cluster configmap %#q, will use default clusterDNSIP", name))
 		} else if err != nil {
 			return microerror.Mask(err)
 		} else {
@@ -165,6 +164,26 @@ func (r Resource) installChartOperator(ctx context.Context, cr v1alpha1.App) err
 			}
 
 			clusterDNSIP = values["clusterDNSIP"]
+		}
+	}
+
+	var externalDNSIP string
+	{
+		name := key.AppCatalogConfigMapName(cc.AppCatalog)
+		namespace := key.AppCatalogConfigMapNamespace(cc.AppCatalog)
+
+		cm, err := r.k8sClient.CoreV1().ConfigMaps(namespace).Get(name, metav1.GetOptions{})
+		if apierrors.IsNotFound(err) {
+			r.logger.LogCtx(ctx, "level", "warning", "message", fmt.Sprintf("no catalog configmap %#q, will use default externalDNSIP", name))
+		} else if err != nil {
+			return microerror.Mask(err)
+		} else {
+			var values map[string]string
+			err = yaml.Unmarshal([]byte(cm.Data["values"]), &values)
+			if err != nil {
+				return microerror.Mask(err)
+			}
+
 			externalDNSIP = values["externalDNSIP"]
 		}
 	}
