@@ -17,6 +17,7 @@ import (
 	"k8s.io/client-go/tools/clientcmd/api"
 
 	"github.com/giantswarm/app-operator/integration/key"
+	"github.com/giantswarm/app-operator/integration/templates"
 )
 
 const (
@@ -121,16 +122,35 @@ func TestAppLifecycleUsingKubeconfig(t *testing.T) {
 	{
 		config.Logger.LogCtx(ctx, "level", "debug", "message", "creating chart-operator app CR")
 
+		_, err = config.K8sClients.K8sClient().CoreV1().ConfigMaps(namespace).Create(&corev1.ConfigMap{
+			Data: map[string]string{
+				"values": templates.ChartOperatorValues,
+			},
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      "default-catalog-config",
+				Namespace: "giantswarm",
+			},
+		})
+		if err != nil {
+			t.Fatalf("expected nil got %#v", err)
+		}
+
 		_, err = config.K8sClients.G8sClient().ApplicationV1alpha1().AppCatalogs().Create(&v1alpha1.AppCatalog{
 			ObjectMeta: metav1.ObjectMeta{
-				Name: "default",
+				Name: "default-test",
 			},
 			Spec: v1alpha1.AppCatalogSpec{
-				Title: "Giant Swarm Default Catalog",
+				Config: v1alpha1.AppCatalogSpecConfig{
+					ConfigMap: v1alpha1.AppCatalogSpecConfigConfigMap{
+						Name:      "default-catalog-config",
+						Namespace: "giantswarm",
+					},
+				},
 				Storage: v1alpha1.AppCatalogSpecStorage{
 					Type: "helm",
-					URL:  "https://giantswarm.github.com/default-catalog/",
+					URL:  "https://giantswarm.github.com/default-test-catalog/",
 				},
+				Title: "Giant Swarm Default Catalog",
 			},
 		})
 		if err != nil {
@@ -146,7 +166,7 @@ func TestAppLifecycleUsingKubeconfig(t *testing.T) {
 				},
 			},
 			Spec: v1alpha1.AppSpec{
-				Catalog: "default",
+				Catalog: "default-test",
 				KubeConfig: v1alpha1.AppSpecKubeConfig{
 					Secret: v1alpha1.AppSpecKubeConfigSecret{
 						Name:      "kube-config",
@@ -155,7 +175,7 @@ func TestAppLifecycleUsingKubeconfig(t *testing.T) {
 				},
 				Name:      "chart-operator",
 				Namespace: "giantswarm",
-				Version:   "0.10.4",
+				Version:   "0.10.4-25fd6e0d6cd4c3b6e45edf69207282486a597f0f",
 			},
 		})
 		if err != nil {
