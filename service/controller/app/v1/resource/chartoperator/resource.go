@@ -89,7 +89,7 @@ func (r Resource) Name() string {
 	return Name
 }
 
-func (r Resource) installChartOperator(ctx context.Context, cr v1alpha1.App) error {
+func (r Resource) installChartOperator(ctx context.Context, cr v1alpha1.App, update bool) error {
 	cc, err := controllercontext.FromContext(ctx)
 	if err != nil {
 		return microerror.Mask(err)
@@ -168,9 +168,16 @@ func (r Resource) installChartOperator(ctx context.Context, cr v1alpha1.App) err
 	}
 
 	{
-		err = cc.HelmClient.InstallReleaseFromTarball(ctx, tarballPath, namespace, helm.ReleaseName(release), helm.ValueOverrides(chartOperatorValues))
-		if err != nil {
-			return microerror.Mask(err)
+		if update {
+			err = cc.HelmClient.UpdateReleaseFromTarball(ctx, release, tarballPath, helm.UpdateValueOverrides(chartOperatorValues), helm.UpgradeForce(true))
+			if err != nil {
+				return microerror.Mask(err)
+			}
+		} else {
+			err = cc.HelmClient.InstallReleaseFromTarball(ctx, tarballPath, namespace, helm.ReleaseName(release), helm.ValueOverrides(chartOperatorValues))
+			if err != nil {
+				return microerror.Mask(err)
+			}
 		}
 	}
 

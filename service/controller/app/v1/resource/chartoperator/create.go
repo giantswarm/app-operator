@@ -58,7 +58,7 @@ func (r Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("did not find chart-perator release %#q in tenant cluster", release))
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("installing chart-operator release %#q in tenant cluster", release))
 
-			err = r.installChartOperator(ctx, cr)
+			err = r.installChartOperator(ctx, cr, false)
 			if err != nil {
 				return microerror.Mask(err)
 			}
@@ -68,6 +68,22 @@ func (r Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			return microerror.Mask(err)
 		} else {
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found chart-operator release %#q", release))
+
+			releaseContent, err := cc.HelmClient.GetReleaseContent(ctx, release)
+			if err != nil {
+				return microerror.Mask(err)
+			}
+
+			if releaseContent.Status == "FAILED" {
+				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("chart-operator release %#q failed to install", release))
+				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating a release %#q", release))
+				err = r.installChartOperator(ctx, cr, true)
+				if err != nil {
+					return microerror.Mask(err)
+				}
+				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updated a release %#q", release))
+
+			}
 		}
 	}
 
