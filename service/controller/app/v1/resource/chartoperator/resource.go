@@ -11,7 +11,7 @@ import (
 	"github.com/giantswarm/backoff"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
-	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
+	"github.com/giantswarm/operatorkit/controller/context/reconciliationcanceledcontext"
 	"github.com/spf13/afero"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -103,7 +103,7 @@ func (r Resource) installChartOperator(ctx context.Context, cr v1alpha1.App) err
 		if apierrors.IsNotFound(err) {
 			r.logger.LogCtx(ctx, "level", "debug", "message", "can't find chart-operator app CR")
 			r.logger.LogCtx(ctx, "level", "debug", "message", "cancelling the resource")
-			resourcecanceledcontext.SetCanceled(ctx)
+			reconciliationcanceledcontext.SetCanceled(ctx)
 			return nil
 		} else if err != nil {
 			return microerror.Mask(err)
@@ -121,7 +121,7 @@ func (r Resource) installChartOperator(ctx context.Context, cr v1alpha1.App) err
 		if apierrors.IsNotFound(err) {
 			r.logger.LogCtx(ctx, "level", "debug", "message", "can't find appCatalog CR")
 			r.logger.LogCtx(ctx, "level", "debug", "message", "cancelling the resource")
-			resourcecanceledcontext.SetCanceled(ctx)
+			reconciliationcanceledcontext.SetCanceled(ctx)
 			return nil
 		} else if err != nil {
 			return microerror.Mask(err)
