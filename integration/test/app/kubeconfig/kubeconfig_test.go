@@ -137,7 +137,7 @@ func TestAppLifecycleUsingKubeconfig(t *testing.T) {
 
 		_, err = config.K8sClients.G8sClient().ApplicationV1alpha1().AppCatalogs().Create(&v1alpha1.AppCatalog{
 			ObjectMeta: metav1.ObjectMeta{
-				Name: "default-test",
+				Name: "default",
 			},
 			Spec: v1alpha1.AppCatalogSpec{
 				Config: v1alpha1.AppCatalogSpecConfig{
@@ -148,7 +148,7 @@ func TestAppLifecycleUsingKubeconfig(t *testing.T) {
 				},
 				Storage: v1alpha1.AppCatalogSpecStorage{
 					Type: "helm",
-					URL:  "https://giantswarm.github.com/default-test-catalog/",
+					URL:  "https://giantswarm.github.com/default-catalog/",
 				},
 				Title: "Giant Swarm Default Catalog",
 			},
@@ -166,7 +166,7 @@ func TestAppLifecycleUsingKubeconfig(t *testing.T) {
 				},
 			},
 			Spec: v1alpha1.AppSpec{
-				Catalog: "default-test",
+				Catalog: "default",
 				KubeConfig: v1alpha1.AppSpecKubeConfig{
 					Secret: v1alpha1.AppSpecKubeConfigSecret{
 						Name:      "kube-config",
@@ -175,7 +175,7 @@ func TestAppLifecycleUsingKubeconfig(t *testing.T) {
 				},
 				Name:      "chart-operator",
 				Namespace: "giantswarm",
-				Version:   "0.10.4-25fd6e0d6cd4c3b6e45edf69207282486a597f0f",
+				Version:   "0.10.5",
 			},
 		})
 		if err != nil {
