@@ -58,7 +58,7 @@ func (r Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("did not find chart-perator release %#q in tenant cluster", release))
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("installing chart-operator release %#q in tenant cluster", release))
 
-			err = r.installChartOperator(ctx, cr, false)
+			err = r.installChartOperator(ctx, cr)
 			if err != nil {
 				return microerror.Mask(err)
 			}
@@ -78,7 +78,7 @@ func (r Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("chart-operator release %#q failed to install", release))
 				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating a release %#q", release))
 
-				err = r.installChartOperator(ctx, cr, true)
+				err = r.updateChartOperator(ctx, cr)
 				if err != nil {
 					return microerror.Mask(err)
 				}
