@@ -109,7 +109,8 @@ func yamlToStringMap(input []byte) (map[string]interface{}, error) {
 	}
 
 	if raw == nil {
-		return nil, nil
+		result := map[string]interface{}{}
+		return result, nil
 	}
 
 	inputMap, ok := raw.(map[interface{}]interface{})
