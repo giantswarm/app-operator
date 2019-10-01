@@ -77,10 +77,12 @@ func (r Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			if releaseContent.Status == "FAILED" {
 				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("chart-operator release %#q failed to install", release))
 				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating a release %#q", release))
+
 				err = r.installChartOperator(ctx, cr, true)
 				if err != nil {
 					return microerror.Mask(err)
 				}
+
 				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updated a release %#q", release))
 
 			}
