@@ -213,7 +213,7 @@ func (c *Client) EnsureTillerInstalledWithValues(ctx context.Context, values []s
 		podSecurityPolicyNamespace := c.tillerNamespace
 		minRunAsID := int64(1)
 		maxRunAsID := int64(65535)
-		allowEscalation := false
+		allowEscalation := true
 
 		name := fmt.Sprintf("%s-psp", tillerPodName)
 
@@ -240,22 +240,10 @@ func (c *Client) EnsureTillerInstalledWithValues(ctx context.Context, values []s
 					Rule: "RunAsAny",
 				},
 				RunAsUser: policyv1beta1.RunAsUserStrategyOptions{
-					Rule: "MustRunAs",
-					Ranges: []policyv1beta1.IDRange{
-						{
-							Min: minRunAsID,
-							Max: maxRunAsID,
-						},
-					},
+					Rule: "RunAsAny",
 				},
 				RunAsGroup: &policyv1beta1.RunAsGroupStrategyOptions{
-					Rule: "MustRunAs",
-					Ranges: []policyv1beta1.IDRange{
-						{
-							Min: minRunAsID,
-							Max: maxRunAsID,
-						},
-					},
+					Rule: "RunAsAny",
 				},
 				SupplementalGroups: policyv1beta1.SupplementalGroupsStrategyOptions{
 					Rule: "RunAsAny",
