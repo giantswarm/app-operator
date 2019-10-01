@@ -6,10 +6,11 @@ import (
 	"time"
 
 	"github.com/giantswarm/backoff"
-	"github.com/giantswarm/errors/guest"
+	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/microerror"
 	corev1 "k8s.io/api/core/v1"
 	networkingv1 "k8s.io/api/networking/v1"
+	policyv1beta1 "k8s.io/api/policy/v1beta1"
 	rbacv1 "k8s.io/api/rbac/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -71,8 +72,8 @@ func (c *Client) EnsureTillerInstalledWithValues(ctx context.Context, values []s
 		if errors.IsAlreadyExists(err) {
 			c.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("serviceaccount %#q in namespace %#q already exists", name, namespace))
 			// fall through
-		} else if guest.IsAPINotAvailable(err) {
-			return microerror.Maskf(guest.APINotAvailableError, err.Error())
+		} else if tenant.IsAPINotAvailable(err) {
+			return microerror.Maskf(tenant.APINotAvailableError, err.Error())
 		} else if err != nil {
 			return microerror.Mask(err)
 		} else {
@@ -122,6 +123,167 @@ func (c *Client) EnsureTillerInstalledWithValues(ctx context.Context, values []s
 		}
 	}
 
+	// Create a clusterrole to allow Tiller to use PSPs
+	{
+		name := fmt.Sprintf("%s-psp", tillerPodName)
+
+		c.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating clusterrole %#q", name))
+
+		cr := &rbacv1.ClusterRole{
+			TypeMeta: metav1.TypeMeta{
+				APIVersion: "rbac.authorization.k8s.io/v1",
+				Kind:       "ClusterRole",
+			},
+			ObjectMeta: metav1.ObjectMeta{
+				Name: name,
+			},
+			Rules: []rbacv1.PolicyRule{
+				{
+					APIGroups: []string{
+						"extensions",
+					},
+					Resources: []string{
+						"podsecuritypolicies",
+					},
+					ResourceNames: []string{
+						name,
+					},
+					Verbs: []string{
+						"use",
+					},
+				},
+			},
+		}
+
+		_, err := c.k8sClient.RbacV1().ClusterRoles().Create(cr)
+		if errors.IsAlreadyExists(err) {
+			c.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("clusterrole %#q already exists", name))
+			// fall through
+		} else if err != nil {
+			return microerror.Mask(err)
+		} else {
+			c.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("created clusterrole %#q", name))
+		}
+	}
+
+	// Create a clusterrole binding for Tiller to use PSPs.
+	{
+		serviceAccountName := tillerPodName
+		serviceAccountNamespace := c.tillerNamespace
+
+		name := fmt.Sprintf("%s-psp", tillerPodName)
+
+		c.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating clusterrolebinding %#q", name))
+
+		crb := &rbacv1.ClusterRoleBinding{
+			TypeMeta: metav1.TypeMeta{
+				APIVersion: "rbac.authorization.k8s.io/v1",
+				Kind:       "ClusterRoleBinding",
+			},
+			ObjectMeta: metav1.ObjectMeta{
+				Name: name,
+			},
+			Subjects: []rbacv1.Subject{
+				{
+					Kind:      "ServiceAccount",
+					Name:      serviceAccountName,
+					Namespace: serviceAccountNamespace,
+				},
+			},
+			RoleRef: rbacv1.RoleRef{
+				APIGroup: "rbac.authorization.k8s.io",
+				Kind:     "ClusterRole",
+				Name:     name,
+			},
+		}
+
+		_, err := c.k8sClient.RbacV1().ClusterRoleBindings().Create(crb)
+		if errors.IsAlreadyExists(err) {
+			c.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("clusterrolebinding %#q already exists", name))
+			// fall through
+		} else if err != nil {
+			return microerror.Mask(err)
+		} else {
+			c.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("created clusterrolebinding %#q", name))
+		}
+	}
+
+	// create a pod security policy for tiller to ensure it runs with least possible privileges.
+	{
+		podSecurityPolicyNamespace := c.tillerNamespace
+		minRunAsID := int64(1)
+		maxRunAsID := int64(65535)
+		allowEscalation := false
+
+		name := fmt.Sprintf("%s-psp", tillerPodName)
+
+		c.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating podsecuritypolicy %#q", name))
+
+		psp := &policyv1beta1.PodSecurityPolicy{
+			TypeMeta: metav1.TypeMeta{
+				APIVersion: "policy/v1beta1",
+				Kind:       "PodSecurityPolicy",
+			},
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      name,
+				Namespace: podSecurityPolicyNamespace,
+			},
+			Spec: policyv1beta1.PodSecurityPolicySpec{
+				Privileged: false,
+				Volumes: []policyv1beta1.FSType{
+					"secret",
+				},
+				HostNetwork: false,
+				HostPID:     false,
+				HostIPC:     false,
+				SELinux: policyv1beta1.SELinuxStrategyOptions{
+					Rule: "RunAsAny",
+				},
+				RunAsUser: policyv1beta1.RunAsUserStrategyOptions{
+					Rule: "MustRunAs",
+					Ranges: []policyv1beta1.IDRange{
+						{
+							Min: minRunAsID,
+							Max: maxRunAsID,
+						},
+					},
+				},
+				RunAsGroup: &policyv1beta1.RunAsGroupStrategyOptions{
+					Rule: "MustRunAs",
+					Ranges: []policyv1beta1.IDRange{
+						{
+							Min: minRunAsID,
+							Max: maxRunAsID,
+						},
+					},
+				},
+				SupplementalGroups: policyv1beta1.SupplementalGroupsStrategyOptions{
+					Rule: "RunAsAny",
+				},
+				FSGroup: policyv1beta1.FSGroupStrategyOptions{
+					Rule: "MustRunAs",
+					Ranges: []policyv1beta1.IDRange{
+						{
+							Min: minRunAsID,
+							Max: maxRunAsID,
+						},
+					},
+				},
+				AllowPrivilegeEscalation: &allowEscalation,
+			},
+		}
+
+		_, err := c.k8sClient.PolicyV1beta1().PodSecurityPolicies().Create(psp)
+		if errors.IsAlreadyExists(err) {
+			c.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("podsecuritypolicy %#q already exists", name))
+			// fall through
+		} else if err != nil {
+			return microerror.Mask(err)
+		} else {
+			c.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("created podsecuritypolicy %#q", name))
+		}
+	}
+
 	// Create the network policy for tiller so it is allowed to do its job in case all traffic is blocked.
 	{
 		networkPolicyName := tillerPodName
@@ -155,13 +317,13 @@ func (c *Client) EnsureTillerInstalledWithValues(ctx context.Context, values []s
 					},
 				},
 				Ingress: []networkingv1.NetworkPolicyIngressRule{
-					networkingv1.NetworkPolicyIngressRule{
+					{
 						Ports: []networkingv1.NetworkPolicyPort{
-							networkingv1.NetworkPolicyPort{
+							{
 								Protocol: &protocolTCP,
 								Port:     &tillerPort,
 							},
-							networkingv1.NetworkPolicyPort{
+							{
 								Protocol: &protocolTCP,
 								Port:     &tillerHTTPPort,
 							},
@@ -169,7 +331,7 @@ func (c *Client) EnsureTillerInstalledWithValues(ctx context.Context, values []s
 					},
 				},
 				Egress: []networkingv1.NetworkPolicyEgressRule{
-					networkingv1.NetworkPolicyEgressRule{},
+					{},
 				},
 				PolicyTypes: []networkingv1.PolicyType{
 					networkingv1.PolicyTypeIngress,

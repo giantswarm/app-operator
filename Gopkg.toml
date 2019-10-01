@@ -96,6 +96,9 @@ required = [
   name = "k8s.io/client-go"
   version = "kubernetes-1.13.2"
 
+[[override]]
+  name = "github.com/giantswarm/helmclient"
+  branch = "nil_check"
 
 
 [prune]

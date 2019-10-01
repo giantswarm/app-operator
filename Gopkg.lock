@@ -209,12 +209,9 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:08119f5e0765ddd55378346afcc64c074200e3c267aa460f8f4ae81c5bae877c"
+  digest = "1:109f5bac6ea240c7be934080356ccc4c7f0f455a2ab4b417282971503451b13e"
   name = "github.com/giantswarm/errors"
-  packages = [
-    "guest",
-    "tenant",
-  ]
+  packages = ["tenant"]
   pruneopts = "UT"
   revision = "f6706eb80f388ce182dcee855eab59c5eb872119"
 
@@ -227,12 +224,12 @@
   revision = "9749deade60f7624620aa7158a4f38c87ea23795"
 
 [[projects]]
-  branch = "master"
-  digest = "1:2cd674c429a514b951af9d61fb638ec1c431ce1a660f145bf6b6d467b7f903c2"
+  branch = "nil_check"
+  digest = "1:f88727a79034544339cca42432c2a4d94f05ecaf76f21e76d37602e158216aba"
   name = "github.com/giantswarm/helmclient"
   packages = ["."]
   pruneopts = "UT"
-  revision = "c17ff0598a86814a5d103c84b8efafd1a5339a1d"
+  revision = "1cf2808a4afb5953ade0fde0ac54dd21c2589354"
 
 [[projects]]
   branch = "master"
