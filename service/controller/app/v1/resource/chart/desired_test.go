@@ -174,6 +174,67 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 				},
 			},
 		},
+		{
+			name: "case 2: set helm force upgrade annotation",
+			obj: &v1alpha1.App{
+				ObjectMeta: metav1.ObjectMeta{
+					Annotations: map[string]string{
+						"chart-operator.giantswarm.io/force-helm-upgrade": "true",
+					},
+					Name:      "my-cool-prometheus",
+					Namespace: "default",
+					Labels: map[string]string{
+						"app":                                "prometheus",
+						"app-operator.giantswarm.io/version": "1.0.0",
+						"giantswarm.io/managed-by":           "cluster-operator",
+					},
+				},
+				Spec: v1alpha1.AppSpec{
+					Catalog:   "giantswarm",
+					Name:      "prometheus",
+					Namespace: "monitoring",
+					Version:   "1.0.0",
+					KubeConfig: v1alpha1.AppSpecKubeConfig{
+						InCluster: true,
+					},
+				},
+			},
+			appCatalog: v1alpha1.AppCatalog{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "giantswarm",
+				},
+				Spec: v1alpha1.AppCatalogSpec{
+					Title: "Giant Swarm",
+					Storage: v1alpha1.AppCatalogSpecStorage{
+						Type: "helm",
+						URL:  "https://giantswarm.github.com/app-catalog/",
+					},
+				},
+			},
+			expectedChart: &v1alpha1.Chart{
+				TypeMeta: metav1.TypeMeta{
+					Kind:       "Chart",
+					APIVersion: "application.giantswarm.io",
+				},
+				ObjectMeta: metav1.ObjectMeta{
+					Annotations: map[string]string{
+						"chart-operator.giantswarm.io/force-helm-upgrade": "true",
+					},
+					Name:      "my-cool-prometheus",
+					Namespace: "giantswarm",
+					Labels: map[string]string{
+						"app":                                  "prometheus",
+						"chart-operator.giantswarm.io/version": "1.0.0",
+						"giantswarm.io/managed-by":             "app-operator",
+					},
+				},
+				Spec: v1alpha1.ChartSpec{
+					Name:       "my-cool-prometheus",
+					Namespace:  "monitoring",
+					TarballURL: "https://giantswarm.github.com/app-catalog/prometheus-1.0.0.tgz",
+				},
+			},
+		},
 	}
 
 	for _, tc := range tests {
