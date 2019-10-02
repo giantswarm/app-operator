@@ -190,7 +190,6 @@
   version = "v0.0.1"
 
 [[projects]]
-<<<<<<< HEAD
   digest = "1:9b307ab2abef34f4c0d611a34bbc4d322fb05fdb6728045b89cde8b1b8a04ed0"
   name = "github.com/emicklei/go-restful"
   packages = [
@@ -218,8 +217,6 @@
   revision = "d6023ce2651d8eafb5c75bb0c7167536102ec9f5"
 
 [[projects]]
-=======
->>>>>>> master
   branch = "master"
   digest = "1:08188cf7ce7027b22e88cc23da27f17349a0ba7746271a60cbe0a70266c2346f"
   name = "github.com/ghodss/yaml"
@@ -229,11 +226,7 @@
 
 [[projects]]
   branch = "master"
-<<<<<<< HEAD
   digest = "1:fcb75264e7f1a4276044b71f706baf6b1eba4e619f3a3bc95f33c677cbe25f6c"
-=======
-  digest = "1:340d1ccad18e763216afd99a9d7cabe84e7b05bb10d7547122865e6253900447"
->>>>>>> master
   name = "github.com/giantswarm/apiextensions"
   packages = [
     "pkg/apis/application/v1alpha1",
@@ -250,11 +243,7 @@
     "pkg/clientset/versioned/typed/release/v1alpha1",
   ]
   pruneopts = "UT"
-<<<<<<< HEAD
   revision = "490ba82fe60e6549217aa735f1fe3e4b589d4dfc"
-=======
-  revision = "18f9e0ee801dac7aec99a521a569aa69dd8ed84d"
->>>>>>> master
 
 [[projects]]
   branch = "master"
@@ -280,21 +269,8 @@
   digest = "1:109f5bac6ea240c7be934080356ccc4c7f0f455a2ab4b417282971503451b13e"
   name = "github.com/giantswarm/errors"
   packages = ["tenant"]
-<<<<<<< HEAD
   pruneopts = "UT"
   revision = "2f0151a3dfe0a682dbb3ce710068941c4b24e2b8"
-=======
-  pruneopts = "UT"
-  revision = "2f0151a3dfe0a682dbb3ce710068941c4b24e2b8"
-
-[[projects]]
-  branch = "master"
-  digest = "1:98c9ad635693241a4a3276f0ed2f99a08420aaf20afce0732318b4574289f010"
-  name = "github.com/giantswarm/k8sclient"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "cb19a71151dd4a9b440cd8846630a9fb948d2515"
->>>>>>> master
 
 [[projects]]
   branch = "master"
@@ -338,19 +314,7 @@
   name = "github.com/giantswarm/operatorkit"
   packages = ["client/k8scrdclient"]
   pruneopts = "UT"
-<<<<<<< HEAD
   revision = "6e3f62f7a51ff7469b91a11376e354fa2e6705ce"
-=======
-  revision = "8de7a75649d103e17c21b577f79ea5fc32cf1084"
-
-[[projects]]
-  branch = "master"
-  digest = "1:76f67d43a57b4391ec6e608e28cf2ddb2cd3a5ad065c96e22933d876912bf4cc"
-  name = "github.com/giantswarm/to"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "38e6500015bed1853163a441801d399a2f1a638d"
->>>>>>> master
 
 [[projects]]
   digest = "1:0cfcded8689c2c964c223650009c5dd9e283c22d57f18f2335aafa16cc22acf1"
@@ -759,11 +723,7 @@
   version = "v0.7.0"
 
 [[projects]]
-<<<<<<< HEAD
   digest = "1:a210815b437763623ecca8eb91e6a0bf4f2d6773c5a6c9aec0e28f19e5fd6deb"
-=======
-  digest = "1:8232537905152d6a0b116b9af5a0868fcac0e84eb02ec5a150624c077bdedb0b"
->>>>>>> master
   name = "github.com/prometheus/procfs"
   packages = [
     ".",
@@ -771,7 +731,6 @@
     "internal/util",
   ]
   pruneopts = "UT"
-<<<<<<< HEAD
   revision = "499c85531f756d1129edd26485a5f73871eeb308"
   version = "v0.0.5"
 
@@ -793,10 +752,6 @@
   pruneopts = "UT"
   revision = "05f3235734ad95d0016f6a23902f06461fcf567a"
   version = "v1.5.2"
-=======
-  revision = "00ec24a6a2d86e7074629c8384715dbb05adccd8"
-  version = "v0.0.4"
->>>>>>> master
 
 [[projects]]
   digest = "1:bb495ec276ab82d3dd08504bbc0594a65de8c3b22c6f2aaa92d05b73fbf3a82e"
@@ -858,19 +813,11 @@
     "ssh/terminal",
   ]
   pruneopts = "UT"
-<<<<<<< HEAD
   revision = "9ee001bba392397c76f100a2d5b13afc86f167f1"
 
 [[projects]]
   branch = "master"
   digest = "1:7a4eaae8773e8fccca11c5c60d5393235e2dc880356f1dc6bc753b114f17e0e6"
-=======
-  revision = "9756ffdc24725223350eb3266ffb92590d28f278"
-
-[[projects]]
-  branch = "master"
-  digest = "1:e93fe09ca93cf16f8b2dc48053f56c2f91ed4f3fd16bfaf9596b6548c7b48a7f"
->>>>>>> master
   name = "golang.org/x/net"
   packages = [
     "context",
@@ -883,11 +830,7 @@
     "trace",
   ]
   pruneopts = "UT"
-<<<<<<< HEAD
   revision = "aa69164e4478b84860dc6769c710c699c67058a3"
-=======
-  revision = "ba9fcec4b297b415637633c5a6e8fa592e4a16c3"
->>>>>>> master
 
 [[projects]]
   branch = "master"
@@ -902,22 +845,14 @@
 
 [[projects]]
   branch = "master"
-<<<<<<< HEAD
   digest = "1:de110e7734630a3d16be7a57cc701e22c7ecde8a77051b54743b984db3f25463"
-=======
-  digest = "1:c5b5d55096b762e29d0b887ce73932d06ddcf9def4285f1abd09f801176878ec"
->>>>>>> master
   name = "golang.org/x/sys"
   packages = [
     "unix",
     "windows",
   ]
   pruneopts = "UT"
-<<<<<<< HEAD
   revision = "2aa67d56cdd77167a5fb51358e8c3ce04bad68bb"
-=======
-  revision = "c7b8b68b14567162c6602a7c5659ee0f26417c18"
->>>>>>> master
 
 [[projects]]
   digest = "1:dfcb3d446a3c6a6c71b74cf7baf366cd630a8cb43c3fcb741f34e49727da168d"
@@ -972,13 +907,8 @@
     "urlfetch",
   ]
   pruneopts = "UT"
-<<<<<<< HEAD
   revision = "c71d63e301d75423acb410203c747cad31e9a5e7"
   version = "v1.6.3"
-=======
-  revision = "5f2a59506353b8d5ba8cbbcd9f3c1f41f1eaf079"
-  version = "v1.6.2"
->>>>>>> master
 
 [[projects]]
   branch = "master"
@@ -986,17 +916,10 @@
   name = "google.golang.org/genproto"
   packages = ["googleapis/rpc/status"]
   pruneopts = "UT"
-<<<<<<< HEAD
   revision = "f660b865573183437d2d868f703fe88bb8af0b55"
 
 [[projects]]
   digest = "1:472a63591492a241f66e0740382d3b30b246d7e0692ec00bed0f36c92b9f34c0"
-=======
-  revision = "24fa4b261c55da65468f2abfdae2b024eef27dfb"
-
-[[projects]]
-  digest = "1:48eafc052e46b4ebbc7882553873cf6198203e528627cefc94dcaf8553addd19"
->>>>>>> master
   name = "google.golang.org/grpc"
   packages = [
     ".",
@@ -1035,7 +958,6 @@
     "tap",
   ]
   pruneopts = "UT"
-<<<<<<< HEAD
   revision = "39e8a7b072a67ca2a75f57fa2e0d50995f5b22f6"
   version = "v1.23.1"
 
@@ -1046,10 +968,6 @@
   pruneopts = "UT"
   revision = "6a667da9c028871f98598d85413e3fc4c6daa52e"
   version = "v1.7.2"
-=======
-  revision = "6eaf6f47437a6b4e2153a190160ef39a92c7eceb"
-  version = "v1.23.0"
->>>>>>> master
 
 [[projects]]
   digest = "1:2d1fbdc6777e5408cabeb02bf336305e724b925ff4546ded0fa8715a7267922a"
@@ -1221,7 +1139,6 @@
   version = "kubernetes-1.15.4"
 
 [[projects]]
-<<<<<<< HEAD
   digest = "1:f107a860bd0f6b51b21bc0d21ca093cc655560361fd812c7035951648651c128"
   name = "k8s.io/cli-runtime"
   packages = [
@@ -1302,13 +1219,6 @@
     "informers/storage/v1",
     "informers/storage/v1alpha1",
     "informers/storage/v1beta1",
-=======
-  digest = "1:41cbf459ae05d974799d941b8ab657533257c1fe1f764df22e274f2e53880547"
-  name = "k8s.io/client-go"
-  packages = [
-    "discovery",
-    "dynamic",
->>>>>>> master
     "kubernetes",
     "kubernetes/scheme",
     "kubernetes/typed/admissionregistration/v1beta1",

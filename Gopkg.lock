@@ -292,14 +292,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:9c43ce4d2e3663745798dd3ac32e78f9f98ab11e6fb5b6b5d589c01663b60b44"
+  digest = "1:c5391ef1f794f1ec8a5fbdbbd2a8595ecc02e70d7568859a9474bdd7e83c9be3"
   name = "github.com/giantswarm/e2etemplates"
   packages = [
     "internal/render",
     "pkg/chartvalues",
   ]
   pruneopts = "UT"
-  revision = "e90a23caca67e712ad2f0448b773cca68e7466d8"
+  revision = "11c30c63f167e8b027926eea81ad4ca513becf20"
 
 [[projects]]
   branch = "master"
@@ -318,12 +318,12 @@
   revision = "9749deade60f7624620aa7158a4f38c87ea23795"
 
 [[projects]]
-  branch = "master"
-  digest = "1:95555f316dcb15d9397f394572615f3a81d182935417a0e91d5f46b6b0e9876a"
+  branch = "kubernetes-1.15.4"
+  digest = "1:9c541220bb1a3771404f06fb329784b0f406458ef5a231e9e36021b74a5cca68"
   name = "github.com/giantswarm/helmclient"
   packages = ["."]
   pruneopts = "UT"
-  revision = "38a0673024661c036251904c7b2ed8a0462fb771"
+  revision = "f2713d29a3258d473548656761ace0aeb334bf8f"
 
 [[projects]]
   branch = "kubernetes-1.15.4"
@@ -975,7 +975,7 @@
     "ssh/terminal",
   ]
   pruneopts = "UT"
-  revision = "4663e185863a1aee50d0486b326769f0bd22eb30"
+  revision = "f9e2070545dcd4128a854a97ddf10fbfc3c4b6e4"
 
 [[projects]]
   branch = "master"
@@ -993,7 +993,7 @@
     "trace",
   ]
   pruneopts = "UT"
-  revision = "c5a3c61f89f3ed696ec36b629ef1b97541165225"
+  revision = "2ec189313ef0a07735684caebd1ba8b8ebca456f"
 
 [[projects]]
   branch = "master"
@@ -1016,14 +1016,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:7711a885664a85941a1d9d339f7f12c742cd8f88def90e74f89805508cfca97f"
+  digest = "1:5b617d7853b8c2432735f83315f16c7f463fdaf79a5fe165f5b8205931017d95"
   name = "golang.org/x/sys"
   packages = [
     "unix",
     "windows",
   ]
   pruneopts = "UT"
-  revision = "c990c680b611ac1aeb7d8f2af94a825f98d69720"
+  revision = "b397fe3ad8ed895c98fa54584f61835a88e65ff5"
 
 [[projects]]
   digest = "1:dfcb3d446a3c6a6c71b74cf7baf366cd630a8cb43c3fcb741f34e49727da168d"
