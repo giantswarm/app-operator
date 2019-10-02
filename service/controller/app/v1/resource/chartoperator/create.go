@@ -68,6 +68,24 @@ func (r Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			return microerror.Mask(err)
 		} else {
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found chart-operator release %#q", release))
+
+			releaseContent, err := cc.HelmClient.GetReleaseContent(ctx, release)
+			if err != nil {
+				return microerror.Mask(err)
+			}
+
+			if releaseContent.Status == "FAILED" {
+				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("chart-operator release %#q failed to install", release))
+				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating a release %#q", release))
+
+				err = r.updateChartOperator(ctx, cr)
+				if err != nil {
+					return microerror.Mask(err)
+				}
+
+				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updated a release %#q", release))
+
+			}
 		}
 	}
 

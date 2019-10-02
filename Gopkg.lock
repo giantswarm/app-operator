@@ -318,12 +318,21 @@
   revision = "9749deade60f7624620aa7158a4f38c87ea23795"
 
 [[projects]]
+<<<<<<< HEAD
   branch = "kubernetes-1.15.4"
   digest = "1:9c541220bb1a3771404f06fb329784b0f406458ef5a231e9e36021b74a5cca68"
   name = "github.com/giantswarm/helmclient"
   packages = ["."]
   pruneopts = "UT"
   revision = "f2713d29a3258d473548656761ace0aeb334bf8f"
+=======
+  branch = "master"
+  digest = "1:95555f316dcb15d9397f394572615f3a81d182935417a0e91d5f46b6b0e9876a"
+  name = "github.com/giantswarm/helmclient"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "38a0673024661c036251904c7b2ed8a0462fb771"
+>>>>>>> master
 
 [[projects]]
   branch = "kubernetes-1.15.4"

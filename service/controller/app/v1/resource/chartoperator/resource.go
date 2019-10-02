@@ -95,39 +95,19 @@ func (r Resource) installChartOperator(ctx context.Context, cr v1alpha1.App) err
 		return microerror.Mask(err)
 	}
 
-	var chartOperatorAppCR *v1alpha1.App
-	{
-		r.logger.LogCtx(ctx, "level", "debug", "message", "finding chart-operator app CR")
-
-		chartOperatorAppCR, err = r.g8sClient.ApplicationV1alpha1().Apps(cr.Namespace).Get(release, metav1.GetOptions{})
-		if apierrors.IsNotFound(err) {
-			r.logger.LogCtx(ctx, "level", "debug", "message", "can't find chart-operator app CR")
-			r.logger.LogCtx(ctx, "level", "debug", "message", "cancelling the resource")
-			resourcecanceledcontext.SetCanceled(ctx)
-			return nil
-		} else if err != nil {
-			return microerror.Mask(err)
-		}
-
-		r.logger.LogCtx(ctx, "level", "debug", "message", "found chart-operator app CR")
+	chartOperatorAppCR, err := r.getChartOperatorAppCR(ctx, cr.Namespace)
+	if err != nil {
+		return microerror.Mask(err)
 	}
 
-	var appCatalogCR *v1alpha1.AppCatalog
-	{
-		r.logger.LogCtx(ctx, "level", "debug", "message", "finding appCatalog CR")
+	appCatalogCR, err := r.getAppCatalogCR(ctx, chartOperatorAppCR)
+	if err != nil {
+		return microerror.Mask(err)
+	}
 
-		catalogName := key.CatalogName(*chartOperatorAppCR)
-		appCatalogCR, err = r.g8sClient.ApplicationV1alpha1().AppCatalogs().Get(catalogName, metav1.GetOptions{})
-		if apierrors.IsNotFound(err) {
-			r.logger.LogCtx(ctx, "level", "debug", "message", "can't find appCatalog CR")
-			r.logger.LogCtx(ctx, "level", "debug", "message", "cancelling the resource")
-			resourcecanceledcontext.SetCanceled(ctx)
-			return nil
-		} else if err != nil {
-			return microerror.Mask(err)
-		}
-
-		r.logger.LogCtx(ctx, "level", "debug", "message", "found appCatalog CR")
+	chartOperatorValues, err := r.mergeChartOperatorValues(ctx, chartOperatorAppCR, appCatalogCR)
+	if err != nil {
+		return microerror.Mask(err)
 	}
 
 	// check app CR for chart-operator and fetching app-catalog name and version.
@@ -152,19 +132,6 @@ func (r Resource) installChartOperator(ctx context.Context, cr v1alpha1.App) err
 				r.logger.LogCtx(ctx, "level", "error", "message", fmt.Sprintf("deletion of %#q failed", tarballPath), "stack", fmt.Sprintf("%#v", err))
 			}
 		}()
-	}
-
-	var chartOperatorValues []byte
-	{
-		values, err := r.values.MergeAll(ctx, *chartOperatorAppCR, *appCatalogCR)
-		if err != nil {
-			return microerror.Mask(err)
-		}
-
-		chartOperatorValues, err = json.Marshal(values)
-		if err != nil {
-			return microerror.Mask(err)
-		}
 	}
 
 	{
@@ -206,6 +173,146 @@ func (r Resource) installChartOperator(ctx context.Context, cr v1alpha1.App) err
 	}
 
 	return nil
+}
+
+func (r Resource) updateChartOperator(ctx context.Context, cr v1alpha1.App) error {
+	cc, err := controllercontext.FromContext(ctx)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
+	chartOperatorAppCR, err := r.getChartOperatorAppCR(ctx, cr.Namespace)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
+	appCatalogCR, err := r.getAppCatalogCR(ctx, chartOperatorAppCR)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
+	chartOperatorValues, err := r.mergeChartOperatorValues(ctx, chartOperatorAppCR, appCatalogCR)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
+	// check app CR for chart-operator and fetching app-catalog name and version.
+	var tarballURL string
+	{
+		tarballURL, err = tarball.NewURL(key.AppCatalogStorageURL(*appCatalogCR), release, key.Version(*chartOperatorAppCR))
+		if err != nil {
+			return microerror.Mask(err)
+		}
+	}
+
+	var tarballPath string
+	{
+		tarballPath, err = cc.HelmClient.PullChartTarball(ctx, tarballURL)
+		if err != nil {
+			return microerror.Mask(err)
+		}
+
+		defer func() {
+			err := r.fileSystem.Remove(tarballPath)
+			if err != nil {
+				r.logger.LogCtx(ctx, "level", "error", "message", fmt.Sprintf("deletion of %#q failed", tarballPath), "stack", fmt.Sprintf("%#v", err))
+			}
+		}()
+	}
+
+	{
+		err = cc.HelmClient.UpdateReleaseFromTarball(ctx, release, tarballPath, helm.UpdateValueOverrides(chartOperatorValues), helm.UpgradeForce(true))
+		if err != nil {
+			return microerror.Mask(err)
+		}
+	}
+
+	{
+		r.logger.LogCtx(ctx, "level", "debug", "message", "waiting for ready chart-operator deployment")
+
+		o := func() error {
+			err := r.checkDeploymentReady(ctx, cc.K8sClient)
+			if err != nil {
+				return microerror.Mask(err)
+			}
+
+			return nil
+		}
+
+		b := backoff.NewConstant(20*time.Second, 10*time.Second)
+		n := func(err error, delay time.Duration) {
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("%#q deployment is not ready retrying in %s", release, delay), "stack", fmt.Sprintf("%#v", err))
+		}
+
+		err = backoff.RetryNotify(o, b, n)
+		if err != nil {
+			return microerror.Mask(err)
+		}
+
+		r.logger.LogCtx(ctx, "level", "debug", "message", "chart-operator deployment is ready")
+	}
+
+	return nil
+}
+
+func (r *Resource) getAppCatalogCR(ctx context.Context, chartOperatorAppCR *v1alpha1.App) (*v1alpha1.AppCatalog, error) {
+	var appCatalogCR *v1alpha1.AppCatalog
+	var err error
+	{
+		r.logger.LogCtx(ctx, "level", "debug", "message", "finding appCatalog CR")
+
+		catalogName := key.CatalogName(*chartOperatorAppCR)
+		appCatalogCR, err = r.g8sClient.ApplicationV1alpha1().AppCatalogs().Get(catalogName, metav1.GetOptions{})
+		if apierrors.IsNotFound(err) {
+			r.logger.LogCtx(ctx, "level", "debug", "message", "can't find appCatalog CR")
+			r.logger.LogCtx(ctx, "level", "debug", "message", "cancelling the resource")
+			resourcecanceledcontext.SetCanceled(ctx)
+			return nil, nil
+		} else if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		r.logger.LogCtx(ctx, "level", "debug", "message", "found appCatalog CR")
+	}
+
+	return appCatalogCR, nil
+}
+
+func (r *Resource) getChartOperatorAppCR(ctx context.Context, namespace string) (*v1alpha1.App, error) {
+	var chartOperatorAppCR *v1alpha1.App
+	var err error
+	{
+		r.logger.LogCtx(ctx, "level", "debug", "message", "finding chart-operator app CR")
+
+		chartOperatorAppCR, err = r.g8sClient.ApplicationV1alpha1().Apps(namespace).Get(release, metav1.GetOptions{})
+		if apierrors.IsNotFound(err) {
+			r.logger.LogCtx(ctx, "level", "debug", "message", "can't find chart-operator app CR")
+			r.logger.LogCtx(ctx, "level", "debug", "message", "cancelling the resource")
+			resourcecanceledcontext.SetCanceled(ctx)
+			return nil, nil
+		} else if err != nil {
+			return nil, err
+		}
+
+		r.logger.LogCtx(ctx, "level", "debug", "message", "found chart-operator app CR")
+	}
+	return chartOperatorAppCR, nil
+}
+
+func (r *Resource) mergeChartOperatorValues(ctx context.Context, cr *v1alpha1.App, catalog *v1alpha1.AppCatalog) ([]byte, error) {
+	var chartOperatorValues []byte
+	{
+		values, err := r.values.MergeAll(ctx, *cr, *catalog)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		chartOperatorValues, err = json.Marshal(values)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+	return chartOperatorValues, nil
 }
 
 // checkDeploymentReady checks for the specified deployment that the number of
