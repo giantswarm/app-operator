@@ -27,7 +27,7 @@ type Clients struct {
 	extClient  *apiextensionsclient.Clientset
 	g8sClient  *versioned.Clientset
 	k8sClient  *kubernetes.Clientset
-	restClient *rest.RESTClient
+	restClient rest.Interface
 	restConfig *rest.Config
 }
 
@@ -97,14 +97,15 @@ func NewClients(config ClientsConfig) (*Clients, error) {
 		}
 	}
 
-	var restClient *rest.RESTClient
+	var restClient rest.Interface
 	{
-		c := rest.CopyConfig(restConfig)
-
-		restClient, err = rest.RESTClientFor(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
+		// It would be cool to use rest.RESTClientFor here but it fails
+		// because GroupVersion is not configured. So underlying core
+		// RESTClient is taken.
+		//
+		//	panic: GroupVersion is required when initializing a RESTClient
+		//
+		restClient = k8sClient.RESTClient()
 	}
 
 	c := &Clients{
