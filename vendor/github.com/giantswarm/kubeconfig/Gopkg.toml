@@ -27,7 +27,7 @@
 
 
 [[constraint]]
-  branch = "kubernetes-1.15.4"
+  branch = "master"
   name = "github.com/giantswarm/apiextensions"
 
 [[constraint]]
