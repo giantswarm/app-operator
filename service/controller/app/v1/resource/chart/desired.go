@@ -8,6 +8,7 @@ import (
 	"github.com/giantswarm/microerror"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
+	"github.com/giantswarm/app-operator/pkg/annotation"
 	"github.com/giantswarm/app-operator/pkg/label"
 	"github.com/giantswarm/app-operator/pkg/tarball"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/controllercontext"
@@ -49,7 +50,25 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		},
 	}
 
+	annotations := generateAnnotations(cr.GetAnnotations())
+	if len(annotations) > 0 {
+		chartCR.Annotations = annotations
+	}
+
 	return chartCR, nil
+}
+
+func generateAnnotations(input map[string]string) map[string]string {
+	annotations := map[string]string{}
+
+	// ForceHelmUpgrade has been set for this app CR so this needs to be passed
+	// on to the chart CR.
+	val, ok := input[annotation.ForceHelmUpgrade]
+	if ok {
+		annotations[annotation.ForceHelmUpgrade] = val
+	}
+
+	return annotations
 }
 
 func generateConfig(cr v1alpha1.App, appCatalog v1alpha1.AppCatalog, chartNamespace string) v1alpha1.ChartSpecConfig {
