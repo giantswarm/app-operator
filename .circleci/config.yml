@@ -25,7 +25,6 @@ e2eTest: &e2eTest
           ./e2ectl cluster create
           cp $(./e2ectl kubeconfig path) ${E2E_TEST_DIR}/kubeconfig
           export KUBECONFIG=$(./e2ectl kubeconfig path)
-          ./kubectl create priorityclass giantswarm-critical --value=1000000000 --description="This priority class is used by giantswarm kubernetes components."
 
     - run:
         name: Run test
