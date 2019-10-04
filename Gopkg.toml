@@ -41,40 +41,56 @@ required = [
   version = "9.1.0"
 
 [[constraint]]
-  branch = "master"
   name = "github.com/docker/distribution"
+  branch = "master"
 
 [[constraint]]
-  branch = "master"
   name = "github.com/giantswarm/apiextensions"
+  branch = "master"
 
 [[constraint]]
+  name = "github.com/giantswarm/e2e-harness"
   branch = "master"
+
+[[constraint]]
   name = "github.com/giantswarm/e2esetup"
+  branch = "master"
 
 [[constraint]]
+  name = "github.com/giantswarm/helmclient"
   branch = "master"
+
+[[constraint]]
+  name = "github.com/giantswarm/k8sclient"
+  branch = "master"
+
+[[constraint]]
   name = "github.com/giantswarm/kubeconfig"
+  branch = "master"
 
 [[constraint]]
-  branch = "master"
   name = "github.com/giantswarm/microerror"
+  branch = "master"
 
 [[constraint]]
-  branch = "master"
   name = "github.com/giantswarm/microkit"
+  branch = "master"
 
 [[constraint]]
-  branch = "master"
   name = "github.com/giantswarm/micrologger"
+  branch = "master"
 
 [[constraint]]
-  branch = "master"
   name = "github.com/giantswarm/operatorkit"
+  branch = "master"
 
 [[constraint]]
   name = "github.com/google/go-cmp"
   version = "0.2.0"
+
+[[constraint]]
+  name = "github.com/prometheus/client_golang"
+  version = "0.9.3"
 
 [[constraint]]
   name = "github.com/spf13/viper"
@@ -82,19 +98,43 @@ required = [
 
 [[constraint]]
   name = "k8s.io/api"
-  version = "kubernetes-1.13.2"
+  version = "kubernetes-1.15.4"
+
+[[constraint]]
+  name = "k8s.io/apiextensions-apiserver"
+  version = "kubernetes-1.15.4"
 
 [[constraint]]
   name = "k8s.io/apimachinery"
-  version = "kubernetes-1.13.2"
+  version = "kubernetes-1.15.4"
 
 [[constraint]]
   name = "k8s.io/apiserver"
-  version = "kubernetes-1.13.2"
+  version = "kubernetes-1.15.4"
 
 [[constraint]]
   name = "k8s.io/client-go"
-  version = "kubernetes-1.13.2"
+  version = "kubernetes-1.15.4"
+
+[[override]]
+  name = "k8s.io/cli-runtime"
+  version = "kubernetes-1.15.4"
+
+[[override]]
+  name = "k8s.io/component-base"
+  version = "kubernetes-1.15.4"
+
+[[override]]
+  name = "k8s.io/kubernetes"
+  version = "v1.15.4"
+
+[[override]]
+  branch = "master"
+  name = "github.com/ghodss/yaml"
+
+[[override]]
+  name = "github.com/russross/blackfriday"
+  version = "v1.5.2"
 
 
 [prune]
