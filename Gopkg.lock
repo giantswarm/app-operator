@@ -280,15 +280,16 @@
   revision = "7f9aa6e338a7995c848c65f7da097b0faa7ddc1c"
 
 [[projects]]
-  branch = "master"
-  digest = "1:8dbcac6df572fbc92832c8257a9f0b52730f60bfe2dffa9970f5863a0deaf821"
+  branch = "search_catalog"
+  digest = "1:ec23abfb53083a0b2dd18ca04bfc936dd75b074381bc7c6a8f6b5a7193cc31b3"
   name = "github.com/giantswarm/e2esetup"
   packages = [
+    "catalog",
     "chart/env",
     "k8s",
   ]
   pruneopts = "UT"
-  revision = "e4ef9f8134385917ff6e507e4e90e70b0dd710c6"
+  revision = "3ab881315925c518018346f92290fff049c6901f"
 
 [[projects]]
   branch = "master"
@@ -568,6 +569,22 @@
   pruneopts = "UT"
   revision = "3af367b6b30c263d47e8895973edcca9a49cf029"
   version = "v0.2.0"
+
+[[projects]]
+  digest = "1:664e1bc8d2f651e1e5234a7bd52d6bbc1704a90e7787d29c56aa212a46d860f0"
+  name = "github.com/google/go-github"
+  packages = ["github"]
+  pruneopts = "UT"
+  revision = "361256aa6e01256279b0805586b6c491ff2045d9"
+  version = "v25.1.3"
+
+[[projects]]
+  digest = "1:a63cff6b5d8b95638bfe300385d93b2a6d9d687734b863da8e09dc834510a690"
+  name = "github.com/google/go-querystring"
+  packages = ["query"]
+  pruneopts = "UT"
+  revision = "44c6ddd0a2342c386950e880b658017258da92fc"
+  version = "v1.0.0"
 
 [[projects]]
   digest = "1:a6181aca1fd5e27103f9a920876f29ac72854df7345a39f3b01e61c8c94cc8af"
@@ -1816,6 +1833,7 @@
     "github.com/giantswarm/apiextensions/pkg/clientset/versioned/fake",
     "github.com/giantswarm/backoff",
     "github.com/giantswarm/e2e-harness/pkg/release",
+    "github.com/giantswarm/e2esetup/catalog",
     "github.com/giantswarm/e2esetup/chart/env",
     "github.com/giantswarm/e2esetup/k8s",
     "github.com/giantswarm/e2etemplates/pkg/chartvalues",

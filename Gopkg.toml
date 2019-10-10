@@ -54,7 +54,7 @@ required = [
 
 [[constraint]]
   name = "github.com/giantswarm/e2esetup"
-  branch = "master"
+  branch = "search_catalog"
 
 [[constraint]]
   name = "github.com/giantswarm/helmclient"
