@@ -281,7 +281,7 @@
 
 [[projects]]
   branch = "search_catalog"
-  digest = "1:ec23abfb53083a0b2dd18ca04bfc936dd75b074381bc7c6a8f6b5a7193cc31b3"
+  digest = "1:17a13ca8bc8f6bff8f688df778445b57110b679fb274579958da849d814f164d"
   name = "github.com/giantswarm/e2esetup"
   packages = [
     "catalog",
@@ -289,7 +289,7 @@
     "k8s",
   ]
   pruneopts = "UT"
-  revision = "3ab881315925c518018346f92290fff049c6901f"
+  revision = "8395de4f674daff774801d18a037e29439cd52f3"
 
 [[projects]]
   branch = "master"
@@ -571,14 +571,6 @@
   version = "v0.2.0"
 
 [[projects]]
-  digest = "1:664e1bc8d2f651e1e5234a7bd52d6bbc1704a90e7787d29c56aa212a46d860f0"
-  name = "github.com/google/go-github"
-  packages = ["github"]
-  pruneopts = "UT"
-  revision = "361256aa6e01256279b0805586b6c491ff2045d9"
-  version = "v25.1.3"
-
-[[projects]]
   digest = "1:a63cff6b5d8b95638bfe300385d93b2a6d9d687734b863da8e09dc834510a690"
   name = "github.com/google/go-querystring"
   packages = ["query"]
@@ -729,6 +721,14 @@
   packages = ["."]
   pruneopts = "UT"
   revision = "b84e30acd515aadc4b783ad4ff83aff3299bdfe0"
+
+[[projects]]
+  digest = "1:c34de7e8f144a065dbcd5a5dab3dfc865d406545da86cd5a654fa720abfa8126"
+  name = "github.com/levigross/grequests"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "d0df86deffcb5d344ab23de5a958d41e44659568"
+  version = "0.10"
 
 [[projects]]
   digest = "1:12cb143f2148bf54bcd9fe622abac17325e85eeb1d84b8ec6caf1c80232108fd"
