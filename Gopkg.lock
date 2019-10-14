@@ -254,11 +254,11 @@
 
 [[projects]]
   branch = "app_catalog"
-  digest = "1:62bfe22a7d449b00b0a4147021b9234af53c7fa578e4007b933bfce77f145a0f"
+  digest = "1:e34be9010bb755c9f42034505111fd2c97e3d59cf3e45d7741c3786b136f759c"
   name = "github.com/giantswarm/appcatalog"
   packages = ["."]
   pruneopts = "UT"
-  revision = "7eb0663c67a4812054fd9abe988bf0032a060c7a"
+  revision = "83ad08e4bfee440b1e869bdc6e3828f63ae687a8"
 
 [[projects]]
   branch = "master"

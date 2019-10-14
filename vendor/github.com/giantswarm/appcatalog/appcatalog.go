@@ -5,32 +5,15 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"time"
 
 	"github.com/ghodss/yaml"
 	"github.com/giantswarm/microerror"
 )
 
-type index struct {
-	APIVersion string             `yaml:"apiVersion"`
-	Entries    map[string][]entry `yaml:"entries"`
-	Generated  time.Time          `yaml:"generated"`
-}
-
-type entry struct {
-	APIVersion  string    `yaml:"apiVersion"`
-	AppVersion  string    `yaml:"appVersion"`
-	Created     time.Time `yaml:"created"`
-	Description string    `yaml:"description"`
-	Digest      string    `yaml:"digest"`
-	Name        string    `yaml:"name"`
-	Urls        []string  `yaml:"urls"`
-	Version     string    `yaml:"version"`
-}
-
-// GetLatestChart returns the latest chart tarball file in the specified catalog.
-func GetLatestChart(ctx context.Context, catalog, app string) (string, error) {
-	index, err := getIndex(catalog)
+// GetLatestChart returns the latest chart tarball file for the specified storage URL and app
+// and returns notFoundError when it can't find a specified app.
+func GetLatestChart(ctx context.Context, storageURL, app string) (string, error) {
+	index, err := getIndex(storageURL)
 	if err != nil {
 		return "", microerror.Mask(err)
 	}
@@ -39,7 +22,7 @@ func GetLatestChart(ctx context.Context, catalog, app string) (string, error) {
 	{
 		entry, ok := index.Entries[app]
 		if !ok {
-			return "", microerror.Maskf(notFoundError, fmt.Sprintf("no app %q in index.yaml", app))
+			return "", microerror.Maskf(notFoundError, "no app %#q in index.yaml", app)
 		}
 		downloadURL = entry[0].Urls[0]
 	}
@@ -47,9 +30,10 @@ func GetLatestChart(ctx context.Context, catalog, app string) (string, error) {
 	return downloadURL, nil
 }
 
-// GetLatestVersion returns the latest version in the specified catalog.
-func GetLatestVersion(ctx context.Context, catalog, app string) (string, error) {
-	index, err := getIndex(catalog)
+// GetLatestVersion returns the latest app version for the specified storage URL and app
+// and returns notFoundError when it can't find a specified app.
+func GetLatestVersion(ctx context.Context, storageURL, app string) (string, error) {
+	index, err := getIndex(storageURL)
 	if err != nil {
 		return "", microerror.Mask(err)
 	}
@@ -58,7 +42,7 @@ func GetLatestVersion(ctx context.Context, catalog, app string) (string, error) 
 	{
 		entry, ok := index.Entries[app]
 		if !ok {
-			return "", microerror.Maskf(notFoundError, fmt.Sprintf("no app %q in index.yaml", app))
+			return "", microerror.Maskf(notFoundError, "no app %#q in index.yaml", app)
 		}
 		version = entry[0].Version
 	}
@@ -66,8 +50,8 @@ func GetLatestVersion(ctx context.Context, catalog, app string) (string, error) 
 	return version, nil
 }
 
-func getIndex(catalog string) (index, error) {
-	indexURL := fmt.Sprintf("https://giantswarm.github.io/%s/index.yaml", catalog)
+func getIndex(storageURL string) (index, error) {
+	indexURL := fmt.Sprintf("%s/index.yaml", storageURL)
 	resp, err := http.Get(indexURL)
 	if err != nil {
 		return index{}, microerror.Mask(err)
