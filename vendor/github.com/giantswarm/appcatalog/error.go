@@ -1,4 +1,4 @@
-package catalog
+package appcatalog
 
 import "github.com/giantswarm/microerror"
 

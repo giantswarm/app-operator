@@ -49,12 +49,16 @@ required = [
   branch = "master"
 
 [[constraint]]
+  name = "github.com/giantswarm/appcatalog"
+  branch = "app_catalog"
+
+[[constraint]]
   name = "github.com/giantswarm/e2e-harness"
   branch = "master"
 
 [[constraint]]
   name = "github.com/giantswarm/e2esetup"
-  branch = "search_catalog"
+  branch = "master"
 
 [[constraint]]
   name = "github.com/giantswarm/helmclient"

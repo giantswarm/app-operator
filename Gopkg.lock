@@ -253,6 +253,14 @@
   revision = "4a550092d5a20f19405b6f9bbe7711650975a984"
 
 [[projects]]
+  branch = "app_catalog"
+  digest = "1:62bfe22a7d449b00b0a4147021b9234af53c7fa578e4007b933bfce77f145a0f"
+  name = "github.com/giantswarm/appcatalog"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "7eb0663c67a4812054fd9abe988bf0032a060c7a"
+
+[[projects]]
   branch = "master"
   digest = "1:a2c8f46286802812face50f8f53491f2eded5f59697a0227331ec97767bddcb2"
   name = "github.com/giantswarm/apprclient"
@@ -280,16 +288,15 @@
   revision = "7f9aa6e338a7995c848c65f7da097b0faa7ddc1c"
 
 [[projects]]
-  branch = "search_catalog"
-  digest = "1:17a13ca8bc8f6bff8f688df778445b57110b679fb274579958da849d814f164d"
+  branch = "master"
+  digest = "1:8dbcac6df572fbc92832c8257a9f0b52730f60bfe2dffa9970f5863a0deaf821"
   name = "github.com/giantswarm/e2esetup"
   packages = [
-    "catalog",
     "chart/env",
     "k8s",
   ]
   pruneopts = "UT"
-  revision = "8395de4f674daff774801d18a037e29439cd52f3"
+  revision = "70d14e0bf5e78aad3a573f33a9db1dd8c920db6f"
 
 [[projects]]
   branch = "master"
@@ -571,14 +578,6 @@
   version = "v0.2.0"
 
 [[projects]]
-  digest = "1:a63cff6b5d8b95638bfe300385d93b2a6d9d687734b863da8e09dc834510a690"
-  name = "github.com/google/go-querystring"
-  packages = ["query"]
-  pruneopts = "UT"
-  revision = "44c6ddd0a2342c386950e880b658017258da92fc"
-  version = "v1.0.0"
-
-[[projects]]
   digest = "1:a6181aca1fd5e27103f9a920876f29ac72854df7345a39f3b01e61c8c94cc8af"
   name = "github.com/google/gofuzz"
   packages = ["."]
@@ -721,14 +720,6 @@
   packages = ["."]
   pruneopts = "UT"
   revision = "b84e30acd515aadc4b783ad4ff83aff3299bdfe0"
-
-[[projects]]
-  digest = "1:c34de7e8f144a065dbcd5a5dab3dfc865d406545da86cd5a654fa720abfa8126"
-  name = "github.com/levigross/grequests"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "d0df86deffcb5d344ab23de5a958d41e44659568"
-  version = "0.10"
 
 [[projects]]
   digest = "1:12cb143f2148bf54bcd9fe622abac17325e85eeb1d84b8ec6caf1c80232108fd"
@@ -1831,9 +1822,9 @@
     "github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1",
     "github.com/giantswarm/apiextensions/pkg/clientset/versioned",
     "github.com/giantswarm/apiextensions/pkg/clientset/versioned/fake",
+    "github.com/giantswarm/appcatalog",
     "github.com/giantswarm/backoff",
     "github.com/giantswarm/e2e-harness/pkg/release",
-    "github.com/giantswarm/e2esetup/catalog",
     "github.com/giantswarm/e2esetup/chart/env",
     "github.com/giantswarm/e2esetup/k8s",
     "github.com/giantswarm/e2etemplates/pkg/chartvalues",
