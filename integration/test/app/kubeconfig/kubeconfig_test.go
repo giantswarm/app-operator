@@ -5,10 +5,10 @@ package kubeconfig
 import (
 	"context"
 	"fmt"
-	"github.com/giantswarm/e2esetup/catalog"
 	"testing"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
+	"github.com/giantswarm/appcatalog"
 	"github.com/giantswarm/e2e-harness/pkg/release"
 	"github.com/giantswarm/e2esetup/chart/env"
 	"github.com/giantswarm/e2etemplates/pkg/chartvalues"
@@ -158,7 +158,7 @@ func TestAppLifecycleUsingKubeconfig(t *testing.T) {
 			t.Fatalf("expected nil got %#v", err)
 		}
 
-		tag, err := catalog.GetLatestTag(ctx, "default-catalog", "chart-operator")
+		tag, err := appcatalog.GetLatestVersion(ctx, "default-catalog", "chart-operator")
 		if err != nil {
 			t.Fatalf("expected nil got %#v", err)
 		}

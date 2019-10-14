@@ -7,8 +7,8 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/giantswarm/appcatalog"
 	"github.com/giantswarm/e2e-harness/pkg/release"
-	"github.com/giantswarm/e2esetup/catalog"
 	"github.com/giantswarm/e2etemplates/pkg/chartvalues"
 	"github.com/spf13/afero"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -91,7 +91,7 @@ func TestAppLifecycle(t *testing.T) {
 
 		var tarballPath string
 		{
-			tarballURL, err := catalog.GetLatestChart(ctx, "default-catalog", "chart-operator")
+			tarballURL, err := appcatalog.GetLatestChart(ctx, "default-catalog", "chart-operator")
 			if err != nil {
 				t.Fatalf("expected %#v got %#v", nil, err)
 			}
