@@ -11,7 +11,7 @@ import (
 	"github.com/giantswarm/backoff"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
-	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
+	"github.com/giantswarm/operatorkit/controller/context/reconciliationcanceledcontext"
 	"github.com/spf13/afero"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -265,8 +265,9 @@ func (r *Resource) getAppCatalogCR(ctx context.Context, chartOperatorAppCR *v1al
 		appCatalogCR, err = r.g8sClient.ApplicationV1alpha1().AppCatalogs().Get(catalogName, metav1.GetOptions{})
 		if apierrors.IsNotFound(err) {
 			r.logger.LogCtx(ctx, "level", "debug", "message", "can't find appCatalog CR")
-			r.logger.LogCtx(ctx, "level", "debug", "message", "cancelling the resource")
-			resourcecanceledcontext.SetCanceled(ctx)
+			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling the reconciliation")
+			reconciliationcanceledcontext.SetCanceled(ctx)
+
 			return nil, nil
 		} else if err != nil {
 			return nil, microerror.Mask(err)
@@ -287,8 +288,9 @@ func (r *Resource) getChartOperatorAppCR(ctx context.Context, namespace string) 
 		chartOperatorAppCR, err = r.g8sClient.ApplicationV1alpha1().Apps(namespace).Get(release, metav1.GetOptions{})
 		if apierrors.IsNotFound(err) {
 			r.logger.LogCtx(ctx, "level", "debug", "message", "can't find chart-operator app CR")
-			r.logger.LogCtx(ctx, "level", "debug", "message", "cancelling the resource")
-			resourcecanceledcontext.SetCanceled(ctx)
+			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling the reconciliation")
+			reconciliationcanceledcontext.SetCanceled(ctx)
+
 			return nil, nil
 		} else if err != nil {
 			return nil, err
