@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/giantswarm/appcatalog"
 	"github.com/giantswarm/e2e-harness/pkg/release"
 	"github.com/giantswarm/e2etemplates/pkg/chartvalues"
 	"github.com/spf13/afero"
@@ -90,11 +91,10 @@ func TestAppLifecycle(t *testing.T) {
 
 		var tarballPath string
 		{
-			// TODO: Remove hard-coded tarballURL when VOO feature are ready to use.
-			//
-			//	See https://github.com/giantswarm/giantswarm/issues/6824
-			//
-			tarballURL := "https://giantswarm.github.io/default-catalog/chart-operator-0.10.6.tgz"
+			tarballURL, err := appcatalog.GetLatestChart(ctx, key.DefaultCatalogStorageURL(), "chart-operator")
+			if err != nil {
+				t.Fatalf("expected %#v got %#v", nil, err)
+			}
 			tarballPath, err = config.HelmClient.PullChartTarball(ctx, tarballURL)
 			if err != nil {
 				t.Fatalf("expected %#v got %#v", nil, err)

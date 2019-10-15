@@ -254,6 +254,14 @@
 
 [[projects]]
   branch = "master"
+  digest = "1:2e3b996b387af3e4a3346613452f61d03665bcf0db9d1fe0b1220e61d8109917"
+  name = "github.com/giantswarm/appcatalog"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "4f8ad33b1a28129ebacc92b89ee772bbec52cccf"
+
+[[projects]]
+  branch = "master"
   digest = "1:a2c8f46286802812face50f8f53491f2eded5f59697a0227331ec97767bddcb2"
   name = "github.com/giantswarm/apprclient"
   packages = ["."]
@@ -288,7 +296,7 @@
     "k8s",
   ]
   pruneopts = "UT"
-  revision = "e4ef9f8134385917ff6e507e4e90e70b0dd710c6"
+  revision = "70d14e0bf5e78aad3a573f33a9db1dd8c920db6f"
 
 [[projects]]
   branch = "master"
@@ -1814,6 +1822,7 @@
     "github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1",
     "github.com/giantswarm/apiextensions/pkg/clientset/versioned",
     "github.com/giantswarm/apiextensions/pkg/clientset/versioned/fake",
+    "github.com/giantswarm/appcatalog",
     "github.com/giantswarm/backoff",
     "github.com/giantswarm/e2e-harness/pkg/release",
     "github.com/giantswarm/e2esetup/chart/env",

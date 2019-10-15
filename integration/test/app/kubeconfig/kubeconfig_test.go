@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
+	"github.com/giantswarm/appcatalog"
 	"github.com/giantswarm/e2e-harness/pkg/release"
 	"github.com/giantswarm/e2esetup/chart/env"
 	"github.com/giantswarm/e2etemplates/pkg/chartvalues"
@@ -135,7 +136,7 @@ func TestAppLifecycleUsingKubeconfig(t *testing.T) {
 			t.Fatalf("expected nil got %#v", err)
 		}
 
-		_, err = config.K8sClients.G8sClient().ApplicationV1alpha1().AppCatalogs().Create(&v1alpha1.AppCatalog{
+		c, err := config.K8sClients.G8sClient().ApplicationV1alpha1().AppCatalogs().Create(&v1alpha1.AppCatalog{
 			ObjectMeta: metav1.ObjectMeta{
 				Name: "default",
 			},
@@ -148,11 +149,16 @@ func TestAppLifecycleUsingKubeconfig(t *testing.T) {
 				},
 				Storage: v1alpha1.AppCatalogSpecStorage{
 					Type: "helm",
-					URL:  "https://giantswarm.github.com/default-catalog/",
+					URL:  key.DefaultCatalogStorageURL(),
 				},
 				Title: "Giant Swarm Default Catalog",
 			},
 		})
+		if err != nil {
+			t.Fatalf("expected nil got %#v", err)
+		}
+
+		tag, err := appcatalog.GetLatestVersion(ctx, c.Spec.Storage.URL, "chart-operator")
 		if err != nil {
 			t.Fatalf("expected nil got %#v", err)
 		}
@@ -175,7 +181,7 @@ func TestAppLifecycleUsingKubeconfig(t *testing.T) {
 				},
 				Name:      "chart-operator",
 				Namespace: "giantswarm",
-				Version:   "0.10.6",
+				Version:   tag,
 			},
 		})
 		if err != nil {
