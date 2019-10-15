@@ -8,6 +8,7 @@ import (
 
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
+	"github.com/giantswarm/appcatalog"
 	"github.com/giantswarm/backoff"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
@@ -18,7 +19,6 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/helm/pkg/helm"
 
-	"github.com/giantswarm/app-operator/pkg/tarball"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/controllercontext"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/key"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/values"
@@ -113,7 +113,7 @@ func (r Resource) installChartOperator(ctx context.Context, cr v1alpha1.App) err
 	// check app CR for chart-operator and fetching app-catalog name and version.
 	var tarballURL string
 	{
-		tarballURL, err = tarball.NewURL(key.AppCatalogStorageURL(*appCatalogCR), release, key.Version(*chartOperatorAppCR))
+		tarballURL, err = appcatalog.NewTarballURL(key.AppCatalogStorageURL(*appCatalogCR), release, key.Version(*chartOperatorAppCR))
 		if err != nil {
 			return microerror.Mask(err)
 		}
@@ -199,7 +199,7 @@ func (r Resource) updateChartOperator(ctx context.Context, cr v1alpha1.App) erro
 	// check app CR for chart-operator and fetching app-catalog name and version.
 	var tarballURL string
 	{
-		tarballURL, err = tarball.NewURL(key.AppCatalogStorageURL(*appCatalogCR), release, key.Version(*chartOperatorAppCR))
+		tarballURL, err = appcatalog.NewTarballURL(key.AppCatalogStorageURL(*appCatalogCR), release, key.Version(*chartOperatorAppCR))
 		if err != nil {
 			return microerror.Mask(err)
 		}
