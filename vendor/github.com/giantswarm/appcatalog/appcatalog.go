@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"net/url"
+	"path"
 
 	"github.com/ghodss/yaml"
 	"github.com/giantswarm/microerror"
@@ -48,6 +50,19 @@ func GetLatestVersion(ctx context.Context, storageURL, app string) (string, erro
 	}
 
 	return version, nil
+}
+
+// NewTarballURL returns the chart tarball URL for the specified app and version.
+func NewTarballURL(baseURL string, appName string, version string) (string, error) {
+	if baseURL == "" || appName == "" || version == "" {
+		return "", microerror.Maskf(executionFailedError, "baseURL %#q, appName %#q, release %#q should not be empty", baseURL, appName, version)
+	}
+	u, err := url.Parse(baseURL)
+	if err != nil {
+		return "", microerror.Mask(err)
+	}
+	u.Path = path.Join(u.Path, fmt.Sprintf("%s-%s.tgz", appName, version))
+	return u.String(), nil
 }
 
 func getIndex(storageURL string) (index, error) {

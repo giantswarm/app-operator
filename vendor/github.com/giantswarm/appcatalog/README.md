@@ -1,3 +1,6 @@
+[![GoDoc](https://godoc.org/github.com/giantswarm/appcatalog?status.svg)](http://godoc.org/github.com/giantswarm/appcatalog)
+[![CircleCI](https://circleci.com/gh/giantswarm/appcatalog.svg?style=shield)](https://circleci.com/gh/giantswarm/appcatalog)
+
 # appcatalog
 
 This repo contains a helm chart that opsctl uses to deploy `appcatalog CR`s to

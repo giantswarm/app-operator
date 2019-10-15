@@ -2,6 +2,10 @@ package appcatalog
 
 import "github.com/giantswarm/microerror"
 
+var executionFailedError = &microerror.Error{
+	Kind: "executionFailedError",
+}
+
 var notFoundError = &microerror.Error{
 	Kind: "notFoundError",
 }
