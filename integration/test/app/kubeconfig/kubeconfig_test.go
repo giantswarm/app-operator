@@ -149,7 +149,7 @@ func TestAppLifecycleUsingKubeconfig(t *testing.T) {
 				},
 				Storage: v1alpha1.AppCatalogSpecStorage{
 					Type: "helm",
-					URL:  "https://giantswarm.github.com/default-catalog/",
+					URL:  key.DefaultCatalogStorageURL(),
 				},
 				Title: "Giant Swarm Default Catalog",
 			},
