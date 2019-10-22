@@ -96,7 +96,7 @@ func generateConfig(cr v1alpha1.App, appCatalog v1alpha1.AppCatalog, chartNamesp
 }
 
 func hasConfigMap(cr v1alpha1.App, appCatalog v1alpha1.AppCatalog) bool {
-	if key.AppConfigMapName(cr) != "" || key.AppCatalogConfigMapName(appCatalog) != "" {
+	if key.AppConfigMapName(cr) != "" || key.UserConfigMapName(cr) != "" || key.AppCatalogConfigMapName(appCatalog) != "" {
 		return true
 	}
 
@@ -104,7 +104,7 @@ func hasConfigMap(cr v1alpha1.App, appCatalog v1alpha1.AppCatalog) bool {
 }
 
 func hasSecret(cr v1alpha1.App, appCatalog v1alpha1.AppCatalog) bool {
-	if key.AppSecretName(cr) != "" || key.AppCatalogSecretName(appCatalog) != "" {
+	if key.AppSecretName(cr) != "" || key.UserSecretName(cr) != "" || key.AppCatalogSecretName(appCatalog) != "" {
 		return true
 	}
 
