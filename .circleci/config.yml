@@ -61,7 +61,10 @@ e2eTest: &e2eTest
         command: ./e2ectl cluster delete
         when: always
 
-version: 2
+version: 2.1
+orbs:
+  architect: giantswarm/architect@0.4.3
+
 jobs:
   build:
     machine: true
@@ -75,6 +78,10 @@ jobs:
     - run: ./architect build
     - store_test_results:
         path: /tmp/results
+    - persist_to_workspace:
+        root: .
+        paths:
+        - ./app-operator
     - deploy:
         command: |
           if [ "${CIRCLE_BRANCH}" == "master" ]; then
@@ -93,10 +100,32 @@ jobs:
     <<: *e2eTest
 
 workflows:
-  version: 2
   build_e2e:
     jobs:
-      - build
+      - build:
+          filters:
+            tags:
+              only: /^v.*/
+
+      - architect/push-to-docker:
+          name: push-app-operator-to-quay
+          image: "quay.io/giantswarm/app-operator"
+          username_envar: "QUAY_USERNAME"
+          password_envar: "QUAY_PASSWORD"
+          requires:
+            - build
+
+      - architect/push-to-docker:
+          name: push-app-operator-to-aliyun
+          image: "registry-intl.cn-shanghai.aliyuncs.com/giantswarm/app-operator"
+          username_envar: "ALIYUN_USERNAME"
+          password_envar: "ALIYUN_PASSWORD"
+          requires:
+            - build
+          # Needed to trigger job only on merge to master.
+          filters:
+            branches:
+              only: master
 
       - e2eTestAppBasic:
           requires:
