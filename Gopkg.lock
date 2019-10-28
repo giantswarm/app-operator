@@ -327,11 +327,11 @@
 
 [[projects]]
   branch = "e2e_error_fix"
-  digest = "1:266336af2921f55af79d0700f0400595aac03f3d4bf3afcaa248332bc1dde25e"
+  digest = "1:d10710d25a1a42be7604bb2ba89aebf8544ca8447965de20447bdb3fd2d8e2b5"
   name = "github.com/giantswarm/helmclient"
   packages = ["."]
   pruneopts = "UT"
-  revision = "f66a426c2751a89465f744839938c785947317f6"
+  revision = "9782edf9cc13aa965b5aae5fc00977ff31db52a0"
 
 [[projects]]
   branch = "master"
