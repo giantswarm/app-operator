@@ -35,6 +35,9 @@ required = [
 ]
 
 
+[[override]]
+  name = "github.com/giantswarm/helmclient"
+  branch = "e2e_error_fix"
 
 [[constraint]]
   name = "github.com/Azure/go-autorest"
