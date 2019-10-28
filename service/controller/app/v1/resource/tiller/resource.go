@@ -66,7 +66,7 @@ func (r *Resource) ensureTillerInstalled(ctx context.Context, helmClient helmcli
 
 		return nil
 	} else if helmclient.IsTillerStartingError(err) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "no tiller pod in starting phase")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "no running tiller pod")
 
 		// Can't find a tiller pod in starting phase, We will retry on next reconciliation loop.
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation")
