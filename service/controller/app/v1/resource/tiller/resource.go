@@ -65,6 +65,14 @@ func (r *Resource) ensureTillerInstalled(ctx context.Context, helmClient helmcli
 		reconciliationcanceledcontext.SetCanceled(ctx)
 
 		return nil
+	} else if helmclient.IsTillerNotRunningError(err) {
+		r.logger.LogCtx(ctx, "level", "debug", "message", "no running tiller pod")
+
+		// Can't find a tiller pod in starting phase, We will retry on next reconciliation loop.
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation")
+		reconciliationcanceledcontext.SetCanceled(ctx)
+
+		return nil
 	} else if tenant.IsAPINotAvailable(err) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "tenant API not available")
 
