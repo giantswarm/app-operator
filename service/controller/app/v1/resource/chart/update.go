@@ -5,9 +5,8 @@ import (
 	"fmt"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
-
 	"github.com/giantswarm/microerror"
-	"github.com/giantswarm/operatorkit/controller"
+	"github.com/giantswarm/operatorkit/resource/crud"
 
 	"github.com/giantswarm/app-operator/service/controller/app/v1/controllercontext"
 )
@@ -37,7 +36,7 @@ func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange inte
 	return nil
 }
 
-func (r *Resource) NewUpdatePatch(ctx context.Context, obj, currentChart, desiredChart interface{}) (*controller.Patch, error) {
+func (r *Resource) NewUpdatePatch(ctx context.Context, obj, currentChart, desiredChart interface{}) (*crud.Patch, error) {
 	create, err := r.newCreateChange(ctx, currentChart, desiredChart)
 	if err != nil {
 		return nil, microerror.Mask(err)
@@ -48,7 +47,7 @@ func (r *Resource) NewUpdatePatch(ctx context.Context, obj, currentChart, desire
 		return nil, microerror.Mask(err)
 	}
 
-	patch := controller.NewPatch()
+	patch := crud.NewPatch()
 	patch.SetCreateChange(create)
 	patch.SetUpdateChange(update)
 
