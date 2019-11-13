@@ -3,6 +3,9 @@ apiVersion: networking.k8s.io/v1
 metadata:
   namespace: {{ .Values.namespace }}
   name: {{ .Values.name }}-network-policy
+  labels:
+    app: {{ .Values.name }}
+    giantswarm.io/service-type: "managed"
 spec:
   podSelector:
     matchLabels:
@@ -11,10 +14,7 @@ spec:
   - ports:
     - port: {{ .Values.port }}
       protocol: {{ .Values.protocol }}
-  egress:
-  - to:
-    - ipBlock:
-        cidr: 0.0.0.0/0
+  egress: {}
   policyTypes:
   - Egress
   - Ingress
