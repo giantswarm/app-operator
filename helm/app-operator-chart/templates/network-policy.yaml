@@ -14,7 +14,8 @@ spec:
   - ports:
     - port: {{ .Values.port }}
       protocol: {{ .Values.protocol }}
-  egress: {}
+  egress:
+  - {}
   policyTypes:
   - Egress
   - Ingress
