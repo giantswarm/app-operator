@@ -68,7 +68,15 @@ func (r *Resource) ensureTillerInstalled(ctx context.Context, helmClient helmcli
 	} else if helmclient.IsTillerNotRunningError(err) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "no running tiller pod")
 
-		// Can't find a tiller pod in starting phase, We will retry on next reconciliation loop.
+		// Can't find a tiller pod in starting phase. We will retry on next reconciliation loop.
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation")
+		reconciliationcanceledcontext.SetCanceled(ctx)
+
+		return nil
+	} else if helmclient.IsTooManyResults(err) {
+		r.logger.LogCtx(ctx, "level", "debug", "message", "currently too many tiller pods due to upgrade")
+
+		// Too many tiller pods due to upgrade. We will retry on next reconciliation loop.
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation")
 		reconciliationcanceledcontext.SetCanceled(ctx)
 
