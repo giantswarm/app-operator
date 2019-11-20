@@ -16,10 +16,16 @@ import (
 // PullChartTarball downloads a tarball from the provided tarball URL,
 // returning the file path.
 func (c *Client) PullChartTarball(ctx context.Context, tarballURL string) (string, error) {
+	c.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("DEBUG helmclient tarballURL %#q", tarballURL))
+
 	req, err := c.newRequest("GET", tarballURL)
 	if err != nil {
 		return "", microerror.Mask(err)
 	}
+
+	c.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("DEBUG helmclient request URL %#q", req.URL))
+	c.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("DEBUG helmclient request scheme %#q", req.URL.Scheme))
+	c.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("DEBUG helmclient request host %#q", req.URL.Host))
 
 	chartTarballPath, err := c.doFile(ctx, req)
 	if err != nil {

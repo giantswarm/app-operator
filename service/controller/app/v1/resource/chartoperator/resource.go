@@ -113,10 +113,17 @@ func (r Resource) installChartOperator(ctx context.Context, cr v1alpha1.App) err
 	// check app CR for chart-operator and fetching app-catalog name and version.
 	var tarballURL string
 	{
+		r.logger.LogCtx(ctx, "level", "info", "message", "DEBUG installing chart-operator release")
+		r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("DEBUG catalog storage URL %#q", key.AppCatalogStorageURL(*appCatalogCR)))
+		r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("DEBUG release %#q", release))
+		r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("DEBUG release %#q", key.Version(*chartOperatorAppCR)))
+
 		tarballURL, err = appcatalog.NewTarballURL(key.AppCatalogStorageURL(*appCatalogCR), release, key.Version(*chartOperatorAppCR))
 		if err != nil {
 			return microerror.Mask(err)
 		}
+
+		r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("DEBUG tarball URL %#q", tarballURL))
 	}
 
 	var tarballPath string
@@ -125,6 +132,8 @@ func (r Resource) installChartOperator(ctx context.Context, cr v1alpha1.App) err
 		if err != nil {
 			return microerror.Mask(err)
 		}
+
+		r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("DEBUG tarball path %#q", tarballPath))
 
 		defer func() {
 			err := r.fileSystem.Remove(tarballPath)
@@ -199,10 +208,17 @@ func (r Resource) updateChartOperator(ctx context.Context, cr v1alpha1.App) erro
 	// check app CR for chart-operator and fetching app-catalog name and version.
 	var tarballURL string
 	{
+		r.logger.LogCtx(ctx, "level", "info", "message", "DEBUG updating chart-operator release")
+		r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("DEBUG catalog storage URL %#q", key.AppCatalogStorageURL(*appCatalogCR)))
+		r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("DEBUG release %#q", release))
+		r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("DEBUG release %#q", key.Version(*chartOperatorAppCR)))
+
 		tarballURL, err = appcatalog.NewTarballURL(key.AppCatalogStorageURL(*appCatalogCR), release, key.Version(*chartOperatorAppCR))
 		if err != nil {
 			return microerror.Mask(err)
 		}
+
+		r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("DEBUG tarball URL %#q", tarballURL))
 	}
 
 	var tarballPath string
@@ -211,6 +227,8 @@ func (r Resource) updateChartOperator(ctx context.Context, cr v1alpha1.App) erro
 		if err != nil {
 			return microerror.Mask(err)
 		}
+
+		r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("DEBUG tarball path %#q", tarballPath))
 
 		defer func() {
 			err := r.fileSystem.Remove(tarballPath)
