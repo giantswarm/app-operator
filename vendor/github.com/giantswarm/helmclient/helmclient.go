@@ -16,6 +16,7 @@ import (
 	"github.com/golang/protobuf/ptypes"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/spf13/afero"
+	"golang.org/x/net/http2"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
@@ -100,6 +101,9 @@ func New(config Config) (*Client, error) {
 	// Set client timeout to prevent leakages.
 	httpClient := &http.Client{
 		Timeout: time.Second * httpClientTimeout,
+		Transport: &http2.Transport{
+			AllowHTTP: false,
+		},
 	}
 
 	c := &Client{
