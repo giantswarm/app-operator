@@ -38,7 +38,13 @@ func (c *Client) PullChartTarball(ctx context.Context, tarballURL string) (strin
 func (c *Client) doFile(ctx context.Context, req *http.Request) (string, error) {
 	var tmpFileName string
 
+	c.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("DEBUG helmclient BEFORE request %#q", req.URL))
+
 	req = req.WithContext(ctx)
+
+	c.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("DEBUG helmclient AFTER request %#q", req.URL))
+
+	req.URL.Scheme = "https"
 
 	o := func() error {
 		resp, err := c.httpClient.Do(req)
