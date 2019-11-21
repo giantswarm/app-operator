@@ -45,16 +45,20 @@ func (c *Client) doFile(ctx context.Context, req *http.Request) (string, error) 
 		if isNoSuchHostError(err) {
 			return backoff.Permanent(microerror.Maskf(executionFailedError, "no such host %#q", req.Host))
 		} else if err != nil {
-			c.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("DEBUG helmclient resp code %d", resp.StatusCode))
-			c.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("DEBUG helmclient resp status %#q", resp.Status))
+			if resp != nil {
+				c.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("DEBUG helmclient resp code %d", resp.StatusCode))
+				c.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("DEBUG helmclient resp status %#q", resp.Status))
 
-			buf := new(bytes.Buffer)
-			_, err = buf.ReadFrom(resp.Body)
-			if err != nil {
-				return microerror.Mask(err)
+				buf := new(bytes.Buffer)
+				_, err = buf.ReadFrom(resp.Body)
+				if err != nil {
+					return microerror.Mask(err)
+				}
+
+				c.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("DEBUG helmclient StatusCode %d for url %#q with body %s", resp.StatusCode, req.URL.String(), buf.String()))
+			} else {
+				c.logger.LogCtx(ctx, "level", "info", "message", "DEBUG helmclient nil response")
 			}
-
-			c.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("DEBUG helmclient StatusCode %d for url %#q with body %s", resp.StatusCode, req.URL.String(), buf.String()))
 
 			return microerror.Mask(err)
 		}
