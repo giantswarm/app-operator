@@ -57,39 +57,31 @@ func (r *Resource) ensureTillerInstalled(ctx context.Context, helmClient helmcli
 
 	err = helmClient.EnsureTillerInstalledWithValues(ctx, values)
 	if helmclient.IsTillerNotFound(err) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "no healthy tiller pod found")
-
 		// Tiller may not be healthy and we cannot continue without a connection
 		// to Tiller. We will retry on next reconciliation loop.
+		r.logger.LogCtx(ctx, "level", "debug", "message", "no healthy tiller pod found")
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation")
 		reconciliationcanceledcontext.SetCanceled(ctx)
-
 		return nil
 	} else if helmclient.IsTillerNotRunningError(err) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "no running tiller pod")
-
 		// Can't find a tiller pod in starting phase. We will retry on next reconciliation loop.
+		r.logger.LogCtx(ctx, "level", "debug", "message", "no running tiller pod")
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation")
 		reconciliationcanceledcontext.SetCanceled(ctx)
-
 		return nil
 	} else if helmclient.IsTooManyResults(err) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "currently too many tiller pods due to upgrade")
-
 		// Too many tiller pods due to upgrade. We will retry on next reconciliation loop.
+		r.logger.LogCtx(ctx, "level", "debug", "message", "currently too many tiller pods due to upgrade")
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation")
 		reconciliationcanceledcontext.SetCanceled(ctx)
-
 		return nil
 	} else if tenant.IsAPINotAvailable(err) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "tenant API not available")
-
 		// We should not hammer tenant API if it is not available, the tenant
 		// cluster might be initializing. We will retry on next reconciliation
 		// loop.
+		r.logger.LogCtx(ctx, "level", "debug", "message", "tenant API not available")
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation")
 		reconciliationcanceledcontext.SetCanceled(ctx)
-
 		return nil
 	} else if err != nil {
 		return microerror.Mask(err)
