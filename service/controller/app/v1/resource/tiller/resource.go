@@ -49,7 +49,7 @@ func (r *Resource) ensureTillerInstalled(ctx context.Context, helmClient helmcli
 	values := []string{
 		"spec.template.spec.priorityClassName=giantswarm-critical",
 		"spec.template.spec.tolerations[0].effect=NoSchedule",
-		"spec.template.spec.tolerations[0].key=node-role.kubernetes.io/master",
+		"spec.template.spec.tolerations[0].key=node.kubernetes.io/master",
 		"spec.template.spec.tolerations[0].operator=Exists",
 	}
 
