@@ -267,7 +267,6 @@ func (r *Resource) getAppCatalogCR(ctx context.Context, chartOperatorAppCR *v1al
 			r.logger.LogCtx(ctx, "level", "debug", "message", "can't find appCatalog CR")
 			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling the reconciliation")
 			reconciliationcanceledcontext.SetCanceled(ctx)
-
 			return nil, nil
 		} else if err != nil {
 			return nil, microerror.Mask(err)
@@ -290,7 +289,6 @@ func (r *Resource) getChartOperatorAppCR(ctx context.Context, namespace string) 
 			r.logger.LogCtx(ctx, "level", "debug", "message", "can't find chart-operator app CR")
 			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling the reconciliation")
 			reconciliationcanceledcontext.SetCanceled(ctx)
-
 			return nil, nil
 		} else if err != nil {
 			return nil, err

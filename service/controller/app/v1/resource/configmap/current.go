@@ -29,10 +29,8 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 
 	if cc.Status.TenantCluster.IsDeleting {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("namespace %#q is being deleted, no need to reconcile resource", cr.Namespace))
-
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 		resourcecanceledcontext.SetCanceled(ctx)
-
 		return nil, nil
 	}
 
@@ -44,13 +42,11 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("did not find configmap %#q in namespace %#q", name, r.chartNamespace))
 		return nil, nil
 	} else if tenant.IsAPINotAvailable(err) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster is not available.")
-
 		// We should not hammer tenant API if it is not available, the tenant cluster
 		// might be initializing. We will retry on next reconciliation loop.
-		resourcecanceledcontext.SetCanceled(ctx)
+		r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster is not available.")
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
-
+		resourcecanceledcontext.SetCanceled(ctx)
 		return nil, nil
 	} else if err != nil {
 		return nil, microerror.Mask(err)

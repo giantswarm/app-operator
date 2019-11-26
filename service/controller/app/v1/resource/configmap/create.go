@@ -31,13 +31,11 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 		if apierrors.IsAlreadyExists(err) {
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("already created configmap %#q in namespace %#q", configMap.Name, configMap.Namespace))
 		} else if tenant.IsAPINotAvailable(err) {
-			r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster is not available.")
-
 			// We should not hammer tenant API if it is not available, the tenant cluster
 			// might be initializing. We will retry on next reconciliation loop.
-			resourcecanceledcontext.SetCanceled(ctx)
+			r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster is not available.")
 			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
-
+			resourcecanceledcontext.SetCanceled(ctx)
 			return nil
 		} else if err != nil {
 			return microerror.Mask(err)
