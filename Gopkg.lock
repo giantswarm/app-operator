@@ -277,7 +277,7 @@
   revision = "4dd4911251929a0ac4c4f3d8c4bda482a9e09f30"
 
 [[projects]]
-  branch = "master"
+  branch = "tiller-registry"
   digest = "1:7dba9eaf17cc35b68960c4d0d7628ad26be8840decf88da8db62e9c94a0c7aef"
   name = "github.com/giantswarm/e2e-harness"
   packages = [
@@ -285,7 +285,7 @@
     "pkg/release",
   ]
   pruneopts = "UT"
-  revision = "b527706db0fd20a025f0134ce19cc56bdb5921cd"
+  revision = "8202b9a74391e65b77dfe049391570d7e00b16f2"
 
 [[projects]]
   branch = "master"
@@ -326,12 +326,12 @@
   revision = "9749deade60f7624620aa7158a4f38c87ea23795"
 
 [[projects]]
-  branch = "master"
-  digest = "1:28713da767adbb226195e7e48e02975d3291bcf7607f91a34bc3db0a75e079a2"
+  branch = "tiller-registry"
+  digest = "1:f75eaecbda366dd8004ba9ef6c1cccbcb5e900e0eee108acb802fda2882af90e"
   name = "github.com/giantswarm/helmclient"
   packages = ["."]
   pruneopts = "UT"
-  revision = "386916cdcc22ddd332022e045d26d0e345562116"
+  revision = "dc229711a976ff8fbbab30787642688093b45b97"
 
 [[projects]]
   branch = "master"
@@ -1587,7 +1587,7 @@
   version = "kubernetes-1.15.4"
 
 [[projects]]
-  digest = "1:4ccf1adef9c0287fc00db64c5128d754428d9024a5d1ddbbb3590ef7dc659925"
+  digest = "1:8e4a5c2de724932a44c9f0097eb34251b39bd6596089a61baae7e88279efbfe6"
   name = "k8s.io/helm"
   packages = [
     "cmd/helm/installer",
@@ -1620,8 +1620,8 @@
     "pkg/version",
   ]
   pruneopts = "UT"
-  revision = "cf1de4f8ba70eded310918a8af3a96bfe8e7683b"
-  version = "v2.15.1"
+  revision = "0e7f3b6637f7af8fcfddb3d2941fcc7cbebb0085"
+  version = "v2.14.3"
 
 [[projects]]
   digest = "1:93e82f25d75aba18436ad1ac042cb49493f096011f2541075721ed6f9e05c044"
