@@ -239,8 +239,6 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	{
 		c := tiller.Config{
 			Logger: config.Logger,
-
-			ImageRegistry: config.ImageRegistry,
 		}
 		tillerResource, err = tiller.New(c)
 		if err != nil {
