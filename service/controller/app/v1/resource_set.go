@@ -40,6 +40,7 @@ type ResourceSetConfig struct {
 
 	// Settings.
 	ChartNamespace string
+	ImageRegistry  string
 	ProjectName    string
 	WatchNamespace string
 }
@@ -65,6 +66,9 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	// Settings.
 	if config.ChartNamespace == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ChartNamespace must not be empty", config)
+	}
+	if config.ImageRegistry == "" {
+		return nil, microerror.Maskf(invalidConfigError, "%T.ImageRegistry must not be empty", config)
 	}
 	if config.ProjectName == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ProjectName must not be empty", config)
@@ -235,6 +239,8 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	{
 		c := tiller.Config{
 			Logger: config.Logger,
+
+			ImageRegistry: config.ImageRegistry,
 		}
 		tillerResource, err = tiller.New(c)
 		if err != nil {
