@@ -153,6 +153,8 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		c := clients.Config{
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
+
+			ImageRegistry: config.ImageRegistry,
 		}
 
 		clientsResource, err = clients.New(c)
