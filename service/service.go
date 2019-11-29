@@ -125,6 +125,7 @@ func New(config Config) (*Service, error) {
 			K8sExtClient: k8sExtClient,
 
 			ChartNamespace: config.Viper.GetString(config.Flag.Service.Chart.Namespace),
+			ImageRegistry:  config.Viper.GetString(config.Flag.Service.Image.Registry),
 			ProjectName:    config.ProjectName,
 			WatchNamespace: config.Viper.GetString(config.Flag.Service.Kubernetes.Watch.Namespace),
 		}

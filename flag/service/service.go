@@ -5,11 +5,13 @@ import (
 
 	"github.com/giantswarm/app-operator/flag/service/appcatalog"
 	"github.com/giantswarm/app-operator/flag/service/chart"
+	"github.com/giantswarm/app-operator/flag/service/image"
 )
 
 // Service is an intermediate data structure for command line configuration flags.
 type Service struct {
 	AppCatalog appcatalog.AppCatalog
 	Chart      chart.Chart
+	Image      image.Image
 	Kubernetes kubernetes.Kubernetes
 }

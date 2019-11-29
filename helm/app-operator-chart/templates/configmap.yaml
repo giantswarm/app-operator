@@ -18,6 +18,8 @@ data:
       appcatalog:
         index:
           namespace: '{{ .Values.namespace }}'
+      image:
+        registry: '{{ .Values.Installation.V1.Registry.Domain }}' 
       kubernetes:
         incluster: true
         watch:

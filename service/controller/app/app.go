@@ -23,6 +23,7 @@ type Config struct {
 	Logger       micrologger.Logger
 
 	ChartNamespace string
+	ImageRegistry  string
 	ProjectName    string
 	WatchNamespace string
 }
@@ -50,6 +51,9 @@ func NewApp(config Config) (*App, error) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
 
+	if config.ImageRegistry == "" {
+		return nil, microerror.Maskf(invalidConfigError, "%T.ImageRegistry must not be empty", config)
+	}
 	if config.ProjectName == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ProjectName must not be empty", config)
 	}
@@ -89,6 +93,7 @@ func NewApp(config Config) (*App, error) {
 			ChartNamespace: config.ChartNamespace,
 			FileSystem:     config.Fs,
 			G8sClient:      config.G8sClient,
+			ImageRegistry:  config.ImageRegistry,
 			K8sClient:      config.K8sClient,
 			Logger:         config.Logger,
 			ProjectName:    config.ProjectName,

@@ -26,6 +26,7 @@ type Config struct {
 	Logger    micrologger.Logger
 
 	// Settings.
+	ImageRegistry   string
 	TillerNamespace string
 }
 
@@ -36,6 +37,7 @@ type Resource struct {
 	logger    micrologger.Logger
 
 	// Settings.
+	imageRegistry   string
 	tillerNamespace string
 }
 
@@ -48,6 +50,9 @@ func New(config Config) (*Resource, error) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
 
+	if config.ImageRegistry == "" {
+		return nil, microerror.Maskf(invalidConfigError, "%T.ImageRegistry must not be empty", config)
+	}
 	if config.TillerNamespace == "" {
 		config.TillerNamespace = "giantswarm"
 	}
@@ -57,6 +62,8 @@ func New(config Config) (*Resource, error) {
 		k8sClient: config.K8sClient,
 		logger:    config.Logger,
 
+		// Settings
+		imageRegistry:   config.ImageRegistry,
 		tillerNamespace: config.TillerNamespace,
 	}
 
@@ -118,8 +125,9 @@ func (r *Resource) addClientsToContext(ctx context.Context, cr v1alpha1.App) err
 			K8sClient: cc.K8sClient,
 			Logger:    r.logger,
 
-			RestConfig:      restConfig,
-			TillerNamespace: r.tillerNamespace,
+			RestConfig:          restConfig,
+			TillerImageRegistry: r.imageRegistry,
+			TillerNamespace:     r.tillerNamespace,
 		}
 
 		helmClient, err := helmclient.New(c)
