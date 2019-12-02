@@ -11,7 +11,8 @@ import (
 	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	"k8s.io/client-go/kubernetes"
 
-	"github.com/giantswarm/app-operator/service/controller/appcatalog/v1"
+	"github.com/giantswarm/app-operator/pkg/project"
+	v1 "github.com/giantswarm/app-operator/service/controller/appcatalog/v1"
 )
 
 type Config struct {
@@ -20,8 +21,6 @@ type Config struct {
 	K8sExtClient apiextensionsclient.Interface
 	Logger       micrologger.Logger
 
-	IndexNamespace string
-	ProjectName    string
 	WatchNamespace string
 }
 
@@ -43,10 +42,6 @@ func NewAppCatalog(config Config) (*AppCatalog, error) {
 	}
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
-	}
-
-	if config.ProjectName == "" {
-		return nil, microerror.Maskf(invalidConfigError, "%T.ProjectName must not be empty", config)
 	}
 
 	var crdClient *k8scrdclient.CRDClient
@@ -81,10 +76,8 @@ func NewAppCatalog(config Config) (*AppCatalog, error) {
 	var resourceSetV1 *controller.ResourceSet
 	{
 		c := v1.ResourceSetConfig{
-			IndexNamespace: config.IndexNamespace,
-			K8sClient:      config.K8sClient,
-			Logger:         config.Logger,
-			ProjectName:    config.ProjectName,
+			K8sClient: config.K8sClient,
+			Logger:    config.Logger,
 		}
 
 		resourceSetV1, err = v1.NewResourceSet(c)
@@ -105,7 +98,7 @@ func NewAppCatalog(config Config) (*AppCatalog, error) {
 			},
 			RESTClient: config.G8sClient.CoreV1alpha1().RESTClient(),
 
-			Name: config.ProjectName,
+			Name: project.Name(),
 		}
 
 		appCatalogController, err = controller.New(c)

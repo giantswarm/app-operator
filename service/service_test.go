@@ -21,16 +21,10 @@ func Test_Service_New(t *testing.T) {
 				c := Config{
 					Flag:   flag.New(),
 					Logger: microloggertest.New(),
-					Viper:  viper.New(),
 
-					Description: "test",
-					GitCommit:   "test",
-					ProjectName: "chart-operator",
-					Source:      "test",
-					Version:     "test",
+					Viper: viper.New(),
 				}
 
-				c.Viper.Set(c.Flag.Service.AppCatalog.Index.Namespace, "giantswarm")
 				c.Viper.Set(c.Flag.Service.Chart.Namespace, "giantswarm")
 				c.Viper.Set(c.Flag.Service.Image.Registry, "quay.io")
 				c.Viper.Set(c.Flag.Service.Kubernetes.Address, "kubernetes")

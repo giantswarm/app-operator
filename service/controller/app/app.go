@@ -12,7 +12,8 @@ import (
 	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	"k8s.io/client-go/kubernetes"
 
-	"github.com/giantswarm/app-operator/service/controller/app/v1"
+	"github.com/giantswarm/app-operator/pkg/project"
+	v1 "github.com/giantswarm/app-operator/service/controller/app/v1"
 )
 
 type Config struct {
@@ -24,7 +25,6 @@ type Config struct {
 
 	ChartNamespace string
 	ImageRegistry  string
-	ProjectName    string
 	WatchNamespace string
 }
 
@@ -53,9 +53,6 @@ func NewApp(config Config) (*App, error) {
 
 	if config.ImageRegistry == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ImageRegistry must not be empty", config)
-	}
-	if config.ProjectName == "" {
-		return nil, microerror.Maskf(invalidConfigError, "%T.ProjectName must not be empty", config)
 	}
 
 	var crdClient *k8scrdclient.CRDClient
@@ -96,7 +93,6 @@ func NewApp(config Config) (*App, error) {
 			ImageRegistry:  config.ImageRegistry,
 			K8sClient:      config.K8sClient,
 			Logger:         config.Logger,
-			ProjectName:    config.ProjectName,
 			WatchNamespace: config.WatchNamespace,
 		}
 
@@ -118,7 +114,7 @@ func NewApp(config Config) (*App, error) {
 			},
 			RESTClient: config.G8sClient.CoreV1alpha1().RESTClient(),
 
-			Name: config.ProjectName,
+			Name: project.Name(),
 		}
 
 		appController, err = controller.New(c)

@@ -23,7 +23,6 @@ type Config struct {
 
 	// Settings.
 	ChartNamespace string
-	ProjectName    string
 }
 
 // Resource implements the configmap resource.
@@ -34,7 +33,6 @@ type Resource struct {
 
 	// Settings.
 	chartNamespace string
-	projectName    string
 }
 
 // New creates a new configured configmap resource.
@@ -49,16 +47,12 @@ func New(config Config) (*Resource, error) {
 	if config.ChartNamespace == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ChartNamespace must not be empty", config)
 	}
-	if config.ProjectName == "" {
-		return nil, microerror.Maskf(invalidConfigError, "%T.ProjectName must not be empty", config)
-	}
 
 	r := &Resource{
 		logger: config.Logger,
 		values: config.Values,
 
 		chartNamespace: config.ChartNamespace,
-		projectName:    config.ProjectName,
 	}
 
 	return r, nil

@@ -152,7 +152,6 @@ func Test_Resource_newUpdateChange(t *testing.T) {
 		Values: valuesService,
 
 		ChartNamespace: "giantswarm",
-		ProjectName:    "app-operator",
 	}
 	r, err := New(c)
 	if err != nil {

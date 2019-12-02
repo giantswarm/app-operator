@@ -48,15 +48,10 @@ func mainWithError() (err error) {
 		var newService *service.Service
 		{
 			c := service.Config{
-				Flag:   f,
 				Logger: newLogger,
-				Viper:  v,
 
-				Description: project.Description(),
-				GitCommit:   project.GitSHA(),
-				ProjectName: project.Name(),
-				Source:      project.Source(),
-				Version:     project.Version(),
+				Flag:  f,
+				Viper: v,
 			}
 			newService, err = service.New(c)
 			if err != nil {
@@ -70,10 +65,10 @@ func mainWithError() (err error) {
 		var newServer microserver.Server
 		{
 			c := server.Config{
-				Logger:      newLogger,
-				Service:     newService,
-				Viper:       v,
-				ProjectName: project.Name(),
+				Logger:  newLogger,
+				Service: newService,
+
+				Viper: v,
 			}
 
 			newServer, err = server.New(c)
@@ -107,7 +102,6 @@ func mainWithError() (err error) {
 
 	daemonCommand := newCommand.DaemonCommand().CobraCommand()
 
-	daemonCommand.PersistentFlags().String(f.Service.AppCatalog.Index.Namespace, "giantswarm", "The namespace where operator keep index file as configMap.")
 	daemonCommand.PersistentFlags().String(f.Service.Chart.Namespace, "giantswarm", "The namespace where chart CRs are located.")
 	daemonCommand.PersistentFlags().String(f.Service.Image.Registry, "quay.io", "The container registry for pulling Tiller images.")
 	daemonCommand.PersistentFlags().String(f.Service.Kubernetes.Address, "", "Address used to connect to Kubernetes. When empty in-cluster config is created.")
