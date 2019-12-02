@@ -30,7 +30,6 @@ func Test_Service_New(t *testing.T) {
 					Version:     "test",
 				}
 
-				c.Viper.Set(c.Flag.Service.AppCatalog.Index.Namespace, "giantswarm")
 				c.Viper.Set(c.Flag.Service.Chart.Namespace, "giantswarm")
 				c.Viper.Set(c.Flag.Service.Image.Registry, "quay.io")
 				c.Viper.Set(c.Flag.Service.Kubernetes.Address, "kubernetes")
