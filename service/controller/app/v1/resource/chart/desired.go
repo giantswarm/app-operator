@@ -11,6 +11,7 @@ import (
 
 	"github.com/giantswarm/app-operator/pkg/annotation"
 	"github.com/giantswarm/app-operator/pkg/label"
+	"github.com/giantswarm/app-operator/pkg/project"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/controllercontext"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/key"
 )
@@ -40,7 +41,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      cr.GetName(),
 			Namespace: r.chartNamespace,
-			Labels:    processLabels(r.projectName, cr.GetLabels()),
+			Labels:    processLabels(project.Name(), cr.GetLabels()),
 		},
 		Spec: v1alpha1.ChartSpec{
 			Config:     config,

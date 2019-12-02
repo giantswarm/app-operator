@@ -244,7 +244,6 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 				Logger:    microloggertest.New(),
 
 				ChartNamespace: "giantswarm",
-				ProjectName:    "app-operator",
 				WatchNamespace: "default",
 			}
 			r, err := New(c)

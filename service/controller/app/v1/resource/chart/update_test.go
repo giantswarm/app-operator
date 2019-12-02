@@ -83,7 +83,6 @@ func Test_Resource_newUpdateChange(t *testing.T) {
 		Logger:    microloggertest.New(),
 
 		ChartNamespace: "giantswarm",
-		ProjectName:    "app-operator",
 		WatchNamespace: "default",
 	}
 	r, err := New(c)

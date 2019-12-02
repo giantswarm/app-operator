@@ -16,6 +16,7 @@ import (
 	"k8s.io/client-go/rest"
 
 	"github.com/giantswarm/app-operator/flag"
+	"github.com/giantswarm/app-operator/pkg/project"
 	"github.com/giantswarm/app-operator/service/collector"
 	"github.com/giantswarm/app-operator/service/controller/app"
 	"github.com/giantswarm/app-operator/service/controller/appcatalog"
@@ -25,13 +26,8 @@ import (
 type Config struct {
 	Logger micrologger.Logger
 	Flag   *flag.Flag
-	Viper  *viper.Viper
 
-	Description string
-	GitCommit   string
-	ProjectName string
-	Source      string
-	Version     string
+	Viper *viper.Viper
 }
 
 // Service is a type providing implementation of microkit service interface.
@@ -103,7 +99,6 @@ func New(config Config) (*Service, error) {
 			K8sClient:    k8sClient,
 			K8sExtClient: k8sExtClient,
 
-			ProjectName:    config.ProjectName,
 			WatchNamespace: config.Viper.GetString(config.Flag.Service.Kubernetes.Watch.Namespace),
 		}
 
@@ -125,7 +120,6 @@ func New(config Config) (*Service, error) {
 
 			ChartNamespace: config.Viper.GetString(config.Flag.Service.Chart.Namespace),
 			ImageRegistry:  config.Viper.GetString(config.Flag.Service.Image.Registry),
-			ProjectName:    config.ProjectName,
 			WatchNamespace: config.Viper.GetString(config.Flag.Service.Kubernetes.Watch.Namespace),
 		}
 
@@ -152,11 +146,11 @@ func New(config Config) (*Service, error) {
 	var versionService *version.Service
 	{
 		versionConfig := version.Config{
-			Description:    config.Description,
-			GitCommit:      config.GitCommit,
-			Name:           config.ProjectName,
-			Source:         config.Source,
-			Version:        config.Version,
+			Description:    project.Description(),
+			GitCommit:      project.GitSHA(),
+			Name:           project.Name(),
+			Source:         project.Source(),
+			Version:        project.Version(),
 			VersionBundles: NewVersionBundles(),
 		}
 

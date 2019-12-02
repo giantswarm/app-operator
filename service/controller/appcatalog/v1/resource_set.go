@@ -22,9 +22,6 @@ type ResourceSetConfig struct {
 	// Dependencies.
 	K8sClient kubernetes.Interface
 	Logger    micrologger.Logger
-
-	// Settings.
-	ProjectName    string
 }
 
 // NewResourceSet returns a configured AppCatalog controller ResourceSet.
@@ -39,10 +36,6 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
 
-	// Settings.
-	if config.ProjectName == "" {
-		return nil, microerror.Maskf(invalidConfigError, "%T.ProjectName must not be empty", config)
-	}
 	var emptyResource resource.Interface
 	{
 		emptyResource = empty.New()

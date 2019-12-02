@@ -9,6 +9,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/giantswarm/app-operator/pkg/label"
+	"github.com/giantswarm/app-operator/pkg/project"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/controllercontext"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/key"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/values"
@@ -44,7 +45,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 			Name:      key.ChartConfigMapName(cr),
 			Namespace: r.chartNamespace,
 			Labels: map[string]string{
-				label.ManagedBy: r.projectName,
+				label.ManagedBy: project.Name(),
 			},
 		},
 	}

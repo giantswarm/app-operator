@@ -26,7 +26,6 @@ type Config struct {
 
 	// Settings.
 	ChartNamespace string
-	ProjectName    string
 	WatchNamespace string
 }
 
@@ -38,7 +37,6 @@ type Resource struct {
 
 	// Settings.
 	chartNamespace string
-	projectName    string
 	watchNamespace string
 }
 
@@ -54,16 +52,12 @@ func New(config Config) (*Resource, error) {
 	if config.ChartNamespace == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ChartNamespace must not be empty", config)
 	}
-	if config.ProjectName == "" {
-		return nil, microerror.Maskf(invalidConfigError, "%T.ProjectName must not be empty", config)
-	}
 
 	r := &Resource{
 		g8sClient: config.G8sClient,
 		logger:    config.Logger,
 
 		chartNamespace: config.ChartNamespace,
-		projectName:    config.ProjectName,
 		watchNamespace: config.WatchNamespace,
 	}
 

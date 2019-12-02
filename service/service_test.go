@@ -21,13 +21,8 @@ func Test_Service_New(t *testing.T) {
 				c := Config{
 					Flag:   flag.New(),
 					Logger: microloggertest.New(),
-					Viper:  viper.New(),
 
-					Description: "test",
-					GitCommit:   "test",
-					ProjectName: "chart-operator",
-					Source:      "test",
-					Version:     "test",
+					Viper: viper.New(),
 				}
 
 				c.Viper.Set(c.Flag.Service.Chart.Namespace, "giantswarm")

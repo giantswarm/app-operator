@@ -48,15 +48,10 @@ func mainWithError() (err error) {
 		var newService *service.Service
 		{
 			c := service.Config{
-				Flag:   f,
 				Logger: newLogger,
-				Viper:  v,
 
-				Description: project.Description(),
-				GitCommit:   project.GitSHA(),
-				ProjectName: project.Name(),
-				Source:      project.Source(),
-				Version:     project.Version(),
+				Flag:  f,
+				Viper: v,
 			}
 			newService, err = service.New(c)
 			if err != nil {
@@ -70,10 +65,10 @@ func mainWithError() (err error) {
 		var newServer microserver.Server
 		{
 			c := server.Config{
-				Logger:      newLogger,
-				Service:     newService,
-				Viper:       v,
-				ProjectName: project.Name(),
+				Logger:  newLogger,
+				Service: newService,
+
+				Viper: v,
 			}
 
 			newServer, err = server.New(c)

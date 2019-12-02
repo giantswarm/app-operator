@@ -41,7 +41,6 @@ type ResourceSetConfig struct {
 	// Settings.
 	ChartNamespace string
 	ImageRegistry  string
-	ProjectName    string
 	WatchNamespace string
 }
 
@@ -69,9 +68,6 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	}
 	if config.ImageRegistry == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ImageRegistry must not be empty", config)
-	}
-	if config.ProjectName == "" {
-		return nil, microerror.Maskf(invalidConfigError, "%T.ProjectName must not be empty", config)
 	}
 
 	var valuesService *values.Values
@@ -133,7 +129,6 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 			Logger:    config.Logger,
 
 			ChartNamespace: config.ChartNamespace,
-			ProjectName:    config.ProjectName,
 			WatchNamespace: config.WatchNamespace,
 		}
 
@@ -170,7 +165,6 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 			Values: valuesService,
 
 			ChartNamespace: config.ChartNamespace,
-			ProjectName:    config.ProjectName,
 		}
 
 		ops, err := configmap.New(c)
@@ -208,7 +202,6 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 			Values: valuesService,
 
 			ChartNamespace: config.ChartNamespace,
-			ProjectName:    config.ProjectName,
 		}
 
 		ops, err := secret.New(c)
