@@ -24,7 +24,6 @@ type ResourceSetConfig struct {
 	Logger    micrologger.Logger
 
 	// Settings.
-	IndexNamespace string
 	ProjectName    string
 }
 
@@ -44,10 +43,6 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	if config.ProjectName == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ProjectName must not be empty", config)
 	}
-	if config.IndexNamespace == "" {
-		return nil, microerror.Maskf(invalidConfigError, "%T.IndexNamespace must not be empty", config)
-	}
-
 	var emptyResource resource.Interface
 	{
 		emptyResource = empty.New()

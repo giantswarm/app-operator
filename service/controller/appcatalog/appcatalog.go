@@ -20,7 +20,6 @@ type Config struct {
 	K8sExtClient apiextensionsclient.Interface
 	Logger       micrologger.Logger
 
-	IndexNamespace string
 	ProjectName    string
 	WatchNamespace string
 }
@@ -81,7 +80,6 @@ func NewAppCatalog(config Config) (*AppCatalog, error) {
 	var resourceSetV1 *controller.ResourceSet
 	{
 		c := v1.ResourceSetConfig{
-			IndexNamespace: config.IndexNamespace,
 			K8sClient:      config.K8sClient,
 			Logger:         config.Logger,
 			ProjectName:    config.ProjectName,
