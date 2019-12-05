@@ -101,7 +101,7 @@ func NewApp(config Config) (*App, error) {
 			ResourceSets: []*controller.ResourceSet{
 				resourceSetV1,
 			},
-			RESTClient: config.K8sClient.RESTClient(),
+			RESTClient: config.K8sClient.G8sClient().CoreV1alpha1().RESTClient(),
 
 			Name: project.Name(),
 		}
