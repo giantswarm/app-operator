@@ -8,18 +8,16 @@ import (
 
 	"github.com/giantswarm/micrologger/microloggertest"
 	"github.com/spf13/viper"
-	v1 "k8s.io/api/core/v1"
+	corev1 "k8s.io/api/core/v1"
 
 	"github.com/giantswarm/app-operator/flag"
 )
 
 func Test_Service_New(t *testing.T) {
-	// fake server to initialize helm client
-	// there are two calls to this server during initialization,
-	// getting the name of tiller pod and port forwarding to it
+	// fake server to return empty response.
 	h := func(w http.ResponseWriter, r *http.Request) {
-		podList := v1.PodList{
-			Items: []v1.Pod{},
+		podList := corev1.PodList{
+			Items: []corev1.Pod{},
 		}
 		pods, err := json.Marshal(podList)
 		if err != nil {
