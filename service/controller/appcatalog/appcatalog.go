@@ -85,7 +85,7 @@ func NewAppCatalog(config Config) (*AppCatalog, error) {
 			ResourceSets: []*controller.ResourceSet{
 				resourceSetV1,
 			},
-			RESTClient: config.K8sClient.G8sClient().CoreV1alpha1().RESTClient(),
+			RESTClient: config.K8sClient.RESTClient(),
 
 			Name: project.Name(),
 		}
