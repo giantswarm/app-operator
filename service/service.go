@@ -4,15 +4,14 @@ import (
 	"context"
 	"sync"
 
-	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
+	applicationv1alpha1 "github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
+	"github.com/giantswarm/k8sclient"
 	"github.com/giantswarm/microendpoint/service/version"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/client/k8srestconfig"
 	"github.com/spf13/afero"
 	"github.com/spf13/viper"
-	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
-	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 
 	"github.com/giantswarm/app-operator/flag"
@@ -76,28 +75,28 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
-	g8sClient, err := versioned.NewForConfig(restConfig)
-	if err != nil {
-		return nil, microerror.Mask(err)
-	}
+	var k8sClient k8sclient.Interface
+	{
+		c := k8sclient.ClientsConfig{
+			Logger: config.Logger,
+			SchemeBuilder: k8sclient.SchemeBuilder{
+				applicationv1alpha1.AddToScheme,
+			},
 
-	k8sClient, err := kubernetes.NewForConfig(restConfig)
-	if err != nil {
-		return nil, microerror.Mask(err)
-	}
+			RestConfig: restConfig,
+		}
 
-	k8sExtClient, err := apiextensionsclient.NewForConfig(restConfig)
-	if err != nil {
-		return nil, microerror.Mask(err)
+		k8sClient, err = k8sclient.NewClients(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
 	}
 
 	var appCatalogController *appcatalog.AppCatalog
 	{
 		c := appcatalog.Config{
-			G8sClient:    g8sClient,
-			Logger:       config.Logger,
-			K8sClient:    k8sClient,
-			K8sExtClient: k8sExtClient,
+			Logger:    config.Logger,
+			K8sClient: k8sClient,
 
 			WatchNamespace: config.Viper.GetString(config.Flag.Service.Kubernetes.Watch.Namespace),
 		}
@@ -112,11 +111,9 @@ func New(config Config) (*Service, error) {
 	var appController *app.App
 	{
 		c := app.Config{
-			Fs:           fs,
-			G8sClient:    g8sClient,
-			Logger:       config.Logger,
-			K8sClient:    k8sClient,
-			K8sExtClient: k8sExtClient,
+			Fs:        fs,
+			Logger:    config.Logger,
+			K8sClient: k8sClient,
 
 			ChartNamespace: config.Viper.GetString(config.Flag.Service.Chart.Namespace),
 			ImageRegistry:  config.Viper.GetString(config.Flag.Service.Image.Registry),
@@ -132,7 +129,6 @@ func New(config Config) (*Service, error) {
 	var operatorCollector *collector.Set
 	{
 		c := collector.SetConfig{
-			G8sClient: g8sClient,
 			K8sClient: k8sClient,
 			Logger:    config.Logger,
 		}

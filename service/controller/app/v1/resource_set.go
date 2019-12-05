@@ -3,7 +3,7 @@ package v1
 import (
 	"context"
 
-	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
+	"github.com/giantswarm/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/controller"
@@ -12,7 +12,6 @@ import (
 	"github.com/giantswarm/operatorkit/resource/wrapper/metricsresource"
 	"github.com/giantswarm/operatorkit/resource/wrapper/retryresource"
 	"github.com/spf13/afero"
-	"k8s.io/client-go/kubernetes"
 
 	"github.com/giantswarm/app-operator/service/controller/app/v1/controllercontext"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/key"
@@ -34,8 +33,7 @@ import (
 type ResourceSetConfig struct {
 	// Dependencies.
 	FileSystem afero.Fs
-	G8sClient  versioned.Interface
-	K8sClient  kubernetes.Interface
+	K8sClient  k8sclient.Interface
 	Logger     micrologger.Logger
 
 	// Settings.
@@ -51,9 +49,6 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	// Dependencies.
 	if config.FileSystem == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Fs must not be empty", config)
-	}
-	if config.G8sClient == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.G8sClient must not be empty", config)
 	}
 	if config.K8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
@@ -73,7 +68,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	var valuesService *values.Values
 	{
 		c := values.Config{
-			K8sClient: config.K8sClient,
+			K8sClient: config.K8sClient.K8sClient(),
 			Logger:    config.Logger,
 		}
 
@@ -86,7 +81,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	var appcatalogResource resource.Interface
 	{
 		c := appcatalog.Config{
-			G8sClient: config.G8sClient,
+			G8sClient: config.K8sClient.G8sClient(),
 			Logger:    config.Logger,
 		}
 		appcatalogResource, err = appcatalog.New(c)
@@ -98,7 +93,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	var appNamespaceResource resource.Interface
 	{
 		c := appnamespace.Config{
-			K8sClient: config.K8sClient,
+			K8sClient: config.K8sClient.K8sClient(),
 			Logger:    config.Logger,
 		}
 		appNamespaceResource, err = appnamespace.New(c)
@@ -111,8 +106,8 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	{
 		c := chartoperator.Config{
 			FileSystem: config.FileSystem,
-			G8sClient:  config.G8sClient,
-			K8sClient:  config.K8sClient,
+			G8sClient:  config.K8sClient.G8sClient(),
+			K8sClient:  config.K8sClient.K8sClient(),
 			Logger:     config.Logger,
 			Values:     valuesService,
 		}
@@ -125,7 +120,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	var chartResource resource.Interface
 	{
 		c := chart.Config{
-			G8sClient: config.G8sClient,
+			G8sClient: config.K8sClient.G8sClient(),
 			Logger:    config.Logger,
 
 			ChartNamespace: config.ChartNamespace,
@@ -146,7 +141,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	var clientsResource resource.Interface
 	{
 		c := clients.Config{
-			K8sClient: config.K8sClient,
+			K8sClient: config.K8sClient.K8sClient(),
 			Logger:    config.Logger,
 
 			ImageRegistry: config.ImageRegistry,
@@ -218,7 +213,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	var statusResource resource.Interface
 	{
 		c := status.Config{
-			G8sClient: config.G8sClient,
+			G8sClient: config.K8sClient.G8sClient(),
 			Logger:    config.Logger,
 
 			ChartNamespace: config.ChartNamespace,

@@ -10,7 +10,6 @@ import (
 	"github.com/giantswarm/operatorkit/resource/crud"
 	"github.com/giantswarm/operatorkit/resource/wrapper/metricsresource"
 	"github.com/giantswarm/operatorkit/resource/wrapper/retryresource"
-	"k8s.io/client-go/kubernetes"
 
 	"github.com/giantswarm/app-operator/service/controller/appcatalog/v1/key"
 	"github.com/giantswarm/app-operator/service/controller/appcatalog/v1/resource/empty"
@@ -20,8 +19,7 @@ import (
 // AppCatalog controller ResourceSet configuration.
 type ResourceSetConfig struct {
 	// Dependencies.
-	K8sClient kubernetes.Interface
-	Logger    micrologger.Logger
+	Logger micrologger.Logger
 }
 
 // NewResourceSet returns a configured AppCatalog controller ResourceSet.
@@ -29,9 +27,6 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	var err error
 
 	// Dependencies.
-	if config.K8sClient == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
-	}
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}

@@ -1,6 +1,8 @@
 package service
 
 import (
+	"net/http"
+	"net/http/httptest"
 	"testing"
 
 	"github.com/giantswarm/micrologger/microloggertest"
@@ -10,6 +12,14 @@ import (
 )
 
 func Test_Service_New(t *testing.T) {
+	// fake server to return empty response.
+	h := func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.Write([]byte("{}"))
+	}
+	ts := httptest.NewServer(http.HandlerFunc(h))
+	defer ts.Close()
+
 	testCases := []struct {
 		name         string
 		config       func() Config
@@ -27,7 +37,7 @@ func Test_Service_New(t *testing.T) {
 
 				c.Viper.Set(c.Flag.Service.Chart.Namespace, "giantswarm")
 				c.Viper.Set(c.Flag.Service.Image.Registry, "quay.io")
-				c.Viper.Set(c.Flag.Service.Kubernetes.Address, "kubernetes")
+				c.Viper.Set(c.Flag.Service.Kubernetes.Address, ts.URL)
 				c.Viper.Set(c.Flag.Service.Kubernetes.InCluster, false)
 				c.Viper.Set(c.Flag.Service.Kubernetes.Watch.Namespace, "giantswarm")
 
