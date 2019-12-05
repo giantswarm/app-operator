@@ -56,6 +56,9 @@ type AppResource struct {
 
 // NewAppResource creates a new AppResource metrics collector
 func NewAppResource(config AppResourceConfig) (*AppResource, error) {
+	if config.G8sClient == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.G8sClient must not be empty", config)
+	}
 	if config.K8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
 	}

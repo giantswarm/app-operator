@@ -32,6 +32,7 @@ func NewSet(config SetConfig) (*Set, error) {
 	var appOperatorCollector *AppResource
 	{
 		c := AppResourceConfig{
+			G8sClient: config.K8sClient.G8sClient(),
 			K8sClient: config.K8sClient.K8sClient(),
 			Logger:    config.Logger,
 		}
