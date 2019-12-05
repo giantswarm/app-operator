@@ -2,26 +2,22 @@ package app
 
 import (
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
-	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
+	"github.com/giantswarm/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/client/k8scrdclient"
 	"github.com/giantswarm/operatorkit/controller"
 	"github.com/giantswarm/operatorkit/informer"
 	"github.com/spf13/afero"
-	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
-	"k8s.io/client-go/kubernetes"
 
 	"github.com/giantswarm/app-operator/pkg/project"
 	v1 "github.com/giantswarm/app-operator/service/controller/app/v1"
 )
 
 type Config struct {
-	Fs           afero.Fs
-	G8sClient    versioned.Interface
-	K8sClient    kubernetes.Interface
-	K8sExtClient apiextensionsclient.Interface
-	Logger       micrologger.Logger
+	Fs        afero.Fs
+	K8sClient k8sclient.Interface
+	Logger    micrologger.Logger
 
 	ChartNamespace string
 	ImageRegistry  string
@@ -38,14 +34,8 @@ func NewApp(config Config) (*App, error) {
 	if config.Fs == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Fs must not be empty", config)
 	}
-	if config.G8sClient == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.G8sClient must not be empty", config)
-	}
 	if config.K8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
-	}
-	if config.K8sExtClient == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.K8sExtClient must not be empty", config)
 	}
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
@@ -58,7 +48,7 @@ func NewApp(config Config) (*App, error) {
 	var crdClient *k8scrdclient.CRDClient
 	{
 		c := k8scrdclient.Config{
-			K8sExtClient: config.K8sExtClient,
+			K8sExtClient: config.K8sClient.ExtClient(),
 			Logger:       config.Logger,
 		}
 
@@ -72,7 +62,7 @@ func NewApp(config Config) (*App, error) {
 	{
 		c := informer.Config{
 			Logger:  config.Logger,
-			Watcher: config.G8sClient.ApplicationV1alpha1().Apps(config.WatchNamespace),
+			Watcher: config.K8sClient.G8sClient().ApplicationV1alpha1().Apps(config.WatchNamespace),
 
 			RateWait:     informer.DefaultRateWait,
 			ResyncPeriod: informer.DefaultResyncPeriod,
@@ -89,7 +79,6 @@ func NewApp(config Config) (*App, error) {
 		c := v1.ResourceSetConfig{
 			ChartNamespace: config.ChartNamespace,
 			FileSystem:     config.Fs,
-			G8sClient:      config.G8sClient,
 			ImageRegistry:  config.ImageRegistry,
 			K8sClient:      config.K8sClient,
 			Logger:         config.Logger,
@@ -112,7 +101,7 @@ func NewApp(config Config) (*App, error) {
 			ResourceSets: []*controller.ResourceSet{
 				resourceSetV1,
 			},
-			RESTClient: config.G8sClient.CoreV1alpha1().RESTClient(),
+			RESTClient: config.K8sClient.G8sClient().CoreV1alpha1().RESTClient(),
 
 			Name: project.Name(),
 		}

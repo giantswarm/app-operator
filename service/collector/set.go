@@ -1,16 +1,14 @@
 package collector
 
 import (
-	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/exporterkit/collector"
+	"github.com/giantswarm/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
-	"k8s.io/client-go/kubernetes"
 )
 
 type SetConfig struct {
-	G8sClient versioned.Interface
-	K8sClient kubernetes.Interface
+	K8sClient k8sclient.Interface
 	Logger    micrologger.Logger
 }
 
@@ -22,9 +20,6 @@ type Set struct {
 }
 
 func NewSet(config SetConfig) (*Set, error) {
-	if config.G8sClient == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.G8sClient must not be empty", config)
-	}
 	if config.K8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
 	}
@@ -37,8 +32,7 @@ func NewSet(config SetConfig) (*Set, error) {
 	var appOperatorCollector *AppResource
 	{
 		c := AppResourceConfig{
-			G8sClient: config.G8sClient,
-			K8sClient: config.K8sClient,
+			K8sClient: config.K8sClient.K8sClient(),
 			Logger:    config.Logger,
 		}
 

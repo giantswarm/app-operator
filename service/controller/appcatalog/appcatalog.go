@@ -2,24 +2,20 @@ package appcatalog
 
 import (
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
-	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
+	"github.com/giantswarm/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/client/k8scrdclient"
 	"github.com/giantswarm/operatorkit/controller"
 	"github.com/giantswarm/operatorkit/informer"
-	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
-	"k8s.io/client-go/kubernetes"
 
 	"github.com/giantswarm/app-operator/pkg/project"
 	v1 "github.com/giantswarm/app-operator/service/controller/appcatalog/v1"
 )
 
 type Config struct {
-	G8sClient    versioned.Interface
-	K8sClient    kubernetes.Interface
-	K8sExtClient apiextensionsclient.Interface
-	Logger       micrologger.Logger
+	K8sClient k8sclient.Interface
+	Logger    micrologger.Logger
 
 	WatchNamespace string
 }
@@ -31,14 +27,8 @@ type AppCatalog struct {
 func NewAppCatalog(config Config) (*AppCatalog, error) {
 	var err error
 
-	if config.G8sClient == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.G8sClient must not be empty", config)
-	}
 	if config.K8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
-	}
-	if config.K8sExtClient == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.K8sExtClient must not be empty", config)
 	}
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
@@ -47,7 +37,7 @@ func NewAppCatalog(config Config) (*AppCatalog, error) {
 	var crdClient *k8scrdclient.CRDClient
 	{
 		c := k8scrdclient.Config{
-			K8sExtClient: config.K8sExtClient,
+			K8sExtClient: config.K8sClient.ExtClient(),
 			Logger:       config.Logger,
 		}
 
@@ -61,7 +51,7 @@ func NewAppCatalog(config Config) (*AppCatalog, error) {
 	{
 		c := informer.Config{
 			Logger:  config.Logger,
-			Watcher: config.G8sClient.ApplicationV1alpha1().AppCatalogs(),
+			Watcher: config.K8sClient.G8sClient().ApplicationV1alpha1().AppCatalogs(),
 
 			RateWait:     informer.DefaultRateWait,
 			ResyncPeriod: informer.DefaultResyncPeriod,
@@ -76,8 +66,7 @@ func NewAppCatalog(config Config) (*AppCatalog, error) {
 	var resourceSetV1 *controller.ResourceSet
 	{
 		c := v1.ResourceSetConfig{
-			K8sClient: config.K8sClient,
-			Logger:    config.Logger,
+			Logger: config.Logger,
 		}
 
 		resourceSetV1, err = v1.NewResourceSet(c)
@@ -96,7 +85,7 @@ func NewAppCatalog(config Config) (*AppCatalog, error) {
 			ResourceSets: []*controller.ResourceSet{
 				resourceSetV1,
 			},
-			RESTClient: config.G8sClient.CoreV1alpha1().RESTClient(),
+			RESTClient: config.K8sClient.G8sClient().CoreV1alpha1().RESTClient(),
 
 			Name: project.Name(),
 		}
