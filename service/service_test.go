@@ -1,14 +1,12 @@
 package service
 
 import (
-	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
 	"github.com/giantswarm/micrologger/microloggertest"
 	"github.com/spf13/viper"
-	corev1 "k8s.io/api/core/v1"
 
 	"github.com/giantswarm/app-operator/flag"
 )
@@ -16,17 +14,8 @@ import (
 func Test_Service_New(t *testing.T) {
 	// fake server to return empty response.
 	h := func(w http.ResponseWriter, r *http.Request) {
-		podList := corev1.PodList{
-			Items: []corev1.Pod{},
-		}
-		pods, err := json.Marshal(podList)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-
 		w.Header().Set("Content-Type", "application/json")
-		w.Write(pods)
+		w.Write([]byte("{}"))
 	}
 	ts := httptest.NewServer(http.HandlerFunc(h))
 	defer ts.Close()
