@@ -5,10 +5,9 @@ import (
 	"github.com/giantswarm/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
-	"github.com/giantswarm/operatorkit/client/k8scrdclient"
 	"github.com/giantswarm/operatorkit/controller"
-	"github.com/giantswarm/operatorkit/informer"
 	"github.com/spf13/afero"
+	"k8s.io/apimachinery/pkg/runtime"
 
 	"github.com/giantswarm/app-operator/pkg/project"
 	v1 "github.com/giantswarm/app-operator/service/controller/app/v1"
@@ -45,35 +44,6 @@ func NewApp(config Config) (*App, error) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ImageRegistry must not be empty", config)
 	}
 
-	var crdClient *k8scrdclient.CRDClient
-	{
-		c := k8scrdclient.Config{
-			K8sExtClient: config.K8sClient.ExtClient(),
-			Logger:       config.Logger,
-		}
-
-		crdClient, err = k8scrdclient.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	var newInformer *informer.Informer
-	{
-		c := informer.Config{
-			Logger:  config.Logger,
-			Watcher: config.K8sClient.G8sClient().ApplicationV1alpha1().Apps(config.WatchNamespace),
-
-			RateWait:     informer.DefaultRateWait,
-			ResyncPeriod: informer.DefaultResyncPeriod,
-		}
-
-		newInformer, err = informer.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
 	var resourceSetV1 *controller.ResourceSet
 	{
 		c := v1.ResourceSetConfig{
@@ -95,15 +65,15 @@ func NewApp(config Config) (*App, error) {
 	{
 		c := controller.Config{
 			CRD:       v1alpha1.NewAppCRD(),
-			CRDClient: crdClient,
-			Informer:  newInformer,
+			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
+			Name:      project.Name(),
 			ResourceSets: []*controller.ResourceSet{
 				resourceSetV1,
 			},
-			RESTClient: config.K8sClient.G8sClient().CoreV1alpha1().RESTClient(),
-
-			Name: project.Name(),
+			NewRuntimeObjectFunc: func() runtime.Object {
+				return new(v1alpha1.App)
+			},
 		}
 
 		appController, err = controller.New(c)
