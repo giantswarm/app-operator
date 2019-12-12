@@ -140,7 +140,7 @@ func (c *Client) EnsureTillerInstalledWithValues(ctx context.Context, values []s
 			Rules: []rbacv1.PolicyRule{
 				{
 					APIGroups: []string{
-						"extensions",
+						"policy",
 					},
 					Resources: []string{
 						"podsecuritypolicies",
@@ -395,6 +395,10 @@ func (c *Client) EnsureTillerInstalledWithValues(ctx context.Context, values []s
 			return microerror.Mask(err)
 		}
 	} else if !installTiller && upgradeTiller {
+		if !c.tillerUpgradeEnabled {
+			c.logger.LogCtx(ctx, "level", "debug", "message", "found an out-dated tiller but upgrades not enabled")
+			return nil
+		}
 		err = c.upgradeTiller(ctx, i)
 		if err != nil {
 			return microerror.Mask(err)
