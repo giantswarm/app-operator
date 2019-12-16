@@ -19,5 +19,3 @@ data:
         registry: '{{ .Values.Installation.V1.Registry.Domain }}' 
       kubernetes:
         incluster: true
-        watch:
-          namespace: '{{ .Values.watchNamespace }}'

@@ -97,8 +97,6 @@ func New(config Config) (*Service, error) {
 		c := appcatalog.Config{
 			Logger:    config.Logger,
 			K8sClient: k8sClient,
-
-			WatchNamespace: config.Viper.GetString(config.Flag.Service.Kubernetes.Watch.Namespace),
 		}
 
 		appCatalogController, err = appcatalog.NewAppCatalog(c)
@@ -117,7 +115,6 @@ func New(config Config) (*Service, error) {
 
 			ChartNamespace: config.Viper.GetString(config.Flag.Service.Chart.Namespace),
 			ImageRegistry:  config.Viper.GetString(config.Flag.Service.Image.Registry),
-			WatchNamespace: config.Viper.GetString(config.Flag.Service.Kubernetes.Watch.Namespace),
 		}
 
 		appController, err = app.NewApp(c)

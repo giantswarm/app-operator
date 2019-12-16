@@ -26,7 +26,6 @@ type Config struct {
 
 	// Settings.
 	ChartNamespace string
-	WatchNamespace string
 }
 
 // Resource implements the chart resource.
@@ -37,7 +36,6 @@ type Resource struct {
 
 	// Settings.
 	chartNamespace string
-	watchNamespace string
 }
 
 // New creates a new configured chart resource.
@@ -58,7 +56,6 @@ func New(config Config) (*Resource, error) {
 		logger:    config.Logger,
 
 		chartNamespace: config.ChartNamespace,
-		watchNamespace: config.WatchNamespace,
 	}
 
 	return r, nil
