@@ -20,7 +20,6 @@ type Config struct {
 
 	ChartNamespace string
 	ImageRegistry  string
-	WatchNamespace string
 }
 
 type App struct {
@@ -52,7 +51,6 @@ func NewApp(config Config) (*App, error) {
 			ImageRegistry:  config.ImageRegistry,
 			K8sClient:      config.K8sClient,
 			Logger:         config.Logger,
-			WatchNamespace: config.WatchNamespace,
 		}
 
 		resourceSetV1, err = v1.NewResourceSet(c)

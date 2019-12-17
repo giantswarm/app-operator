@@ -15,8 +15,6 @@ import (
 type Config struct {
 	K8sClient k8sclient.Interface
 	Logger    micrologger.Logger
-
-	WatchNamespace string
 }
 
 type AppCatalog struct {

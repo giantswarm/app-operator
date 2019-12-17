@@ -96,7 +96,6 @@ func Test_Resource_GetCurrentState(t *testing.T) {
 				Logger:    microloggertest.New(),
 
 				ChartNamespace: "giantswarm",
-				WatchNamespace: "default",
 			}
 			r, err := New(c)
 			if err != nil {

@@ -39,7 +39,6 @@ type ResourceSetConfig struct {
 	// Settings.
 	ChartNamespace string
 	ImageRegistry  string
-	WatchNamespace string
 }
 
 // NewResourceSet returns a configured App controller ResourceSet.
@@ -124,7 +123,6 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 			Logger:    config.Logger,
 
 			ChartNamespace: config.ChartNamespace,
-			WatchNamespace: config.WatchNamespace,
 		}
 
 		ops, err := chart.New(c)
