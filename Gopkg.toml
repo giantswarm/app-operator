@@ -46,7 +46,7 @@ required = [
 
 [[constraint]]
   name = "github.com/giantswarm/apiextensions"
-  branch = "master"
+  branch = "appcatalog-schema-improvements"
 
 [[constraint]]
   name = "github.com/giantswarm/appcatalog"
