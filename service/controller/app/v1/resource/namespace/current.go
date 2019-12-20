@@ -49,7 +49,7 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 
 		m, err := cc.K8sClient.CoreV1().Namespaces().Get(namespace, metav1.GetOptions{})
 		if apierrors.IsNotFound(err) {
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found namespace %#q in tenant cluster %#q", namespace, key.ClusterID(cr)))
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("did not find namespace %#q in tenant cluster %#q", namespace, key.ClusterID(cr)))
 			// fall through
 		} else if tenant.IsAPINotAvailable(err) {
 			r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster api not available")
@@ -60,7 +60,7 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 			return nil, microerror.Mask(err)
 		} else {
 			ns = m
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("did not find namespace %#q in tenant cluster %#q", namespace, key.ClusterID(cr)))
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found namespace %#q in tenant cluster %#q", namespace, key.ClusterID(cr)))
 		}
 	}
 
