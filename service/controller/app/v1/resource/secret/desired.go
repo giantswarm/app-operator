@@ -28,7 +28,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 
 	mergedData, err := r.values.MergeSecretData(ctx, cr, cc.AppCatalog)
 	if values.IsNotFound(err) {
-		r.logger.LogCtx(ctx, "level", "warning", "message", fmt.Sprintf("dependent configMaps are not found"), "stack", fmt.Sprintf("%#v", err))
+		r.logger.LogCtx(ctx, "level", "warning", "message", fmt.Sprintf("dependent secrets are not found"), "stack", fmt.Sprintf("%#v", err))
 		return nil, nil
 	} else if err != nil {
 		return nil, microerror.Mask(err)
