@@ -20,10 +20,21 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
-
 	cc, err := controllercontext.FromContext(ctx)
 	if err != nil {
 		return nil, microerror.Mask(err)
+	}
+
+	if key.IsDeleted(cr) {
+		// Return empty chart configmap so it is deleted.
+		configMap := &corev1.ConfigMap{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      key.ChartConfigMapName(cr),
+				Namespace: r.chartNamespace,
+			},
+		}
+
+		return configMap, nil
 	}
 
 	mergedData, err := r.values.MergeConfigMapData(ctx, cr, cc.AppCatalog)

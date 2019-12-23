@@ -20,10 +20,21 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
-
 	cc, err := controllercontext.FromContext(ctx)
 	if err != nil {
 		return nil, microerror.Mask(err)
+	}
+
+	if key.IsDeleted(cr) {
+		// Return empty chart secret so it is deleted.
+		secret := &corev1.Secret{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      key.ChartSecretName(cr),
+				Namespace: r.chartNamespace,
+			},
+		}
+
+		return secret, nil
 	}
 
 	mergedData, err := r.values.MergeSecretData(ctx, cr, cc.AppCatalog)

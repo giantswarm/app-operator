@@ -21,10 +21,21 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
-
 	cc, err := controllercontext.FromContext(ctx)
 	if err != nil {
 		return nil, microerror.Mask(err)
+	}
+
+	if key.IsDeleted(cr) {
+		// Return empty chart CR so it is deleted.
+		chartCR := &v1alpha1.Chart{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      cr.Name,
+				Namespace: r.chartNamespace,
+			},
+		}
+
+		return chartCR, nil
 	}
 
 	config := generateConfig(cr, cc.AppCatalog, r.chartNamespace)
