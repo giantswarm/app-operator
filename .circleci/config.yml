@@ -35,7 +35,7 @@ e2eTest: &e2eTest
             -e E2E_KUBECONFIG=/e2e/kubeconfig \
             -e CIRCLE_SHA1=${CIRCLE_SHA1} \
             -w /go/src/github.com/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME} \
-            golang:1 go test -v -tags k8srequired ./${E2E_TEST_DIR}/
+            golang:1 go test -timeout 20m -v -tags k8srequired ./${E2E_TEST_DIR}/
 
     - run:
         name: Debug
