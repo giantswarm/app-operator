@@ -117,6 +117,10 @@ func IsCordoned(customResource v1alpha1.App) bool {
 	}
 }
 
+func IsDeleted(customResource v1alpha1.App) bool {
+	return customResource.DeletionTimestamp != nil
+}
+
 func KubeConfigFinalizer(customResource v1alpha1.App) string {
 	return fmt.Sprintf("app-operator.giantswarm.io/app-%s", customResource.GetName())
 }

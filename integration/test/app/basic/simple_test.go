@@ -11,6 +11,7 @@ import (
 	"github.com/giantswarm/e2e-harness/pkg/release"
 	"github.com/giantswarm/e2etemplates/pkg/chartvalues"
 	"github.com/spf13/afero"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/helm/pkg/helm"
 
@@ -261,13 +262,35 @@ func TestAppLifecycle(t *testing.T) {
 	}
 
 	{
-		config.Logger.LogCtx(ctx, "level", "debug", "message", "checking chart CR had been deleted")
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("checking release %#q has been deleted", key.CustomResourceReleaseName()))
 
 		err = config.Release.WaitForStatus(ctx, key.TestAppReleaseName(), "DELETED")
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
 
-		config.Logger.LogCtx(ctx, "level", "debug", "message", "checked chart CR had been deleted")
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("release %#q has been deleted", key.CustomResourceReleaseName()))
+	}
+
+	{
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("checking chart CR %#q has been deleted", key.ChartConfigMapName()))
+
+		_, err = config.K8sClients.G8sClient().ApplicationV1alpha1().Charts(namespace).Get(key.TestAppReleaseName(), metav1.GetOptions{})
+		if !apierrors.IsNotFound(err) {
+			t.Fatalf("expected is not found error got %#v", err)
+		}
+
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("chart CR %#q has been deleted", key.ChartConfigMapName()))
+	}
+
+	{
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("checking chart configmap %#q has been deleted", key.ChartConfigMapName()))
+
+		_, err = config.K8sClients.K8sClient().CoreV1().ConfigMaps(namespace).Get(key.ChartConfigMapName(), metav1.GetOptions{})
+		if !apierrors.IsNotFound(err) {
+			t.Fatalf("expected is not found error got %#v", err)
+		}
+
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("chart configmap %#q has been deleted", key.ChartConfigMapName()))
 	}
 }
