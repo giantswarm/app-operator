@@ -23,6 +23,7 @@ import (
 	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/configmap"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/secret"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/status"
+	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/tcnamespace"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/tiller"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/values"
 )
@@ -205,6 +206,18 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 	}
 
+	var tcNamespaceResource resource.Interface
+	{
+		c := tcnamespace.Config{
+			Logger: config.Logger,
+		}
+
+		tcNamespaceResource, err = tcnamespace.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var tillerResource resource.Interface
 	{
 		c := tiller.Config{
@@ -217,12 +230,17 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	}
 
 	resources := []resource.Interface{
+		// Following resources manage controller context information.
 		appNamespaceResource,
 		appcatalogResource,
 		clientsResource,
-		namespaceResource,
+
+		// Following resources bootstrap chart-operator in tenant clusters.
+		tcNamespaceResource,
 		tillerResource,
 		chartOperatorResource,
+
+		// Following resources process app CRs.
 		configMapResource,
 		secretResource,
 		chartResource,
