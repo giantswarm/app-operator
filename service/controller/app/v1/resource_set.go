@@ -21,7 +21,6 @@ import (
 	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/chartoperator"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/clients"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/configmap"
-	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/namespace"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/secret"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/status"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/tiller"
@@ -166,23 +165,6 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 
 		configMapResource, err = toCRUDResource(config.Logger, ops)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	var namespaceResource resource.Interface
-	{
-		c := namespace.Config{
-			Logger: config.Logger,
-		}
-
-		ops, err := namespace.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-
-		namespaceResource, err = toCRUDResource(config.Logger, ops)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
