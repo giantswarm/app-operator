@@ -2,6 +2,7 @@ package clients
 
 import (
 	"context"
+	"time"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
@@ -125,9 +126,10 @@ func (r *Resource) addClientsToContext(ctx context.Context, cr v1alpha1.App) err
 			K8sClient: cc.K8sClient,
 			Logger:    r.logger,
 
-			RestConfig:          restConfig,
-			TillerImageRegistry: r.imageRegistry,
-			TillerNamespace:     r.tillerNamespace,
+			EnsureTillerInstalledMaxWait: 30 * time.Second,
+			RestConfig:                   restConfig,
+			TillerImageRegistry:          r.imageRegistry,
+			TillerNamespace:              r.tillerNamespace,
 		}
 
 		helmClient, err := helmclient.New(c)
