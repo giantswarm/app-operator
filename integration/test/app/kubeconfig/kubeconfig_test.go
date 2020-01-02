@@ -46,7 +46,7 @@ func TestAppLifecycleUsingKubeconfig(t *testing.T) {
 			Name:      key.TestAppReleaseName(),
 			Namespace: namespace,
 			Catalog:   testAppCatalogName,
-			Version:   "0.6.7",
+			Version:   "0.7.1",
 			Config: chartvalues.APIExtensionsAppE2EConfigAppConfig{
 				ConfigMap: chartvalues.APIExtensionsAppE2EConfigAppConfigConfigMap{
 					Name:      "test-app-values",
