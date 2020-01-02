@@ -93,7 +93,7 @@ func TestAppLifecycleUsingKubeconfig(t *testing.T) {
 		}
 
 		// Normally KIND assign 127.0.0.1 as server address, that should change into kubernetes
-		c.Clusters["kind"].Server = "https://kubernetes.default.svc.cluster.local"
+		c.Clusters["kind-kind"].Server = "https://kubernetes.default.svc.cluster.local"
 
 		bytes, err = clientcmd.Write(*c)
 		if err != nil {
