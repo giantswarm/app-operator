@@ -324,11 +324,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:3fbadedd3cb1905a17e9c467d8552f157b5342fead8020eb69ad9f09579d28bd"
+  digest = "1:02da26132fd7cee432ddb90b6c7048522930670e01b7e18d1003ce99b9483d7c"
   name = "github.com/giantswarm/helmclient"
   packages = ["."]
   pruneopts = "UT"
-  revision = "d1325340c4534d015b8e5abdae581883b030ec41"
+  revision = "e64c820cdb5d608d81cac7f866d6347467481c71"
 
 [[projects]]
   branch = "master"
