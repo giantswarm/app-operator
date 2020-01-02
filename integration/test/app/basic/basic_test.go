@@ -51,7 +51,7 @@ func TestAppLifecycle(t *testing.T) {
 			Name:      key.TestAppReleaseName(),
 			Namespace: namespace,
 			Catalog:   testAppCatalogName,
-			Version:   "0.6.7",
+			Version:   "0.7.0",
 			Config: chartvalues.APIExtensionsAppE2EConfigAppConfig{
 				ConfigMap: chartvalues.APIExtensionsAppE2EConfigAppConfigConfigMap{
 					Name:      "test-app-values",
@@ -165,7 +165,7 @@ func TestAppLifecycle(t *testing.T) {
 	{
 		config.Logger.LogCtx(ctx, "level", "debug", "message", "checking tarball URL in chart spec")
 
-		tarballURL := "https://giantswarm.github.com/sample-catalog/kubernetes-test-app-chart-0.6.7.tgz"
+		tarballURL := "https://giantswarm.github.com/sample-catalog/kubernetes-test-app-chart-0.7.1.tgz"
 		chart, err := config.K8sClients.G8sClient().ApplicationV1alpha1().Charts(namespace).Get(key.TestAppReleaseName(), metav1.GetOptions{})
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
