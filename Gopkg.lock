@@ -277,7 +277,7 @@
   revision = "4dd4911251929a0ac4c4f3d8c4bda482a9e09f30"
 
 [[projects]]
-  branch = "reduce-backoff-time"
+  branch = "master"
   digest = "1:e83800c0f3c424b5232ff2900d93d8ef0ce47615f780c19561f8aef4273cbad5"
   name = "github.com/giantswarm/e2e-harness"
   packages = [
@@ -285,7 +285,7 @@
     "pkg/release",
   ]
   pruneopts = "UT"
-  revision = "aa0867755b96e7cbdf833807416a3d7319aaa149"
+  revision = "b2048d8645c15ac583a270c57b95855426e48958"
 
 [[projects]]
   branch = "master"
@@ -323,12 +323,12 @@
   revision = "9749deade60f7624620aa7158a4f38c87ea23795"
 
 [[projects]]
-  branch = "reduce-backoff-time"
+  branch = "master"
   digest = "1:5474937fa59cd3513c5772d14724cca37d86a7b6dcc5d506bd4fcc14910b163f"
   name = "github.com/giantswarm/helmclient"
   packages = ["."]
   pruneopts = "UT"
-  revision = "16a4ba99059503f4cd096f4b99e4b0d612077175"
+  revision = "8d2f16a18b92557fea612dcae25da5c317739b51"
 
 [[projects]]
   branch = "master"
