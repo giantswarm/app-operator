@@ -46,7 +46,7 @@ func TestAppLifecycleUsingKubeconfig(t *testing.T) {
 			Name:      key.TestAppReleaseName(),
 			Namespace: namespace,
 			Catalog:   testAppCatalogName,
-			Version:   "0.6.7",
+			Version:   "0.7.0",
 			Config: chartvalues.APIExtensionsAppE2EConfigAppConfig{
 				ConfigMap: chartvalues.APIExtensionsAppE2EConfigAppConfigConfigMap{
 					Name:      "test-app-values",
@@ -93,7 +93,7 @@ func TestAppLifecycleUsingKubeconfig(t *testing.T) {
 		}
 
 		// Normally KIND assign 127.0.0.1 as server address, that should change into kubernetes
-		c.Clusters["kind"].Server = "https://kubernetes.default.svc.cluster.local"
+		c.Clusters["kind-kind"].Server = "https://kubernetes.default.svc.cluster.local"
 
 		bytes, err = clientcmd.Write(*c)
 		if err != nil {
@@ -239,7 +239,7 @@ func TestAppLifecycleUsingKubeconfig(t *testing.T) {
 	{
 		config.Logger.LogCtx(ctx, "level", "debug", "message", "checking tarball URL in chart spec")
 
-		tarballURL := "https://giantswarm.github.com/sample-catalog/kubernetes-test-app-chart-0.6.7.tgz"
+		tarballURL := "https://giantswarm.github.com/sample-catalog/kubernetes-test-app-chart-0.7.0.tgz"
 		chart, err := config.K8sClients.G8sClient().ApplicationV1alpha1().Charts(namespace).Get(key.TestAppReleaseName(), metav1.GetOptions{})
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
@@ -257,7 +257,7 @@ func TestAppLifecycleUsingKubeconfig(t *testing.T) {
 	{
 		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating chart value for release %#q", key.CustomResourceReleaseName()))
 
-		sampleChart.App.Version = "0.6.8"
+		sampleChart.App.Version = "0.7.1"
 		chartValues, err = chartvalues.NewAPIExtensionsAppE2E(sampleChart)
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
@@ -292,7 +292,7 @@ func TestAppLifecycleUsingKubeconfig(t *testing.T) {
 	{
 		config.Logger.LogCtx(ctx, "level", "debug", "message", "checking tarball URL in chart spec")
 
-		err = config.Release.WaitForChartInfo(ctx, key.TestAppReleaseName(), "0.6.8")
+		err = config.Release.WaitForChartInfo(ctx, key.TestAppReleaseName(), "0.7.1")
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
@@ -302,7 +302,7 @@ func TestAppLifecycleUsingKubeconfig(t *testing.T) {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
 
-		tarballURL := "https://giantswarm.github.com/sample-catalog/kubernetes-test-app-chart-0.6.8.tgz"
+		tarballURL := "https://giantswarm.github.com/sample-catalog/kubernetes-test-app-chart-0.7.1.tgz"
 		if chart.Spec.TarballURL != tarballURL {
 			t.Fatalf("expected tarballURL: %#v got %#v", tarballURL, chart.Spec.TarballURL)
 		}
