@@ -12,6 +12,8 @@ import (
 
 const (
 	Name = "tillerv1"
+
+	chartOperatorAppName = "chart-operator"
 )
 
 // Config represents the configuration used to create a new tiller resource.

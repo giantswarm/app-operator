@@ -10,6 +10,10 @@ import (
 	"github.com/giantswarm/app-operator/pkg/label"
 )
 
+const (
+	ChartOperatorAppName = "chart-operator"
+)
+
 func AppCatalogTitle(customResource v1alpha1.AppCatalog) string {
 	return customResource.Spec.Title
 }
