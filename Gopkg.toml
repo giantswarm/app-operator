@@ -104,9 +104,9 @@ required = [
   name = "github.com/giantswarm/micrologger"
   branch = "master"
 
-[[constraint]]
+[[override]]
   name = "github.com/giantswarm/operatorkit"
-  branch = "master"
+  branch = "timestampcollector"
 
 [[constraint]]
   name = "github.com/giantswarm/versionbundle"

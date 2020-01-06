@@ -14,18 +14,21 @@ import (
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/micrologger/loggermeta"
 	"github.com/giantswarm/to"
-	"github.com/prometheus/client_golang/prometheus"
 	apiextensionsv1beta1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
+	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	pkgruntime "k8s.io/apimachinery/pkg/runtime"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
+	"sigs.k8s.io/controller-runtime/pkg/event"
 	"sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
+	"sigs.k8s.io/controller-runtime/pkg/predicate"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 	"sigs.k8s.io/controller-runtime/pkg/source"
 
+	"github.com/giantswarm/operatorkit/controller/collector"
 	"github.com/giantswarm/operatorkit/controller/context/reconciliationcanceledcontext"
 	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
 	"github.com/giantswarm/operatorkit/resource"
@@ -38,7 +41,6 @@ const (
 const (
 	loggerKeyController = "controller"
 	loggerKeyEvent      = "event"
-	loggerKeyLoop       = "loop"
 	loggerKeyObject     = "object"
 	loggerKeyResource   = "resource"
 	loggerKeyVersion    = "version"
@@ -54,6 +56,8 @@ type Config struct {
 	// finalizers on runtime objects.
 	K8sClient k8sclient.Interface
 	Logger    micrologger.Logger
+	// MatchLabel are used to filter objects before passing them to the controller.
+	MatchLabels map[string]string
 	// NewRuntimeObjectFunc returns a new initialized pointer of a type
 	// implementing the runtime object interface. The object returned is used with
 	// the controller-runtime client to fetch the latest version of the object
@@ -91,6 +95,7 @@ type Controller struct {
 	backOffFactory       func() backoff.Interface
 	k8sClient            k8sclient.Interface
 	logger               micrologger.Logger
+	matchLabels          map[string]string
 	newRuntimeObjectFunc func() pkgruntime.Object
 	resourceSets         []*ResourceSet
 
@@ -99,6 +104,7 @@ type Controller struct {
 	errorCollector         chan error
 	mutex                  sync.Mutex
 	removedFinalizersCache *stringCache
+	collector              *collector.Set
 
 	name         string
 	resyncPeriod time.Duration
@@ -126,11 +132,23 @@ func New(config Config) (*Controller, error) {
 		config.ResyncPeriod = DefaultResyncPeriod
 	}
 
+	controllerConfig := collector.SetConfig{
+		Logger:    config.Logger,
+		K8sClient: config.K8sClient,
+		CRD:       config.CRD,
+	}
+
+	timestampCollector, err := collector.NewSet(controllerConfig)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
 	c := &Controller{
 		crd:                  config.CRD,
 		backOffFactory:       func() backoff.Interface { return backoff.NewMaxRetries(7, 1*time.Second) },
 		k8sClient:            config.K8sClient,
 		logger:               config.Logger,
+		matchLabels:          config.MatchLabels,
 		newRuntimeObjectFunc: config.NewRuntimeObjectFunc,
 		resourceSets:         config.ResourceSets,
 
@@ -139,6 +157,7 @@ func New(config Config) (*Controller, error) {
 		errorCollector:         make(chan error, 1),
 		mutex:                  sync.Mutex{},
 		removedFinalizersCache: newStringCache(config.ResyncPeriod * 3),
+		collector:              timestampCollector,
 
 		name:         config.Name,
 		resyncPeriod: config.ResyncPeriod,
@@ -151,6 +170,7 @@ func (c *Controller) Boot(ctx context.Context) {
 	ctx = setLoggerCtxValue(ctx, loggerKeyController, c.name)
 
 	c.bootOnce.Do(func() {
+
 		operation := func() error {
 			err := c.bootWithError(ctx)
 			if err != nil {
@@ -174,12 +194,6 @@ func (c *Controller) Booted() chan struct{} {
 	return c.booted
 }
 
-// DeleteFunc executes the controller's ProcessDelete function.
-func (c *Controller) DeleteFunc(obj interface{}) {
-	ctx := context.Background()
-	c.deleteFunc(ctx, obj)
-}
-
 // Reconcile implements the reconciler given to the controller-runtime
 // controller. Reconcile never returns any error as we deal with them in
 // operatorkit internally.
@@ -195,12 +209,6 @@ func (c *Controller) Reconcile(req reconcile.Request) (reconcile.Result, error) 
 	return res, nil
 }
 
-// UpdateFunc executes the controller's ProcessUpdate function.
-func (c *Controller) UpdateFunc(oldObj, newObj interface{}) {
-	ctx := context.Background()
-	c.updateFunc(ctx, newObj)
-}
-
 func (c *Controller) bootWithError(ctx context.Context) error {
 	var err error
 
@@ -213,6 +221,13 @@ func (c *Controller) bootWithError(ctx context.Context) error {
 		}
 
 		c.logger.LogCtx(ctx, "level", "debug", "message", "ensured custom resource definition exists")
+
+		// Boot the collector
+		err = c.collector.Boot(ctx)
+		if err != nil {
+			return microerror.Mask(err)
+		}
+
 	}
 
 	go func() {
@@ -278,15 +293,29 @@ func (c *Controller) bootWithError(ctx context.Context) error {
 	}
 
 	// Initializing the watch means to have the operator's reconciliation set up.
-	// We put the controller into a booted state by closing its booted channel so
-	// users know when to go ahead. Note that mgr.Start below blocks the boot
-	// process until it ends gracefully or fails.
+	// We put the controller into a booted state by closing its booted channel
+	// once so users know when to go ahead. Note that mgr.Start below blocks the
+	// boot process until it ends gracefully or fails.
 	{
-		err = ctrl.Watch(&source.Kind{Type: c.newRuntimeObjectFunc()}, &handler.EnqueueRequestForObject{})
+		err = ctrl.Watch(
+			&source.Kind{Type: c.newRuntimeObjectFunc()},
+			&handler.EnqueueRequestForObject{},
+			predicate.Funcs{
+				CreateFunc:  func(e event.CreateEvent) bool { return matchLabels(c.matchLabels, e.Meta.GetLabels()) },
+				DeleteFunc:  func(e event.DeleteEvent) bool { return matchLabels(c.matchLabels, e.Meta.GetLabels()) },
+				UpdateFunc:  func(e event.UpdateEvent) bool { return matchLabels(c.matchLabels, e.MetaNew.GetLabels()) },
+				GenericFunc: func(e event.GenericEvent) bool { return matchLabels(c.matchLabels, e.Meta.GetLabels()) },
+			},
+		)
 		if err != nil {
 			return microerror.Mask(err)
 		}
-		close(c.booted)
+
+		select {
+		case <-c.booted:
+		default:
+			close(c.booted)
+		}
 
 		err = mgr.Start(setupSignalHandler())
 		if err != nil {
@@ -371,18 +400,21 @@ func (c *Controller) deleteFunc(ctx context.Context, obj interface{}) {
 func (c *Controller) reconcile(ctx context.Context, req reconcile.Request) (reconcile.Result, error) {
 	obj := c.newRuntimeObjectFunc()
 	err := c.k8sClient.CtrlClient().Get(ctx, req.NamespacedName, obj)
-	if err != nil {
+	if errors.IsNotFound(err) {
+		// At this point the controller-runtime cache dispatches a runtime object
+		// which is already being deleted, which is why it cannot be found here
+		// anymore. We then likely perceive the last delete event of that runtime
+		// object and it got purged from the controller-runtime cache. We do not
+		// need to log these errors and just stop processing here in a more graceful
+		// way.
+		return reconcile.Result{}, nil
+	} else if err != nil {
 		return reconcile.Result{}, microerror.Mask(err)
 	}
 
 	var m metav1.Object
-	var t metav1.Type
 	{
 		m, err = meta.Accessor(obj)
-		if err != nil {
-			return reconcile.Result{}, microerror.Mask(err)
-		}
-		t, err = meta.TypeAccessor(obj)
 		if err != nil {
 			return reconcile.Result{}, microerror.Mask(err)
 		}
@@ -391,9 +423,6 @@ func (c *Controller) reconcile(ctx context.Context, req reconcile.Request) (reco
 	if m.GetDeletionTimestamp() != nil {
 		event := "delete"
 
-		deletionTimestampGauge.WithLabelValues(t.GetKind(), m.GetName(), m.GetNamespace()).Set(float64(m.GetDeletionTimestamp().Unix()))
-		t := prometheus.NewTimer(eventHistogram.WithLabelValues(event))
-
 		ctx = setLoggerCtxValue(ctx, loggerKeyEvent, event)
 		ctx = setLoggerCtxValue(ctx, loggerKeyObject, m.GetSelfLink())
 		ctx = setLoggerCtxValue(ctx, loggerKeyVersion, m.GetResourceVersion())
@@ -401,13 +430,8 @@ func (c *Controller) reconcile(ctx context.Context, req reconcile.Request) (reco
 		c.logger.LogCtx(ctx, "level", "debug", "message", "reconciling object")
 		c.deleteFunc(ctx, obj)
 		c.logger.LogCtx(ctx, "level", "debug", "message", "reconciled object")
-
-		t.ObserveDuration()
 	} else {
 		event := "update"
-
-		creationTimestampGauge.WithLabelValues(t.GetKind(), m.GetName(), m.GetNamespace()).Set(float64(m.GetCreationTimestamp().Unix()))
-		t := prometheus.NewTimer(eventHistogram.WithLabelValues(event))
 
 		ctx = setLoggerCtxValue(ctx, loggerKeyEvent, event)
 		ctx = setLoggerCtxValue(ctx, loggerKeyObject, m.GetSelfLink())
@@ -416,8 +440,6 @@ func (c *Controller) reconcile(ctx context.Context, req reconcile.Request) (reco
 		c.logger.LogCtx(ctx, "level", "debug", "message", "reconciling object")
 		c.updateFunc(ctx, obj)
 		c.logger.LogCtx(ctx, "level", "debug", "message", "reconciled object")
-
-		t.ObserveDuration()
 	}
 
 	return reconcile.Result{}, nil
@@ -644,4 +666,15 @@ func unsetLoggerCtxValue(ctx context.Context, key string) context.Context {
 	delete(m.KeyVals, key)
 
 	return ctx
+}
+
+func matchLabels(sourceLabels, targetLabels map[string]string) bool {
+	for k, v := range sourceLabels {
+		if targetValue, ok := targetLabels[k]; !ok {
+			return false
+		} else if targetValue != v {
+			return false
+		}
+	}
+	return true
 }

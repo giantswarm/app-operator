@@ -415,11 +415,12 @@
   revision = "d866337f739365a54de5924b8a7b29df17693ef8"
 
 [[projects]]
-  branch = "master"
-  digest = "1:e3dcfca96177f8b713e76e0f15660b33afc5de3110b2cf6c0a801dbaac904a9f"
+  branch = "timestampcollector"
+  digest = "1:d184814fef11a2d9f09145d38d4928c43c67b8513c3df9859bd47768f3ff25a9"
   name = "github.com/giantswarm/operatorkit"
   packages = [
     "controller",
+    "controller/collector",
     "controller/context/finalizerskeptcontext",
     "controller/context/reconciliationcanceledcontext",
     "controller/context/resourcecanceledcontext",
@@ -434,7 +435,7 @@
     "resource/wrapper/retryresource",
   ]
   pruneopts = "UT"
-  revision = "5d098618662e74384f52bf064fe3588436873eb2"
+  revision = "7d19e5ee790548019c55f10a5cbe9b6ee89492d3"
 
 [[projects]]
   branch = "master"
