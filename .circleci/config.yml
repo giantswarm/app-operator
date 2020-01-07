@@ -108,6 +108,7 @@ workflows:
   build_e2e:
     jobs:
       - build:
+          name: build-app
           filters:
             tags:
               only: /^v.*/
