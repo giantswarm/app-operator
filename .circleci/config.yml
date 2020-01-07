@@ -108,7 +108,6 @@ workflows:
   build_e2e:
     jobs:
       - build:
-          name: build-app
           filters:
             tags:
               only: /^v.*/
@@ -133,7 +132,7 @@ workflows:
             branches:
               only: master
       - architect/push-to-docker-legacy:
-          name: push-app-operator-to-aliyun
+          name: push-app-operator-to-aliyun-legacy
           image: "registry-intl.cn-shanghai.aliyuncs.com/giantswarm/app-operator"
           username_envar: "ALIYUN_USERNAME"
           password_envar: "ALIYUN_PASSWORD"
@@ -151,7 +150,7 @@ workflows:
       - deploy:
           name: deploy
           requires:
-            - push-app-operator-to-aliyun
+            - push-app-operator-to-aliyun-legacy
           filters:
             branches:
               only: master
