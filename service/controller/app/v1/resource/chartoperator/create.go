@@ -24,9 +24,16 @@ func (r Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	}
 
 	if key.InCluster(cr) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("app %#q in %#q uses InCluster kubeconfig no need to install chart operator", cr.Name, cr.Namespace))
-
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("app %#q uses InCluster kubeconfig no need to install chart operator", key.AppName(cr)))
 		r.logger.LogCtx(ctx, "level", "debug", "message", "cancelling the resource")
+		return nil
+	}
+
+	// Resource is used to bootstrap chart-operator in tenant clusters.
+	// So for other apps we can skip this step.
+	if key.AppName(cr) != key.ChartOperatorAppName {
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("no need to install chart-operator for %#q", key.AppName(cr)))
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 		return nil
 	}
 
