@@ -3,6 +3,9 @@
 package annotation
 
 const (
+	// ChartOperatorPrefix is the prefix of the annotation that controls the logic inside chart-operator
+	ChartOperatorPrefix = "chart-operator.giantswarm.io"
+
 	// CordonReason is the name of the annotation that indicates
 	// the reason of why app-operator should not apply any update to this app CR.
 	CordonReason = "app-operator.giantswarm.io/cordon-reason"
@@ -10,8 +13,4 @@ const (
 	// CordonUntil is the name of the annotation that indicates
 	// the expiration date for this cordon rule.
 	CordonUntil = "app-operator.giantswarm.io/cordon-until"
-
-	// ForceHelmUpgrade is the name of the annotation that controls whether force
-	// is used when upgrading the Helm release.
-	ForceHelmUpgrade = "chart-operator.giantswarm.io/force-helm-upgrade"
 )

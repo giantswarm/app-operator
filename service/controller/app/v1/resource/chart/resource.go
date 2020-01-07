@@ -2,11 +2,14 @@ package chart
 
 import (
 	"reflect"
+	"strings"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
+
+	"github.com/giantswarm/app-operator/pkg/annotation"
 )
 
 const (
@@ -75,6 +78,19 @@ func equals(current, desired *v1alpha1.Chart) bool {
 	}
 	if !reflect.DeepEqual(current.Labels, desired.Labels) {
 		return false
+	}
+	for k, desiredValue := range desired.Annotations {
+		if !strings.HasPrefix(k, annotation.ChartOperatorPrefix) {
+			continue
+		}
+
+		if currentValue, ok := current.Annotations[k]; !ok {
+			return false
+		} else {
+			if currentValue != desiredValue {
+				return false
+			}
+		}
 	}
 
 	return true

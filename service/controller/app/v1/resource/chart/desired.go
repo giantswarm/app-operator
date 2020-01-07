@@ -10,6 +10,7 @@ import (
 	"github.com/giantswarm/microerror"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
+	"github.com/giantswarm/app-operator/pkg/annotation"
 	"github.com/giantswarm/app-operator/pkg/label"
 	"github.com/giantswarm/app-operator/pkg/project"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/controllercontext"
@@ -75,7 +76,7 @@ func generateAnnotations(input map[string]string) map[string]string {
 
 	for k, val := range input {
 		// Copy all annotations which has a prefix with chart-operator.giantswarm.io.
-		if strings.HasPrefix(k, "chart-operator.giantswarm.io") {
+		if strings.HasPrefix(k, annotation.ChartOperatorPrefix) {
 			annotations[k] = val
 		}
 	}
