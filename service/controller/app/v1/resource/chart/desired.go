@@ -3,13 +3,13 @@ package chart
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/appcatalog"
 	"github.com/giantswarm/microerror"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"github.com/giantswarm/app-operator/pkg/annotation"
 	"github.com/giantswarm/app-operator/pkg/label"
 	"github.com/giantswarm/app-operator/pkg/project"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/controllercontext"
@@ -73,11 +73,11 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 func generateAnnotations(input map[string]string) map[string]string {
 	annotations := map[string]string{}
 
-	// ForceHelmUpgrade has been set for this app CR so this needs to be passed
-	// on to the chart CR.
-	val, ok := input[annotation.ForceHelmUpgrade]
-	if ok {
-		annotations[annotation.ForceHelmUpgrade] = val
+	for k, val := range input {
+		// Copy all annotations which has a prefix with chart-operator.giantswarm.io.
+		if strings.HasPrefix(k, "chart-operator.giantswarm.io") {
+			annotations[k] = val
+		}
 	}
 
 	return annotations
