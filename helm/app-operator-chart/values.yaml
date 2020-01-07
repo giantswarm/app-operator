@@ -12,9 +12,13 @@ groupID: 1000
 replicas: 1
 
 image:
-  registry: quay.io
   repository: giantswarm/app-operator
   tag: [[ .SHA ]]
+
+Installation:
+  V1:
+    Registry:
+      Domain: quay.io
 
 resources:
   requests:
