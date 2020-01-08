@@ -3,7 +3,7 @@
 package annotation
 
 const (
-	// ChartOperatorPrefix is the prefix of the annotation that controls the logic inside chart-operator
+	// ChartOperatorPrefix is the prefix for annotations that control logic inside chart-operator.
 	ChartOperatorPrefix = "chart-operator.giantswarm.io"
 
 	// CordonReason is the name of the annotation that indicates
