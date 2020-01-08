@@ -79,17 +79,18 @@ func equals(current, desired *v1alpha1.Chart) bool {
 	if !reflect.DeepEqual(current.Labels, desired.Labels) {
 		return false
 	}
+
 	for k, desiredValue := range desired.Annotations {
 		if !strings.HasPrefix(k, annotation.ChartOperatorPrefix) {
 			continue
 		}
 
-		if currentValue, ok := current.Annotations[k]; !ok {
+		currentValue, ok := current.Annotations[k]
+		if !ok {
 			return false
-		} else {
-			if currentValue != desiredValue {
-				return false
-			}
+		}
+		if currentValue != desiredValue {
+			return false
 		}
 	}
 

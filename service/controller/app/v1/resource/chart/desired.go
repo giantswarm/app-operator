@@ -74,10 +74,10 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 func generateAnnotations(input map[string]string) map[string]string {
 	annotations := map[string]string{}
 
-	for k, val := range input {
+	for k, v := range input {
 		// Copy all annotations which has a prefix with chart-operator.giantswarm.io.
 		if strings.HasPrefix(k, annotation.ChartOperatorPrefix) {
-			annotations[k] = val
+			annotations[k] = v
 		}
 	}
 
