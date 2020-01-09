@@ -8,6 +8,7 @@ import (
 	"github.com/giantswarm/micrologger"
 	"github.com/prometheus/client_golang/prometheus"
 	"k8s.io/apimachinery/pkg/api/meta"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 )
 
@@ -67,49 +68,45 @@ func NewTimestamp(config TimestampConfig) (*Timestamp, error) {
 func (t *Timestamp) Collect(ch chan<- prometheus.Metric) error {
 
 	ctx := context.Background()
-	object := t.newRuntimeObjectFunc()
-	err := t.k8sClient.CtrlClient().List(ctx, object)
+	list := &unstructured.UnstructuredList{}
+
+	err := t.k8sClient.CtrlClient().List(ctx, list)
 	if err != nil {
 		return microerror.Mask(err)
 	}
 
-	//objects, err := meta.ExtractList(list)
-	//if err != nil {
-	//	return microerror.Mask(err)
-	//}
+	for _, object := range list.Items {
 
-	//for _, object := range objects {
-
-	m, err := meta.Accessor(object)
-	if err != nil {
-		return microerror.Mask(err)
-	}
-	k, err := meta.TypeAccessor(object)
-	if err != nil {
-		return microerror.Mask(err)
-	}
-
-	ch <- prometheus.MustNewConstMetric(
-		creationTimestampDesc,
-		prometheus.GaugeValue,
-		float64(m.GetCreationTimestamp().Unix()),
-		k.GetKind(),
-		m.GetName(),
-		m.GetNamespace(),
-	)
-
-	if m.GetDeletionTimestamp() != nil {
+		m, err := meta.Accessor(object)
+		if err != nil {
+			return microerror.Mask(err)
+		}
+		k, err := meta.TypeAccessor(object)
+		if err != nil {
+			return microerror.Mask(err)
+		}
 
 		ch <- prometheus.MustNewConstMetric(
-			deletionTimestampDesc,
+			creationTimestampDesc,
 			prometheus.GaugeValue,
-			float64(m.GetDeletionTimestamp().Unix()),
+			float64(m.GetCreationTimestamp().Unix()),
 			k.GetKind(),
 			m.GetName(),
 			m.GetNamespace(),
 		)
+
+		if m.GetDeletionTimestamp() != nil {
+
+			ch <- prometheus.MustNewConstMetric(
+				deletionTimestampDesc,
+				prometheus.GaugeValue,
+				float64(m.GetDeletionTimestamp().Unix()),
+				k.GetKind(),
+				m.GetName(),
+				m.GetNamespace(),
+			)
+		}
 	}
-	//}
 
 	return nil
 
