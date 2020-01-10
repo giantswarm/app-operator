@@ -35,7 +35,7 @@ spec:
         runAsGroup: {{ .Values.groupID }}
       containers:
       - name: {{ .Values.name }}
-        image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        image: "{{ .Values.Installation.V1.Registry.Domain }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}"
         volumeMounts:
         - name: {{ .Values.name }}
           mountPath: /var/run/{{ .Values.name }}/configmap/
