@@ -416,7 +416,7 @@
 
 [[projects]]
   branch = "timestampcollector"
-  digest = "1:6bb261788210f9d638f3d567d6dbbc37b9039582ecd679c63b43effc816daea4"
+  digest = "1:0202a3bb87a5a2a61faca35c0d4e112e3409d5efe3858a15bc989bf3533f22db"
   name = "github.com/giantswarm/operatorkit"
   packages = [
     "controller",
@@ -435,7 +435,7 @@
     "resource/wrapper/retryresource",
   ]
   pruneopts = "UT"
-  revision = "558166bd337510a4f2c29eb41e53d894179ac82e"
+  revision = "7769a764489b44f28c692be49f733509ee5a1ef4"
 
 [[projects]]
   branch = "master"
