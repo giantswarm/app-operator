@@ -30,9 +30,9 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("already created Chart CR %#q in namespace %#q", chart.Name, chart.Namespace))
 		} else if err != nil {
 			return microerror.Mask(err)
-		} else {
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("created Chart CR %#q in namespace %#q", chart.Name, chart.Namespace))
 		}
+
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("created Chart CR %#q in namespace %#q", chart.Name, chart.Namespace))
 	}
 
 	return nil
