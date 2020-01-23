@@ -66,7 +66,17 @@ func (r Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("installing chart-operator release %#q in tenant cluster", release))
 
 			err = r.installChartOperator(ctx, cr)
-			if err != nil {
+			if IsNotReady(err) {
+				r.logger.LogCtx(ctx, "level", "debug", "message", "chart-operator not ready")
+
+				// chart-operator installs the chart CRD in the tenant cluster.
+				// So if its not ready we cancel and retry on the next
+				// reconciliation loop.
+				r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation")
+				reconciliationcanceledcontext.SetCanceled(ctx)
+
+				return nil
+			} else if err != nil {
 				return microerror.Mask(err)
 			}
 
