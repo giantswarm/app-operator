@@ -6,6 +6,7 @@ import (
 
 	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/microerror"
+	"github.com/giantswarm/operatorkit/controller/context/reconciliationcanceledcontext"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -32,14 +33,6 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return nil
 	}
 
-	// Resource is used to bootstrap chart-operator in tenant clusters.
-	// So for other apps we can skip this step.
-	if key.AppName(cr) != key.ChartOperatorAppName {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("no need to create namespace for %#q", key.AppName(cr)))
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
-		return nil
-	}
-
 	ns := &corev1.Namespace{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: namespace,
@@ -58,7 +51,8 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		// fall through
 	} else if tenant.IsAPINotAvailable(err) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster not available")
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation")
+		reconciliationcanceledcontext.SetCanceled(ctx)
 		return nil
 	} else if err != nil {
 		return microerror.Mask(err)

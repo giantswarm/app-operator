@@ -18,6 +18,7 @@ import (
 	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/appcatalog"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/appnamespace"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/chart"
+	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/chartcrd"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/chartoperator"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/clients"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/configmap"
@@ -111,6 +112,18 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 			Values:     valuesService,
 		}
 		chartOperatorResource, err = chartoperator.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	var chartCRDResource resource.Interface
+	{
+		c := chart.Config{
+			Logger: config.Logger,
+		}
+
+		chartCRDResource, err = chartcrd.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -235,16 +248,19 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		appcatalogResource,
 		clientsResource,
 
-		// Following resources bootstrap chart-operator in tenant clusters.
+		// Create giantswarm namespace in tenant clusters.
 		tcNamespaceResource,
-		tillerResource,
-		chartOperatorResource,
 
 		// Following resources process app CRs.
 		configMapResource,
 		secretResource,
+		chartCRDResource,
 		chartResource,
 		statusResource,
+
+		// Install chart-operator in tenant clusters.
+		tillerResource,
+		chartOperatorResource,
 	}
 
 	{
