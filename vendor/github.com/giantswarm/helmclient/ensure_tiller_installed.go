@@ -41,7 +41,7 @@ func (c *Client) EnsureTillerInstalledWithValues(ctx context.Context, values []s
 
 		c.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding if tiller is installed in namespace %#q", c.tillerNamespace))
 
-		t, err := c.newTunnel()
+		t, err := c.newTunnel(ctx)
 		defer c.closeTunnel(ctx, t)
 		if err != nil {
 			// fall through, we may need to create or upgrade Tiller.
@@ -455,7 +455,7 @@ func (c *Client) EnsureTillerInstalledWithValues(ctx context.Context, values []s
 		var i int
 
 		o := func() error {
-			t, err := c.newTunnel()
+			t, err := c.newTunnel(ctx)
 			if IsTillerNotFound(err) || IsTooManyResults(err) || IsTillerInvalidVersion(err) {
 				return microerror.Mask(err)
 			} else if err != nil {

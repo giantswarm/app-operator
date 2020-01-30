@@ -28,7 +28,7 @@ type Tunnel struct {
 	stopChan  chan struct{}
 }
 
-func newTunnel(config tunnelConfig) (*Tunnel, error) {
+func newTunnel(ctx context.Context, config tunnelConfig) (*Tunnel, error) {
 	p, err := getAvailablePort()
 	if err != nil {
 		return nil, microerror.Mask(err)
@@ -52,7 +52,7 @@ func newTunnel(config tunnelConfig) (*Tunnel, error) {
 		return nil, microerror.Mask(err)
 	}
 
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 	errChan := make(chan error)
 	go func() {

@@ -277,7 +277,7 @@
   revision = "4dd4911251929a0ac4c4f3d8c4bda482a9e09f30"
 
 [[projects]]
-  branch = "master"
+  branch = "tiller-again"
   digest = "1:e83800c0f3c424b5232ff2900d93d8ef0ce47615f780c19561f8aef4273cbad5"
   name = "github.com/giantswarm/e2e-harness"
   packages = [
@@ -285,7 +285,7 @@
     "pkg/release",
   ]
   pruneopts = "UT"
-  revision = "b2048d8645c15ac583a270c57b95855426e48958"
+  revision = "39114087ff095b8c7b40654208cada74c5c30782"
 
 [[projects]]
   branch = "master"
@@ -324,11 +324,11 @@
 
 [[projects]]
   branch = "tiller-again"
-  digest = "1:081a1a83b7ec4febb29db783fabed8e32fbe9334b0b0b9406ea7701dd18ac64e"
+  digest = "1:a92397baebb076ae89945eb0cdd10cd226055c4a8fb883fe88be1da27cef48c7"
   name = "github.com/giantswarm/helmclient"
   packages = ["."]
   pruneopts = "UT"
-  revision = "d92ad792d88efb2277311a6f225e5b41890fb2f1"
+  revision = "710f0c4c5236b028f345ac4078c4e9f41ec1cd3b"
 
 [[projects]]
   branch = "master"
@@ -343,12 +343,12 @@
   revision = "6cb127468cd6b30eaf8030b875f796e34b481938"
 
 [[projects]]
-  branch = "master"
-  digest = "1:72f7cc0f53c6e4da489b19288ba4cbcd6b8c2031b8184615ec57ac537bc2e478"
+  branch = "tiller-again"
+  digest = "1:9e8169250bfc3d50e6486b4f68e81b2811ed8a241e5778573f4308633f756fb5"
   name = "github.com/giantswarm/k8sportforward"
   packages = ["."]
   pruneopts = "UT"
-  revision = "21368288d82d86aeefb191825df98e7f71e96bb1"
+  revision = "5553c56577e8343dc7eff94d75e44bd3d46f9846"
 
 [[projects]]
   branch = "master"

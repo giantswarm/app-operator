@@ -1,6 +1,7 @@
 package k8sportforward
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/giantswarm/microerror"
@@ -40,7 +41,7 @@ func NewForwarder(config ForwarderConfig) (*Forwarder, error) {
 }
 
 // ForwardPort opens a tunnel to a kubernetes pod.
-func (f *Forwarder) ForwardPort(namespace string, podName string, remotePort int) (*Tunnel, error) {
+func (f *Forwarder) ForwardPort(ctx context.Context, namespace string, podName string, remotePort int) (*Tunnel, error) {
 	transport, upgrader, err := spdy.RoundTripperFor(f.restConfig)
 	if err != nil {
 		return nil, microerror.Mask(err)
@@ -61,7 +62,7 @@ func (f *Forwarder) ForwardPort(namespace string, podName string, remotePort int
 		RemotePort: remotePort,
 	}
 
-	tunnel, err := newTunnel(config)
+	tunnel, err := newTunnel(ctx, config)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}

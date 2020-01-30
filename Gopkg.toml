@@ -58,7 +58,7 @@ required = [
 
 [[constraint]]
   name = "github.com/giantswarm/e2e-harness"
-  branch = "master"
+  branch = "tiller-again"
 
 [[constraint]]
   name = "github.com/giantswarm/e2esetup"
@@ -76,7 +76,7 @@ required = [
   name = "github.com/giantswarm/exporterkit"
   branch = "master"
 
-[[override]]
+[[constraint]]
   name = "github.com/giantswarm/helmclient"
   branch = "tiller-again"
 
@@ -167,6 +167,10 @@ required = [
 [[override]]
   name = "k8s.io/kubectl"
   version = "kubernetes-1.16.3"
+
+[[override]]
+  name = "github.com/giantswarm/k8sportforward"
+  branch = "tiller-again"
 
 [[override]]
   name = "k8s.io/kubernetes"

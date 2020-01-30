@@ -147,7 +147,7 @@ func (c *Client) DeleteRelease(ctx context.Context, releaseName string, options 
 
 func (c *Client) deleteRelease(ctx context.Context, releaseName string, options ...helmclient.DeleteOption) error {
 	o := func() error {
-		t, err := c.newTunnel()
+		t, err := c.newTunnel(ctx)
 		if IsTillerNotFound(err) {
 			return backoff.Permanent(microerror.Mask(err))
 		} else if err != nil {
@@ -199,7 +199,7 @@ func (c *Client) getReleaseContent(ctx context.Context, releaseName string) (*Re
 	var resp *hapiservices.GetReleaseContentResponse
 	{
 		o := func() error {
-			t, err := c.newTunnel()
+			t, err := c.newTunnel(ctx)
 			if IsTillerNotFound(err) {
 				return backoff.Permanent(microerror.Mask(err))
 			} else if IsEmptyChartTemplates(err) {
@@ -262,7 +262,7 @@ func (c *Client) getReleaseHistory(ctx context.Context, releaseName string) (*Re
 	var resp *hapiservices.GetHistoryResponse
 	{
 		o := func() error {
-			t, err := c.newTunnel()
+			t, err := c.newTunnel(ctx)
 			if IsTillerNotFound(err) {
 				return backoff.Permanent(microerror.Mask(err))
 			} else if err != nil {
@@ -342,7 +342,7 @@ func (c *Client) InstallReleaseFromTarball(ctx context.Context, path, ns string,
 
 func (c *Client) installReleaseFromTarball(ctx context.Context, path, ns string, options ...helmclient.InstallOption) error {
 	o := func() error {
-		t, err := c.newTunnel()
+		t, err := c.newTunnel(ctx)
 		if IsTillerNotFound(err) {
 			return backoff.Permanent(microerror.Mask(err))
 		} else if err != nil {
@@ -407,7 +407,7 @@ func (c *Client) listReleaseContents(ctx context.Context) ([]*ReleaseContent, er
 	var releases []*hapirelease.Release
 	{
 		o := func() error {
-			t, err := c.newTunnel()
+			t, err := c.newTunnel(ctx)
 			if IsTillerNotFound(err) {
 				return backoff.Permanent(microerror.Mask(err))
 			} else if err != nil {
@@ -511,7 +511,7 @@ func (c *Client) PingTiller(ctx context.Context) error {
 }
 
 func (c *Client) pingTiller(ctx context.Context) error {
-	t, err := c.newTunnel()
+	t, err := c.newTunnel(ctx)
 	if err != nil {
 		return microerror.Mask(err)
 	}
@@ -546,7 +546,7 @@ func (c *Client) RunReleaseTest(ctx context.Context, releaseName string, options
 func (c *Client) runReleaseTest(ctx context.Context, releaseName string, options ...helmclient.ReleaseTestOption) error {
 	c.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("running tests for release %#q", releaseName))
 
-	t, err := c.newTunnel()
+	t, err := c.newTunnel(ctx)
 	if err != nil {
 		return microerror.Mask(err)
 	}
@@ -600,7 +600,7 @@ func (c *Client) UpdateReleaseFromTarball(ctx context.Context, releaseName, path
 
 func (c *Client) updateReleaseFromTarball(ctx context.Context, releaseName, path string, options ...helmclient.UpdateOption) error {
 	o := func() error {
-		t, err := c.newTunnel()
+		t, err := c.newTunnel(ctx)
 		if IsTillerNotFound(err) {
 			return backoff.Permanent(microerror.Mask(err))
 		} else if err != nil {
@@ -680,7 +680,7 @@ func (c *Client) newHelmClientFromTunnel(t *k8sportforward.Tunnel) helmclient.In
 	)
 }
 
-func (c *Client) newTunnel() (*k8sportforward.Tunnel, error) {
+func (c *Client) newTunnel(ctx context.Context) (*k8sportforward.Tunnel, error) {
 	// In case a helm client is configured we do not need to create any port
 	// forwarding.
 	if c.helmClient != nil {
@@ -718,7 +718,7 @@ func (c *Client) newTunnel() (*k8sportforward.Tunnel, error) {
 
 	var tunnel *k8sportforward.Tunnel
 	{
-		tunnel, err = forwarder.ForwardPort(c.tillerNamespace, pod.Name, tillerPort)
+		tunnel, err = forwarder.ForwardPort(ctx, c.tillerNamespace, pod.Name, tillerPort)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
