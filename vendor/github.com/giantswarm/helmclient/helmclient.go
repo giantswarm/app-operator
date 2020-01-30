@@ -698,7 +698,7 @@ func (c *Client) newTunnel() (*k8sportforward.Tunnel, error) {
 	err = validateTillerVersion(pod, c.tillerImage)
 	if err != nil {
 		if IsTillerInvalidVersion(err) && !c.tillerUpgradeEnabled {
-			return nil, microerror.Maskf(tillerOutdatedError, "found an out-dated tiller but upgrades not enabled")
+			c.logger.Log("level", "debug", "message", "found an out-dated tiller but keep going to create a tunnel")
 		} else {
 			return nil, microerror.Mask(err)
 		}
