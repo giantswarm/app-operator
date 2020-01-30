@@ -202,6 +202,8 @@ func (c *Client) getReleaseContent(ctx context.Context, releaseName string) (*Re
 			t, err := c.newTunnel()
 			if IsTillerNotFound(err) {
 				return backoff.Permanent(microerror.Mask(err))
+			} else if IsTillerOutdated(err) {
+				return backoff.Permanent(microerror.Mask(err))
 			} else if IsEmptyChartTemplates(err) {
 				return backoff.Permanent(microerror.Mask(err))
 			} else if IsReleaseNameInvalid(err) {
