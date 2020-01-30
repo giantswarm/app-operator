@@ -273,12 +273,12 @@
   revision = "6cb127468cd6b30eaf8030b875f796e34b481938"
 
 [[projects]]
-  branch = "master"
-  digest = "1:42649fa57594fd0dd202a5cf01d9cae946ff99e0e8f87bc9c145860a2e57c17a"
+  branch = "tiller-again"
+  digest = "1:9e8169250bfc3d50e6486b4f68e81b2811ed8a241e5778573f4308633f756fb5"
   name = "github.com/giantswarm/k8sportforward"
   packages = ["."]
   pruneopts = "UT"
-  revision = "676e7106283c008acc4c07c0cfc903c18cdbeda3"
+  revision = "5553c56577e8343dc7eff94d75e44bd3d46f9846"
 
 [[projects]]
   branch = "master"
@@ -1584,6 +1584,7 @@
     "k8s.io/api/networking/v1",
     "k8s.io/api/policy/v1beta1",
     "k8s.io/api/rbac/v1",
+    "k8s.io/api/scheduling/v1",
     "k8s.io/apimachinery/pkg/api/errors",
     "k8s.io/apimachinery/pkg/apis/meta/v1",
     "k8s.io/apimachinery/pkg/util/intstr",

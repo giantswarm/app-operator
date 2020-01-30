@@ -54,9 +54,9 @@ required = [
   name = "github.com/giantswarm/errors"
   branch = "master"
 
-[[constraint]]
+[[override]]
   name = "github.com/giantswarm/k8sportforward"
-  branch = "master"
+  branch = "tiller-again"
 
 [[constraint]]
   name = "github.com/giantswarm/microerror"
