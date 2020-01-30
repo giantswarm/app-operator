@@ -65,6 +65,13 @@ func (r *Resource) ensureTillerInstalled(ctx context.Context, helmClient helmcli
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation")
 		reconciliationcanceledcontext.SetCanceled(ctx)
 		return nil
+	} else if helmclient.IsTillerOutdated(err) {
+		// Tiller is upgraded by chart-operator in the tenant cluster. When we
+		// want to upgrade Tiller we deploy a new version of chart-operator.
+		// So here we can just cancel the resource.
+		r.logger.LogCtx(ctx, "level", "debug", "message", "tiller pod is outdated")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		return nil
 	} else if helmclient.IsTillerNotRunningError(err) {
 		// Can't find a tiller pod in starting phase. We will retry on next reconciliation loop.
 		r.logger.LogCtx(ctx, "level", "debug", "message", "no running tiller pod")

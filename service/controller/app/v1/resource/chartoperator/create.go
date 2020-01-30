@@ -51,6 +51,13 @@ func (r Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			reconciliationcanceledcontext.SetCanceled(ctx)
 
 			return nil
+		} else if helmclient.IsTillerOutdated(err) {
+			// Tiller is upgraded by chart-operator in the tenant cluster. When we
+			// want to upgrade Tiller we deploy a new version of chart-operator.
+			// So here we can just cancel the resource.
+			r.logger.LogCtx(ctx, "level", "debug", "message", "tiller pod is outdated")
+			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+			return nil
 		} else if tenant.IsAPINotAvailable(err) {
 			r.logger.LogCtx(ctx, "level", "debug", "message", "tenant API not available")
 
