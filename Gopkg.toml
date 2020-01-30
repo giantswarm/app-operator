@@ -76,9 +76,9 @@ required = [
   name = "github.com/giantswarm/exporterkit"
   branch = "master"
 
-[[constraint]]
+[[override]]
   name = "github.com/giantswarm/helmclient"
-  branch = "master"
+  branch = "outdated-tiller"
 
 [[constraint]]
   name = "github.com/giantswarm/k8sclient"
