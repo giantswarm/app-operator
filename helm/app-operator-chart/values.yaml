@@ -5,6 +5,7 @@
 name: app-operator
 namespace: giantswarm
 port: 8000
+protocol: "TCP"
 
 userID: 1000
 groupID: 1000
