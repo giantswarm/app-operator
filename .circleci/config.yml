@@ -91,11 +91,13 @@ orbs:
 
                 cd ~/project
 
-                for cmd in $(yq r << parameters.setup-config >> "commands.[*]")
-                do
-                  echo "Running: $cmd"
-                  eval "$cmd"
-                done
+                if [ -e << parameters.setup-config >> ]; then
+                  for cmd in $(yq r << parameters.setup-config >> "commands.[*]")
+                  do
+                    echo "Running: $cmd"
+                    eval "$cmd"
+                  done
+                fi
 
           - run:
               name: "Run test commands"
@@ -105,11 +107,15 @@ orbs:
                 cd ~/project
                 cd << parameters.test-dir >> 
 
-                for cmd in $(yq r ./integration_test.yaml "commands.[*]")
-                do
-                  echo "Running: $cmd"
-                  eval "$cmd"
-                done
+                if [ -e ./integration_test.yaml ]; then
+                  for cmd in $(yq r ./integration_test.yaml "commands.[*]")
+                  do
+                    echo "Running: $cmd"
+                    eval "$cmd"
+                  done
+                else
+                  echo "No integration_test.yaml"
+                fi
 
       go-test:
         parameters:
