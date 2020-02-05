@@ -1,0 +1,9 @@
+commands:
+- kubectl label namespace default foo=bar
+- kubectl describe namespace default
+kind:
+  config: |
+    kind: Cluster
+    apiVersion: kind.sigs.k8s.io/v1alpha3
+    nodes:
+    - role: control-plane

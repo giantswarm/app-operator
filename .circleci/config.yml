@@ -1,69 +1,186 @@
-e2eTest: &e2eTest
-  machine: true
-  working_directory: /home/circleci/.go_workspace/src/github.com/giantswarm/app-operator
-  steps:
-    - checkout
-
-    - attach_workspace:
-        at: .
-
-    - run:
-        name: Get e2ectl binary
-        command: |
-          wget -q $(curl -sS https://api.github.com/repos/giantswarm/e2ectl/releases/latest | grep browser_download_url | head -n 1 | cut -d '"' -f 4)
-          chmod +x ./e2ectl
-
-    - run:
-        name: Get kubectl binary
-        command: |
-          curl -LO https://storage.googleapis.com/kubernetes-release/release/`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`/bin/linux/amd64/kubectl
-          chmod +x ./kubectl
-
-    - run:
-        name: Init cluster
-        command: |
-          ./e2ectl cluster create
-          cp $(./e2ectl kubeconfig path) ${E2E_TEST_DIR}/kubeconfig
-          export KUBECONFIG=$(./e2ectl kubeconfig path)
-
-    - run:
-        name: Run test
-        command: |
-          docker run --rm --network host \
-            -v $(pwd)/${E2E_TEST_DIR}:/e2e \
-            -v $(pwd):/go/src/github.com/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME} \
-            -e E2E_KUBECONFIG=/e2e/kubeconfig \
-            -e CIRCLE_SHA1=${CIRCLE_SHA1} \
-            -w /go/src/github.com/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME} \
-            golang:1 go test -timeout 20m -v -tags k8srequired ./${E2E_TEST_DIR}/
-
-    - run:
-        name: Debug
-        command: |
-          export KUBECONFIG=$(./e2ectl kubeconfig path)
-          ./kubectl describe rs -n kube-system
-          ./kubectl describe rs -n giantswarm
-          ./kubectl describe podsecuritypolicies
-        when: always
-
-    - run:
-        name: Export logs
-        command: |
-          ./e2ectl logs export --logs-dir=kind/logs
-        when: always
-
-    - store_artifacts:
-        path: kind/logs
-        destination: logs
-
-    - run:
-        name: Finish with cleanup, no matter if the test succeeded or not
-        command: ./e2ectl cluster delete
-        when: always
-
 version: 2.1
 orbs:
   architect: giantswarm/architect@0.4.5
+
+  inline-orb:
+    executors:
+      machine-executor:
+        machine: true
+    commands:
+      install-go:
+        steps:
+          - run:
+              name: "Remove old Go"
+              command: |
+                sudo rm -rf /usr/local/go
+          - run:
+              name: "Download Go"
+              command: |
+                wget https://dl.google.com/go/go1.13.4.linux-amd64.tar.gz
+          - run:
+              name: "Check downloaded Go checksum"
+              command: |
+                [[ "$(sha256sum go1.13.4.linux-amd64.tar.gz | cut -d ' ' -f 1)" == "692d17071736f74be04a72a06dab9cac1cd759377bd85316e52b2227604c004c" ]]
+          - run:
+              name: "Install Go"
+              command: |
+                sudo tar -C /usr/local -xzf go1.13.4.linux-amd64.tar.gz
+          - run:
+              name: "Set Go environment"
+              command: |
+                go env -w GOBIN=/home/circleci/.go_workspace/bin
+          - run:
+              name: "Create $GOPATH directory"
+              command: |
+                sudo mkdir $(go env GOPATH) && sudo chown $USER $(go env GOPATH)
+          - run:
+              name: "Remove downloaded Go files"
+              command: |
+                rm go1.13.4.linux-amd64.tar.gz
+          - run: 
+              name: "Check Go version"
+              command: |
+                go version
+
+      install-tools:
+        steps:
+          - run:
+              name: "Install kind"
+              command: |
+                CGO_ENABLED=0 GO111MODULE="on" go get sigs.k8s.io/kind@v0.7.0
+          - run:
+              name: "Install kubectl"
+              command: |
+                curl -LO https://storage.googleapis.com/kubernetes-release/release/${KUBERNETES_VERSION}/bin/linux/amd64/kubectl
+                chmod +x ./kubectl
+                sudo mv ./kubectl /usr/local/bin/kubectl
+                kubectl version --client
+          - run:
+              name: "Install yq"
+              command: |
+                CGO_ENABLED=0 GO111MODULE="on" go get github.com/mikefarah/yq/v3@3.0.1
+
+      create-cluster:
+        parameters:
+          setup-config:
+            type: string
+        steps:
+          - run:
+              name: "Create cluster"
+              command: |
+                cd ~/project
+
+                if [ -z "$(yq r << parameters.setup-config >> "kind.config")" ]; then
+                  kind create cluster --image quay.io/giantswarm/kind-node:$KUBERNETES_VERSION
+                else
+                  yq r << parameters.setup-config >> "kind.config" > kind-config.yaml
+                  kind create cluster --config kind-config.yaml --image quay.io/giantswarm/kind-node:$KUBERNETES_VERSION
+                fi
+
+      test-setup:
+        parameters:
+          setup-config:
+            type: string
+          test-dir:
+            type: string
+        steps:
+          - run:
+              name: "Run test setup commands"
+              command: |
+                IFS=$'\n'
+
+                cd ~/project
+
+                for cmd in $(yq r << parameters.setup-config >> "commands.[*]")
+                do
+                  echo "Running: $cmd"
+                  eval "$cmd"
+                done
+
+          - run:
+              name: "Run test commands"
+              command: |
+                IFS=$'\n'
+
+                cd ~/project
+                cd << parameters.test-dir >> 
+
+                for cmd in $(yq r ./integration_test.yaml "commands.[*]")
+                do
+                  echo "Running: $cmd"
+                  eval "$cmd"
+                done
+
+      go-test:
+        parameters:
+          env:
+            type: string
+          test-dir:
+            type: string
+        steps:
+          - run:
+              name: "Create .env file"
+              command: |
+                echo '<< parameters.env >>' | sed -e 's/^\(.\)/export \1/' > .env
+          - run:
+              # TODO remove this part after switch to Go modules.
+              name: "Move code to $GOPATH"
+              command: |
+                mkdir -p $GOPATH/src/github.com/${CIRCLE_PROJECT_USERNAME} && mv ~/project $GOPATH/src/github.com/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}
+          - run:
+              name: "Run test"
+              command: |
+                cd $GOPATH/src/github.com/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}
+                source .env
+                CGO_ENABLED=0 E2E_KUBECONFIG=~/.kube/config go test -tags k8srequired -timeout 20m -v << parameters.test-dir >>
+
+      export-logs:
+        steps:
+          - run:
+              name: "Export cluster logs"
+              command: |
+                kind export logs ./kind/logs
+              when: always
+          - store_artifacts:
+              path: ./kind/logs
+              destination: logs
+
+    jobs:
+      integration-test:
+        environment:
+          GOPATH: /go
+          KUBERNETES_VERSION: v1.16.3
+        parameters:
+          env:
+            default: ""
+            description: |
+              Environment variables configuration. Must be in following format:
+
+                  VAR_A="VALUE_A"
+                  VAR_B="VALUE_B"
+            type: string
+          setup-config:
+            description: "Path to integration_setup.yaml."
+            type: string
+          test-dir:
+            description: "Tested package directory."
+            type: string
+        executor: machine-executor
+        steps:
+          - checkout
+          - attach_workspace:
+              at: .
+          - install-go
+          - install-tools
+          - create-cluster:
+              setup-config: << parameters.setup-config >>
+          - test-setup:
+              setup-config: << parameters.setup-config >>
+              test-dir: << parameters.test-dir >>
+          - go-test:
+              env: << parameters.env >>
+              test-dir: << parameters.test-dir >>
+          - export-logs
 
 jobs:
   build:
@@ -93,16 +210,6 @@ jobs:
     - deploy:
         command: |
             ./architect deploy
-
-  e2eTestAppBasic:
-    environment:
-      E2E_TEST_DIR: "integration/test/app/basic"
-    <<: *e2eTest
-
-  e2eTestAppKubeConfig:
-    environment:
-      E2E_TEST_DIR: "integration/test/app/kubeconfig"
-    <<: *e2eTest
 
 workflows:
   build_e2e:
@@ -140,13 +247,20 @@ workflows:
           requires:
             - build
 
-      - e2eTestAppBasic:
+      - inline-orb/integration-test:
+          name: basic-integration-test
+          setup-config: "./integration/setup/integration_setup.yaml"
+          test-dir: "./integration/test/app/basic"
           requires:
             - build
 
-      - e2eTestAppKubeConfig:
+      - inline-orb/integration-test:
+          name: kubeconfig-integration-test
+          setup-config: "./integration/setup/integration_setup.yaml"
+          test-dir: "./integration/test/app/kubeconfig"
           requires:
             - build
+
       - deploy:
           name: deploy
           requires:

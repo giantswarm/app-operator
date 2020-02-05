@@ -1,0 +1,3 @@
+commands:
+- kubectl annotate namespace default foo=bar
+- kubectl describe namespace default
