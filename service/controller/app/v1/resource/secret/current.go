@@ -2,7 +2,9 @@ package secret
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"time"
 
 	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/microerror"
@@ -36,7 +38,10 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 
 	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding secret %#q in namespace %#q", name, r.chartNamespace))
 
-	chart, err := cc.K8sClient.CoreV1().Secrets(r.chartNamespace).Get(name, metav1.GetOptions{})
+	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
+	defer cancel()
+
+	secret, err := cc.K8sClient.CoreV1().Secrets(r.chartNamespace).Get(name, metav1.GetOptions{})
 	if apierrors.IsNotFound(err) {
 		// Return early as secret does not exist.
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("did not find secret %#q in namespace %#q", name, r.chartNamespace))
@@ -51,8 +56,14 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 	} else if err != nil {
 		return nil, microerror.Mask(err)
 	}
+	if errors.Is(ctx.Err(), context.DeadlineExceeded) {
+		r.logger.LogCtx(ctx, "level", "debug", "message", "timeout getting secret")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		resourcecanceledcontext.SetCanceled(ctx)
+		return nil, nil
+	}
 
 	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found secret %#q in namespace %#q", name, r.chartNamespace))
 
-	return chart, nil
+	return secret, nil
 }

@@ -2,10 +2,13 @@ package configmap
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"time"
 
 	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/microerror"
+	"github.com/giantswarm/operatorkit/controller/context/reconciliationcanceledcontext"
 	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -36,23 +39,36 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 
 	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding configmap %#q in namespace %#q", name, r.chartNamespace))
 
-	chart, err := cc.K8sClient.CoreV1().ConfigMaps(r.chartNamespace).Get(name, metav1.GetOptions{})
+	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
+	defer cancel()
+
+	configmap, err := cc.K8sClient.CoreV1().ConfigMaps(r.chartNamespace).Get(name, metav1.GetOptions{})
 	if apierrors.IsNotFound(err) {
 		// Return early as configmap does not exist.
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("did not find configmap %#q in namespace %#q", name, r.chartNamespace))
 		return nil, nil
 	} else if tenant.IsAPINotAvailable(err) {
-		// We should not hammer tenant API if it is not available, the tenant cluster
-		// might be initializing. We will retry on next reconciliation loop.
+		// We should not hammer tenant API if it is not available. We cancel
+		// the reconciliation because its likely following resources will also
+		// fail.
 		r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster is not available.")
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
-		resourcecanceledcontext.SetCanceled(ctx)
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation")
+		reconciliationcanceledcontext.SetCanceled(ctx)
 		return nil, nil
 	} else if err != nil {
 		return nil, microerror.Mask(err)
 	}
+	if errors.Is(ctx.Err(), context.DeadlineExceeded) {
+		// We should not hammer tenant API if it is not available. We cancel
+		// the reconciliation because its likely following resources will also
+		// fail.
+		r.logger.LogCtx(ctx, "level", "debug", "message", "timeout getting configmap")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation")
+		reconciliationcanceledcontext.SetCanceled(ctx)
+		return nil, nil
+	}
 
 	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found configmap %#q in namespace %#q", name, r.chartNamespace))
 
-	return chart, nil
+	return configmap, nil
 }
