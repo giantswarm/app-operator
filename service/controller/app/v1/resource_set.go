@@ -251,10 +251,12 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		// Create giantswarm namespace in tenant clusters.
 		tcNamespaceResource,
 
+		// Ensure chart CRD exists in tenant clusters.
+		chartCRDResource,
+
 		// Following resources process app CRs.
 		configMapResource,
 		secretResource,
-		chartCRDResource,
 		chartResource,
 		statusResource,
 
