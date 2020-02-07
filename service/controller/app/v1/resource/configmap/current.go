@@ -63,6 +63,9 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 	select {
 	case <-ctx.Done():
 		if errors.Is(ctx.Err(), context.DeadlineExceeded) {
+			// Set status so we don't try to connect to the tenant cluster
+			// again in this reconciliation loop.
+			cc.Status.TenantCluster.IsUnavailable = true
 
 			r.logger.LogCtx(ctx, "level", "debug", "message", "timeout getting chart cr")
 			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
@@ -78,6 +81,10 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("did not find configmap %#q in namespace %#q", name, r.chartNamespace))
 		return nil, nil
 	} else if tenant.IsAPINotAvailable(res.Error) {
+		// Set status so we don't try to connect to the tenant cluster
+		// again in this reconciliation loop.
+		cc.Status.TenantCluster.IsUnavailable = true
+
 		// We should not hammer tenant API if it is not available. We cancel
 		// the reconciliation because its likely following resources will also
 		// fail.
