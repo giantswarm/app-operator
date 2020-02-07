@@ -7,10 +7,13 @@ import (
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/helmclient"
+	"github.com/giantswarm/k8sclient/k8scrdclient"
 	"github.com/giantswarm/kubeconfig"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
+	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/rest"
 
 	"github.com/giantswarm/app-operator/service/controller/app/v1/controllercontext"
 )
@@ -100,9 +103,36 @@ func (r *Resource) addClientsToContext(ctx context.Context, cr v1alpha1.App) err
 		}
 	}
 
-	restConfig, err := kubeConfig.NewRESTConfigForApp(ctx, cr)
-	if err != nil {
-		return microerror.Mask(err)
+	var restConfig *rest.Config
+	{
+		restConfig, err = kubeConfig.NewRESTConfigForApp(ctx, cr)
+		if err != nil {
+			return microerror.Mask(err)
+		}
+	}
+
+	var extClient *apiextensionsclient.Clientset
+	{
+		c := rest.CopyConfig(restConfig)
+
+		extClient, err = apiextensionsclient.NewForConfig(c)
+		if err != nil {
+			return microerror.Mask(err)
+		}
+	}
+
+	var crdClient *k8scrdclient.CRDClient
+	{
+		c := k8scrdclient.Config{
+			K8sExtClient: extClient,
+			Logger:       r.logger,
+		}
+
+		crdClient, err = k8scrdclient.New(c)
+		if err != nil {
+			return microerror.Mask(err)
+		}
+		cc.CRDClient = crdClient
 	}
 
 	{
@@ -127,7 +157,7 @@ func (r *Resource) addClientsToContext(ctx context.Context, cr v1alpha1.App) err
 			Logger:    r.logger,
 
 			EnsureTillerInstalledMaxWait: 30 * time.Second,
-			RestConfig:                   cc.K8sClient.RESTConfig(),
+			RestConfig:                   restConfig,
 			TillerImageRegistry:          r.imageRegistry,
 			TillerNamespace:              r.tillerNamespace,
 		}

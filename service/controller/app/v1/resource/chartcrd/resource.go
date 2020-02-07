@@ -54,7 +54,7 @@ func (r *Resource) ensureChartCRDCreated(ctx context.Context) error {
 
 	r.logger.LogCtx(ctx, "level", "debug", "message", "ensuring chardcrd exists in tenant cluster")
 
-	err = cc.K8sClient.CRDClient().EnsureCreated(ctx, v1alpha1.NewChartCRD(), backoff.NewMaxRetries(7, 1*time.Second))
+	err = cc.CRDClient.EnsureCreated(ctx, v1alpha1.NewChartCRD(), backoff.NewMaxRetries(7, 1*time.Second))
 	if tenant.IsAPINotAvailable(err) {
 		// We should not hammer tenant API if it is not available, the tenant cluster
 		// might be initializing. We will retry on next reconciliation loop.

@@ -6,6 +6,7 @@ import (
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/helmclient"
+	"github.com/giantswarm/k8sclient/k8scrdclient"
 	"github.com/giantswarm/microerror"
 	"k8s.io/client-go/kubernetes"
 )
@@ -16,6 +17,7 @@ const controllerKey contextKey = "controller"
 
 type Context struct {
 	AppCatalog v1alpha1.AppCatalog
+	CRDClient  k8scrdclient.Interface
 	G8sClient  versioned.Interface
 	HelmClient helmclient.Interface
 	K8sClient  kubernetes.Interface
