@@ -25,7 +25,7 @@ func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange inte
 			return microerror.Mask(err)
 		}
 
-		_, err = cc.K8sClient.G8sClient().ApplicationV1alpha1().Charts(chart.Namespace).Update(chart)
+		_, err = cc.G8sClient.ApplicationV1alpha1().Charts(chart.Namespace).Update(chart)
 		if err != nil {
 			return microerror.Mask(err)
 		}
