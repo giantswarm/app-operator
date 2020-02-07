@@ -21,7 +21,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return nil
 	}
 
-	err = r.ensureChartCRDCreated(ctx)
+	err = r.ensureChartCRD(ctx)
 	if err != nil {
 		return microerror.Mask(err)
 	}
