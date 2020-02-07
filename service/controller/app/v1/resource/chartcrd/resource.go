@@ -2,10 +2,14 @@ package tiller
 
 import (
 	"context"
+	"time"
 
-	"github.com/giantswarm/helmclient"
+	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
+	"github.com/giantswarm/backoff"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
+
+	"github.com/giantswarm/app-operator/service/controller/app/v1/controllercontext"
 )
 
 const (
@@ -41,9 +45,16 @@ func (r Resource) Name() string {
 	return Name
 }
 
-func (r *Resource) ensureCRDCreated(ctx context.Context, k8sClient kubernetes.Interface) error {
-	k8sClient.CRD
+func (r *Resource) ensureChartCRDCreated(ctx context.Context) error {
+	cc, err := controllercontext.FromContext(ctx)
+	if err != nil {
+		return microerror.Mask(err)
+	}
 
+	err = cc.K8sClient.CRDClient().EnsureCreated(ctx, v1alpha1.NewChartCRD(), backoff.NewMaxRetries(7, 1*time.Second))
+	if err != nil {
+		return microerror.Mask(err)
+	}
 
 	return nil
 }

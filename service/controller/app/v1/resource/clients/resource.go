@@ -114,6 +114,7 @@ func (r *Resource) addClientsToContext(ctx context.Context, cr v1alpha1.App) err
 		c := k8sclient.ClientsConfig{
 			Logger: r.logger,
 			SchemeBuilder: k8sclient.SchemeBuilder{
+				// Add application scheme.
 				v1alpha1.AddToScheme,
 			},
 
@@ -130,7 +131,7 @@ func (r *Resource) addClientsToContext(ctx context.Context, cr v1alpha1.App) err
 
 	{
 		c := helmclient.Config{
-			K8sClient: cc.K8sClient.K8sClient(),
+			K8sClient: k8sClient.K8sClient(),
 			Logger:    r.logger,
 
 			EnsureTillerInstalledMaxWait: 30 * time.Second,
