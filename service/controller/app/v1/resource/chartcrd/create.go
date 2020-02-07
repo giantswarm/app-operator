@@ -1,4 +1,4 @@
-package tiller
+package chartcrd
 
 import (
 	"context"
@@ -21,7 +21,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return nil
 	}
 
-	err = r.ensureChartCRD(ctx)
+	err = r.ensureChartCRDCreated(ctx)
 	if err != nil {
 		return microerror.Mask(err)
 	}

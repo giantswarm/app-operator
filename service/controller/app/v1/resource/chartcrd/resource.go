@@ -1,4 +1,4 @@
-package tiller
+package chartcrd
 
 import (
 	"context"
@@ -46,7 +46,7 @@ func (r Resource) Name() string {
 	return Name
 }
 
-func (r *Resource) ensureChartCRD(ctx context.Context) error {
+func (r *Resource) ensureChartCRDCreated(ctx context.Context) error {
 	cc, err := controllercontext.FromContext(ctx)
 	if err != nil {
 		return microerror.Mask(err)
@@ -60,12 +60,11 @@ func (r *Resource) ensureChartCRD(ctx context.Context) error {
 		// might be initializing. We will retry on next reconciliation loop.
 		r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster is not available.")
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
-		resourcecanceledcontext.SetCanceled(ctx)
 		return nil
 	} else if err != nil {
 		return microerror.Mask(err)
 	}
-	
+
 	r.logger.LogCtx(ctx, "level", "debug", "message", "ensured chardcrd exists in tenant cluster")
 
 	return nil

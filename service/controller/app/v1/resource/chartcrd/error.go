@@ -1,4 +1,4 @@
-package tiller
+package chartcrd
 
 import "github.com/giantswarm/microerror"
 

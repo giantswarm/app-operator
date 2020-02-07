@@ -119,7 +119,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 
 	var chartCRDResource resource.Interface
 	{
-		c := chart.Config{
+		c := chartcrd.Config{
 			Logger: config.Logger,
 		}
 
