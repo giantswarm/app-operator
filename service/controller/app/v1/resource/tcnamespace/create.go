@@ -2,7 +2,9 @@ package tcnamespace
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"time"
 
 	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/microerror"
@@ -53,10 +55,38 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating namespace %#q in tenant cluster %#q", ns.Name, key.ClusterID(cr)))
 
-	_, err = cc.K8sClient.K8sClient().CoreV1().Namespaces().Create(ns)
+	ch := make(chan error, 1)
+
+	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
+	defer cancel()
+
+	go func() {
+		_, err = cc.K8sClient.K8sClient().CoreV1().Namespaces().Create(ns)
+		ch <- err
+	}()
+
+	select {
+	case <-ctx.Done():
+		if errors.Is(ctx.Err(), context.DeadlineExceeded) {
+			// Set status so we don't try to connect to the tenant cluster
+			// again in this reconciliation loop.
+			cc.Status.TenantCluster.IsUnavailable = true
+
+			r.logger.LogCtx(ctx, "level", "debug", "message", "timeout creating namespace")
+			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+			return nil
+		}
+	}
+
+	err = <-ch
+
 	if apierrors.IsAlreadyExists(err) {
 		// fall through
 	} else if tenant.IsAPINotAvailable(err) {
+		// Set status so we don't try to connect to the tenant cluster
+		// again in this reconciliation loop.
+		cc.Status.TenantCluster.IsUnavailable = true
+
 		r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster not available")
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 		return nil

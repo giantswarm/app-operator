@@ -25,7 +25,8 @@ type Status struct {
 }
 
 type TenantCluster struct {
-	IsDeleting bool
+	IsDeleting    bool
+	IsUnavailable bool
 }
 
 func NewContext(ctx context.Context, c Context) context.Context {
