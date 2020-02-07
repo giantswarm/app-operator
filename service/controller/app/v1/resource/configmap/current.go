@@ -36,7 +36,7 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 
 	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding configmap %#q in namespace %#q", name, r.chartNamespace))
 
-	chart, err := cc.K8sClient.CoreV1().ConfigMaps(r.chartNamespace).Get(name, metav1.GetOptions{})
+	chart, err := cc.K8sClient.K8sClient().CoreV1().ConfigMaps(r.chartNamespace).Get(name, metav1.GetOptions{})
 	if apierrors.IsNotFound(err) {
 		// Return early as configmap does not exist.
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("did not find configmap %#q in namespace %#q", name, r.chartNamespace))

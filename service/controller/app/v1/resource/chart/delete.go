@@ -26,7 +26,7 @@ func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange inte
 			return microerror.Mask(err)
 		}
 
-		err = cc.G8sClient.ApplicationV1alpha1().Charts(chart.Namespace).Delete(chart.Name, &metav1.DeleteOptions{})
+		err = cc.K8sClient.G8sClient().ApplicationV1alpha1().Charts(chart.Namespace).Delete(chart.Name, &metav1.DeleteOptions{})
 		if apierrors.IsNotFound(err) {
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("already deleted Chart CR %#q in namespace %#q", chart.Name, chart.Namespace))
 		} else if err != nil {

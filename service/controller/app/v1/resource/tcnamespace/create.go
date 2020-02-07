@@ -53,7 +53,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating namespace %#q in tenant cluster %#q", ns.Name, key.ClusterID(cr)))
 
-	_, err = cc.K8sClient.CoreV1().Namespaces().Create(ns)
+	_, err = cc.K8sClient.K8sClient().CoreV1().Namespaces().Create(ns)
 	if apierrors.IsAlreadyExists(err) {
 		// fall through
 	} else if tenant.IsAPINotAvailable(err) {
