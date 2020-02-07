@@ -134,6 +134,37 @@ func (r Resource) installChartOperator(ctx context.Context, cr v1alpha1.App) err
 		}
 	}
 
+	{
+		// We wait for the chart-operator deployment to be ready so the
+		// chart CRD is installed. This allows the chart
+		// resource to create CRs in the same reconcilation loop.
+		r.logger.LogCtx(ctx, "level", "debug", "message", "waiting for ready chart-operator deployment")
+
+		o := func() error {
+			err := r.checkDeploymentReady(ctx, cc.K8sClient)
+			if err != nil {
+				return microerror.Mask(err)
+			}
+
+			return nil
+		}
+
+		// Wait for chart-operator to be deployed. If it takes longer than
+		// the timeout the chartconfig CRs will be created during the next
+		// reconciliation loop.
+		b := backoff.NewConstant(20*time.Second, 5*time.Second)
+		n := func(err error, delay time.Duration) {
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("%#q deployment is not ready retrying in %s", release, delay), "stack", fmt.Sprintf("%#v", err))
+		}
+
+		err = backoff.RetryNotify(o, b, n)
+		if err != nil {
+			return microerror.Mask(err)
+		}
+
+		r.logger.LogCtx(ctx, "level", "debug", "message", "chart-operator deployment is ready")
+	}
+
 	return nil
 }
 
@@ -184,6 +215,34 @@ func (r Resource) updateChartOperator(ctx context.Context, cr v1alpha1.App) erro
 		}
 	}
 
+<<<<<<< HEAD
+=======
+	{
+		r.logger.LogCtx(ctx, "level", "debug", "message", "waiting for ready chart-operator deployment")
+
+		o := func() error {
+			err := r.checkDeploymentReady(ctx, cc.K8sClient)
+			if err != nil {
+				return microerror.Mask(err)
+			}
+
+			return nil
+		}
+
+		b := backoff.NewConstant(20*time.Second, 10*time.Second)
+		n := func(err error, delay time.Duration) {
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("%#q deployment is not ready retrying in %s", release, delay), "stack", fmt.Sprintf("%#v", err))
+		}
+
+		err = backoff.RetryNotify(o, b, n)
+		if err != nil {
+			return microerror.Mask(err)
+		}
+
+		r.logger.LogCtx(ctx, "level", "debug", "message", "chart-operator deployment is ready")
+	}
+
+>>>>>>> master
 	return nil
 }
 

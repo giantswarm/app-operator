@@ -25,7 +25,7 @@ func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange inte
 			return microerror.Mask(err)
 		}
 
-		_, err = cc.K8sClient.K8sClient().CoreV1().Secrets(secret.Namespace).Update(secret)
+		_, err = cc.K8sClient.CoreV1().Secrets(secret.Namespace).Update(secret)
 		if err != nil {
 			return microerror.Mask(err)
 		}
