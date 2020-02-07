@@ -148,7 +148,7 @@ func (r Resource) installChartOperator(ctx context.Context, cr v1alpha1.App) err
 		r.logger.LogCtx(ctx, "level", "debug", "message", "waiting for ready chart-operator deployment")
 
 		o := func() error {
-			err := r.checkDeploymentReady(ctx, cc.K8sClient)
+			err := r.checkDeploymentReady(ctx, cc.K8sClient.K8sClient())
 			if err != nil {
 				return microerror.Mask(err)
 			}
@@ -231,7 +231,7 @@ func (r Resource) updateChartOperator(ctx context.Context, cr v1alpha1.App) erro
 		r.logger.LogCtx(ctx, "level", "debug", "message", "waiting for ready chart-operator deployment")
 
 		o := func() error {
-			err := r.checkDeploymentReady(ctx, cc.K8sClient)
+			err := r.checkDeploymentReady(ctx, cc.K8sClient.K8sClient())
 			if err != nil {
 				return microerror.Mask(err)
 			}
