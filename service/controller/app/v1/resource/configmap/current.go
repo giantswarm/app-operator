@@ -47,13 +47,14 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 
 	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding configmap %#q in namespace %#q", name, r.chartNamespace))
 
-	ch := make(chan response, 1)
+	ch := make(chan response)
 
 	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
 	defer cancel()
 
 	go func() {
 		configmap, err := cc.K8sClient.CoreV1().ConfigMaps(r.chartNamespace).Get(name, metav1.GetOptions{})
+
 		ch <- response{
 			Configmap: configmap,
 			Error:     err,
@@ -67,11 +68,13 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 			// again in this reconciliation loop.
 			cc.Status.TenantCluster.IsUnavailable = true
 
-			r.logger.LogCtx(ctx, "level", "debug", "message", "timeout getting chart cr")
+			r.logger.LogCtx(ctx, "level", "debug", "message", "timeout getting configmap")
 			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 			resourcecanceledcontext.SetCanceled(ctx)
 			return nil, nil
 		}
+	default:
+		// Fall through.
 	}
 
 	res := <-ch
