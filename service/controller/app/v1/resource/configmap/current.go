@@ -53,7 +53,7 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 	defer cancel()
 
 	go func() {
-		configmap, err := cc.K8sClient.K8sClient().CoreV1().ConfigMaps(r.chartNamespace).Get(name, metav1.GetOptions{})
+		configmap, err := cc.K8sClient.CoreV1().ConfigMaps(r.chartNamespace).Get(name, metav1.GetOptions{})
 		ch <- response{
 			Configmap: configmap,
 			Error:     err,

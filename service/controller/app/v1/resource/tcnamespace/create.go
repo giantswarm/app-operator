@@ -61,7 +61,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	defer cancel()
 
 	go func() {
-		_, err = cc.K8sClient.K8sClient().CoreV1().Namespaces().Create(ns)
+		_, err = cc.K8sClient.CoreV1().Namespaces().Create(ns)
 		ch <- err
 	}()
 
