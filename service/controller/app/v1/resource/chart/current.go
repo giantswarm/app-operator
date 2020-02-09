@@ -47,7 +47,7 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 	chart, err := cc.G8sClient.ApplicationV1alpha1().Charts(r.chartNamespace).Get(name, metav1.GetOptions{})
 	if apierrors.IsNotFound(err) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("did not find chart %#q in namespace %#q", name, r.chartNamespace))
-		// return nil, nil
+		return nil, nil
 	} else if tenant.IsAPINotAvailable(err) {
 		// We should not hammer tenant API if it is not available, the tenant cluster
 		// might be initializing. We will retry on next reconciliation loop.
