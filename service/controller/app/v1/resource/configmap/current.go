@@ -61,7 +61,11 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 		}
 	}()
 
+	var res = response{}
+
 	select {
+	case res = <-ch:
+		// Fall through.
 	case <-ctx.Done():
 		if errors.Is(ctx.Err(), context.DeadlineExceeded) {
 			// Set status so we don't try to connect to the tenant cluster
@@ -73,11 +77,7 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 			resourcecanceledcontext.SetCanceled(ctx)
 			return nil, nil
 		}
-	default:
-		// Fall through.
 	}
-
-	res := <-ch
 
 	if apierrors.IsNotFound(res.Error) {
 		// Return early as configmap does not exist.

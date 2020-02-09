@@ -66,6 +66,8 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	}()
 
 	select {
+	case err = <-ch:
+		// Fall through.
 	case <-ctx.Done():
 		if errors.Is(ctx.Err(), context.DeadlineExceeded) {
 			// Set status so we don't try to connect to the tenant cluster
@@ -79,8 +81,6 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	default:
 		// Fall through.
 	}
-
-	err = <-ch
 
 	if apierrors.IsAlreadyExists(err) {
 		// fall through
