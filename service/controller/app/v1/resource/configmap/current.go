@@ -8,7 +8,6 @@ import (
 
 	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/microerror"
-	"github.com/giantswarm/operatorkit/controller/context/reconciliationcanceledcontext"
 	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -93,21 +92,11 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 		// fail.
 		r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster is not available.")
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation")
-		reconciliationcanceledcontext.SetCanceled(ctx)
+		resourcecanceledcontext.SetCanceled(ctx)
 		return nil, nil
 	} else if err != nil {
 		return nil, microerror.Mask(err)
 	}
-	if errors.Is(ctx.Err(), context.DeadlineExceeded) {
-		// We should not hammer tenant API if it is not available. We cancel
-		// the reconciliation because its likely following resources will also
-		// fail.
-		r.logger.LogCtx(ctx, "level", "debug", "message", "timeout getting configmap")
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation")
-		reconciliationcanceledcontext.SetCanceled(ctx)
-		return nil, nil
-	}
-
 	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found configmap %#q in namespace %#q", name, r.chartNamespace))
 
 	return res.Configmap, nil
