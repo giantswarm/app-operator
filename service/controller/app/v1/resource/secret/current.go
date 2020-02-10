@@ -34,9 +34,16 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 		return nil, nil
 	}
 
+	if cc.Status.TenantCluster.IsUnavailable {
+		r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster is unavailable")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		resourcecanceledcontext.SetCanceled(ctx)
+		return nil, nil
+	}
+
 	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding secret %#q in namespace %#q", name, r.chartNamespace))
 
-	chart, err := cc.K8sClient.CoreV1().Secrets(r.chartNamespace).Get(name, metav1.GetOptions{})
+	secret, err := cc.K8sClient.CoreV1().Secrets(r.chartNamespace).Get(name, metav1.GetOptions{})
 	if apierrors.IsNotFound(err) {
 		// Return early as secret does not exist.
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("did not find secret %#q in namespace %#q", name, r.chartNamespace))
@@ -54,5 +61,5 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 
 	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found secret %#q in namespace %#q", name, r.chartNamespace))
 
-	return chart, nil
+	return secret, nil
 }

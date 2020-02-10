@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
@@ -34,6 +35,13 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 		return nil, nil
 	}
 
+	if cc.Status.TenantCluster.IsUnavailable {
+		r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster is unavailable")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		resourcecanceledcontext.SetCanceled(ctx)
+		return nil, nil
+	}
+
 	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding chart %#q", name))
 
 	chart, err := cc.G8sClient.ApplicationV1alpha1().Charts(r.chartNamespace).Get(name, metav1.GetOptions{})
@@ -54,4 +62,9 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found chart %#q", name))
 
 	return chart, nil
+}
+
+type response struct {
+	Chart *v1alpha1.Chart
+	Error error
 }
