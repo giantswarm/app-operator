@@ -2,7 +2,6 @@ package tcnamespace
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"time"
 
@@ -57,27 +56,22 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 	ch := make(chan error)
 
-	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
-	defer cancel()
-
 	go func() {
 		_, err = cc.K8sClient.CoreV1().Namespaces().Create(ns)
-		ch <- err
+		close(ch)
 	}()
 
 	select {
-	case err = <-ch:
+	case <-ch:
 		// Fall through.
-	case <-ctx.Done():
-		if errors.Is(ctx.Err(), context.DeadlineExceeded) {
-			// Set status so we don't try to connect to the tenant cluster
-			// again in this reconciliation loop.
-			cc.Status.TenantCluster.IsUnavailable = true
+	case <-time.After(3 * time.Second):
+		// Set status so we don't try to connect to the tenant cluster
+		// again in this reconciliation loop.
+		cc.Status.TenantCluster.IsUnavailable = true
 
-			r.logger.LogCtx(ctx, "level", "debug", "message", "timeout creating namespace")
-			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
-			return nil
-		}
+		r.logger.LogCtx(ctx, "level", "debug", "message", "timeout creating namespace")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		return nil
 	}
 
 	if apierrors.IsAlreadyExists(err) {
