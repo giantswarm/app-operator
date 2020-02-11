@@ -2,7 +2,6 @@ package configmap
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"time"
 
@@ -46,43 +45,34 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 
 	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding configmap %#q in namespace %#q", name, r.chartNamespace))
 
-	ch := make(chan response)
+	ch := make(chan struct{})
 
-	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
-	defer cancel()
+	var configmap *corev1.ConfigMap
 
 	go func() {
-		configmap, err := cc.K8sClient.CoreV1().ConfigMaps(r.chartNamespace).Get(name, metav1.GetOptions{})
-
-		ch <- response{
-			Configmap: configmap,
-			Error:     err,
-		}
+		configmap, err = cc.K8sClient.CoreV1().ConfigMaps(r.chartNamespace).Get(name, metav1.GetOptions{})
+		close(ch)
 	}()
 
-	var res = response{}
-
 	select {
-	case res = <-ch:
+	case <-ch:
 		// Fall through.
-	case <-ctx.Done():
-		if errors.Is(ctx.Err(), context.DeadlineExceeded) {
-			// Set status so we don't try to connect to the tenant cluster
-			// again in this reconciliation loop.
-			cc.Status.TenantCluster.IsUnavailable = true
+	case <-time.After(3 * time.Second):
+		// Set status so we don't try to connect to the tenant cluster
+		// again in this reconciliation loop.
+		cc.Status.TenantCluster.IsUnavailable = true
 
-			r.logger.LogCtx(ctx, "level", "debug", "message", "timeout getting configmap")
-			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
-			resourcecanceledcontext.SetCanceled(ctx)
-			return nil, nil
-		}
+		r.logger.LogCtx(ctx, "level", "debug", "message", "timeout getting configmap")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		resourcecanceledcontext.SetCanceled(ctx)
+		return nil, nil
 	}
 
-	if apierrors.IsNotFound(res.Error) {
+	if apierrors.IsNotFound(err) {
 		// Return early as configmap does not exist.
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("did not find configmap %#q in namespace %#q", name, r.chartNamespace))
 		return nil, nil
-	} else if tenant.IsAPINotAvailable(res.Error) {
+	} else if tenant.IsAPINotAvailable(err) {
 		// Set status so we don't try to connect to the tenant cluster
 		// again in this reconciliation loop.
 		cc.Status.TenantCluster.IsUnavailable = true
@@ -99,10 +89,5 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 	}
 	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found configmap %#q in namespace %#q", name, r.chartNamespace))
 
-	return res.Configmap, nil
-}
-
-type response struct {
-	Configmap *corev1.ConfigMap
-	Error     error
+	return configmap, nil
 }
