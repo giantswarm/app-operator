@@ -14,6 +14,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	clientgofake "k8s.io/client-go/kubernetes/fake"
 
+	"github.com/giantswarm/app-operator/pkg/annotation"
 	"github.com/giantswarm/app-operator/pkg/label"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/controllercontext"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/values"
@@ -90,6 +91,9 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "my-prometheus-chart-values",
 					Namespace: "giantswarm",
+					Annotations: map[string]string{
+						annotation.ChartOperatorNotes: "DO NOT EDIT",
+					},
 					Labels: map[string]string{
 						label.ManagedBy: "app-operator",
 					},
