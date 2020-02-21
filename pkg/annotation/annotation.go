@@ -3,6 +3,10 @@
 package annotation
 
 const (
+	// ChartOperatorNotes is for informational messages for resources
+	// generated for chart-operator.
+	ChartOperatorNotes = "chart-operator.giantswarm.io/notes"
+
 	// ChartOperatorPrefix is the prefix for annotations that control logic inside chart-operator.
 	ChartOperatorPrefix = "chart-operator.giantswarm.io"
 

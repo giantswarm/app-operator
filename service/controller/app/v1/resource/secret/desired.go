@@ -8,6 +8,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
+	"github.com/giantswarm/app-operator/pkg/annotation"
 	"github.com/giantswarm/app-operator/pkg/label"
 	"github.com/giantswarm/app-operator/pkg/project"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/controllercontext"
@@ -55,6 +56,9 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      key.ChartSecretName(cr),
 			Namespace: r.chartNamespace,
+			Annotations: map[string]string{
+				annotation.ChartOperatorNotes: "DO NOT EDIT",
+			},
 			Labels: map[string]string{
 				label.ManagedBy: project.Name(),
 			},
