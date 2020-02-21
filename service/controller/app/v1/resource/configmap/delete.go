@@ -31,9 +31,13 @@ func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange inte
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("already deleted configmap %#q in namespace %#q", configMap.Name, configMap.Namespace))
 		} else if err != nil {
 			return microerror.Mask(err)
-		} else {
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleted Chart CR %#q in namespace %#q", configMap.Name, configMap.Namespace))
 		}
+
+		// Clear resource version so chart CR annotation is unset. The configmap
+		// has been deleted but the chart CR may still exist.
+		cc.ResourceVersion.ConfigMap = ""
+
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleted configmap %#q in namespace %#q", configMap.Name, configMap.Namespace))
 	}
 
 	return nil

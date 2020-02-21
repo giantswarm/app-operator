@@ -27,7 +27,7 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 			return microerror.Mask(err)
 		}
 
-		_, err = cc.K8sClient.K8sClient().CoreV1().Secrets(secret.Namespace).Create(secret)
+		secret, err = cc.K8sClient.K8sClient().CoreV1().Secrets(secret.Namespace).Create(secret)
 		if apierrors.IsAlreadyExists(err) {
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("already created secret %#q in namespace %#q", secret.Name, secret.Namespace))
 		} else if tenant.IsAPINotAvailable(err) {
@@ -39,9 +39,13 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 			return nil
 		} else if err != nil {
 			return microerror.Mask(err)
-		} else {
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("created secret %#q in namespace %#q", secret.Name, secret.Namespace))
 		}
+
+		// Add resource version to the controller context. We set an annotation
+		// on the chart CR so changes are applied when the secret is changed.
+		cc.ResourceVersion.Secret = secret.ObjectMeta.ResourceVersion
+
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("created secret %#q in namespace %#q", secret.Name, secret.Namespace))
 	}
 
 	return nil

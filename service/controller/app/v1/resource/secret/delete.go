@@ -31,9 +31,13 @@ func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange inte
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("already deleted secret %#q in namespace %#q", secret.Name, secret.Namespace))
 		} else if err != nil {
 			return microerror.Mask(err)
-		} else {
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleted Chart CR %#q in namespace %#q", secret.Name, secret.Namespace))
 		}
+
+		// Clear resource version so chart CR annotation is unset. The secret
+		// has been deleted but the chart CR may still exist.
+		cc.ResourceVersion.Secret = ""
+
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleted secret %#q in namespace %#q", secret.Name, secret.Namespace))
 	}
 
 	return nil

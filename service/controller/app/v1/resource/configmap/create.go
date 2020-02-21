@@ -27,7 +27,7 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 			return microerror.Mask(err)
 		}
 
-		_, err = cc.K8sClient.K8sClient().CoreV1().ConfigMaps(configMap.Namespace).Create(configMap)
+		cm, err := cc.K8sClient.K8sClient().CoreV1().ConfigMaps(configMap.Namespace).Create(configMap)
 		if apierrors.IsAlreadyExists(err) {
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("already created configmap %#q in namespace %#q", configMap.Name, configMap.Namespace))
 		} else if tenant.IsAPINotAvailable(err) {
@@ -39,9 +39,13 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 			return nil
 		} else if err != nil {
 			return microerror.Mask(err)
-		} else {
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("created configmap %#q in namespace %#q", configMap.Name, configMap.Namespace))
 		}
+
+		// Add resource version to the controller context. We set an annotation
+		// on the chart CR so changes are applied when the configmap is changed.
+		cc.ResourceVersion.ConfigMap = cm.ObjectMeta.ResourceVersion
+
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("created configmap %#q in namespace %#q", configMap.Name, configMap.Namespace))
 	}
 
 	return nil

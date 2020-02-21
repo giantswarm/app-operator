@@ -14,10 +14,16 @@ type contextKey string
 const controllerKey contextKey = "controller"
 
 type Context struct {
-	AppCatalog v1alpha1.AppCatalog
-	HelmClient helmclient.Interface
-	K8sClient  k8sclient.Interface
-	Status     Status
+	AppCatalog      v1alpha1.AppCatalog
+	HelmClient      helmclient.Interface
+	K8sClient       k8sclient.Interface
+	ResourceVersion ResourceVersion
+	Status          Status
+}
+
+type ResourceVersion struct {
+	ConfigMap string
+	Secret    string
 }
 
 type Status struct {

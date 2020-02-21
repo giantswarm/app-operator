@@ -25,10 +25,14 @@ func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange inte
 			return microerror.Mask(err)
 		}
 
-		_, err = cc.K8sClient.K8sClient().CoreV1().Secrets(secret.Namespace).Update(secret)
+		secret, err = cc.K8sClient.K8sClient().CoreV1().Secrets(secret.Namespace).Update(secret)
 		if err != nil {
 			return microerror.Mask(err)
 		}
+
+		// Add resource version to the controller context. We set an annotation
+		// on the chart CR so changes are applied when the secret is changed.
+		cc.ResourceVersion.Secret = secret.ObjectMeta.ResourceVersion
 
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updated secret %#q in namespace %#q", secret.Name, secret.Namespace))
 	}
