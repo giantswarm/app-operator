@@ -25,10 +25,14 @@ func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange inte
 			return microerror.Mask(err)
 		}
 
-		_, err = cc.K8sClient.K8sClient().CoreV1().ConfigMaps(configMap.Namespace).Update(configMap)
+		cm, err := cc.K8sClient.K8sClient().CoreV1().ConfigMaps(configMap.Namespace).Update(configMap)
 		if err != nil {
 			return microerror.Mask(err)
 		}
+
+		// Add resource version to the controller context. We set an annotation
+		// on the chart CR so changes are applied when the configmap is changed.
+		cc.ResourceVersion.ConfigMap = cm.ObjectMeta.ResourceVersion
 
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updated configmap %#q in namespace %#q", configMap.Name, configMap.Namespace))
 	}
