@@ -5,8 +5,9 @@ import (
 	"time"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
-	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
+	applicationv1alpha1 "github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/helmclient"
+	"github.com/giantswarm/k8sclient"
 	"github.com/giantswarm/kubeconfig"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
@@ -106,24 +107,26 @@ func (r *Resource) addClientsToContext(ctx context.Context, cr v1alpha1.App) err
 	}
 
 	{
-		g8sClient, err := versioned.NewForConfig(restConfig)
-		if err != nil {
-			return microerror.Mask(err)
-		}
-		cc.G8sClient = g8sClient
-	}
+		c := k8sclient.ClientsConfig{
+			Logger: r.logger,
+			SchemeBuilder: k8sclient.SchemeBuilder{
+				applicationv1alpha1.AddToScheme,
+			},
 
-	{
-		k8sClient, err := kubernetes.NewForConfig(restConfig)
+			RestConfig: restConfig,
+		}
+
+		k8sClient, err := k8sclient.NewClients(c)
 		if err != nil {
 			return microerror.Mask(err)
 		}
+
 		cc.K8sClient = k8sClient
 	}
 
 	{
 		c := helmclient.Config{
-			K8sClient: cc.K8sClient,
+			K8sClient: cc.K8sClient.K8sClient(),
 			Logger:    r.logger,
 
 			EnsureTillerInstalledMaxWait: 30 * time.Second,
