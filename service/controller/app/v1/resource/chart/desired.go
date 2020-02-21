@@ -63,7 +63,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		},
 	}
 
-	annotations := generateAnnotations(cr.GetAnnotations())
+	annotations := generateAnnotations(cr.GetAnnotations(), cc.ResourceVersion)
 	if len(annotations) > 0 {
 		chartCR.Annotations = annotations
 	}
@@ -71,7 +71,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 	return chartCR, nil
 }
 
-func generateAnnotations(input map[string]string) map[string]string {
+func generateAnnotations(input map[string]string, versions controllercontext.ResourceVersion) map[string]string {
 	annotations := map[string]string{}
 
 	for k, v := range input {
@@ -79,6 +79,17 @@ func generateAnnotations(input map[string]string) map[string]string {
 		if strings.HasPrefix(k, annotation.ChartOperatorPrefix) {
 			annotations[k] = v
 		}
+	}
+
+	// If there is a chart values configmap we set the version annotation.
+	// So if it changes we generate an update event for the chart CR.
+	if versions.ConfigMap != "" {
+		annotations[annotation.ChartOperatorConfigMapVersion] = versions.ConfigMap
+	}
+
+	// Same annotation but for the chart values secret.
+	if versions.Secret != "" {
+		annotations[annotation.ChartOperatorSecretVersion] = versions.Secret
 	}
 
 	return annotations
