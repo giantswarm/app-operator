@@ -41,7 +41,7 @@ func (r Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	{
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding chart-operator release %#q in tenant cluster", release))
 
-		_, err := cc.HelmClient.GetReleaseContent(ctx, release)
+		_, err := cc.Clients.Helm.GetReleaseContent(ctx, release)
 		if helmclient.IsTillerNotFound(err) {
 			r.logger.LogCtx(ctx, "level", "debug", "message", "no healthy tiller pod found")
 
@@ -93,7 +93,7 @@ func (r Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		} else {
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found chart-operator release %#q", release))
 
-			releaseContent, err := cc.HelmClient.GetReleaseContent(ctx, release)
+			releaseContent, err := cc.Clients.Helm.GetReleaseContent(ctx, release)
 			if err != nil {
 				return microerror.Mask(err)
 			}

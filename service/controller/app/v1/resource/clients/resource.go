@@ -5,9 +5,8 @@ import (
 	"time"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
-	applicationv1alpha1 "github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
+	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/helmclient"
-	"github.com/giantswarm/k8sclient"
 	"github.com/giantswarm/kubeconfig"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
@@ -106,27 +105,26 @@ func (r *Resource) addClientsToContext(ctx context.Context, cr v1alpha1.App) err
 		return microerror.Mask(err)
 	}
 
+	var g8sClient versioned.Interface
 	{
-		c := k8sclient.ClientsConfig{
-			Logger: r.logger,
-			SchemeBuilder: k8sclient.SchemeBuilder{
-				applicationv1alpha1.AddToScheme,
-			},
-
-			RestConfig: restConfig,
-		}
-
-		k8sClient, err := k8sclient.NewClients(c)
+		g8sClient, err = versioned.NewForConfig(restConfig)
 		if err != nil {
 			return microerror.Mask(err)
 		}
-
-		cc.K8sClient = k8sClient
 	}
 
+	var k8sClient kubernetes.Interface
+	{
+		k8sClient, err = kubernetes.NewForConfig(restConfig)
+		if err != nil {
+			return microerror.Mask(err)
+		}
+	}
+
+	var helmClient helmclient.Interface
 	{
 		c := helmclient.Config{
-			K8sClient: cc.K8sClient.K8sClient(),
+			K8sClient: k8sClient,
 			Logger:    r.logger,
 
 			EnsureTillerInstalledMaxWait: 30 * time.Second,
@@ -135,11 +133,16 @@ func (r *Resource) addClientsToContext(ctx context.Context, cr v1alpha1.App) err
 			TillerNamespace:              r.tillerNamespace,
 		}
 
-		helmClient, err := helmclient.New(c)
+		helmClient, err = helmclient.New(c)
 		if err != nil {
 			return microerror.Mask(err)
 		}
-		cc.HelmClient = helmClient
+	}
+
+	cc.Clients = controllercontext.Clients{
+		G8s:  g8sClient,
+		K8s:  k8sClient,
+		Helm: helmClient,
 	}
 
 	return nil
