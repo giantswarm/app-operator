@@ -25,7 +25,7 @@ func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange inte
 			return microerror.Mask(err)
 		}
 
-		cm, err := cc.K8sClient.K8sClient().CoreV1().ConfigMaps(configMap.Namespace).Update(configMap)
+		cm, err := cc.Clients.K8s.CoreV1().ConfigMaps(configMap.Namespace).Update(configMap)
 		if err != nil {
 			return microerror.Mask(err)
 		}
