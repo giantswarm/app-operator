@@ -16,10 +16,14 @@ const controllerKey contextKey = "controller"
 
 type Context struct {
 	AppCatalog v1alpha1.AppCatalog
-	G8sClient  versioned.Interface
-	HelmClient helmclient.Interface
-	K8sClient  kubernetes.Interface
+	Clients    Clients
 	Status     Status
+}
+
+type Clients struct {
+	G8s  versioned.Interface
+	K8s  kubernetes.Interface
+	Helm helmclient.Interface
 }
 
 type Status struct {

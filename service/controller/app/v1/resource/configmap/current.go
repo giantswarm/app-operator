@@ -50,7 +50,7 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 	var configmap *corev1.ConfigMap
 
 	go func() {
-		configmap, err = cc.K8sClient.CoreV1().ConfigMaps(r.chartNamespace).Get(name, metav1.GetOptions{})
+		configmap, err = cc.Clients.K8s.CoreV1().ConfigMaps(r.chartNamespace).Get(name, metav1.GetOptions{})
 		close(ch)
 	}()
 

@@ -34,7 +34,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return nil
 	}
 
-	err = r.ensureTillerInstalled(ctx, cc.HelmClient)
+	err = r.ensureTillerInstalled(ctx, cc.Clients.Helm)
 	if err != nil {
 		return microerror.Mask(err)
 	}

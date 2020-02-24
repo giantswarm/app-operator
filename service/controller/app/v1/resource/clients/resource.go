@@ -105,25 +105,26 @@ func (r *Resource) addClientsToContext(ctx context.Context, cr v1alpha1.App) err
 		return microerror.Mask(err)
 	}
 
+	var g8sClient versioned.Interface
 	{
-		g8sClient, err := versioned.NewForConfig(restConfig)
+		g8sClient, err = versioned.NewForConfig(restConfig)
 		if err != nil {
 			return microerror.Mask(err)
 		}
-		cc.G8sClient = g8sClient
 	}
 
+	var k8sClient kubernetes.Interface
 	{
-		k8sClient, err := kubernetes.NewForConfig(restConfig)
+		k8sClient, err = kubernetes.NewForConfig(restConfig)
 		if err != nil {
 			return microerror.Mask(err)
 		}
-		cc.K8sClient = k8sClient
 	}
 
+	var helmClient helmclient.Interface
 	{
 		c := helmclient.Config{
-			K8sClient: cc.K8sClient,
+			K8sClient: k8sClient,
 			Logger:    r.logger,
 
 			EnsureTillerInstalledMaxWait: 30 * time.Second,
@@ -132,11 +133,16 @@ func (r *Resource) addClientsToContext(ctx context.Context, cr v1alpha1.App) err
 			TillerNamespace:              r.tillerNamespace,
 		}
 
-		helmClient, err := helmclient.New(c)
+		helmClient, err = helmclient.New(c)
 		if err != nil {
 			return microerror.Mask(err)
 		}
-		cc.HelmClient = helmClient
+	}
+
+	cc.Clients = controllercontext.Clients{
+		G8s:  g8sClient,
+		K8s:  k8sClient,
+		Helm: helmClient,
 	}
 
 	return nil
