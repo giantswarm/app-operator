@@ -57,7 +57,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 			Name:      key.ChartSecretName(cr),
 			Namespace: r.chartNamespace,
 			Annotations: map[string]string{
-				annotation.ChartOperatorNotes: "DO NOT EDIT",
+				annotation.Notes: "DO NOT EDIT",
 			},
 			Labels: map[string]string{
 				label.ManagedBy: project.Name(),
