@@ -8,10 +8,6 @@ const (
 	// when this changes.
 	ChartOperatorConfigMapVersion = "chart-operator.giantswarm.io/configmap-version"
 
-	// ChartOperatorNotes is for informational messages for resources
-	// generated for chart-operator.
-	ChartOperatorNotes = "chart-operator.giantswarm.io/notes"
-
 	// ChartOperatorSecretVersion is added to chart CRs. It has the resource
 	// version for the chart values secret so an update event is generated
 	// when this changes.
