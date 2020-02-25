@@ -44,9 +44,9 @@ required = [
   name = "github.com/docker/distribution"
   branch = "master"
 
-[[constraint]]
+[[override]]
   name = "github.com/giantswarm/apiextensions"
-  branch = "master"
+  branch = "chart-version"
 
 [[constraint]]
   name = "github.com/giantswarm/appcatalog"
@@ -58,7 +58,7 @@ required = [
 
 [[constraint]]
   name = "github.com/giantswarm/e2e-harness"
-  branch = "master"
+  branch = "vendor-helmclient"
 
 [[constraint]]
   name = "github.com/giantswarm/e2esetup"
@@ -78,7 +78,7 @@ required = [
 
 [[constraint]]
   name = "github.com/giantswarm/helmclient"
-  branch = "master"
+  branch = "retry-pull-chart"
 
 [[constraint]]
   name = "github.com/giantswarm/k8sclient"
