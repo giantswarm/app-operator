@@ -60,6 +60,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 			Name:       cr.GetName(),
 			Namespace:  key.Namespace(cr),
 			TarballURL: tarballURL,
+			Version:    key.Version(cr),
 		},
 	}
 
