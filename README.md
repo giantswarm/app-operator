@@ -4,4 +4,3 @@
 
 The app-operator manages apps in Kubernetes clusters.
 
-
