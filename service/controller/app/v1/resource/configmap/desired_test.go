@@ -92,7 +92,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					Name:      "my-prometheus-chart-values",
 					Namespace: "giantswarm",
 					Annotations: map[string]string{
-						annotation.Notes: "DO NOT EDIT",
+						annotation.Notes: "DO NOT EDIT. Values managed by app-operator.",
 					},
 					Labels: map[string]string{
 						label.ManagedBy: "app-operator",
