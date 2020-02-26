@@ -101,7 +101,16 @@ func (r *Resource) addClientsToContext(ctx context.Context, cr v1alpha1.App) err
 	}
 
 	restConfig, err := kubeConfig.NewRESTConfigForApp(ctx, cr)
-	if err != nil {
+	if kubeconfig.IsNotFoundError(err) {
+		// Set status so we don't try to connect to the tenant cluster
+		// again in this reconciliation loop.
+		cc.Status.TenantCluster.IsUnavailable = true
+
+		r.logger.LogCtx(ctx, "level", "debug", "message", "kubeconfig secret not found")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		return nil
+
+	} else if err != nil {
 		return microerror.Mask(err)
 	}
 
