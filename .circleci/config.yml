@@ -137,9 +137,11 @@ orbs:
                   VAR_B="VALUE_B"
             type: string
           kind-config:
+            default: "kind-config.yaml"
             description: "Path to kind config file."
             type: string
           setup-script:
+            default: "setup.sh"
             description: "Path to setup script with commands to execute before each test."
             type: string
           test-dir:
@@ -228,8 +230,6 @@ workflows:
 
       - inline-orb/integration-test:
           name: basic-integration-test
-          kind-config: "./integration/config/kind-config.yaml"
-          setup-script: "./integration/config/setup.sh"
           test-dir: "./integration/test/app/basic"
           requires:
             - build
