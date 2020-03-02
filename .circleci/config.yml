@@ -84,6 +84,7 @@ orbs:
               name: "Run test setup commands"
               command: |
                 if [ -e << parameters.setup-script >> ]; then
+                  echo << parameters.setup-script >>
                   sh << parameters.setup-script >>
                 fi
 
