@@ -55,66 +55,36 @@ orbs:
                 chmod +x ./kubectl
                 sudo mv ./kubectl /usr/local/bin/kubectl
                 kubectl version --client
-          - run:
-              name: "Install yq"
-              command: |
-                CGO_ENABLED=0 GO111MODULE="on" go get github.com/mikefarah/yq/v3@3.0.1
 
       create-cluster:
         parameters:
-          setup-config:
+          kind-config:
             type: string
         steps:
           - run:
               name: "Create cluster"
               command: |
                 cd ~/project
-
-                if [ -z "$(yq r << parameters.setup-config >> "kind.config")" ]; then
-                  kind create cluster --image quay.io/giantswarm/kind-node:$KUBERNETES_VERSION
+                
+                if [ -e << parameters.kind-config >> ]; then
+                  cp << parameters.kind-config >> kind-config.yaml
                 else
-                  yq r << parameters.setup-config >> "kind.config" > kind-config.yaml
-                  kind create cluster --config kind-config.yaml --image quay.io/giantswarm/kind-node:$KUBERNETES_VERSION
+                  echo "kind: Cluster" >> kind-config.yaml
+                  echo "apiVersion: kind.x-k8s.io/v1alpha4" >> kind-config.yaml
                 fi
+
+                kind create cluster --config kind-config.yaml --image quay.io/giantswarm/kind-node:$KUBERNETES_VERSION
 
       test-setup:
         parameters:
-          setup-config:
-            type: string
-          test-dir:
+          setup-script:
             type: string
         steps:
           - run:
               name: "Run test setup commands"
               command: |
-                IFS=$'\n'
-
-                cd ~/project
-
-                if [ -e << parameters.setup-config >> ]; then
-                  for cmd in $(yq r << parameters.setup-config >> "commands.[*]")
-                  do
-                    echo "Running: $cmd"
-                    eval "$cmd"
-                  done
-                fi
-
-          - run:
-              name: "Run test commands"
-              command: |
-                IFS=$'\n'
-
-                cd ~/project
-                cd << parameters.test-dir >> 
-
-                if [ -e ./integration_test.yaml ]; then
-                  for cmd in $(yq r ./integration_test.yaml "commands.[*]")
-                  do
-                    echo "Running: $cmd"
-                    eval "$cmd"
-                  done
-                else
-                  echo "No integration_test.yaml"
+                if [ -e << parameters.setup-script >> ]; then
+                  sh << parameters.setup-script >>
                 fi
 
       go-test:
@@ -165,8 +135,11 @@ orbs:
                   VAR_A="VALUE_A"
                   VAR_B="VALUE_B"
             type: string
-          setup-config:
-            description: "Path to integration_setup.yaml."
+          kind-config:
+            description: "Path to kind config file."
+            type: string
+          setup-script:
+            description: "Path to setup script with commands to execute before each test."
             type: string
           test-dir:
             description: "Tested package directory."
@@ -179,10 +152,9 @@ orbs:
           - install-go
           - install-tools
           - create-cluster:
-              setup-config: << parameters.setup-config >>
+              kind-config: << parameters.kind-config >>
           - test-setup:
-              setup-config: << parameters.setup-config >>
-              test-dir: << parameters.test-dir >>
+              setup-script: << parameters.setup-script >>
           - go-test:
               env: << parameters.env >>
               test-dir: << parameters.test-dir >>
@@ -255,14 +227,16 @@ workflows:
 
       - inline-orb/integration-test:
           name: basic-integration-test
-          setup-config: "./integration/setup/integration_setup.yaml"
+          kind-config: "./integration/config/kind-config.yaml"
+          setup-script: "./integration/config/setup.sh"
           test-dir: "./integration/test/app/basic"
           requires:
             - build
 
       - inline-orb/integration-test:
           name: kubeconfig-integration-test
-          setup-config: "./integration/setup/integration_setup.yaml"
+          kind-config: "./integration/config/kind-config.yaml"
+          setup-script: "./integration/config/setup.sh"
           test-dir: "./integration/test/app/kubeconfig"
           requires:
             - build
