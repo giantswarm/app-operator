@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
 
 echo "Dummy commands for testing"
-kubectl label namespace default foo=bar
+kubectl label namespace default bar=foo
 kubectl describe namespace default
