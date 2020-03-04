@@ -70,6 +70,8 @@ workflows:
       - architect/integration-test:
           name: basic-integration-test
           test-dir: "integration/test/app/basic"
+          requires:
+            - build
 
       - architect/integration-test:
           name: kubeconfig-integration-test
@@ -79,11 +81,3 @@ workflows:
           test-dir: "integration/test/app/kubeconfig"
           requires:
             - build
-
-      - deploy:
-          name: deploy
-          requires:
-            - push-app-operator-to-aliyun-legacy
-          filters:
-            branches:
-              only: master
