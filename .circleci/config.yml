@@ -69,7 +69,7 @@ workflows:
 
       - architect/integration-test:
           name: basic-integration-test
-          test-dir: "./integration/test/app/basic"
+          test-dir: "integration/test/app/basic"
           requires:
             - build
 
