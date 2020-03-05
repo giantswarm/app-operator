@@ -1,6 +1,6 @@
 version: 2.1
 orbs:
-  architect: giantswarm/architect@dev:integration-test-wip
+  architect: giantswarm/architect@dev:build-cache
 
 jobs:
   build:
