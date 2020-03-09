@@ -69,15 +69,13 @@ workflows:
 
       - architect/integration-test:
           name: basic-integration-test
-          test-dir: "./integration/test/app/basic"
+          test-dir: "integration/test/app/basic"
           requires:
             - build
 
       - architect/integration-test:
           name: kubeconfig-integration-test
-          kind-config: "./integration/config/kind-config.yaml"
-          setup-script: "./integration/config/setup.sh"
-          test-dir: "./integration/test/app/kubeconfig"
+          test-dir: "integration/test/app/kubeconfig"
           requires:
             - build
 
