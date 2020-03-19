@@ -63,7 +63,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	ch := make(chan error)
 
 	go func() {
-		_, err = cc.Clients.K8s.CoreV1().Namespaces().Create(ns)
+		_, err = cc.Clients.K8s.K8sClient().CoreV1().Namespaces().Create(ns)
 		close(ch)
 	}()
 
