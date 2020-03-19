@@ -2,14 +2,13 @@ package chartoperator
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"time"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
-	"github.com/giantswarm/appcatalog"
 	"github.com/giantswarm/backoff"
+	"github.com/giantswarm/helmclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/controller/context/reconciliationcanceledcontext"
@@ -17,7 +16,6 @@ import (
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
-	"k8s.io/helm/pkg/helm"
 
 	"github.com/giantswarm/app-operator/service/controller/app/v1/controllercontext"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/key"
@@ -105,7 +103,7 @@ func (r Resource) installChartOperator(ctx context.Context, cr v1alpha1.App) err
 		return microerror.Mask(err)
 	}
 
-	chartOperatorValues, err := r.mergeChartOperatorValues(ctx, chartOperatorAppCR, appCatalogCR)
+	chartOperatorValues, err := r.values.MergeAll(ctx, *chartOperatorAppCR, *appCatalogCR)
 	if err != nil {
 		return microerror.Mask(err)
 	}
@@ -113,10 +111,15 @@ func (r Resource) installChartOperator(ctx context.Context, cr v1alpha1.App) err
 	// check app CR for chart-operator and fetching app-catalog name and version.
 	var tarballURL string
 	{
-		tarballURL, err = appcatalog.NewTarballURL(key.AppCatalogStorageURL(*appCatalogCR), release, key.Version(*chartOperatorAppCR))
-		if err != nil {
-			return microerror.Mask(err)
-		}
+		// Hardcoded URL for testing chart-operator from helm3 branch.
+		tarballURL = "https://giantswarm.github.io/default-test-catalog/chart-operator-0.12.1-872c516f75af043661801c844d876b83e29be43e.tgz"
+
+		/*
+			tarballURL, err = appcatalog.NewTarballURL(key.AppCatalogStorageURL(*appCatalogCR), release, key.Version(*chartOperatorAppCR))
+			if err != nil {
+				return microerror.Mask(err)
+			}
+		*/
 	}
 
 	var tarballPath string
@@ -135,7 +138,10 @@ func (r Resource) installChartOperator(ctx context.Context, cr v1alpha1.App) err
 	}
 
 	{
-		err = cc.Clients.Helm.InstallReleaseFromTarball(ctx, tarballPath, namespace, helm.ReleaseName(release), helm.ValueOverrides(chartOperatorValues))
+		opts := helmclient.InstallOptions{
+			ReleaseName: release,
+		}
+		err = cc.Clients.Helm.InstallReleaseFromTarball(ctx, tarballPath, "giantswarm", chartOperatorValues, opts)
 		if err != nil {
 			return microerror.Mask(err)
 		}
@@ -191,7 +197,7 @@ func (r Resource) updateChartOperator(ctx context.Context, cr v1alpha1.App) erro
 		return microerror.Mask(err)
 	}
 
-	chartOperatorValues, err := r.mergeChartOperatorValues(ctx, chartOperatorAppCR, appCatalogCR)
+	chartOperatorValues, err := r.values.MergeAll(ctx, *chartOperatorAppCR, *appCatalogCR)
 	if err != nil {
 		return microerror.Mask(err)
 	}
@@ -199,10 +205,15 @@ func (r Resource) updateChartOperator(ctx context.Context, cr v1alpha1.App) erro
 	// check app CR for chart-operator and fetching app-catalog name and version.
 	var tarballURL string
 	{
-		tarballURL, err = appcatalog.NewTarballURL(key.AppCatalogStorageURL(*appCatalogCR), release, key.Version(*chartOperatorAppCR))
-		if err != nil {
-			return microerror.Mask(err)
-		}
+		// Hardcoded URL for testing chart-operator from helm3 branch.
+		tarballURL = "https://giantswarm.github.io/default-test-catalog/chart-operator-0.12.1-872c516f75af043661801c844d876b83e29be43e.tgz"
+
+		/*
+			tarballURL, err = appcatalog.NewTarballURL(key.AppCatalogStorageURL(*appCatalogCR), release, key.Version(*chartOperatorAppCR))
+			if err != nil {
+				return microerror.Mask(err)
+			}
+		*/
 	}
 
 	var tarballPath string
@@ -221,7 +232,15 @@ func (r Resource) updateChartOperator(ctx context.Context, cr v1alpha1.App) erro
 	}
 
 	{
-		err = cc.Clients.Helm.UpdateReleaseFromTarball(ctx, release, tarballPath, helm.UpdateValueOverrides(chartOperatorValues), helm.UpgradeForce(true))
+		opts := helmclient.UpdateOptions{
+			Force: true,
+		}
+		err = cc.Clients.Helm.UpdateReleaseFromTarball(ctx,
+			tarballPath,
+			"giantswarm",
+			release,
+			chartOperatorValues,
+			opts)
 		if err != nil {
 			return microerror.Mask(err)
 		}
@@ -297,22 +316,6 @@ func (r *Resource) getChartOperatorAppCR(ctx context.Context, namespace string) 
 		r.logger.LogCtx(ctx, "level", "debug", "message", "found chart-operator app CR")
 	}
 	return chartOperatorAppCR, nil
-}
-
-func (r *Resource) mergeChartOperatorValues(ctx context.Context, cr *v1alpha1.App, catalog *v1alpha1.AppCatalog) ([]byte, error) {
-	var chartOperatorValues []byte
-	{
-		values, err := r.values.MergeAll(ctx, *cr, *catalog)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-
-		chartOperatorValues, err = json.Marshal(values)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-	return chartOperatorValues, nil
 }
 
 // checkDeploymentReady checks for the specified deployment that the number of

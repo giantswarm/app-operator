@@ -8,6 +8,7 @@ require (
 	github.com/giantswarm/apiextensions v0.1.1
 	github.com/giantswarm/appcatalog v0.1.11
 	github.com/giantswarm/apprclient v0.0.0-20200304175413-045e7f42fdb3 // indirect
+	github.com/giantswarm/backoff v0.0.0-20200209120535-b7cb1852522d
 	github.com/giantswarm/e2e-harness v0.1.1-0.20191209134222-be7852f38d3e
 	github.com/giantswarm/e2esetup v0.0.0-20191209131007-01b9f9061692
 	github.com/giantswarm/e2etemplates v0.0.0-20200309112539-751eac7541c4
