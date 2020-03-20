@@ -387,7 +387,6 @@
   version = "v0.1.0"
 
 [[projects]]
-  branch = "dep-use-versions"
   digest = "1:aa1c4f2b82faba1e7fb3d532d9c9edc7e4d46ad54a5231c10d0e03461feb624d"
   name = "github.com/giantswarm/microkit"
   packages = [
@@ -407,7 +406,8 @@
     "tls",
   ]
   pruneopts = "UT"
-  revision = "0c0f5e18a6f153cb803e2296a2fc6df576f441cd"
+  revision = "fdd0e37ca08c080e33c90474964146bd11a56de7"
+  version = "v0.1.1"
 
 [[projects]]
   digest = "1:4e616fe01d486048e77342e2c5e638f8744ec6da802335633740aafb057f50d8"
