@@ -44,27 +44,27 @@ required = [
 
 [[constraint]]
   name = "github.com/giantswarm/backoff"
-  version = "~0.1.0"
+  branch = "master"
 
 [[constraint]]
   name = "github.com/giantswarm/k8sclient"
-  version = "~0.1.0"
+  branch = "master"
 
 [[constraint]]
   name = "github.com/giantswarm/errors"
-  version = "~0.1.0"
+  branch = "master"
 
 [[constraint]]
   name = "github.com/giantswarm/k8sportforward"
-  version = "~0.1.0"
+  branch = "master"
 
 [[constraint]]
   name = "github.com/giantswarm/microerror"
-  version = "~0.1.0"
+  branch = "master"
 
 [[constraint]]
   name = "github.com/giantswarm/micrologger"
-  version = "~0.1.0"
+  branch = "master"
 
 [[constraint]]
   name = "github.com/google/go-cmp"
@@ -151,3 +151,4 @@ required = [
 [prune]
   go-tests = true
   unused-packages = true
+

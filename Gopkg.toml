@@ -46,71 +46,71 @@ required = [
 
 [[constraint]]
   name = "github.com/giantswarm/apiextensions"
-  version = "~0.1.0"
+  branch = "master"
 
 [[constraint]]
   name = "github.com/giantswarm/appcatalog"
-  version = "~0.1.0"
+  branch = "master"
 
 [[constraint]]
   name = "github.com/giantswarm/backoff"
-  version = "~0.1.0"
+  branch = "master"
 
 [[constraint]]
   name = "github.com/giantswarm/e2e-harness"
-  version = "~0.1.0"
+  branch = "master"
 
 [[constraint]]
   name = "github.com/giantswarm/e2esetup"
-  version = "~0.1.0"
+  branch = "master"
 
 [[constraint]]
   name = "github.com/giantswarm/e2etemplates"
-  version = "~0.1.0"
+  branch = "master"
 
 [[constraint]]
   name = "github.com/giantswarm/errors"
-  version = "~0.1.0"
+  branch = "master"
 
 [[constraint]]
   name = "github.com/giantswarm/exporterkit"
-  version = "~0.1.0"
+  branch = "master"
 
 [[constraint]]
   name = "github.com/giantswarm/helmclient"
-  version = "~0.1.0"
+  branch = "master"
 
 [[constraint]]
   name = "github.com/giantswarm/k8sclient"
-  version = "~0.1.0"
+  branch = "master"
 
 [[constraint]]
   name = "github.com/giantswarm/kubeconfig"
-  version = "~0.1.0"
+  branch = "master"
 
 [[constraint]]
   name = "github.com/giantswarm/microendpoint"
-  version = "~0.1.0"
+  branch = "master"
 
 [[constraint]]
   name = "github.com/giantswarm/microerror"
-  version = "~0.1.0"
+  branch = "master"
 
 [[constraint]]
   name = "github.com/giantswarm/microkit"
-  version = "~0.1.0"
+  branch = "master"
 
 [[constraint]]
   name = "github.com/giantswarm/micrologger"
-  version = "~0.1.0"
+  branch = "master"
 
 [[constraint]]
   name = "github.com/giantswarm/operatorkit"
-  version = "~0.1.0"
+  branch = "master"
 
 [[constraint]]
   name = "github.com/giantswarm/versionbundle"
-  version = "~0.1.0"
+  branch = "master"
 
 [[constraint]]
   name = "github.com/google/go-cmp"

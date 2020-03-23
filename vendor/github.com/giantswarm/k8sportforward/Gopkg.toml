@@ -27,7 +27,7 @@
 
 
 [[constraint]]
-  version = "~0.1.0"
+  branch = "master"
   name = "github.com/giantswarm/microerror"
 
 [[constraint]]

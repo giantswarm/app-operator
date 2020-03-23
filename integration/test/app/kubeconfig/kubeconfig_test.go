@@ -59,9 +59,8 @@ func TestAppLifecycleUsingKubeconfig(t *testing.T) {
 			},
 		},
 		AppCatalog: chartvalues.APIExtensionsAppE2EConfigAppCatalog{
-			Description: testAppCatalogName,
-			Name:        testAppCatalogName,
-			Title:       testAppCatalogName,
+			Name:  testAppCatalogName,
+			Title: testAppCatalogName,
 			Storage: chartvalues.APIExtensionsAppE2EConfigAppCatalogStorage{
 				Type: "helm",
 				URL:  "https://giantswarm.github.com/sample-catalog",
