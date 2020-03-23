@@ -88,6 +88,8 @@ func TestAppWithKubeconfig(t *testing.T) {
 	{
 		c := clientcmd.GetConfigFromFileOrDie(env.KubeConfigPath())
 
+		// Extract KIND kubeconfig settings. This is for local testing as
+		// `api.FlattenConfig` does not work with file paths in kubeconfigs.
 		clusterKubeConfig := &api.Config{
 			AuthInfos: map[string]*api.AuthInfo{
 				clusterName: c.AuthInfos[clusterName],
