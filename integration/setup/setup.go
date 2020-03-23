@@ -8,13 +8,14 @@ import (
 	"os"
 	"testing"
 
-	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
-	"github.com/giantswarm/e2e-harness/pkg/release"
 	"github.com/giantswarm/microerror"
+	"github.com/spf13/afero"
+	"k8s.io/helm/pkg/helm"
 
 	"github.com/giantswarm/app-operator/integration/env"
 	"github.com/giantswarm/app-operator/integration/key"
 	"github.com/giantswarm/app-operator/integration/templates"
+	"github.com/giantswarm/app-operator/pkg/project"
 )
 
 func Setup(m *testing.M, config Config) {
@@ -61,10 +62,43 @@ func installResources(ctx context.Context, config Config) error {
 	}
 
 	{
-		err = config.Release.InstallOperator(ctx, key.AppOperatorReleaseName(), release.NewVersion(env.CircleSHA()), templates.AppOperatorValues, v1alpha1.NewAppCRD())
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("installing app-operator"))
+
+		operatorVersion := fmt.Sprintf("1.0.0-%s", env.CircleSHA())
+		operatorTarballPath, err := config.ApprClient.PullChartTarballFromRelease(ctx, key.AppOperatorChartName(), operatorVersion)
 		if err != nil {
 			return microerror.Mask(err)
 		}
+
+		defer func() {
+			fs := afero.NewOsFs()
+			err := fs.Remove(operatorTarballPath)
+			if err != nil {
+				config.Logger.LogCtx(ctx, "level", "error", "message", fmt.Sprintf("deletion of %#q failed", operatorTarballPath), "stack", fmt.Sprintf("%#v", err))
+			}
+		}()
+
+		err = config.HelmClient.InstallReleaseFromTarball(ctx,
+			operatorTarballPath,
+			namespace,
+			helm.ReleaseName(project.Name()),
+			helm.ValueOverrides([]byte(templates.AppOperatorValues)))
+		if err != nil {
+			return microerror.Mask(err)
+		}
+
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("installed app-operator"))
+	}
+
+	{
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("waiting for app-operator pod"))
+
+		err = config.Release.PodExists(ctx, namespace, "app=app-operator")
+		if err != nil {
+			return microerror.Mask(err)
+		}
+
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("waited for app-operator pod"))
 	}
 
 	return nil
