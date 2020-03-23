@@ -27,8 +27,8 @@
 
 
 [[constraint]]
-  branch = "master"
   name = "github.com/giantswarm/apiextensions"
+  version = "~0.1.0"
 
 [[constraint]]
   name = "k8s.io/client-go"
