@@ -273,14 +273,14 @@ func TestAppLifecycle(t *testing.T) {
 	}
 
 	{
-		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("checking chart CR %#q has been deleted", key.ChartConfigMapName()))
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("checking chart CR %#q has been deleted", key.TestAppReleaseName())
 
 		_, err = config.K8sClients.G8sClient().ApplicationV1alpha1().Charts(namespace).Get(key.TestAppReleaseName(), metav1.GetOptions{})
 		if !apierrors.IsNotFound(err) {
 			t.Fatalf("expected is not found error got %#v", err)
 		}
 
-		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("chart CR %#q has been deleted", key.ChartConfigMapName()))
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("chart CR %#q has been deleted", key.TestAppReleaseName())
 	}
 
 	{
