@@ -6,10 +6,11 @@ import (
 	"time"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
-	"github.com/giantswarm/app-operator/service/controller/app/v1/controllercontext"
-	"github.com/giantswarm/app-operator/service/controller/app/v1/key"
 	"github.com/giantswarm/backoff"
 	"github.com/giantswarm/microerror"
+
+	"github.com/giantswarm/app-operator/service/controller/app/v1/controllercontext"
+	"github.com/giantswarm/app-operator/service/controller/app/v1/key"
 )
 
 // EnsureCreated ensures the chart CRD exists in the tenant cluster so the
