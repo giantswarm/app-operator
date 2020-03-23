@@ -7,16 +7,15 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/appcatalog"
-	"github.com/giantswarm/e2e-harness/pkg/release"
-	"github.com/giantswarm/e2etemplates/pkg/chartvalues"
 	"github.com/spf13/afero"
-	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/helm/pkg/helm"
 
 	"github.com/giantswarm/app-operator/integration/key"
 	"github.com/giantswarm/app-operator/integration/templates"
+	"github.com/giantswarm/app-operator/pkg/label"
 )
 
 const (
@@ -29,10 +28,11 @@ const (
 // TestAppLifecycle tests a chart CR can be created, updated and deleted
 // uaing a app, appCatalog CRs processed by app-operator.
 //
-// - Create app, appCatalog CRs using apiextensions-app-e2e-chart.
+// - Create appcatalog and app CRs.
+// - Install chart-operator.
 // - Ensure chart CR specified in the app CR is deployed.
 //
-// - Update chart CR using apiextensions-app-e2e-chart.
+// - Update app version in app CR.
 // - Ensure chart CR is redeployed using updated app CR information.
 //
 // - Delete app CR
@@ -40,59 +40,14 @@ const (
 //
 func TestAppLifecycle(t *testing.T) {
 	ctx := context.Background()
-	var chartValues string
 	var err error
-
-	sampleChart := chartvalues.APIExtensionsAppE2EConfig{
-		App: chartvalues.APIExtensionsAppE2EConfigApp{
-			KubeConfig: chartvalues.APIExtensionsAppE2EConfigAppKubeConfig{
-				InCluster: true,
-			},
-			Name:      key.TestAppReleaseName(),
-			Namespace: namespace,
-			Catalog:   testAppCatalogName,
-			Version:   "0.7.0",
-			Config: chartvalues.APIExtensionsAppE2EConfigAppConfig{
-				ConfigMap: chartvalues.APIExtensionsAppE2EConfigAppConfigConfigMap{
-					Name:      "test-app-values",
-					Namespace: "default",
-				},
-				Secret: chartvalues.APIExtensionsAppE2EConfigAppConfigSecret{
-					Name:      "test-app-secrets",
-					Namespace: "default",
-				},
-			},
-		},
-		AppCatalog: chartvalues.APIExtensionsAppE2EConfigAppCatalog{
-			Name:  testAppCatalogName,
-			Title: testAppCatalogName,
-			Storage: chartvalues.APIExtensionsAppE2EConfigAppCatalogStorage{
-				Type: "helm",
-				URL:  "https://giantswarm.github.com/sample-catalog",
-			},
-		},
-		AppOperator: chartvalues.APIExtensionsAppE2EConfigAppOperator{
-			Version: "1.0.0",
-		},
-		Namespace: namespace,
-		ConfigMap: chartvalues.APIExtensionsAppE2EConfigConfigMap{
-			ValuesYAML: `test:
-      image:
-        registry: quay.io
-        repository: giantswarm/alpine-testing
-        tag: 0.1.1`,
-		},
-		Secret: chartvalues.APIExtensionsAppE2EConfigSecret{
-			ValuesYAML: `secret: "test"`,
-		},
-	}
 
 	{
 		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("installing chart operator"))
 
 		var tarballPath string
 		{
-			tarballURL, err := appcatalog.GetLatestChart(ctx, key.DefaultCatalogStorageURL(), "chart-operator")
+			tarballURL, err := appcatalog.GetLatestChart(ctx, key.DefaultCatalogStorageURL(), chartOperatorRelease)
 			if err != nil {
 				t.Fatalf("expected %#v got %#v", nil, err)
 			}
@@ -118,37 +73,70 @@ func TestAppLifecycle(t *testing.T) {
 	}
 
 	{
-		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating chart value for release %#q", key.CustomResourceReleaseName()))
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("waiting for chart-operator pod"))
 
-		chartValues, err = chartvalues.NewAPIExtensionsAppE2E(sampleChart)
+		err = config.Release.PodExists(ctx, namespace, "app=chart-operator")
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
 
-		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("created chart value for release %#q", key.CustomResourceReleaseName()))
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("waited for chart-operator pod"))
 	}
 
 	{
-		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("installing release %#q", key.CustomResourceReleaseName()))
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating %#q appcatalog cr", key.DefaultCatalogName()))
 
-		chartInfo := release.NewStableChartInfo(key.CustomResourceReleaseName())
-		err = config.Release.Install(ctx, key.CustomResourceReleaseName(), chartInfo, chartValues)
+		appCatalogCR := &v1alpha1.AppCatalog{
+			ObjectMeta: metav1.ObjectMeta{
+				Name: key.DefaultCatalogName(),
+				Labels: map[string]string{
+					label.AppOperatorVersion: "1.0.0",
+				},
+			},
+			Spec: v1alpha1.AppCatalogSpec{
+				Description: key.DefaultCatalogName(),
+				Title:       key.DefaultCatalogName(),
+				Storage: v1alpha1.AppCatalogSpecStorage{
+					Type: "helm",
+					URL:  key.DefaultCatalogStorageURL(),
+				},
+			},
+		}
+		_, err = config.K8sClients.G8sClient().ApplicationV1alpha1().AppCatalogs().Create(appCatalogCR)
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
 
-		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("installed release %#q", key.CustomResourceReleaseName()))
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("created %#q appcatalog cr", key.DefaultCatalogName()))
 	}
 
 	{
-		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("waiting for release %#q deployed", key.CustomResourceReleaseName()))
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating %#q app cr", key.TestAppReleaseName()))
 
-		err = config.Release.WaitForStatus(ctx, fmt.Sprintf("%s-%s", namespace, key.CustomResourceReleaseName()), "DEPLOYED")
+		appCR := &v1alpha1.App{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      key.TestAppReleaseName(),
+				Namespace: namespace,
+				Labels: map[string]string{
+					label.AppOperatorVersion: "1.0.0",
+				},
+			},
+			Spec: v1alpha1.AppSpec{
+				Catalog: key.DefaultCatalogName(),
+				KubeConfig: v1alpha1.AppSpecKubeConfig{
+					InCluster: true,
+				},
+				Name:      key.TestAppReleaseName(),
+				Namespace: namespace,
+				Version:   "0.1.0",
+			},
+		}
+		_, err = config.K8sClients.G8sClient().ApplicationV1alpha1().Apps(key.Namespace()).Create(appCR)
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
 
-		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("waited for release %#q deployed", key.CustomResourceReleaseName()))
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating %#q app cr", key.TestAppReleaseName()))
 	}
 
 	{
@@ -165,7 +153,7 @@ func TestAppLifecycle(t *testing.T) {
 	{
 		config.Logger.LogCtx(ctx, "level", "debug", "message", "checking tarball URL in chart spec")
 
-		tarballURL := "https://giantswarm.github.com/sample-catalog/kubernetes-test-app-chart-0.7.0.tgz"
+		tarballURL := "https://giantswarm.github.com/default-catalog/test-app-0.1.0.tgz"
 		chart, err := config.K8sClients.G8sClient().ApplicationV1alpha1().Charts(namespace).Get(key.TestAppReleaseName(), metav1.GetOptions{})
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
@@ -173,7 +161,7 @@ func TestAppLifecycle(t *testing.T) {
 		if chart.Spec.TarballURL != tarballURL {
 			t.Fatalf("expected tarballURL: %#q got %#q", tarballURL, chart.Spec.TarballURL)
 		}
-		if chart.Labels[chartOperatorVersion] != "1.0.0" {
+		if chart.Labels[label.ChartOperatorVersion] != "1.0.0" {
 			t.Fatalf("expected version label: %#q got %#q", "1.0.0", chart.Labels[chartOperatorVersion])
 		}
 
@@ -181,44 +169,26 @@ func TestAppLifecycle(t *testing.T) {
 	}
 
 	{
-		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating chart value for release %#q", key.CustomResourceReleaseName()))
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating app %#q", key.TestAppReleaseName()))
 
-		sampleChart.App.Version = "0.7.1"
-		chartValues, err = chartvalues.NewAPIExtensionsAppE2E(sampleChart)
+		cr, err := config.K8sClients.G8sClient().ApplicationV1alpha1().Apps(key.Namespace()).Get(key.TestAppReleaseName(), metav1.GetOptions{})
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
 
-		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updated chart value for release %#q", key.CustomResourceReleaseName()))
-	}
-
-	{
-		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating release %#q", key.CustomResourceReleaseName()))
-
-		chartInfo := release.NewStableChartInfo(key.CustomResourceReleaseName())
-		err = config.Release.Update(ctx, key.CustomResourceReleaseName(), chartInfo, chartValues)
+		cr.Spec.Version = "0.1.1"
+		_, err = config.K8sClients.G8sClient().ApplicationV1alpha1().Apps(key.Namespace()).Update(cr)
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
 
-		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updated release %#q", key.CustomResourceReleaseName()))
-	}
-
-	{
-		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("waiting for release %#q deployed", key.CustomResourceReleaseName()))
-
-		err = config.Release.WaitForStatus(ctx, fmt.Sprintf("%s-%s", namespace, key.CustomResourceReleaseName()), "DEPLOYED")
-		if err != nil {
-			t.Fatalf("expected %#v got %#v", nil, err)
-		}
-
-		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("waited for release %#q deployed", key.CustomResourceReleaseName()))
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updated app %#q", key.TestAppReleaseName()))
 	}
 
 	{
 		config.Logger.LogCtx(ctx, "level", "debug", "message", "checking tarball URL in chart spec")
 
-		err = config.Release.WaitForChartInfo(ctx, key.TestAppReleaseName(), "0.7.1")
+		err = config.Release.WaitForChartVersion(ctx, key.TestAppReleaseName(), "0.1.1")
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
@@ -228,7 +198,7 @@ func TestAppLifecycle(t *testing.T) {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
 
-		tarballURL := "https://giantswarm.github.com/sample-catalog/kubernetes-test-app-chart-0.7.1.tgz"
+		tarballURL := "https://giantswarm.github.com/default-catalog/test-app-0.1.1.tgz"
 		if chart.Spec.TarballURL != tarballURL {
 			t.Fatalf("expected tarballURL: %#v got %#v", tarballURL, chart.Spec.TarballURL)
 		}
@@ -251,46 +221,46 @@ func TestAppLifecycle(t *testing.T) {
 	}
 
 	{
-		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleting release %#q", key.CustomResourceReleaseName()))
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleting app CR %#q", key.TestAppReleaseName()))
 
-		err := config.Release.Delete(ctx, key.CustomResourceReleaseName())
+		err = config.K8sClients.G8sClient().ApplicationV1alpha1().Apps(namespace).Delete(key.TestAppReleaseName(), &metav1.DeleteOptions{})
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
 
-		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleted release %#q", key.CustomResourceReleaseName()))
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleted app CR %#q", key.TestAppReleaseName()))
 	}
 
 	{
-		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("checking release %#q has been deleted", key.CustomResourceReleaseName()))
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("checking %#q release has been deleted", key.TestAppReleaseName()))
 
 		err = config.Release.WaitForStatus(ctx, key.TestAppReleaseName(), "DELETED")
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
 
-		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("release %#q has been deleted", key.CustomResourceReleaseName()))
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("checked %#q release has been deleted", key.TestAppReleaseName()))
 	}
 
 	{
-		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("checking chart CR %#q has been deleted", key.ChartConfigMapName()))
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("checking chart CR %#q has been deleted", key.TestAppReleaseName()))
 
-		_, err = config.K8sClients.G8sClient().ApplicationV1alpha1().Charts(namespace).Get(key.TestAppReleaseName(), metav1.GetOptions{})
-		if !apierrors.IsNotFound(err) {
-			t.Fatalf("expected is not found error got %#v", err)
+		err = config.Release.WaitForDeletedChart(ctx, namespace, key.TestAppReleaseName())
+		if err != nil {
+			t.Fatalf("expected %#v got %#v", nil, err)
 		}
 
-		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("chart CR %#q has been deleted", key.ChartConfigMapName()))
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("chart CR %#q has been deleted", key.TestAppReleaseName()))
 	}
 
 	{
-		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("checking chart configmap %#q has been deleted", key.ChartConfigMapName()))
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("checking app CR %#q has been deleted", key.TestAppReleaseName()))
 
-		_, err = config.K8sClients.K8sClient().CoreV1().ConfigMaps(namespace).Get(key.ChartConfigMapName(), metav1.GetOptions{})
-		if !apierrors.IsNotFound(err) {
-			t.Fatalf("expected is not found error got %#v", err)
+		err = config.Release.WaitForDeletedApp(ctx, namespace, key.TestAppReleaseName())
+		if err != nil {
+			t.Fatalf("expected %#v got %#v", nil, err)
 		}
 
-		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("chart configmap %#q has been deleted", key.ChartConfigMapName()))
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("chart CR %#q has been deleted", key.TestAppReleaseName()))
 	}
 }
