@@ -63,7 +63,7 @@ func (r *Release) WaitForAppCatalogCRD(ctx context.Context) error {
 		r.logger.Log("level", "debug", "message", fmt.Sprintf("failed to list appcatalogs: retrying in %s", t), "stack", fmt.Sprintf("%v", err))
 	}
 
-	b := backoff.NewExponential(2*time.Minute, 60*time.Second)
+	b := backoff.NewExponential(10*time.Minute, 60*time.Second)
 	err := backoff.RetryNotify(o, b, n)
 	if err != nil {
 		return microerror.Mask(err)
@@ -89,7 +89,7 @@ func (r *Release) WaitForDeletedApp(ctx context.Context, namespace, appName stri
 		r.logger.Log("level", "debug", "message", fmt.Sprintf("failed to get deleted app '%s': retrying in %s", appName, t), "stack", fmt.Sprintf("%v", err))
 	}
 
-	b := backoff.NewExponential(2*time.Minute, 60*time.Second)
+	b := backoff.NewExponential(10*time.Minute, 60*time.Second)
 	err := backoff.RetryNotify(o, b, n)
 	if err != nil {
 		return microerror.Mask(err)
@@ -114,7 +114,7 @@ func (r *Release) WaitForDeletedChart(ctx context.Context, namespace, chartName 
 		r.logger.Log("level", "debug", "message", fmt.Sprintf("failed to get deleted chart '%s': retrying in %s", chartName, t), "stack", fmt.Sprintf("%v", err))
 	}
 
-	b := backoff.NewExponential(2*time.Minute, 60*time.Second)
+	b := backoff.NewExponential(10*time.Minute, 60*time.Second)
 	err := backoff.RetryNotify(o, b, n)
 	if err != nil {
 		return microerror.Mask(err)
@@ -144,7 +144,7 @@ func (r *Release) WaitForPod(ctx context.Context, namespace, labelSelector strin
 		r.logger.Log("level", "debug", "message", fmt.Sprintf("failed to get pod with selector '%s': retrying in %s", labelSelector, t), "stack", fmt.Sprintf("%v", err))
 	}
 
-	b := backoff.NewExponential(2*time.Minute, 60*time.Second)
+	b := backoff.NewExponential(10*time.Minute, 60*time.Second)
 	err := backoff.RetryNotify(o, b, n)
 	if err != nil {
 		return microerror.Mask(err)
@@ -172,7 +172,7 @@ func (r *Release) WaitForReleaseStatus(ctx context.Context, release, status stri
 		r.logger.Log("level", "debug", "message", fmt.Sprintf("failed to get release status '%s': retrying in %s", status, t), "stack", fmt.Sprintf("%v", err))
 	}
 
-	b := backoff.NewExponential(2*time.Minute, 60*time.Second)
+	b := backoff.NewExponential(10*time.Minute, 60*time.Second)
 	err := backoff.RetryNotify(o, b, n)
 	if err != nil {
 		return microerror.Mask(err)
@@ -196,7 +196,7 @@ func (r *Release) WaitForReleaseVersion(ctx context.Context, release, version st
 		r.logger.Log("level", "debug", "message", fmt.Sprintf("failed to get release version '%s': retrying in %s", version, t), "stack", fmt.Sprintf("%v", err))
 	}
 
-	b := backoff.NewExponential(2*time.Minute, 60*time.Second)
+	b := backoff.NewExponential(10*time.Minute, 60*time.Second)
 	err := backoff.RetryNotify(o, b, n)
 	if err != nil {
 		return microerror.Mask(err)
