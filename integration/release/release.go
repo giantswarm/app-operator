@@ -78,9 +78,9 @@ func (r *Release) PodExists(ctx context.Context, namespace, labelSelector string
 	return nil
 }
 
-func (r *Release) WaitForChartVersion(ctx context.Context, release, version string) error {
+func (r *Release) WaitForChartVersion(ctx context.Context, namespace, release, version string) error {
 	o := func() error {
-		rh, err := r.helmClient.GetReleaseHistory(ctx, release)
+		rh, err := r.helmClient.GetReleaseContent(ctx, namespace, release)
 		if err != nil {
 			return microerror.Mask(err)
 		}
@@ -152,10 +152,10 @@ func (r *Release) WaitForDeletedChart(ctx context.Context, namespace, chartName 
 	return nil
 }
 
-func (r *Release) WaitForStatus(ctx context.Context, release, status string) error {
+func (r *Release) WaitForStatus(ctx context.Context, namespace, release, status string) error {
 	o := func() error {
-		rc, err := r.helmClient.GetReleaseContent(ctx, release)
-		if helmclient.IsReleaseNotFound(err) && status == "DELETED" {
+		rc, err := r.helmClient.GetReleaseContent(ctx, namespace, release)
+		if helmclient.IsReleaseNotFound(err) && status == helmclient.StatusUninstalled {
 			// Error is expected because we purge releases when deleting.
 			return nil
 		} else if err != nil {

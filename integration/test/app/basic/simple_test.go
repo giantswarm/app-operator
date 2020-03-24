@@ -9,12 +9,11 @@ import (
 
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/appcatalog"
+	"github.com/giantswarm/helmclient"
 	"github.com/spf13/afero"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/helm/pkg/helm"
 
 	"github.com/giantswarm/app-operator/integration/key"
-	"github.com/giantswarm/app-operator/integration/templates"
 	"github.com/giantswarm/app-operator/pkg/label"
 )
 
@@ -64,7 +63,15 @@ func TestAppLifecycle(t *testing.T) {
 				}
 			}()
 		}
-		err = config.HelmClient.InstallReleaseFromTarball(ctx, tarballPath, namespace, helm.ReleaseName(chartOperatorRelease), helm.ValueOverrides([]byte(templates.ChartOperatorValues)))
+
+		opts := helmclient.InstallOptions{
+			ReleaseName: chartOperatorRelease,
+		}
+		values := map[string]interface{}{
+			"clusterDNSIP": "10.96.0.10",
+			"e2e":          "true",
+		}
+		err = config.HelmClient.InstallReleaseFromTarball(ctx, tarballPath, key.Namespace(), values, opts)
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
@@ -142,7 +149,7 @@ func TestAppLifecycle(t *testing.T) {
 	{
 		config.Logger.LogCtx(ctx, "level", "debug", "message", "waiting for chart CR created")
 
-		err = config.Release.WaitForStatus(ctx, key.TestAppReleaseName(), "DEPLOYED")
+		err = config.Release.WaitForStatus(ctx, namespace, key.TestAppReleaseName(), helmclient.StatusDeployed)
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
@@ -188,7 +195,7 @@ func TestAppLifecycle(t *testing.T) {
 	{
 		config.Logger.LogCtx(ctx, "level", "debug", "message", "checking tarball URL in chart spec")
 
-		err = config.Release.WaitForChartVersion(ctx, key.TestAppReleaseName(), "0.1.1")
+		err = config.Release.WaitForChartVersion(ctx, namespace, key.TestAppReleaseName(), "0.1.1")
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
@@ -213,8 +220,8 @@ func TestAppLifecycle(t *testing.T) {
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
-		if cr.Status.Release.Status != "DEPLOYED" {
-			t.Fatalf("expected CR release status %#q got %#q", "DEPLOYED", cr.Status.Release.Status)
+		if cr.Status.Release.Status != helmclient.StatusDeployed {
+			t.Fatalf("expected CR release status %#q got %#q", helmclient.StatusDeployed, cr.Status.Release.Status)
 		}
 
 		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("checked status for app CR %#q", key.TestAppReleaseName()))
@@ -234,7 +241,7 @@ func TestAppLifecycle(t *testing.T) {
 	{
 		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("checking %#q release has been deleted", key.TestAppReleaseName()))
 
-		err = config.Release.WaitForStatus(ctx, key.TestAppReleaseName(), "DELETED")
+		err = config.Release.WaitForStatus(ctx, namespace, key.TestAppReleaseName(), helmclient.StatusUninstalled)
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}

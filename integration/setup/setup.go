@@ -8,13 +8,12 @@ import (
 	"os"
 	"testing"
 
+	"github.com/giantswarm/helmclient"
 	"github.com/giantswarm/microerror"
 	"github.com/spf13/afero"
-	"k8s.io/helm/pkg/helm"
 
 	"github.com/giantswarm/app-operator/integration/env"
 	"github.com/giantswarm/app-operator/integration/key"
-	"github.com/giantswarm/app-operator/integration/templates"
 	"github.com/giantswarm/app-operator/pkg/project"
 )
 
@@ -55,13 +54,6 @@ func installResources(ctx context.Context, config Config) error {
 	}
 
 	{
-		err = config.HelmClient.EnsureTillerInstalled(ctx)
-		if err != nil {
-			return microerror.Mask(err)
-		}
-	}
-
-	{
 		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("installing app-operator"))
 
 		operatorVersion := fmt.Sprintf("1.0.0-%s", env.CircleSHA())
@@ -78,11 +70,23 @@ func installResources(ctx context.Context, config Config) error {
 			}
 		}()
 
+		appOperatorValues := map[string]interface{}{
+			"Installation": map[string]interface{}{
+				"V1": map[string]interface{}{
+					"Registry": map[string]interface{}{
+						"Domain": "quay.io",
+					},
+				},
+			},
+		}
+		opts := helmclient.InstallOptions{
+			ReleaseName: project.Name(),
+		}
 		err = config.HelmClient.InstallReleaseFromTarball(ctx,
 			operatorTarballPath,
 			namespace,
-			helm.ReleaseName(project.Name()),
-			helm.ValueOverrides([]byte(templates.AppOperatorValues)))
+			appOperatorValues,
+			opts)
 		if err != nil {
 			return microerror.Mask(err)
 		}
