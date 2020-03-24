@@ -126,13 +126,12 @@ func (r Resource) installChartOperator(ctx context.Context, cr v1alpha1.App) err
 
 	{
 		opts := helmclient.InstallOptions{
-			ReleaseName: releaseState.Name,
+			ReleaseName: release,
 		}
 		err = cc.Clients.Helm.InstallReleaseFromTarball(ctx,
 			tarballPath,
-			map[string]interface{}{
-				"clusterDNSIP": " 10.96.0.10",
-			},
+			key.Namespace(cr),
+			chartOperatorValues,
 			opts)
 		if err != nil {
 			return microerror.Mask(err)
