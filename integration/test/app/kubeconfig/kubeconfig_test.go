@@ -39,7 +39,7 @@ func TestAppWithKubeconfig(t *testing.T) {
 		c := clientcmd.GetConfigFromFileOrDie(env.KubeConfigPath())
 
 		// Extract KIND kubeconfig settings. This is for local testing as
-		// `api.FlattenConfig` does not work with file paths in kubeconfigs.
+		// api.FlattenConfig does not work with file paths in kubeconfigs.
 		clusterKubeConfig := &api.Config{
 			AuthInfos: map[string]*api.AuthInfo{
 				clusterName: c.AuthInfos[clusterName],
@@ -87,7 +87,7 @@ func TestAppWithKubeconfig(t *testing.T) {
 	}
 
 	{
-		config.Logger.LogCtx(ctx, "level", "debug", "message", "creating chart-operator configmap")
+		config.Logger.LogCtx(ctx, "level", "debug", "message", "creating catalog configmap")
 
 		_, err = config.K8sClients.K8sClient().CoreV1().ConfigMaps(namespace).Create(&corev1.ConfigMap{
 			Data: map[string]string{
@@ -102,7 +102,7 @@ func TestAppWithKubeconfig(t *testing.T) {
 			t.Fatalf("expected nil got %#v", err)
 		}
 
-		config.Logger.LogCtx(ctx, "level", "debug", "message", "creating catalog configmap")
+		config.Logger.LogCtx(ctx, "level", "debug", "message", "created catalog configmap")
 	}
 
 	{
