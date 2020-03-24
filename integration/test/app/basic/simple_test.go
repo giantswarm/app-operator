@@ -22,7 +22,6 @@ const (
 	chartOperatorVersion = "chart-operator.giantswarm.io/version"
 	chartOperatorRelease = "chart-operator"
 	namespace            = "giantswarm"
-	testAppCatalogName   = "test-app-catalog"
 )
 
 // TestAppLifecycle tests a chart CR can be created, updated and deleted
@@ -171,7 +170,12 @@ func TestAppLifecycle(t *testing.T) {
 	{
 		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating app %#q", key.TestAppReleaseName()))
 
+<<<<<<< HEAD
 		cr, err := config.K8sClients.G8sClient().ApplicationV1alpha1().Apps(key.Namespace()).Get(key.TestAppReleaseName(), metav1.GetOptions{})
+=======
+		sampleChart.App.Version = "0.1.1"
+		chartValues, err = chartvalues.NewAPIExtensionsAppE2E(sampleChart)
+>>>>>>> helm3
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}

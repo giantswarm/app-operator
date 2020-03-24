@@ -38,6 +38,8 @@ func TestAppWithKubeconfig(t *testing.T) {
 	{
 		c := clientcmd.GetConfigFromFileOrDie(env.KubeConfigPath())
 
+		// Extract KIND kubeconfig settings. This is for local testing as
+		// `api.FlattenConfig` does not work with file paths in kubeconfigs.
 		clusterKubeConfig := &api.Config{
 			AuthInfos: map[string]*api.AuthInfo{
 				clusterName: c.AuthInfos[clusterName],
@@ -55,7 +57,8 @@ func TestAppWithKubeconfig(t *testing.T) {
 			t.Fatalf("expected nil got %#v", err)
 		}
 
-		// Normally KIND assign 127.0.0.1 as server address, that should change into kubernetes
+		// Normally KIND assigns 127.0.0.1 as the server address. For this test
+		// that should change to the Kubernetes service.
 		clusterKubeConfig.Clusters[clusterName].Server = "https://kubernetes.default.svc.cluster.local"
 
 		bytes, err = clientcmd.Write(*c)
@@ -84,7 +87,7 @@ func TestAppWithKubeconfig(t *testing.T) {
 	}
 
 	{
-		config.Logger.LogCtx(ctx, "level", "debug", "message", "creating catalog configmap")
+		config.Logger.LogCtx(ctx, "level", "debug", "message", "creating chart-operator configmap")
 
 		_, err = config.K8sClients.K8sClient().CoreV1().ConfigMaps(namespace).Create(&corev1.ConfigMap{
 			Data: map[string]string{
@@ -148,6 +151,12 @@ func TestAppWithKubeconfig(t *testing.T) {
 			},
 			Spec: v1alpha1.AppSpec{
 				Catalog: key.DefaultCatalogName(),
+				Config: v1alpha1.AppSpecConfig{
+					ConfigMap: v1alpha1.AppSpecConfigConfigMap{
+						Name:      "chart-operator-config",
+						Namespace: "giantswarm",
+					},
+				},
 				KubeConfig: v1alpha1.AppSpecKubeConfig{
 					Context: v1alpha1.AppSpecKubeConfigContext{
 						Name: clusterName,
