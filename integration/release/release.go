@@ -143,6 +143,37 @@ func (r *Release) WaitForDeletedChart(ctx context.Context, namespace, chartName 
 	return nil
 }
 
+func (r *Release) WaitForPod(ctx context.Context, namespace, labelSelector string) error {
+	o := func() error {
+		pods, err := r.k8sClient.K8sClient().CoreV1().Pods(namespace).List(metav1.ListOptions{LabelSelector: labelSelector})
+		if err != nil {
+			return microerror.Mask(err)
+		}
+		if len(pods.Items) != 1 {
+			return microerror.Maskf(waitError, "expected 1 pod but got %d", len(pods.Items))
+		}
+
+		pod := pods.Items[0]
+		if pod.Status.Phase != corev1.PodRunning {
+			return microerror.Maskf(waitError, "expected Pod phase %#q but got %#q", corev1.PodRunning, pod.Status.Phase)
+		}
+
+		return nil
+	}
+
+	n := func(err error, t time.Duration) {
+		r.logger.Log("level", "debug", "message", fmt.Sprintf("failed to get pod with selector '%s': retrying in %s", labelSelector, t), "stack", fmt.Sprintf("%v", err))
+	}
+
+	b := backoff.NewExponential(2*time.Minute, 60*time.Second)
+	err := backoff.RetryNotify(o, b, n)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
+	return nil
+}
+
 func (r *Release) WaitForStatus(ctx context.Context, release, status string) error {
 	o := func() error {
 		rc, err := r.helmClient.GetReleaseContent(ctx, release)

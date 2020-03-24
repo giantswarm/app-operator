@@ -74,7 +74,7 @@ func TestAppLifecycle(t *testing.T) {
 	{
 		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("waiting for chart-operator pod"))
 
-		err = config.Release.PodExists(ctx, namespace, "app=chart-operator")
+		err = config.Release.WaitForPod(ctx, namespace, "app=chart-operator")
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
