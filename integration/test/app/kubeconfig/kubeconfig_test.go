@@ -151,12 +151,6 @@ func TestAppWithKubeconfig(t *testing.T) {
 			},
 			Spec: v1alpha1.AppSpec{
 				Catalog: key.DefaultCatalogName(),
-				Config: v1alpha1.AppSpecConfig{
-					ConfigMap: v1alpha1.AppSpecConfigConfigMap{
-						Name:      "chart-operator-config",
-						Namespace: "giantswarm",
-					},
-				},
 				KubeConfig: v1alpha1.AppSpecKubeConfig{
 					Context: v1alpha1.AppSpecKubeConfigContext{
 						Name: clusterName,
