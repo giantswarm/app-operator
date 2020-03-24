@@ -11,7 +11,7 @@ func CustomResourceReleaseName() string {
 }
 
 func TestAppReleaseName() string {
-	return "kubernetes-test-app-chart"
+	return "test-app"
 }
 
 func TestAppCatalogReleaseName() string {

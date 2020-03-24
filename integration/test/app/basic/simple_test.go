@@ -23,7 +23,6 @@ const (
 	chartOperatorVersion = "chart-operator.giantswarm.io/version"
 	chartOperatorRelease = "chart-operator"
 	namespace            = "giantswarm"
-	testAppCatalogName   = "test-app-catalog"
 )
 
 // TestAppLifecycle tests a chart CR can be created, updated and deleted
@@ -50,8 +49,8 @@ func TestAppLifecycle(t *testing.T) {
 			},
 			Name:      key.TestAppReleaseName(),
 			Namespace: namespace,
-			Catalog:   testAppCatalogName,
-			Version:   "0.7.0",
+			Catalog:   key.DefaultCatalogName(),
+			Version:   "0.1.0",
 			Config: chartvalues.APIExtensionsAppE2EConfigAppConfig{
 				ConfigMap: chartvalues.APIExtensionsAppE2EConfigAppConfigConfigMap{
 					Name:      "test-app-values",
@@ -64,12 +63,12 @@ func TestAppLifecycle(t *testing.T) {
 			},
 		},
 		AppCatalog: chartvalues.APIExtensionsAppE2EConfigAppCatalog{
-			Description: testAppCatalogName,
-			Name:        testAppCatalogName,
-			Title:       testAppCatalogName,
+			Description: key.DefaultCatalogName(),
+			Name:        key.DefaultCatalogName(),
+			Title:       key.DefaultCatalogName(),
 			Storage: chartvalues.APIExtensionsAppE2EConfigAppCatalogStorage{
 				Type: "helm",
-				URL:  "https://giantswarm.github.com/sample-catalog",
+				URL:  key.DefaultCatalogStorageURL(),
 			},
 		},
 		AppOperator: chartvalues.APIExtensionsAppE2EConfigAppOperator{
@@ -166,7 +165,7 @@ func TestAppLifecycle(t *testing.T) {
 	{
 		config.Logger.LogCtx(ctx, "level", "debug", "message", "checking tarball URL in chart spec")
 
-		tarballURL := "https://giantswarm.github.com/sample-catalog/kubernetes-test-app-chart-0.7.0.tgz"
+		tarballURL := "https://giantswarm.github.com/default-catalog/test-app-0.1.0.tgz"
 		chart, err := config.K8sClients.G8sClient().ApplicationV1alpha1().Charts(namespace).Get(key.TestAppReleaseName(), metav1.GetOptions{})
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
@@ -184,7 +183,7 @@ func TestAppLifecycle(t *testing.T) {
 	{
 		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating chart value for release %#q", key.CustomResourceReleaseName()))
 
-		sampleChart.App.Version = "0.7.1"
+		sampleChart.App.Version = "0.1.1"
 		chartValues, err = chartvalues.NewAPIExtensionsAppE2E(sampleChart)
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
@@ -219,7 +218,7 @@ func TestAppLifecycle(t *testing.T) {
 	{
 		config.Logger.LogCtx(ctx, "level", "debug", "message", "checking tarball URL in chart spec")
 
-		err = config.Release.WaitForChartInfo(ctx, key.TestAppReleaseName(), "0.7.1")
+		err = config.Release.WaitForChartInfo(ctx, key.TestAppReleaseName(), "0.1.1")
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
@@ -229,7 +228,7 @@ func TestAppLifecycle(t *testing.T) {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
 
-		tarballURL := "https://giantswarm.github.com/sample-catalog/kubernetes-test-app-chart-0.7.1.tgz"
+		tarballURL := "https://giantswarm.github.com/default-catalog/test-app-0.1.1.tgz"
 		if chart.Spec.TarballURL != tarballURL {
 			t.Fatalf("expected tarballURL: %#v got %#v", tarballURL, chart.Spec.TarballURL)
 		}
@@ -274,14 +273,14 @@ func TestAppLifecycle(t *testing.T) {
 	}
 
 	{
-		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("checking chart CR %#q has been deleted", key.ChartConfigMapName()))
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("checking chart CR %#q has been deleted", key.TestAppReleaseName()))
 
 		_, err = config.K8sClients.G8sClient().ApplicationV1alpha1().Charts(namespace).Get(key.TestAppReleaseName(), metav1.GetOptions{})
 		if !apierrors.IsNotFound(err) {
 			t.Fatalf("expected is not found error got %#v", err)
 		}
 
-		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("chart CR %#q has been deleted", key.ChartConfigMapName()))
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("chart CR %#q has been deleted", key.TestAppReleaseName()))
 	}
 
 	{

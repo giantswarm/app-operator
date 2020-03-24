@@ -3,5 +3,5 @@
 package key
 
 func ChartConfigMapName() string {
-	return "kubernetes-test-app-chart-chart-values"
+	return "test-app-chart-values"
 }
