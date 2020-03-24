@@ -20,7 +20,7 @@ spec:
         app: {{ .Values.name }}
         giantswarm.io/service-type: "managed"
       annotations:
-        releasetime: {{ $.Release.Time }}
+        releaseRevision: {{ $.Release.Revision }}
     spec:
       volumes:
       - name: {{ .Values.name }}
