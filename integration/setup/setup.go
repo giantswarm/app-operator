@@ -91,14 +91,14 @@ func installResources(ctx context.Context, config Config) error {
 	}
 
 	{
-		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("waiting for app-operator pod"))
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("waiting for appcatalog crd"))
 
-		err = config.Release.PodExists(ctx, namespace, "app=app-operator")
+		err = config.Release.WaitForAppCatalogCRD(ctx)
 		if err != nil {
 			return microerror.Mask(err)
 		}
 
-		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("waited for app-operator pod"))
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("waited for appcatalog crd"))
 	}
 
 	return nil
