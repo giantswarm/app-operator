@@ -217,7 +217,7 @@ func TestAppWithKubeconfig(t *testing.T) {
 	{
 		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("waiting for release %#q deployed", chartOperatorName))
 
-		err = config.Release.WaitForStatus(ctx, chartOperatorName, "DEPLOYED")
+		err = config.Release.WaitForReleaseStatus(ctx, chartOperatorName, "DEPLOYED")
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
@@ -228,7 +228,7 @@ func TestAppWithKubeconfig(t *testing.T) {
 	{
 		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("waiting for release %#q deployed", key.TestAppReleaseName()))
 
-		err = config.Release.WaitForStatus(ctx, key.TestAppReleaseName(), "DEPLOYED")
+		err = config.Release.WaitForReleaseStatus(ctx, key.TestAppReleaseName(), "DEPLOYED")
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}

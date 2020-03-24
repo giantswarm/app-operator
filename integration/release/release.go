@@ -47,30 +47,6 @@ func New(config Config) (*Release, error) {
 	return r, nil
 }
 
-func (r *Release) WaitForChartVersion(ctx context.Context, release, version string) error {
-	o := func() error {
-		rh, err := r.helmClient.GetReleaseHistory(ctx, release)
-		if err != nil {
-			return microerror.Mask(err)
-		}
-		if rh.Version != version {
-			return microerror.Maskf(releaseVersionNotMatchingError, "waiting for '%s', current '%s'", version, rh.Version)
-		}
-		return nil
-	}
-
-	n := func(err error, t time.Duration) {
-		r.logger.Log("level", "debug", "message", fmt.Sprintf("failed to get release version '%s': retrying in %s", version, t), "stack", fmt.Sprintf("%v", err))
-	}
-
-	b := backoff.NewExponential(2*time.Minute, 60*time.Second)
-	err := backoff.RetryNotify(o, b, n)
-	if err != nil {
-		return microerror.Mask(err)
-	}
-	return nil
-}
-
 func (r *Release) WaitForAppCatalogCRD(ctx context.Context) error {
 	o := func() error {
 		_, err := r.k8sClient.G8sClient().ApplicationV1alpha1().AppCatalogs().List(metav1.ListOptions{})
@@ -175,7 +151,7 @@ func (r *Release) WaitForPod(ctx context.Context, namespace, labelSelector strin
 	return nil
 }
 
-func (r *Release) WaitForStatus(ctx context.Context, release, status string) error {
+func (r *Release) WaitForReleaseStatus(ctx context.Context, release, status string) error {
 	o := func() error {
 		rc, err := r.helmClient.GetReleaseContent(ctx, release)
 		if helmclient.IsReleaseNotFound(err) && status == "DELETED" {
@@ -192,6 +168,30 @@ func (r *Release) WaitForStatus(ctx context.Context, release, status string) err
 
 	n := func(err error, t time.Duration) {
 		r.logger.Log("level", "debug", "message", fmt.Sprintf("failed to get release status '%s': retrying in %s", status, t), "stack", fmt.Sprintf("%v", err))
+	}
+
+	b := backoff.NewExponential(2*time.Minute, 60*time.Second)
+	err := backoff.RetryNotify(o, b, n)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+	return nil
+}
+
+func (r *Release) WaitForReleaseVersion(ctx context.Context, release, version string) error {
+	o := func() error {
+		rh, err := r.helmClient.GetReleaseHistory(ctx, release)
+		if err != nil {
+			return microerror.Mask(err)
+		}
+		if rh.Version != version {
+			return microerror.Maskf(releaseVersionNotMatchingError, "waiting for '%s', current '%s'", version, rh.Version)
+		}
+		return nil
+	}
+
+	n := func(err error, t time.Duration) {
+		r.logger.Log("level", "debug", "message", fmt.Sprintf("failed to get release version '%s': retrying in %s", version, t), "stack", fmt.Sprintf("%v", err))
 	}
 
 	b := backoff.NewExponential(2*time.Minute, 60*time.Second)
