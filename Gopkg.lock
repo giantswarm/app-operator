@@ -283,33 +283,11 @@
   version = "v0.1.0"
 
 [[projects]]
-  digest = "1:e83800c0f3c424b5232ff2900d93d8ef0ce47615f780c19561f8aef4273cbad5"
-  name = "github.com/giantswarm/e2e-harness"
-  packages = [
-    "internal/filelogger",
-    "pkg/release",
-  ]
-  pruneopts = "UT"
-  revision = "4a78ac1ba4eb8045291e432980bd29ea0c0a61f3"
-  version = "v0.1.1"
-
-[[projects]]
   digest = "1:51f2974e21b6b94e40038a50bd226d55682790a3da30934e4c4ba0756fbdb809"
   name = "github.com/giantswarm/e2esetup"
   packages = ["chart/env"]
   pruneopts = "UT"
   revision = "e84fbc30c61647c2ffdde49c30af716bbc5fc89b"
-  version = "v0.1.0"
-
-[[projects]]
-  digest = "1:e88f04bf11ce608935b139217c52d3b2655d925577557a2e11e203e4bd524ac9"
-  name = "github.com/giantswarm/e2etemplates"
-  packages = [
-    "internal/render",
-    "pkg/chartvalues",
-  ]
-  pruneopts = "UT"
-  revision = "1a79d886b59637cdb0b3911e43a1af0b5058f1c9"
   version = "v0.1.0"
 
 [[projects]]
@@ -1900,10 +1878,9 @@
     "github.com/giantswarm/apiextensions/pkg/clientset/versioned",
     "github.com/giantswarm/apiextensions/pkg/clientset/versioned/fake",
     "github.com/giantswarm/appcatalog",
+    "github.com/giantswarm/apprclient",
     "github.com/giantswarm/backoff",
-    "github.com/giantswarm/e2e-harness/pkg/release",
     "github.com/giantswarm/e2esetup/chart/env",
-    "github.com/giantswarm/e2etemplates/pkg/chartvalues",
     "github.com/giantswarm/errors/tenant",
     "github.com/giantswarm/exporterkit/collector",
     "github.com/giantswarm/helmclient",

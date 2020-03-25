@@ -9,9 +9,7 @@ import (
 
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/appcatalog"
-	"github.com/giantswarm/e2e-harness/pkg/release"
 	"github.com/giantswarm/e2esetup/chart/env"
-	"github.com/giantswarm/e2etemplates/pkg/chartvalues"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/tools/clientcmd"
@@ -23,73 +21,26 @@ import (
 )
 
 const (
-	clusterName = "kind-kind"
-	namespace   = "giantswarm"
+	catalogConfigMapName = "default-catalog-configmap"
+	chartOperatorName    = "chart-operator"
+	clusterName          = "kind-kind"
+	kubeConfigName       = "kube-config"
+	namespace            = "giantswarm"
 )
 
 // TestAppWithKubeconfig checks app-operator can bootstrap chart-operator
 // when a kubeconfig is provided.
 func TestAppWithKubeconfig(t *testing.T) {
 	ctx := context.Background()
-	var chartValues string
 	var err error
 
-	sampleChart := chartvalues.APIExtensionsAppE2EConfig{
-		App: chartvalues.APIExtensionsAppE2EConfigApp{
-			KubeConfig: chartvalues.APIExtensionsAppE2EConfigAppKubeConfig{
-				InCluster: false,
-				Secret: chartvalues.APIExtensionsAppE2EConfigAppConfigKubeConfigSecret{
-					Name:      "kube-config",
-					Namespace: namespace,
-				},
-			},
-			Name:      key.TestAppReleaseName(),
-			Namespace: namespace,
-			Catalog:   key.DefaultCatalogName(),
-			Version:   "0.1.0",
-			Config: chartvalues.APIExtensionsAppE2EConfigAppConfig{
-				ConfigMap: chartvalues.APIExtensionsAppE2EConfigAppConfigConfigMap{
-					Name:      "test-app-values",
-					Namespace: "default",
-				},
-				Secret: chartvalues.APIExtensionsAppE2EConfigAppConfigSecret{
-					Name:      "test-app-secrets",
-					Namespace: "default",
-				},
-			},
-		},
-		AppCatalog: chartvalues.APIExtensionsAppE2EConfigAppCatalog{
-			Description: key.DefaultCatalogName(),
-			Name:        key.DefaultCatalogName(),
-			Title:       key.DefaultCatalogName(),
-			Storage: chartvalues.APIExtensionsAppE2EConfigAppCatalogStorage{
-				Type: "helm",
-				URL:  key.DefaultCatalogStorageURL(),
-			},
-		},
-		AppOperator: chartvalues.APIExtensionsAppE2EConfigAppOperator{
-			Version: "1.0.0",
-		},
-		Namespace: namespace,
-		ConfigMap: chartvalues.APIExtensionsAppE2EConfigConfigMap{
-			ValuesYAML: `test:
-      image:
-        registry: quay.io
-        repository: giantswarm/alpine-testing
-        tag: 0.1.1`,
-		},
-		Secret: chartvalues.APIExtensionsAppE2EConfigSecret{
-			ValuesYAML: `secret: "test"`,
-		},
-	}
-
-	// Transform kubeconfig file to REST config and flatten.
+	// Transform kubeconfig file to restconfig and flatten.
 	var bytes []byte
 	{
 		c := clientcmd.GetConfigFromFileOrDie(env.KubeConfigPath())
 
 		// Extract KIND kubeconfig settings. This is for local testing as
-		// `api.FlattenConfig` does not work with file paths in kubeconfigs.
+		// api.FlattenConfig does not work with file paths in kubeconfigs.
 		clusterKubeConfig := &api.Config{
 			AuthInfos: map[string]*api.AuthInfo{
 				clusterName: c.AuthInfos[clusterName],
@@ -122,7 +73,7 @@ func TestAppWithKubeconfig(t *testing.T) {
 
 		_, err = config.K8sClients.K8sClient().CoreV1().Secrets(namespace).Create(&corev1.Secret{
 			ObjectMeta: metav1.ObjectMeta{
-				Name:      "kube-config",
+				Name:      kubeConfigName,
 				Namespace: namespace,
 			},
 			Data: map[string][]byte{
@@ -137,22 +88,91 @@ func TestAppWithKubeconfig(t *testing.T) {
 	}
 
 	{
-		config.Logger.LogCtx(ctx, "level", "debug", "message", "creating chart-operator configmap")
+		config.Logger.LogCtx(ctx, "level", "debug", "message", "creating catalog configmap")
 
 		_, err = config.K8sClients.K8sClient().CoreV1().ConfigMaps(namespace).Create(&corev1.ConfigMap{
 			Data: map[string]string{
 				"values": templates.ChartOperatorValues,
 			},
 			ObjectMeta: metav1.ObjectMeta{
-				Name:      "chart-operator-config",
-				Namespace: "giantswarm",
+				Name:      catalogConfigMapName,
+				Namespace: namespace,
 			},
 		})
 		if err != nil {
 			t.Fatalf("expected nil got %#v", err)
 		}
 
-		config.Logger.LogCtx(ctx, "level", "debug", "message", "created chart-operator configmap")
+		config.Logger.LogCtx(ctx, "level", "debug", "message", "created catalog configmap")
+	}
+
+	{
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating %#q appcatalog cr", key.DefaultCatalogName()))
+
+		appCatalogCR := &v1alpha1.AppCatalog{
+			ObjectMeta: metav1.ObjectMeta{
+				Name: key.DefaultCatalogName(),
+				Labels: map[string]string{
+					label.AppOperatorVersion: key.AppOperatorVersion(),
+				},
+			},
+			Spec: v1alpha1.AppCatalogSpec{
+				Config: v1alpha1.AppCatalogSpecConfig{
+					ConfigMap: v1alpha1.AppCatalogSpecConfigConfigMap{
+						Name:      catalogConfigMapName,
+						Namespace: namespace,
+					},
+				},
+				Description: key.DefaultCatalogName(),
+				Storage: v1alpha1.AppCatalogSpecStorage{
+					Type: "helm",
+					URL:  key.DefaultCatalogStorageURL(),
+				},
+				Title: key.DefaultCatalogName(),
+			},
+		}
+		_, err = config.K8sClients.G8sClient().ApplicationV1alpha1().AppCatalogs().Create(appCatalogCR)
+		if err != nil {
+			t.Fatalf("expected %#v got %#v", nil, err)
+		}
+
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("created %#q appcatalog cr", key.DefaultCatalogName()))
+	}
+
+	{
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating %#q app cr", key.TestAppReleaseName()))
+
+		appCR := &v1alpha1.App{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      key.TestAppReleaseName(),
+				Namespace: namespace,
+				Labels: map[string]string{
+					label.AppOperatorVersion: key.AppOperatorVersion(),
+				},
+			},
+			Spec: v1alpha1.AppSpec{
+				Catalog: key.DefaultCatalogName(),
+				KubeConfig: v1alpha1.AppSpecKubeConfig{
+					Context: v1alpha1.AppSpecKubeConfigContext{
+						Name: clusterName,
+					},
+					InCluster: false,
+					Secret: v1alpha1.AppSpecKubeConfigSecret{
+						Name:      kubeConfigName,
+						Namespace: namespace,
+					},
+				},
+				Name:      key.TestAppReleaseName(),
+				Namespace: namespace,
+				Version:   "0.1.0",
+			},
+		}
+		_, err = config.K8sClients.G8sClient().ApplicationV1alpha1().Apps(key.Namespace()).Create(appCR)
+		if err != nil {
+			t.Fatalf("expected %#v got %#v", nil, err)
+		}
+
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating %#q app cr", key.TestAppReleaseName()))
 	}
 
 	{
@@ -165,28 +185,26 @@ func TestAppWithKubeconfig(t *testing.T) {
 
 		_, err = config.K8sClients.G8sClient().ApplicationV1alpha1().Apps(namespace).Create(&v1alpha1.App{
 			ObjectMeta: metav1.ObjectMeta{
-				Name:      "chart-operator",
-				Namespace: "giantswarm",
+				Name:      chartOperatorName,
+				Namespace: namespace,
 				Labels: map[string]string{
-					label.AppOperatorVersion: "1.0.0",
+					label.AppOperatorVersion: key.AppOperatorVersion(),
 				},
 			},
 			Spec: v1alpha1.AppSpec{
 				Catalog: "default",
-				Config: v1alpha1.AppSpecConfig{
-					ConfigMap: v1alpha1.AppSpecConfigConfigMap{
-						Name:      "chart-operator-config",
-						Namespace: "giantswarm",
-					},
-				},
 				KubeConfig: v1alpha1.AppSpecKubeConfig{
+					Context: v1alpha1.AppSpecKubeConfigContext{
+						Name: clusterName,
+					},
+					InCluster: false,
 					Secret: v1alpha1.AppSpecKubeConfigSecret{
-						Name:      "kube-config",
-						Namespace: "giantswarm",
+						Name:      kubeConfigName,
+						Namespace: namespace,
 					},
 				},
-				Name:      "chart-operator",
-				Namespace: "giantswarm",
+				Name:      chartOperatorName,
+				Namespace: namespace,
 				Version:   tag,
 			},
 		})
@@ -198,47 +216,24 @@ func TestAppWithKubeconfig(t *testing.T) {
 	}
 
 	{
-		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating chart value for release %#q", key.CustomResourceReleaseName()))
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("waiting for release %#q deployed", chartOperatorName))
 
-		chartValues, err = chartvalues.NewAPIExtensionsAppE2E(sampleChart)
+		err = config.Release.WaitForReleaseStatus(ctx, chartOperatorName, "DEPLOYED")
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
 
-		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("created chart value for release %#q", key.CustomResourceReleaseName()))
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("waited for release %#q deployed", chartOperatorName))
 	}
 
 	{
-		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("installing release %#q", key.CustomResourceReleaseName()))
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("waiting for release %#q deployed", key.TestAppReleaseName()))
 
-		chartInfo := release.NewStableChartInfo(key.CustomResourceReleaseName())
-		err = config.Release.Install(ctx, key.CustomResourceReleaseName(), chartInfo, chartValues)
+		err = config.Release.WaitForReleaseStatus(ctx, key.TestAppReleaseName(), "DEPLOYED")
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
 
-		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("installed release %#q", key.CustomResourceReleaseName()))
-	}
-
-	{
-		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("waiting for release %#q deployed", key.CustomResourceReleaseName()))
-
-		err = config.Release.WaitForStatus(ctx, fmt.Sprintf("%s-%s", namespace, key.CustomResourceReleaseName()), "DEPLOYED")
-		if err != nil {
-			t.Fatalf("expected %#v got %#v", nil, err)
-		}
-
-		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("waited for release %#q deployed", key.CustomResourceReleaseName()))
-	}
-
-	{
-		config.Logger.LogCtx(ctx, "level", "debug", "message", "waiting for chart CR created")
-
-		err = config.Release.WaitForStatus(ctx, key.TestAppReleaseName(), "DEPLOYED")
-		if err != nil {
-			t.Fatalf("expected %#v got %#v", nil, err)
-		}
-
-		config.Logger.LogCtx(ctx, "level", "debug", "message", "waited for chart CR created")
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("waited for release %#q deployed", key.TestAppReleaseName()))
 	}
 }
