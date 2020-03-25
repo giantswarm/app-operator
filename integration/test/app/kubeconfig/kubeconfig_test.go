@@ -168,7 +168,9 @@ func TestAppWithKubeconfig(t *testing.T) {
 				},
 				Name:      key.TestAppReleaseName(),
 				Namespace: namespace,
-				Version:   "0.1.0",
+				// TODO: Removing SHA once there is a chart-operator release
+				// with Helm 3 support in the default catalog.
+				Version: "0.1.0-0fe003278fb0b829e3254b9c5f0dbf1b3cbbe9a0",
 			},
 		}
 		_, err = config.K8sClients.G8sClient().ApplicationV1alpha1().Apps(namespace).Create(appCR)
@@ -188,7 +190,7 @@ func TestAppWithKubeconfig(t *testing.T) {
 		}
 
 		// TODO: Removing hardcoding once there is a chart-operator release
-		// with Helm 3 support in the default catalog
+		// with Helm 3 support in the default catalog.
 		tag = "0.12.1-6092c6d8f736fea1ed34ddfb11444265da8764cc"
 
 		_, err = config.K8sClients.G8sClient().ApplicationV1alpha1().Apps(namespace).Create(&v1alpha1.App{
