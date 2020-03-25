@@ -127,7 +127,10 @@ func TestAppWithKubeconfig(t *testing.T) {
 				Description: key.DefaultCatalogName(),
 				Storage: v1alpha1.AppCatalogSpecStorage{
 					Type: "helm",
-					URL:  key.DefaultCatalogStorageURL(),
+					// URL:  key.DefaultCatalogStorageURL(),
+					// TODO: Use default catalog once there is a chart-operator
+					// release with Helm 3 support.
+					URL: "https://giantswarm.github.io/default-test-catalog",
 				},
 				Title: key.DefaultCatalogName(),
 			},
@@ -183,6 +186,10 @@ func TestAppWithKubeconfig(t *testing.T) {
 		if err != nil {
 			t.Fatalf("expected nil got %#v", err)
 		}
+
+		// TODO: Removing hardcoding once there is a chart-operator release
+		// with Helm 3 support in the default catalog
+		tag = "chart-operator-0.12.1-6092c6d8f736fea1ed34ddfb11444265da8764cc"
 
 		_, err = config.K8sClients.G8sClient().ApplicationV1alpha1().Apps(namespace).Create(&v1alpha1.App{
 			ObjectMeta: metav1.ObjectMeta{
