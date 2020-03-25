@@ -25,6 +25,7 @@ const (
 	catalogConfigMapName = "default-catalog-configmap"
 	chartOperatorName    = "chart-operator"
 	clusterName          = "kind-kind"
+	kubeConfigName       = "kube-config"
 	namespace            = "giantswarm"
 )
 
@@ -39,6 +40,8 @@ func TestAppWithKubeconfig(t *testing.T) {
 	{
 		c := clientcmd.GetConfigFromFileOrDie(env.KubeConfigPath())
 
+		// Extract KIND kubeconfig settings. This is for local testing as
+		// api.FlattenConfig does not work with file paths in kubeconfigs.
 		clusterKubeConfig := &api.Config{
 			AuthInfos: map[string]*api.AuthInfo{
 				clusterName: c.AuthInfos[clusterName],
@@ -56,7 +59,8 @@ func TestAppWithKubeconfig(t *testing.T) {
 			t.Fatalf("expected nil got %#v", err)
 		}
 
-		// Normally KIND assign 127.0.0.1 as server address, that should change into kubernetes
+		// Normally KIND assigns 127.0.0.1 as the server address. For this test
+		// that should change to the Kubernetes service.
 		clusterKubeConfig.Clusters[clusterName].Server = "https://kubernetes.default.svc.cluster.local"
 
 		bytes, err = clientcmd.Write(*c)
@@ -70,7 +74,7 @@ func TestAppWithKubeconfig(t *testing.T) {
 
 		_, err = config.K8sClients.K8sClient().CoreV1().Secrets(namespace).Create(&corev1.Secret{
 			ObjectMeta: metav1.ObjectMeta{
-				Name:      "kube-config",
+				Name:      kubeConfigName,
 				Namespace: namespace,
 			},
 			Data: map[string][]byte{
@@ -100,7 +104,7 @@ func TestAppWithKubeconfig(t *testing.T) {
 			t.Fatalf("expected nil got %#v", err)
 		}
 
-		config.Logger.LogCtx(ctx, "level", "debug", "message", "creating catalog configmap")
+		config.Logger.LogCtx(ctx, "level", "debug", "message", "created catalog configmap")
 	}
 
 	{
@@ -110,7 +114,7 @@ func TestAppWithKubeconfig(t *testing.T) {
 			ObjectMeta: metav1.ObjectMeta{
 				Name: key.DefaultCatalogName(),
 				Labels: map[string]string{
-					label.AppOperatorVersion: "1.0.0",
+					label.AppOperatorVersion: key.AppOperatorVersion(),
 				},
 			},
 			Spec: v1alpha1.AppCatalogSpec{
@@ -144,7 +148,7 @@ func TestAppWithKubeconfig(t *testing.T) {
 				Name:      key.TestAppReleaseName(),
 				Namespace: namespace,
 				Labels: map[string]string{
-					label.AppOperatorVersion: "1.0.0",
+					label.AppOperatorVersion: key.AppOperatorVersion(),
 				},
 			},
 			Spec: v1alpha1.AppSpec{
@@ -155,7 +159,7 @@ func TestAppWithKubeconfig(t *testing.T) {
 					},
 					InCluster: false,
 					Secret: v1alpha1.AppSpecKubeConfigSecret{
-						Name:      "kube-config",
+						Name:      kubeConfigName,
 						Namespace: namespace,
 					},
 				},
@@ -164,7 +168,7 @@ func TestAppWithKubeconfig(t *testing.T) {
 				Version:   "0.1.0",
 			},
 		}
-		_, err = config.K8sClients.G8sClient().ApplicationV1alpha1().Apps(key.Namespace()).Create(appCR)
+		_, err = config.K8sClients.G8sClient().ApplicationV1alpha1().Apps(namespace).Create(appCR)
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
@@ -185,7 +189,7 @@ func TestAppWithKubeconfig(t *testing.T) {
 				Name:      chartOperatorName,
 				Namespace: namespace,
 				Labels: map[string]string{
-					label.AppOperatorVersion: "1.0.0",
+					label.AppOperatorVersion: key.AppOperatorVersion(),
 				},
 			},
 			Spec: v1alpha1.AppSpec{
@@ -196,7 +200,7 @@ func TestAppWithKubeconfig(t *testing.T) {
 					},
 					InCluster: false,
 					Secret: v1alpha1.AppSpecKubeConfigSecret{
-						Name:      "kube-config",
+						Name:      kubeConfigName,
 						Namespace: namespace,
 					},
 				},
@@ -215,7 +219,7 @@ func TestAppWithKubeconfig(t *testing.T) {
 	{
 		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("waiting for release %#q deployed", chartOperatorName))
 
-		err = config.Release.WaitForStatus(ctx, namespace, chartOperatorName, helmclient.StatusDeployed)
+		err = config.Release.WaitForReleaseStatus(ctx, namespace, chartOperatorName, helmclient.StatusDeployed)
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
@@ -226,7 +230,7 @@ func TestAppWithKubeconfig(t *testing.T) {
 	{
 		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("waiting for release %#q deployed", key.TestAppReleaseName()))
 
-		err = config.Release.WaitForStatus(ctx, namespace, key.TestAppReleaseName(), helmclient.StatusDeployed)
+		err = config.Release.WaitForReleaseStatus(ctx, namespace, key.TestAppReleaseName(), helmclient.StatusDeployed)
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}

@@ -56,6 +56,12 @@ func installResources(ctx context.Context, config Config) error {
 	{
 		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("installing app-operator"))
 
+		// The app-operator version and chart name are because it is deployed
+		// by draughtsman using appr.
+		// TODO Remove once the operator is flattened.
+		//
+		// https://github.com/giantswarm/giantswarm/issues/7895
+		//
 		operatorVersion := fmt.Sprintf("1.0.0-%s", env.CircleSHA())
 		operatorTarballPath, err := config.ApprClient.PullChartTarballFromRelease(ctx, key.AppOperatorChartName(), operatorVersion)
 		if err != nil {
@@ -95,14 +101,14 @@ func installResources(ctx context.Context, config Config) error {
 	}
 
 	{
-		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("waiting for app-operator pod"))
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("waiting for appcatalog crd"))
 
-		err = config.Release.PodExists(ctx, namespace, "app=app-operator")
+		err = config.Release.WaitForAppCatalogCRD(ctx)
 		if err != nil {
 			return microerror.Mask(err)
 		}
 
-		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("waited for app-operator pod"))
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("waited for appcatalog crd"))
 	}
 
 	return nil

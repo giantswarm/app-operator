@@ -1,0 +1,182 @@
+# Gopkg.toml example
+#
+# Refer to https://golang.github.io/dep/docs/Gopkg.toml.html
+# for detailed Gopkg.toml documentation.
+#
+# required = ["github.com/user/thing/cmd/thing"]
+# ignored = ["github.com/user/project/pkgX", "bitbucket.org/user/project/pkgA/pkgY"]
+#
+# [[constraint]]
+#   name = "github.com/user/project"
+#   version = "1.0.0"
+#
+# [[constraint]]
+#   name = "github.com/user/project2"
+#   branch = "dev"
+#   source = "github.com/myfork/project2"
+#
+# [[override]]
+#   name = "github.com/x/y"
+#   version = "2.4.0"
+#
+# [prune]
+#   non-go = false
+#   go-tests = true
+#   unused-packages = true
+
+
+
+required = [
+  "github.com/Azure/go-autorest/autorest",
+  "github.com/docker/distribution/reference",
+  "k8s.io/api/core/v1",
+  "k8s.io/apimachinery/pkg/apis/meta/v1",
+  "k8s.io/apiserver/pkg/endpoints/request"
+]
+
+
+
+[[constraint]]
+  name = "github.com/Azure/go-autorest"
+  version = "9.1.0"
+
+[[constraint]]
+  name = "github.com/docker/distribution"
+  branch = "master"
+
+[[constraint]]
+  name = "github.com/giantswarm/apiextensions"
+  version = "~0.1.0"
+
+[[constraint]]
+  name = "github.com/giantswarm/appcatalog"
+  version = "~0.1.0"
+
+[[constraint]]
+  name = "github.com/giantswarm/backoff"
+  version = "~0.1.0"
+
+[[constraint]]
+  name = "github.com/giantswarm/e2esetup"
+  version = "~0.1.0"
+
+[[constraint]]
+  name = "github.com/giantswarm/errors"
+  version = "~0.1.0"
+
+[[constraint]]
+  name = "github.com/giantswarm/exporterkit"
+  version = "~0.1.0"
+
+[[constraint]]
+  name = "github.com/giantswarm/helmclient"
+  version = "~0.1.0"
+
+[[constraint]]
+  name = "github.com/giantswarm/k8sclient"
+  version = "~0.1.0"
+
+[[constraint]]
+  name = "github.com/giantswarm/kubeconfig"
+  version = "~0.1.0"
+
+[[constraint]]
+  name = "github.com/giantswarm/microendpoint"
+  version = "~0.1.0"
+
+[[constraint]]
+  name = "github.com/giantswarm/microerror"
+  version = "~0.1.0"
+
+[[constraint]]
+  name = "github.com/giantswarm/microkit"
+  version = "~0.1.0"
+
+[[constraint]]
+  name = "github.com/giantswarm/micrologger"
+  version = "~0.1.0"
+
+[[constraint]]
+  name = "github.com/giantswarm/operatorkit"
+  version = "~0.1.0"
+
+[[constraint]]
+  name = "github.com/giantswarm/versionbundle"
+  version = "~0.1.0"
+
+[[constraint]]
+  name = "github.com/google/go-cmp"
+  version = "v0.3.1"
+
+[[constraint]]
+  name = "github.com/prometheus/client_golang"
+  version = "0.9.4"
+
+[[constraint]]
+  name = "github.com/spf13/afero"
+  version = "v1.2.2"
+
+[[constraint]]
+  name = "github.com/spf13/viper"
+  version = "v1.6.1"
+
+[[constraint]]
+  name = "gopkg.in/yaml.v2"
+  version = "v2.2.7"
+
+[[constraint]]
+  name = "k8s.io/api"
+  version = "kubernetes-1.16.3"
+
+[[constraint]]
+  name = "k8s.io/apimachinery"
+  version = "kubernetes-1.16.3"
+
+[[constraint]]
+  name = "k8s.io/apiserver"
+  version = "kubernetes-1.16.3"
+
+[[constraint]]
+  name = "k8s.io/client-go"
+  version = "kubernetes-1.16.3"
+
+[[constraint]]
+  name = "k8s.io/helm"
+  version = "v2.16.1"
+
+[[override]]
+  name = "k8s.io/apiextensions-apiserver"
+  version = "kubernetes-1.16.3"
+
+[[override]]
+  name = "k8s.io/cli-runtime"
+  version = "kubernetes-1.16.3"
+
+[[override]]
+  name = "k8s.io/component-base"
+  version = "kubernetes-1.16.3"
+
+[[override]]
+  name = "k8s.io/kubectl"
+  version = "kubernetes-1.16.3"
+
+[[override]]
+  name = "k8s.io/kubernetes"
+  version = "v1.16.3"
+
+[[override]]
+  branch = "master"
+  name = "github.com/ghodss/yaml"
+
+[[override]]
+  name = "github.com/russross/blackfriday"
+  version = "v1.5.2"
+
+[[override]]
+source = "gopkg.in/fsnotify/fsnotify.v1"
+name = "gopkg.in/fsnotify.v1"
+
+
+[prune]
+  go-tests = true
+  unused-packages = true

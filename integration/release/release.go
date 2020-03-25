@@ -1,3 +1,5 @@
+// +build k8srequired
+
 package release
 
 import (
@@ -47,58 +49,26 @@ func New(config Config) (*Release, error) {
 	return r, nil
 }
 
-func (r *Release) PodExists(ctx context.Context, namespace, labelSelector string) error {
+func (r *Release) WaitForAppCatalogCRD(ctx context.Context) error {
 	o := func() error {
-		pods, err := r.k8sClient.K8sClient().CoreV1().Pods(namespace).List(metav1.ListOptions{LabelSelector: labelSelector})
+		_, err := r.k8sClient.G8sClient().ApplicationV1alpha1().AppCatalogs().List(metav1.ListOptions{})
 		if err != nil {
 			return microerror.Mask(err)
-		}
-		if len(pods.Items) != 1 {
-			return microerror.Maskf(waitError, "expected 1 pod but got %d", len(pods.Items))
-		}
-
-		pod := pods.Items[0]
-		if pod.Status.Phase != corev1.PodRunning {
-			return microerror.Maskf(waitError, "expected Pod phase %#q but got %#q", corev1.PodRunning, pod.Status.Phase)
 		}
 
 		return nil
 	}
 
 	n := func(err error, t time.Duration) {
-		r.logger.Log("level", "debug", "message", fmt.Sprintf("failed to get pod with selector '%s': retrying in %s", labelSelector, t), "stack", fmt.Sprintf("%v", err))
+		r.logger.Log("level", "debug", "message", fmt.Sprintf("failed to list appcatalogs: retrying in %s", t), "stack", fmt.Sprintf("%v", err))
 	}
 
-	b := backoff.NewExponential(2*time.Minute, 60*time.Second)
+	b := backoff.NewExponential(10*time.Minute, 60*time.Second)
 	err := backoff.RetryNotify(o, b, n)
 	if err != nil {
 		return microerror.Mask(err)
 	}
 
-	return nil
-}
-
-func (r *Release) WaitForChartVersion(ctx context.Context, namespace, release, version string) error {
-	o := func() error {
-		rh, err := r.helmClient.GetReleaseContent(ctx, namespace, release)
-		if err != nil {
-			return microerror.Mask(err)
-		}
-		if rh.Version != version {
-			return microerror.Maskf(releaseVersionNotMatchingError, "waiting for '%s', current '%s'", version, rh.Version)
-		}
-		return nil
-	}
-
-	n := func(err error, t time.Duration) {
-		r.logger.Log("level", "debug", "message", fmt.Sprintf("failed to get release version '%s': retrying in %s", version, t), "stack", fmt.Sprintf("%v", err))
-	}
-
-	b := backoff.NewExponential(2*time.Minute, 60*time.Second)
-	err := backoff.RetryNotify(o, b, n)
-	if err != nil {
-		return microerror.Mask(err)
-	}
 	return nil
 }
 
@@ -119,7 +89,7 @@ func (r *Release) WaitForDeletedApp(ctx context.Context, namespace, appName stri
 		r.logger.Log("level", "debug", "message", fmt.Sprintf("failed to get deleted app '%s': retrying in %s", appName, t), "stack", fmt.Sprintf("%v", err))
 	}
 
-	b := backoff.NewExponential(2*time.Minute, 60*time.Second)
+	b := backoff.NewExponential(10*time.Minute, 60*time.Second)
 	err := backoff.RetryNotify(o, b, n)
 	if err != nil {
 		return microerror.Mask(err)
@@ -144,7 +114,7 @@ func (r *Release) WaitForDeletedChart(ctx context.Context, namespace, chartName 
 		r.logger.Log("level", "debug", "message", fmt.Sprintf("failed to get deleted chart '%s': retrying in %s", chartName, t), "stack", fmt.Sprintf("%v", err))
 	}
 
-	b := backoff.NewExponential(2*time.Minute, 60*time.Second)
+	b := backoff.NewExponential(10*time.Minute, 60*time.Second)
 	err := backoff.RetryNotify(o, b, n)
 	if err != nil {
 		return microerror.Mask(err)
@@ -152,7 +122,38 @@ func (r *Release) WaitForDeletedChart(ctx context.Context, namespace, chartName 
 	return nil
 }
 
-func (r *Release) WaitForStatus(ctx context.Context, namespace, release, status string) error {
+func (r *Release) WaitForPod(ctx context.Context, namespace, labelSelector string) error {
+	o := func() error {
+		pods, err := r.k8sClient.K8sClient().CoreV1().Pods(namespace).List(metav1.ListOptions{LabelSelector: labelSelector})
+		if err != nil {
+			return microerror.Mask(err)
+		}
+		if len(pods.Items) != 1 {
+			return microerror.Maskf(waitError, "expected 1 pod but got %d", len(pods.Items))
+		}
+
+		pod := pods.Items[0]
+		if pod.Status.Phase != corev1.PodRunning {
+			return microerror.Maskf(waitError, "expected Pod phase %#q but got %#q", corev1.PodRunning, pod.Status.Phase)
+		}
+
+		return nil
+	}
+
+	n := func(err error, t time.Duration) {
+		r.logger.Log("level", "debug", "message", fmt.Sprintf("failed to get pod with selector '%s': retrying in %s", labelSelector, t), "stack", fmt.Sprintf("%v", err))
+	}
+
+	b := backoff.NewExponential(10*time.Minute, 60*time.Second)
+	err := backoff.RetryNotify(o, b, n)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
+	return nil
+}
+
+func (r *Release) WaitForReleaseStatus(ctx context.Context, namespace, release, status string) error {
 	o := func() error {
 		rc, err := r.helmClient.GetReleaseContent(ctx, namespace, release)
 		if helmclient.IsReleaseNotFound(err) && status == helmclient.StatusUninstalled {
@@ -171,7 +172,31 @@ func (r *Release) WaitForStatus(ctx context.Context, namespace, release, status 
 		r.logger.Log("level", "debug", "message", fmt.Sprintf("failed to get release status '%s': retrying in %s", status, t), "stack", fmt.Sprintf("%v", err))
 	}
 
-	b := backoff.NewExponential(2*time.Minute, 60*time.Second)
+	b := backoff.NewExponential(10*time.Minute, 60*time.Second)
+	err := backoff.RetryNotify(o, b, n)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+	return nil
+}
+
+func (r *Release) WaitForReleaseVersion(ctx context.Context, namespace, release, version string) error {
+	o := func() error {
+		rh, err := r.helmClient.GetReleaseContent(ctx, namespace, release)
+		if err != nil {
+			return microerror.Mask(err)
+		}
+		if rh.Version != version {
+			return microerror.Maskf(releaseVersionNotMatchingError, "waiting for '%s', current '%s'", version, rh.Version)
+		}
+		return nil
+	}
+
+	n := func(err error, t time.Duration) {
+		r.logger.Log("level", "debug", "message", fmt.Sprintf("failed to get release version '%s': retrying in %s", version, t), "stack", fmt.Sprintf("%v", err))
+	}
+
+	b := backoff.NewExponential(10*time.Minute, 60*time.Second)
 	err := backoff.RetryNotify(o, b, n)
 	if err != nil {
 		return microerror.Mask(err)
