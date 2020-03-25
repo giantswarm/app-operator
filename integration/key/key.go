@@ -15,6 +15,10 @@ func AppOperatorChartName() string {
 	return "app-operator-chart"
 }
 
+func AppOperatorVersion() string {
+	return "1.0.0"
+}
+
 func ChartOperatorName() string {
 	return "chart-operator"
 }

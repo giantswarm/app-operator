@@ -89,7 +89,7 @@ func TestAppLifecycle(t *testing.T) {
 			ObjectMeta: metav1.ObjectMeta{
 				Name: key.DefaultCatalogName(),
 				Labels: map[string]string{
-					label.AppOperatorVersion: "1.0.0",
+					label.AppOperatorVersion: key.AppOperatorVersion(),
 				},
 			},
 			Spec: v1alpha1.AppCatalogSpec{
@@ -117,7 +117,7 @@ func TestAppLifecycle(t *testing.T) {
 				Name:      key.TestAppReleaseName(),
 				Namespace: namespace,
 				Labels: map[string]string{
-					label.AppOperatorVersion: "1.0.0",
+					label.AppOperatorVersion: key.AppOperatorVersion(),
 				},
 			},
 			Spec: v1alpha1.AppSpec{

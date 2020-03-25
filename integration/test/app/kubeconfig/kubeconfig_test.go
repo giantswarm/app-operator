@@ -24,6 +24,7 @@ const (
 	catalogConfigMapName = "default-catalog-configmap"
 	chartOperatorName    = "chart-operator"
 	clusterName          = "kind-kind"
+	kubeConfigName       = "kube-config"
 	namespace            = "giantswarm"
 )
 
@@ -72,7 +73,7 @@ func TestAppWithKubeconfig(t *testing.T) {
 
 		_, err = config.K8sClients.K8sClient().CoreV1().Secrets(namespace).Create(&corev1.Secret{
 			ObjectMeta: metav1.ObjectMeta{
-				Name:      "kube-config",
+				Name:      kubeConfigName,
 				Namespace: namespace,
 			},
 			Data: map[string][]byte{
@@ -112,7 +113,7 @@ func TestAppWithKubeconfig(t *testing.T) {
 			ObjectMeta: metav1.ObjectMeta{
 				Name: key.DefaultCatalogName(),
 				Labels: map[string]string{
-					label.AppOperatorVersion: "1.0.0",
+					label.AppOperatorVersion: key.AppOperatorVersion(),
 				},
 			},
 			Spec: v1alpha1.AppCatalogSpec{
@@ -146,7 +147,7 @@ func TestAppWithKubeconfig(t *testing.T) {
 				Name:      key.TestAppReleaseName(),
 				Namespace: namespace,
 				Labels: map[string]string{
-					label.AppOperatorVersion: "1.0.0",
+					label.AppOperatorVersion: key.AppOperatorVersion(),
 				},
 			},
 			Spec: v1alpha1.AppSpec{
@@ -157,7 +158,7 @@ func TestAppWithKubeconfig(t *testing.T) {
 					},
 					InCluster: false,
 					Secret: v1alpha1.AppSpecKubeConfigSecret{
-						Name:      "kube-config",
+						Name:      kubeConfigName,
 						Namespace: namespace,
 					},
 				},
@@ -187,7 +188,7 @@ func TestAppWithKubeconfig(t *testing.T) {
 				Name:      chartOperatorName,
 				Namespace: namespace,
 				Labels: map[string]string{
-					label.AppOperatorVersion: "1.0.0",
+					label.AppOperatorVersion: key.AppOperatorVersion(),
 				},
 			},
 			Spec: v1alpha1.AppSpec{
@@ -198,7 +199,7 @@ func TestAppWithKubeconfig(t *testing.T) {
 					},
 					InCluster: false,
 					Secret: v1alpha1.AppSpecKubeConfigSecret{
-						Name:      "kube-config",
+						Name:      kubeConfigName,
 						Namespace: namespace,
 					},
 				},
