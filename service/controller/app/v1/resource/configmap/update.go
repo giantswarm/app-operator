@@ -55,7 +55,7 @@ func (r *Resource) NewUpdatePatch(ctx context.Context, obj, currentConfigMap, de
 	patch := crud.NewPatch()
 	patch.SetCreateChange(create)
 	patch.SetUpdateChange(update)
-	patch.SetUpdateChange(delete)
+	patch.SetDeleteChange(delete)
 
 	return patch, nil
 }
