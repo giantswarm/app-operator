@@ -202,12 +202,8 @@ github.com/giantswarm/apprclient v0.2.0 h1:XLi/xt2BE316zCjgG9sJF25gKfIkIkdxPzgWm
 github.com/giantswarm/apprclient v0.2.0/go.mod h1:iAGOReCnEud0xxwhDS/lI50JSUN4zRCB3vlPRqH3IVc=
 github.com/giantswarm/backoff v0.2.0 h1:kdfAf83pZ/l8X0KiA2dJ2Wq19nS9hISijVn7ZRdFhfU=
 github.com/giantswarm/backoff v0.2.0/go.mod h1:Z3WRsFilSJ5H5VlFa4XhraoPr+9pmZgYasoY2OSfNOk=
-github.com/giantswarm/e2e-harness v0.2.0 h1:M71fV6T3zIjpg63eAbP8d5eHxCLLT4Q6hskiWelw6jM=
-github.com/giantswarm/e2e-harness v0.2.0/go.mod h1:+2H1VF3hRA75LQHVYno0/GmWxA/f7YEc9Bey03jyGRY=
 github.com/giantswarm/e2esetup v0.2.0 h1:hx6Fpt+8bn18Sfep8pU5oWASBPdp93trys1UbMcORGk=
 github.com/giantswarm/e2esetup v0.2.0/go.mod h1:4zjZ0u/Se1rPF/J2kVfaa0QiEW6Zi1cWp689wvXjyeU=
-github.com/giantswarm/e2etemplates v0.2.0 h1:xwsa8hSirDF8nFdRJZJROPwjiL1vsuhWltz+6k9CQRc=
-github.com/giantswarm/e2etemplates v0.2.0/go.mod h1:q7aE42HUEdxm6NtLJ/csoMBWoRoIfhdy0WC85aRjLi8=
 github.com/giantswarm/errors v0.2.0 h1:l9bAe0IQBHLkZQVT+h79DTCJQ3tuDFrOfUySVlbKn10=
 github.com/giantswarm/errors v0.2.0/go.mod h1:Oj1LIWs9Uoj6JGtK5HxTb50iZuqe9f60LDI0nLXA5vU=
 github.com/giantswarm/exporterkit v0.2.0 h1:+HTGl4fmT/1OkTox8HbV3JXeavmsZv94+2CDW8cSrq0=
