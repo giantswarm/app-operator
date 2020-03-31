@@ -47,9 +47,15 @@ func (r *Resource) NewUpdatePatch(ctx context.Context, obj, currentConfigMap, de
 		return nil, microerror.Mask(err)
 	}
 
+	delete, err := r.newDeleteChangeForUpdate(ctx, currentConfigMap, desiredConfigMap)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
 	patch := crud.NewPatch()
 	patch.SetCreateChange(create)
 	patch.SetUpdateChange(update)
+	patch.SetDeleteChange(delete)
 
 	return patch, nil
 }
