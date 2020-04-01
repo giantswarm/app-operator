@@ -59,3 +59,26 @@ func (r *Resource) newDeleteChange(ctx context.Context, obj, currentState, desir
 
 	return desiredConfigMap, nil
 }
+
+func (r *Resource) newDeleteChangeForUpdate(ctx context.Context, currentState, desiredState interface{}) (interface{}, error) {
+	currentConfigMap, err := toConfigMap(currentState)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	desiredConfigMap, err := toConfigMap(desiredState)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	r.logger.LogCtx(ctx, "level", "debug", "message", "finding out if the configmap has to be deleted")
+
+	if !isEmpty(currentConfigMap) && isEmpty(desiredConfigMap) {
+		r.logger.LogCtx(ctx, "level", "debug", "message", "the configmap has to be deleted")
+		return currentConfigMap, nil
+	}
+
+	r.logger.LogCtx(ctx, "level", "debug", "message", "the configmap does not have to be deleted")
+
+	return nil, nil
+}
