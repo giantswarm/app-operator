@@ -76,7 +76,6 @@ func (r Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 			return nil
 		} else if helmclient.IsReleaseNotFound(err) {
-
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("did not find chart-perator release %#q in tenant cluster", release))
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("installing chart-operator release %#q in tenant cluster", release))
 
