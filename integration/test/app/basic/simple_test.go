@@ -52,7 +52,7 @@ func TestAppLifecycle(t *testing.T) {
 
 			// TODO: Removing hardcoding once there is a chart-operator release
 			// with Helm 3 support in the default catalog.
-			tarballURL = "https://giantswarm.github.io/default-test-catalog/chart-operator-0.12.1-6092c6d8f736fea1ed34ddfb11444265da8764cc.tgz"
+			tarballURL = "https://giantswarm.github.io/default-test-catalog/chart-operator-0.12.1-13521d4e2cb5378dbff26995e094d1c23a15e121.tgz"
 
 			tarballPath, err = config.HelmClient.PullChartTarball(ctx, tarballURL)
 			if err != nil {
