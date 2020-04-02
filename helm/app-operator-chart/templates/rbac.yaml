@@ -72,11 +72,11 @@ rules:
   verbs:
   - "create"
 - apiGroups:
-  - extensions
+  - apps
   resources:
   - deployments
   verbs:
-  - 'create'
+  - "get"
 - apiGroups:
   - ""
   resources:
