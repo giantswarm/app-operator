@@ -46,6 +46,7 @@ workflows:
             - build
 
       - architect/push-to-app-catalog:
+          context: architect
           name: "push-app-operator-to-control-plane-app-catalog"
           app_catalog: "control-plane-catalog"
           app_catalog_test: "control-plane-test-catalog"
@@ -59,6 +60,7 @@ workflows:
               only: /^v.*/
 
       - architect/push-to-app-collection:
+          context: architect
           name: "push-app-operator-to-aws-app-collection"
           app_name: "app-operator"
           app_collection_repo: "aws-app-collection"
@@ -74,6 +76,7 @@ workflows:
               only: /^v.*/
 
       - architect/push-to-app-collection:
+          context: architect
           name: "push-app-operator-to-azure-app-collection"
           app_name: "app-operator"
           app_collection_repo: "azure-app-collection"
@@ -89,6 +92,7 @@ workflows:
               only: /^v.*/
 
       - architect/push-to-app-collection:
+          context: architect
           name: "push-app-operator-to-kvm-app-collection"
           app_name: "app-operator"
           app_collection_repo: "kvm-app-collection"
