@@ -8,6 +8,8 @@ import (
 	"github.com/giantswarm/helmclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/controller/context/reconciliationcanceledcontext"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/giantswarm/app-operator/service/controller/app/v1/controllercontext"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/key"
@@ -43,6 +45,21 @@ func (r Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return nil
 	}
 
+	{
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding chart-operator deployment as helm v2 in %#q tenant cluster", release))
+		_, err = r.k8sClient.AppsV1().Deployments(key.Namespace(cr)).Get(key.AppName(cr), metav1.GetOptions{})
+		if err == nil {
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found chart-operator deployment as helm v2 in %#q tenant cluster", release))
+			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+			return nil
+		} else if apierrors.IsNotFound(err) {
+			// no-op
+		} else if err != nil {
+			return microerror.Mask(err)
+		}
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("can't find chart-operator deployment as helm v2 in %#q tenant cluster", release))
+	}
+
 	// Check whether tenant cluster has a chart-operator helm release yet.
 	{
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding chart-operator release %#q in tenant cluster", release))
@@ -59,6 +76,7 @@ func (r Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 			return nil
 		} else if helmclient.IsReleaseNotFound(err) {
+
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("did not find chart-perator release %#q in tenant cluster", release))
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("installing chart-operator release %#q in tenant cluster", release))
 
