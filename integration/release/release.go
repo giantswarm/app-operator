@@ -153,10 +153,10 @@ func (r *Release) WaitForPod(ctx context.Context, namespace, labelSelector strin
 	return nil
 }
 
-func (r *Release) WaitForReleaseStatus(ctx context.Context, release, status string) error {
+func (r *Release) WaitForReleaseStatus(ctx context.Context, namespace, release, status string) error {
 	o := func() error {
-		rc, err := r.helmClient.GetReleaseContent(ctx, release)
-		if helmclient.IsReleaseNotFound(err) && status == "DELETED" {
+		rc, err := r.helmClient.GetReleaseContent(ctx, namespace, release)
+		if helmclient.IsReleaseNotFound(err) && status == helmclient.StatusUninstalled {
 			// Error is expected because we purge releases when deleting.
 			return nil
 		} else if err != nil {
@@ -180,9 +180,9 @@ func (r *Release) WaitForReleaseStatus(ctx context.Context, release, status stri
 	return nil
 }
 
-func (r *Release) WaitForReleaseVersion(ctx context.Context, release, version string) error {
+func (r *Release) WaitForReleaseVersion(ctx context.Context, namespace, release, version string) error {
 	o := func() error {
-		rh, err := r.helmClient.GetReleaseHistory(ctx, release)
+		rh, err := r.helmClient.GetReleaseContent(ctx, namespace, release)
 		if err != nil {
 			return microerror.Mask(err)
 		}

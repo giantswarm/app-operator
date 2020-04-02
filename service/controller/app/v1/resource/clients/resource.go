@@ -2,7 +2,6 @@ package clients
 
 import (
 	"context"
-	"time"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/errors/tenant"
@@ -11,6 +10,7 @@ import (
 	"github.com/giantswarm/kubeconfig"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
+	"github.com/spf13/afero"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 
@@ -138,16 +138,14 @@ func (r *Resource) addClientsToContext(ctx context.Context, cr v1alpha1.App) err
 		}
 	}
 
+	fs := afero.NewOsFs()
+
 	var helmClient helmclient.Interface
 	{
 		c := helmclient.Config{
-			K8sClient: k8sClient.K8sClient(),
+			Fs:        fs,
+			K8sClient: k8sClient,
 			Logger:    r.logger,
-
-			EnsureTillerInstalledMaxWait: 30 * time.Second,
-			RestConfig:                   restConfig,
-			TillerImageRegistry:          r.imageRegistry,
-			TillerNamespace:              r.tillerNamespace,
 		}
 
 		helmClient, err = helmclient.New(c)

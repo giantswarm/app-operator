@@ -10,6 +10,7 @@ import (
 	"github.com/giantswarm/kubeconfig"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
+	"github.com/spf13/afero"
 
 	"github.com/giantswarm/app-operator/integration/release"
 )
@@ -41,9 +42,12 @@ func NewConfig() (Config, error) {
 		}
 	}
 
+	fs := afero.NewOsFs()
+
 	var apprClient apprclient.Interface
 	{
 		c := apprclient.Config{
+			Fs:     fs,
 			Logger: logger,
 
 			Address:      "https://quay.io",
@@ -99,11 +103,9 @@ func NewConfig() (Config, error) {
 	var helmClient helmclient.Interface
 	{
 		c := helmclient.Config{
+			Fs:        fs,
 			Logger:    logger,
-			K8sClient: cpK8sClients.K8sClient(),
-
-			RestConfig:      cpK8sClients.RESTConfig(),
-			TillerNamespace: namespace,
+			K8sClient: cpK8sClients,
 		}
 
 		helmClient, err = helmclient.New(c)

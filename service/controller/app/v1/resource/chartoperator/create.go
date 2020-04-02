@@ -47,24 +47,8 @@ func (r Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	{
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding chart-operator release %#q in tenant cluster", release))
 
-		_, err := cc.Clients.Helm.GetReleaseContent(ctx, release)
-		if helmclient.IsTillerNotFound(err) {
-			r.logger.LogCtx(ctx, "level", "debug", "message", "no healthy tiller pod found")
-
-			// Tiller may not be healthy and we cannot continue without a connection
-			// to Tiller. We will retry on next reconciliation loop.
-			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation")
-			reconciliationcanceledcontext.SetCanceled(ctx)
-
-			return nil
-		} else if helmclient.IsTillerOutdated(err) {
-			// Tiller is upgraded by chart-operator in the tenant cluster. When we
-			// want to upgrade Tiller we deploy a new version of chart-operator.
-			// So here we can just cancel the resource.
-			r.logger.LogCtx(ctx, "level", "debug", "message", "tiller pod is outdated")
-			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
-			return nil
-		} else if tenant.IsAPINotAvailable(err) {
+		_, err := cc.Clients.Helm.GetReleaseContent(ctx, key.Namespace(cr), release)
+		if tenant.IsAPINotAvailable(err) {
 			r.logger.LogCtx(ctx, "level", "debug", "message", "tenant API not available")
 
 			// We should not hammer tenant API if it is not available, the tenant
@@ -99,12 +83,12 @@ func (r Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		} else {
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found chart-operator release %#q", release))
 
-			releaseContent, err := cc.Clients.Helm.GetReleaseContent(ctx, release)
+			releaseContent, err := cc.Clients.Helm.GetReleaseContent(ctx, key.Namespace(cr), release)
 			if err != nil {
 				return microerror.Mask(err)
 			}
 
-			if releaseContent.Status == "FAILED" {
+			if releaseContent.Status == helmclient.StatusFailed {
 				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("chart-operator release %#q failed to install", release))
 				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating a release %#q", release))
 

@@ -10,6 +10,7 @@ import (
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/appcatalog"
 	"github.com/giantswarm/e2esetup/chart/env"
+	"github.com/giantswarm/helmclient"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/tools/clientcmd"
@@ -126,7 +127,10 @@ func TestAppWithKubeconfig(t *testing.T) {
 				Description: key.DefaultCatalogName(),
 				Storage: v1alpha1.AppCatalogSpecStorage{
 					Type: "helm",
-					URL:  key.DefaultCatalogStorageURL(),
+					// URL:  key.DefaultCatalogStorageURL(),
+					// TODO: Use default catalog once there is a chart-operator
+					// release with Helm 3 support.
+					URL: "https://giantswarm.github.io/default-test-catalog",
 				},
 				Title: key.DefaultCatalogName(),
 			},
@@ -164,10 +168,12 @@ func TestAppWithKubeconfig(t *testing.T) {
 				},
 				Name:      key.TestAppReleaseName(),
 				Namespace: namespace,
-				Version:   "0.1.0",
+				// TODO: Removing SHA once there is a chart-operator release
+				// with Helm 3 support in the default catalog.
+				Version: "0.1.0-0fe003278fb0b829e3254b9c5f0dbf1b3cbbe9a0",
 			},
 		}
-		_, err = config.K8sClients.G8sClient().ApplicationV1alpha1().Apps(key.Namespace()).Create(appCR)
+		_, err = config.K8sClients.G8sClient().ApplicationV1alpha1().Apps(namespace).Create(appCR)
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
@@ -182,6 +188,10 @@ func TestAppWithKubeconfig(t *testing.T) {
 		if err != nil {
 			t.Fatalf("expected nil got %#v", err)
 		}
+
+		// TODO: Removing hardcoding once there is a chart-operator release
+		// with Helm 3 support in the default catalog.
+		tag = "0.12.1-13521d4e2cb5378dbff26995e094d1c23a15e121"
 
 		_, err = config.K8sClients.G8sClient().ApplicationV1alpha1().Apps(namespace).Create(&v1alpha1.App{
 			ObjectMeta: metav1.ObjectMeta{
@@ -218,7 +228,7 @@ func TestAppWithKubeconfig(t *testing.T) {
 	{
 		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("waiting for release %#q deployed", chartOperatorName))
 
-		err = config.Release.WaitForReleaseStatus(ctx, chartOperatorName, "DEPLOYED")
+		err = config.Release.WaitForReleaseStatus(ctx, namespace, chartOperatorName, helmclient.StatusDeployed)
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
@@ -229,7 +239,7 @@ func TestAppWithKubeconfig(t *testing.T) {
 	{
 		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("waiting for release %#q deployed", key.TestAppReleaseName()))
 
-		err = config.Release.WaitForReleaseStatus(ctx, key.TestAppReleaseName(), "DEPLOYED")
+		err = config.Release.WaitForReleaseStatus(ctx, namespace, key.TestAppReleaseName(), helmclient.StatusDeployed)
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
