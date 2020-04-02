@@ -46,10 +46,10 @@ func (r Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	}
 
 	{
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding chart-operator deployment as helm v2 in %#q tenant cluster", release))
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding %#q deployment in tenant cluster", release))
 		_, err = r.k8sClient.AppsV1().Deployments(key.Namespace(cr)).Get(key.AppName(cr), metav1.GetOptions{})
 		if err == nil {
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found chart-operator deployment as helm v2 in %#q tenant cluster", release))
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found %#q deployment in tenant cluster", release))
 			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 			return nil
 		} else if apierrors.IsNotFound(err) {
@@ -57,7 +57,7 @@ func (r Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		} else if err != nil {
 			return microerror.Mask(err)
 		}
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("can't find chart-operator deployment as helm v2 in %#q tenant cluster", release))
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("did not find %#q deployment in tenant cluster", release))
 	}
 
 	// Check whether tenant cluster has a chart-operator helm release yet.
