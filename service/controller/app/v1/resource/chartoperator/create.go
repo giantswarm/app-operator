@@ -47,7 +47,7 @@ func (r Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 	{
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding %#q deployment in tenant cluster", release))
-		_, err = r.k8sClient.AppsV1().Deployments(key.Namespace(cr)).Get(key.AppName(cr), metav1.GetOptions{})
+		_, err = cc.Clients.K8s.K8sClient().AppsV1().Deployments(key.Namespace(cr)).Get(key.AppName(cr), metav1.GetOptions{})
 		if err == nil {
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found %#q deployment in tenant cluster", release))
 			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
