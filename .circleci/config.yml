@@ -21,16 +21,6 @@ jobs:
         - ./app-operator
         - ./architect
 
-  deploy:
-    machine: true
-    steps:
-    - checkout
-    - attach_workspace:
-        at: .
-    - deploy:
-        command: |
-            ./architect deploy
-
 workflows:
   build_e2e:
     jobs:
@@ -67,10 +57,54 @@ workflows:
           requires:
             - build
 
-      - deploy:
-          name: deploy
+      # build and push chart to app catalog
+      - architect/push-to-app-catalog:
+          name: push-app-operator-to-control-plane-app-catalog
+          app_catalog: "control-plane-catalog"
+          app_catalog_test: "control-plane-test-catalog"
+          chart: "cluster-operator"
+          # Make sure docker image is successfully built.
           requires:
-            - push-app-operator-to-aliyun
+            - push-app-operator-to-quay
+          filters:
+            tags:
+              only: /^v.*/
+
+      # deploy to aws installations (only tags)
+      - architect/push-to-app-collection:
+          name: push-app-operator-to-aws-app-collection
+          app_name: "cluster-operator"
+          app_collection_repo: "aws-app-collection"
+          requires:
+            - push-app-operator-to-control-plane-app-catalog
           filters:
             branches:
-              only: master
+              ignore: /.*/
+            tags:
+              only: /^v.*/
+
+      # deploy to azure installations (only tags)
+      - architect/push-to-app-collection:
+          name: push-app-operator-to-azure-app-collection
+          app_name: "cluster-operator"
+          app_collection_repo: "azure-app-collection"
+          requires:
+            - push-app-operator-to-control-plane-app-catalog
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^v.*/
+
+      # deploy to kvm installations (only tags)
+      - architect/push-to-app-collection:
+          name: push-app-operator-to-kvm-app-collection
+          app_name: "cluster-operator"
+          app_collection_repo: "kvm-app-collection"
+          requires:
+            - push-app-operator-to-control-plane-app-catalog
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^v.*
