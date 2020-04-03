@@ -1,0 +1,30 @@
+# Default values for app-operator-chart.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+name: app-operator
+namespace: giantswarm
+port: 8000
+protocol: "TCP"
+
+userID: 1000
+groupID: 1000
+
+replicas: 1
+
+image:
+  repository: giantswarm/app-operator
+  tag: [[ .Version ]]
+
+Installation:
+  V1:
+    Registry:
+      Domain: quay.io
+
+resources:
+  requests:
+    cpu: 250m
+    memory: 250Mi
+  limits:
+    cpu: 250m
+    memory: 250Mi
