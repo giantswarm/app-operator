@@ -21,7 +21,16 @@ Installation:
     Registry:
       Domain: quay.io
 
-resources:
+resource:
+  chart:
+    name: '{{ .Release.Name | replace "." "-" | trunc 47 }}-chart'
+  default:
+    name: '{{ .Release.Name | replace "." "-" | trunc 47 }}'
+    namespace: "giantswarm"
+  psp:
+    name: '{{ .Release.Name | replace "." "-" | trunc 47 }}-psp'
+
+deployment-resource:
   requests:
     cpu: 250m
     memory: 250Mi

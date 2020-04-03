@@ -1,15 +1,14 @@
 kind: NetworkPolicy
 apiVersion: networking.k8s.io/v1
 metadata:
-  namespace: {{ .Values.namespace }}
-  name: {{ .Values.name }}-network-policy
+  name: {{ tpl .Values.resource.default.name  . }}
+  namespace: {{ tpl .Values.resource.default.namespace  . }}
   labels:
-    app: {{ .Values.name }}
-    giantswarm.io/service-type: "managed"
+    {{- include "app-operator.labels" . | nindent 4 }}
 spec:
   podSelector:
     matchLabels:
-      app: {{ .Values.name }}
+      {{- include "app-operator.selectorLabels" . | nindent 6 }}
   ingress:
   - ports:
     - port: {{ .Values.port }}
