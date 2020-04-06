@@ -25,9 +25,7 @@ const (
 
 type Config struct {
 	// Dependencies.
-	HelmClient helmclient.Interface
-	K8sClient  kubernetes.Interface
-	Logger     micrologger.Logger
+	Logger micrologger.Logger
 
 	// Settings.
 	TillerNamespace string
@@ -35,9 +33,7 @@ type Config struct {
 
 type Resource struct {
 	// Dependencies.
-	helmClient helmclient.Interface
-	k8sClient  kubernetes.Interface
-	logger     micrologger.Logger
+	logger micrologger.Logger
 
 	// Settings.
 	tillerNamespace string
