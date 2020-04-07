@@ -14,7 +14,7 @@ replicas: 1
 
 image:
   repository: giantswarm/app-operator
-  tag: [[ .SHA ]]
+  tag: [[ .Version ]]
 
 Installation:
   V1:
