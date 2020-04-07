@@ -4,13 +4,8 @@ import (
 	"github.com/giantswarm/microerror"
 )
 
-var releasesNotDeletedError = &microerror.Error{
-	Kind: "releasesNotDeletedError",
-}
-
-// releasesNotDeletedErrorMatching asserts releasesNotDeletedError
-func releasesNotDeletedErrorMatching(err error) bool {
-	return microerror.Cause(err) == releasesNotDeletedError
+var executionFailedError = &microerror.Error{
+	Kind: "executionFailed",
 }
 
 var invalidConfigError = &microerror.Error{

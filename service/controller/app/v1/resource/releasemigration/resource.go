@@ -144,7 +144,7 @@ func (r *Resource) ensureReleasesMigrated(ctx context.Context, k8sClient kuberne
 			return microerror.Mask(err)
 		}
 		if len(releases) > 0 {
-			return microerror.Maskf(releasesNotDeletedError, "helm v2 releases not deleted: %#q", releases)
+			return microerror.Maskf(executionFailedError, "helm v2 releases not deleted: %#q", releases)
 		}
 
 		return nil
