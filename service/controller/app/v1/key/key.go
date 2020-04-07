@@ -106,6 +106,10 @@ func CordonUntil(customResource v1alpha1.App) string {
 	return customResource.GetAnnotations()[annotation.CordonUntil]
 }
 
+func DefaultCatalogStorageURL() string {
+	return "https://giantswarm.github.com/default-catalog"
+}
+
 func InCluster(customResource v1alpha1.App) bool {
 	return customResource.Spec.KubeConfig.InCluster
 }
@@ -143,6 +147,10 @@ func Namespace(customResource v1alpha1.App) string {
 
 func OrganizationID(customResource v1alpha1.App) string {
 	return customResource.GetLabels()[label.Organization]
+}
+
+func ReleaseName(customResource v1alpha1.App) string {
+	return customResource.Spec.Name
 }
 
 // ToCustomResource converts value to v1alpha1.App and returns it or error

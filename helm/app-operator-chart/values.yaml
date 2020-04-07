@@ -28,3 +28,6 @@ resources:
   limits:
     cpu: 250m
     memory: 250Mi
+
+tiller:
+  namespace: "kube-system"

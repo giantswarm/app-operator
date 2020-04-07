@@ -21,6 +21,7 @@ import (
 	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/chartoperator"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/clients"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/configmap"
+	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/releasemigration"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/secret"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/status"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/resource/tcnamespace"
@@ -36,8 +37,9 @@ type ResourceSetConfig struct {
 	Logger     micrologger.Logger
 
 	// Settings.
-	ChartNamespace string
-	ImageRegistry  string
+	ChartNamespace  string
+	ImageRegistry   string
+	TillerNamespace string
 }
 
 // NewResourceSet returns a configured App controller ResourceSet.
@@ -61,6 +63,9 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	}
 	if config.ImageRegistry == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ImageRegistry must not be empty", config)
+	}
+	if config.TillerNamespace == "" {
+		return nil, microerror.Maskf(invalidConfigError, "%T.TillerNamespace must not be empty", config)
 	}
 
 	var valuesService *values.Values
@@ -170,6 +175,20 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 	}
 
+	var releaseMigrationResource resource.Interface
+	{
+		c := releasemigration.Config{
+			Logger: config.Logger,
+
+			TillerNamespace: config.TillerNamespace,
+		}
+
+		releaseMigrationResource, err = releasemigration.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var secretResource resource.Interface
 	{
 		c := secret.Config{
@@ -226,6 +245,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		// Following resources bootstrap chart-operator in tenant clusters.
 		tcNamespaceResource,
 		chartOperatorResource,
+		releaseMigrationResource,
 
 		// Following resources process app CRs.
 		configMapResource,
