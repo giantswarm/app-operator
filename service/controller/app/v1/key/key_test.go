@@ -1,6 +1,7 @@
 package key
 
 import (
+	"fmt"
 	"reflect"
 	"testing"
 
@@ -198,7 +199,7 @@ func Test_CordonReason(t *testing.T) {
 	obj := v1alpha1.App{
 		ObjectMeta: metav1.ObjectMeta{
 			Annotations: map[string]string{
-				annotation.CordonReason: "manual upgrade",
+				fmt.Sprintf("%s/%s", annotation.ChartOperatorPrefix, annotation.CordonReason): "manual upgrade",
 			},
 		},
 	}
@@ -214,7 +215,7 @@ func Test_CordonUntil(t *testing.T) {
 	obj := v1alpha1.App{
 		ObjectMeta: metav1.ObjectMeta{
 			Annotations: map[string]string{
-				annotation.CordonUntil: "2019-12-31T23:59:59Z",
+				fmt.Sprintf("%s/%s", annotation.ChartOperatorPrefix, annotation.CordonUntil): "2019-12-31T23:59:59Z",
 			},
 		},
 	}

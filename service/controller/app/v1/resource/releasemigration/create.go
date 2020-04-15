@@ -2,13 +2,18 @@ package releasemigration
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
-	"k8s.io/client-go/kubernetes"
+	"strings"
 
+	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/controller/context/reconciliationcanceledcontext"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/client-go/kubernetes"
 
+	"github.com/giantswarm/app-operator/pkg/annotation"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/controllercontext"
 	"github.com/giantswarm/app-operator/service/controller/app/v1/key"
 )
@@ -50,8 +55,14 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("release %#q helmV3 migration not started", key.ReleaseName(cr)))
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("installing %#q", migrationApp))
 
+		// cordon all charts except chart-operator
+		err := r.cordonChart(ctx, cc.Clients.K8s.G8sClient(), cr.Namespace)
+		if err != nil {
+			return microerror.Mask(err)
+		}
+
 		// install helm-2to3-migration app
-		err := r.ensureReleasesMigrated(ctx, cc.Clients.K8s.K8sClient(), cc.Clients.Helm)
+		err = r.ensureReleasesMigrated(ctx, cc.Clients.K8s.K8sClient(), cc.Clients.Helm)
 		if IsReleaseAlreadyExists(err) {
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("release %#q already exists", migrationApp))
 			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation")
@@ -65,7 +76,97 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return nil
 	}
 
+	// If Helm v2 release configmap had been deleted and Helm v3 release secret was created,
+	// It means helm v3 release migration is finished.
+	if !hasConfigMap && hasSecret {
+		err = r.uncordonChart(ctx, cc.Clients.K8s.G8sClient(), cr.Namespace)
+		if err != nil {
+			return microerror.Mask(err)
+		}
+	}
+
 	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("no pending migration for release %#q", key.ReleaseName(cr)))
+
+	return nil
+}
+
+func (r *Resource) cordonChart(ctx context.Context, g8sClient versioned.Interface, ns string) error {
+	lo := metav1.ListOptions{
+		LabelSelector: "app notin (chart-operator)",
+	}
+	charts, err := g8sClient.ApplicationV1alpha1().Charts(ns).List(lo)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
+	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("cordoning %d charts", len(charts.Items)))
+
+	cordonReason := replaceToEscape(fmt.Sprintf("%s/%s", annotation.ChartOperatorPrefix, annotation.CordonReason))
+	cordonUntil := replaceToEscape(fmt.Sprintf("%s/%s", annotation.ChartOperatorPrefix, annotation.CordonUntil))
+	patches := []patch{
+		{
+			Op:    "add",
+			Path:  fmt.Sprintf("/metadata/annotations/%s", cordonReason),
+			Value: "Migrating to helm 3",
+		},
+		{
+			Op:    "add",
+			Path:  fmt.Sprintf("/metadata/annotations/%s", cordonUntil),
+			Value: key.CordonUntilDate(),
+		},
+	}
+
+	bytes, err := json.Marshal(patches)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
+	for _, chart := range charts.Items {
+		_, err = g8sClient.ApplicationV1alpha1().Charts(chart.Namespace).Patch(chart.Name, types.JSONPatchType, bytes)
+		if err != nil {
+			return microerror.Mask(err)
+		}
+	}
+	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("cordoned %d charts", len(charts.Items)))
+
+	return nil
+}
+
+func (r *Resource) uncordonChart(ctx context.Context, g8sClient versioned.Interface, ns string) error {
+	lo := metav1.ListOptions{
+		LabelSelector: "app notin (chart-operator)",
+	}
+	charts, err := g8sClient.ApplicationV1alpha1().Charts(ns).List(lo)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("uncordoning %d charts", len(charts.Items)))
+
+	cordonReason := replaceToEscape(fmt.Sprintf("%s/%s", annotation.ChartOperatorPrefix, annotation.CordonReason))
+	cordonUntil := replaceToEscape(fmt.Sprintf("%s/%s", annotation.ChartOperatorPrefix, annotation.CordonUntil))
+	patches := []patch{
+		{
+			Op:   "remove",
+			Path: fmt.Sprintf("/metadata/annotations/%s", cordonReason),
+		},
+		{
+			Op:   "remove",
+			Path: fmt.Sprintf("/metadata/annotations/%s", cordonUntil),
+		},
+	}
+
+	bytes, err := json.Marshal(patches)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
+	for _, chart := range charts.Items {
+		_, err = g8sClient.ApplicationV1alpha1().Charts(chart.Namespace).Patch(chart.Name, types.JSONPatchType, bytes)
+		if err != nil {
+			return microerror.Mask(err)
+		}
+	}
+	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("uncordoned %d charts", len(charts.Items)))
 
 	return nil
 }
@@ -96,4 +197,8 @@ func (r *Resource) hasHelmV3Secrets(ctx context.Context, k8sClient kubernetes.In
 	}
 
 	return len(secrets.Items) > 0, nil
+}
+
+func replaceToEscape(from string) string {
+	return strings.Replace(from, "/", "~1", -1)
 }
