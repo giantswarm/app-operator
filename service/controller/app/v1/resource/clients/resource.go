@@ -128,8 +128,7 @@ func (r *Resource) addClientsToContext(ctx context.Context, cr v1alpha1.App) err
 
 	var tillerNamespace string
 	{
-		// When InCluster is used we use the tiller deployed in kube-system.
-		// Otherwise we use the configured namespace.
+		// When InCluster is used we use the Tiller deployed in kube-system.
 		if key.InCluster(cr) {
 			tillerNamespace = metav1.NamespaceSystem
 		} else {
