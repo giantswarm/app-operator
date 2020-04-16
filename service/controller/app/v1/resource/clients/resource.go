@@ -29,8 +29,7 @@ type Config struct {
 	Logger    micrologger.Logger
 
 	// Settings.
-	ImageRegistry   string
-	TillerNamespace string
+	ImageRegistry string
 }
 
 // Resource implements the clients resource.
@@ -40,8 +39,7 @@ type Resource struct {
 	logger    micrologger.Logger
 
 	// Settings.
-	imageRegistry   string
-	tillerNamespace string
+	imageRegistry string
 }
 
 // New creates a new configured clients resource.
@@ -56,9 +54,6 @@ func New(config Config) (*Resource, error) {
 	if config.ImageRegistry == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ImageRegistry must not be empty", config)
 	}
-	if config.TillerNamespace == "" {
-		config.TillerNamespace = "giantswarm"
-	}
 
 	r := &Resource{
 		// Dependencies.
@@ -66,8 +61,7 @@ func New(config Config) (*Resource, error) {
 		logger:    config.Logger,
 
 		// Settings
-		imageRegistry:   config.ImageRegistry,
-		tillerNamespace: config.TillerNamespace,
+		imageRegistry: config.ImageRegistry,
 	}
 
 	return r, nil
@@ -139,7 +133,7 @@ func (r *Resource) addClientsToContext(ctx context.Context, cr v1alpha1.App) err
 		if key.InCluster(cr) {
 			tillerNamespace = metav1.NamespaceSystem
 		} else {
-			tillerNamespace = r.tillerNamespace
+			tillerNamespace = "giantswarm"
 		}
 	}
 
