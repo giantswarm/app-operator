@@ -12,7 +12,6 @@ import (
 	"github.com/giantswarm/backoff"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
-	"github.com/giantswarm/operatorkit/controller/context/reconciliationcanceledcontext"
 	"github.com/spf13/afero"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -94,17 +93,7 @@ func (r Resource) installChartOperator(ctx context.Context, cr v1alpha1.App) err
 		return microerror.Mask(err)
 	}
 
-	chartOperatorAppCR, err := r.getChartOperatorAppCR(ctx, cr.Namespace)
-	if err != nil {
-		return microerror.Mask(err)
-	}
-
-	appCatalogCR, err := r.getAppCatalogCR(ctx, chartOperatorAppCR)
-	if err != nil {
-		return microerror.Mask(err)
-	}
-
-	chartOperatorValues, err := r.mergeChartOperatorValues(ctx, chartOperatorAppCR, appCatalogCR)
+	chartOperatorValues, err := r.mergeChartOperatorValues(ctx, cr, cc.AppCatalog)
 	if err != nil {
 		return microerror.Mask(err)
 	}
@@ -112,7 +101,7 @@ func (r Resource) installChartOperator(ctx context.Context, cr v1alpha1.App) err
 	// check app CR for chart-operator and fetching app-catalog name and version.
 	var tarballURL string
 	{
-		tarballURL, err = appcatalog.NewTarballURL(key.AppCatalogStorageURL(*appCatalogCR), release, key.Version(*chartOperatorAppCR))
+		tarballURL, err = appcatalog.NewTarballURL(key.AppCatalogStorageURL(cc.AppCatalog), key.AppName(cr), key.Version(cr))
 		if err != nil {
 			return microerror.Mask(err)
 		}
@@ -180,17 +169,7 @@ func (r Resource) updateChartOperator(ctx context.Context, cr v1alpha1.App) erro
 		return microerror.Mask(err)
 	}
 
-	chartOperatorAppCR, err := r.getChartOperatorAppCR(ctx, cr.Namespace)
-	if err != nil {
-		return microerror.Mask(err)
-	}
-
-	appCatalogCR, err := r.getAppCatalogCR(ctx, chartOperatorAppCR)
-	if err != nil {
-		return microerror.Mask(err)
-	}
-
-	chartOperatorValues, err := r.mergeChartOperatorValues(ctx, chartOperatorAppCR, appCatalogCR)
+	chartOperatorValues, err := r.mergeChartOperatorValues(ctx, cr, cc.AppCatalog)
 	if err != nil {
 		return microerror.Mask(err)
 	}
@@ -198,7 +177,7 @@ func (r Resource) updateChartOperator(ctx context.Context, cr v1alpha1.App) erro
 	// check app CR for chart-operator and fetching app-catalog name and version.
 	var tarballURL string
 	{
-		tarballURL, err = appcatalog.NewTarballURL(key.AppCatalogStorageURL(*appCatalogCR), release, key.Version(*chartOperatorAppCR))
+		tarballURL, err = appcatalog.NewTarballURL(key.AppCatalogStorageURL(cc.AppCatalog), key.AppName(cr), key.Version(cr))
 		if err != nil {
 			return microerror.Mask(err)
 		}
@@ -254,54 +233,10 @@ func (r Resource) updateChartOperator(ctx context.Context, cr v1alpha1.App) erro
 	return nil
 }
 
-func (r *Resource) getAppCatalogCR(ctx context.Context, chartOperatorAppCR *v1alpha1.App) (*v1alpha1.AppCatalog, error) {
-	var appCatalogCR *v1alpha1.AppCatalog
-	var err error
-	{
-		r.logger.LogCtx(ctx, "level", "debug", "message", "finding appCatalog CR")
-
-		catalogName := key.CatalogName(*chartOperatorAppCR)
-		appCatalogCR, err = r.g8sClient.ApplicationV1alpha1().AppCatalogs().Get(catalogName, metav1.GetOptions{})
-		if apierrors.IsNotFound(err) {
-			r.logger.LogCtx(ctx, "level", "debug", "message", "can't find appCatalog CR")
-			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling the reconciliation")
-			reconciliationcanceledcontext.SetCanceled(ctx)
-			return nil, nil
-		} else if err != nil {
-			return nil, microerror.Mask(err)
-		}
-
-		r.logger.LogCtx(ctx, "level", "debug", "message", "found appCatalog CR")
-	}
-
-	return appCatalogCR, nil
-}
-
-func (r *Resource) getChartOperatorAppCR(ctx context.Context, namespace string) (*v1alpha1.App, error) {
-	var chartOperatorAppCR *v1alpha1.App
-	var err error
-	{
-		r.logger.LogCtx(ctx, "level", "debug", "message", "finding chart-operator app CR")
-
-		chartOperatorAppCR, err = r.g8sClient.ApplicationV1alpha1().Apps(namespace).Get(release, metav1.GetOptions{})
-		if apierrors.IsNotFound(err) {
-			r.logger.LogCtx(ctx, "level", "debug", "message", "can't find chart-operator app CR")
-			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling the reconciliation")
-			reconciliationcanceledcontext.SetCanceled(ctx)
-			return nil, nil
-		} else if err != nil {
-			return nil, err
-		}
-
-		r.logger.LogCtx(ctx, "level", "debug", "message", "found chart-operator app CR")
-	}
-	return chartOperatorAppCR, nil
-}
-
-func (r *Resource) mergeChartOperatorValues(ctx context.Context, cr *v1alpha1.App, catalog *v1alpha1.AppCatalog) ([]byte, error) {
+func (r *Resource) mergeChartOperatorValues(ctx context.Context, cr v1alpha1.App, catalog v1alpha1.AppCatalog) ([]byte, error) {
 	var chartOperatorValues []byte
 	{
-		values, err := r.values.MergeAll(ctx, *cr, *catalog)
+		values, err := r.values.MergeAll(ctx, cr, catalog)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
