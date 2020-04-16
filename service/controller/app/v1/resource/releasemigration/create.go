@@ -65,7 +65,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("installing %#q", migrationApp))
 
 		// cordon all charts except chart-operator
-		err := r.cordonChart(ctx, cc.Clients.K8s.G8sClient(), cr.Namespace)
+		err := r.cordonChart(ctx, cc.Clients.K8s.G8sClient(), tillerNamespace)
 		if err != nil {
 			return microerror.Mask(err)
 		}
@@ -88,7 +88,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	// If Helm v2 release configmap had been deleted and Helm v3 release secret was created,
 	// It means helm v3 release migration is finished.
 	if !hasConfigMap && hasSecret {
-		err = r.uncordonChart(ctx, cc.Clients.K8s.G8sClient(), cr.Namespace)
+		err = r.uncordonChart(ctx, cc.Clients.K8s.G8sClient(), tillerNamespace)
 		if err != nil {
 			return microerror.Mask(err)
 		}
