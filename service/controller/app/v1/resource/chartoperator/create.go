@@ -39,7 +39,7 @@ func (r Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 	// Check whether tenant cluster has a chart-operator helm release yet.
 	{
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding chart-operator release %#q in tenant cluster", release))
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding chart-operator release %#q", release))
 
 		_, err := cc.Clients.Helm.GetReleaseContent(ctx, release)
 		if helmclient.IsTillerNotFound(err) {
@@ -69,8 +69,8 @@ func (r Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 			return nil
 		} else if helmclient.IsReleaseNotFound(err) {
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("did not find chart-perator release %#q in tenant cluster", release))
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("installing chart-operator release %#q in tenant cluster", release))
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("did not find chart-perator release %#q", release))
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("installing chart-operator release %#q", release))
 
 			err = r.installChartOperator(ctx, cr)
 			if IsNotReady(err) {
@@ -87,7 +87,7 @@ func (r Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 				return microerror.Mask(err)
 			}
 
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("installed chart-operator release %#q in tenant cluster", release))
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("installed chart-operator release %#q", release))
 		} else if err != nil {
 			return microerror.Mask(err)
 		} else {
