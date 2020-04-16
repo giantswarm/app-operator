@@ -39,9 +39,9 @@ func (r Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 	// Check whether tenant cluster has a chart-operator helm release yet.
 	{
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding chart-operator release %#q", release))
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding chart-operator release %#q", cr.Name))
 
-		_, err := cc.Clients.Helm.GetReleaseContent(ctx, release)
+		_, err := cc.Clients.Helm.GetReleaseContent(ctx, cr.Name)
 		if helmclient.IsTillerNotFound(err) {
 			r.logger.LogCtx(ctx, "level", "debug", "message", "no healthy tiller pod found")
 
