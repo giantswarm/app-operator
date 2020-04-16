@@ -95,7 +95,7 @@ func (r Resource) installChartOperator(ctx context.Context, cr v1alpha1.App) err
 		return microerror.Mask(err)
 	}
 
-	chartOperatorAppCR, err := r.getChartOperatorAppCR(ctx, cr.Namespace)
+	chartOperatorAppCR, err := r.getChartOperatorAppCR(ctx, cr.Namespace, key.InCluster(cr))
 	if err != nil {
 		return microerror.Mask(err)
 	}
@@ -181,7 +181,7 @@ func (r Resource) updateChartOperator(ctx context.Context, cr v1alpha1.App) erro
 		return microerror.Mask(err)
 	}
 
-	chartOperatorAppCR, err := r.getChartOperatorAppCR(ctx, cr.Namespace)
+	chartOperatorAppCR, err := r.getChartOperatorAppCR(ctx, cr.Namespace, key.InCluster(cr))
 	if err != nil {
 		return microerror.Mask(err)
 	}
@@ -278,15 +278,25 @@ func (r *Resource) getAppCatalogCR(ctx context.Context, chartOperatorAppCR *v1al
 	return appCatalogCR, nil
 }
 
-func (r *Resource) getChartOperatorAppCR(ctx context.Context, namespace string) (*v1alpha1.App, error) {
-	var chartOperatorAppCR *v1alpha1.App
+func (r *Resource) getChartOperatorAppCR(ctx context.Context, namespace string, inCluster bool) (*v1alpha1.App, error) {
 	var err error
-	{
-		r.logger.LogCtx(ctx, "level", "debug", "message", "finding chart-operator app CR")
 
-		chartOperatorAppCR, err = r.g8sClient.ApplicationV1alpha1().Apps(namespace).Get(release, metav1.GetOptions{})
+	var chartOperatorAppName string
+	{
+		if inCluster == true {
+			chartOperatorAppName = fmt.Sprintf("%s-unique", release)
+		} else {
+			chartOperatorAppName = release
+		}
+	}
+
+	var chartOperatorAppCR *v1alpha1.App
+	{
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding %#q app CR", chartOperatorAppName))
+
+		chartOperatorAppCR, err = r.g8sClient.ApplicationV1alpha1().Apps(namespace).Get(chartOperatorAppName, metav1.GetOptions{})
 		if apierrors.IsNotFound(err) {
-			r.logger.LogCtx(ctx, "level", "debug", "message", "can't find chart-operator app CR")
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("can't find %#q app CR", chartOperatorAppName))
 			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling the reconciliation")
 			reconciliationcanceledcontext.SetCanceled(ctx)
 			return nil, nil
@@ -294,7 +304,7 @@ func (r *Resource) getChartOperatorAppCR(ctx context.Context, namespace string) 
 			return nil, err
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", "found chart-operator app CR")
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found %#q app CR", chartOperatorAppName))
 	}
 	return chartOperatorAppCR, nil
 }
