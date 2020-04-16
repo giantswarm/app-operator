@@ -33,7 +33,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	var tillerNamespace string
 	{
 		if key.InCluster(cr) {
-			tillerNamespace = "kube-system"
+			tillerNamespace = metav1.NamespaceSystem
 		} else {
 			tillerNamespace = "giantswarm"
 		}
