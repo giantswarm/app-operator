@@ -65,7 +65,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("installing %#q", migrationApp))
 
 		// cordon all charts except chart-operator
-		err := r.cordonChart(ctx, cc.Clients.K8s.G8sClient(), tillerNamespace)
+		err := r.cordonChart(ctx, cc.Clients.K8s.G8sClient())
 		if err != nil {
 			return microerror.Mask(err)
 		}
@@ -88,7 +88,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	// If Helm v2 release configmap had been deleted and Helm v3 release secret was created,
 	// It means helm v3 release migration is finished.
 	if !hasConfigMap && hasSecret {
-		err = r.uncordonChart(ctx, cc.Clients.K8s.G8sClient(), tillerNamespace)
+		err = r.uncordonChart(ctx, cc.Clients.K8s.G8sClient())
 		if err != nil {
 			return microerror.Mask(err)
 		}
@@ -99,11 +99,11 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	return nil
 }
 
-func (r *Resource) cordonChart(ctx context.Context, g8sClient versioned.Interface, ns string) error {
+func (r *Resource) cordonChart(ctx context.Context, g8sClient versioned.Interface) error {
 	lo := metav1.ListOptions{
 		LabelSelector: "app notin (chart-operator)",
 	}
-	charts, err := g8sClient.ApplicationV1alpha1().Charts(ns).List(lo)
+	charts, err := g8sClient.ApplicationV1alpha1().Charts("giantswarm").List(lo)
 	if err != nil {
 		return microerror.Mask(err)
 	}
@@ -141,11 +141,11 @@ func (r *Resource) cordonChart(ctx context.Context, g8sClient versioned.Interfac
 	return nil
 }
 
-func (r *Resource) uncordonChart(ctx context.Context, g8sClient versioned.Interface, ns string) error {
+func (r *Resource) uncordonChart(ctx context.Context, g8sClient versioned.Interface) error {
 	lo := metav1.ListOptions{
 		LabelSelector: "app notin (chart-operator)",
 	}
-	charts, err := g8sClient.ApplicationV1alpha1().Charts(ns).List(lo)
+	charts, err := g8sClient.ApplicationV1alpha1().Charts("giantswarm").List(lo)
 	if err != nil {
 		return microerror.Mask(err)
 	}
