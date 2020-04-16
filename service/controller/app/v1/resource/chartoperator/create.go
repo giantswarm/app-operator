@@ -23,8 +23,8 @@ func (r Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
-	// Resource is used to bootstrap chart-operator in tenant clusters.
-	// So for other apps we can skip this step.
+	// Resource is used to bootstrap chart-operator. So for other apps we can
+	// skip this step.
 	if key.AppName(cr) != key.ChartOperatorAppName {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("no need to install chart-operator for %#q", key.AppName(cr)))
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")

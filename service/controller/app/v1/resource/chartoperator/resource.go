@@ -119,9 +119,7 @@ func (r Resource) installChartOperator(ctx context.Context, cr v1alpha1.App) err
 	}
 
 	{
-		err = cc.Clients.Helm.InstallReleaseFromTarball(ctx, tarballPath, key.Namespace(cr),
-			helm.ReleaseName(cr.Name),
-			helm.ValueOverrides(chartOperatorValues))
+		err = cc.Clients.Helm.InstallReleaseFromTarball(ctx, tarballPath, key.Namespace(cr), helm.ReleaseName(cr.Name), helm.ValueOverrides(chartOperatorValues))
 		if err != nil {
 			return microerror.Mask(err)
 		}
@@ -197,9 +195,7 @@ func (r Resource) updateChartOperator(ctx context.Context, cr v1alpha1.App) erro
 	}
 
 	{
-		err = cc.Clients.Helm.UpdateReleaseFromTarball(ctx, cr.Name, tarballPath,
-			helm.UpdateValueOverrides(chartOperatorValues),
-			helm.UpgradeForce(true))
+		err = cc.Clients.Helm.UpdateReleaseFromTarball(ctx, cr.Name, tarballPath, helm.UpdateValueOverrides(chartOperatorValues), helm.UpgradeForce(true))
 		if err != nil {
 			return microerror.Mask(err)
 		}
@@ -227,7 +223,7 @@ func (r Resource) updateChartOperator(ctx context.Context, cr v1alpha1.App) erro
 			return microerror.Mask(err)
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("waited for ready %#q deployment", cr.Name))
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("%#q deployment is ready", cr.Name))
 	}
 
 	return nil
