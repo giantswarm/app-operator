@@ -27,10 +27,6 @@ const (
 	Name = "chartoperatorv1"
 )
 
-const (
-	release = "chart-operator"
-)
-
 // Config represents the configuration used to create a new clients resource.
 type Config struct {
 	// Dependencies.

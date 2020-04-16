@@ -99,7 +99,7 @@ func (r Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		} else {
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found release %#q", cr.Name))
 
-			releaseContent, err := cc.Clients.Helm.GetReleaseContent(ctx, release)
+			releaseContent, err := cc.Clients.Helm.GetReleaseContent(ctx, cr.Name)
 			if err != nil {
 				return microerror.Mask(err)
 			}
