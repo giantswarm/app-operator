@@ -76,8 +76,8 @@ rules:
   resources:
   - deployments
   verbs:
-  - get
   - create
+  - get
 - apiGroups:
   - ""
   resources:
