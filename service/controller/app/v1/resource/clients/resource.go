@@ -10,9 +10,11 @@ import (
 	"github.com/giantswarm/kubeconfig"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 
 	"github.com/giantswarm/app-operator/service/controller/app/v1/controllercontext"
+	"github.com/giantswarm/app-operator/service/controller/app/v1/key"
 )
 
 const (
@@ -130,6 +132,17 @@ func (r *Resource) addClientsToContext(ctx context.Context, cr v1alpha1.App) err
 		}
 	}
 
+	var tillerNamespace string
+	{
+		// When InCluster is used we use the tiller deployed in kube-system.
+		// Otherwise we use the configured namespace.
+		if key.InCluster(cr) {
+			tillerNamespace = metav1.NamespaceSystem
+		} else {
+			tillerNamespace = r.tillerNamespace
+		}
+	}
+
 	var helmClient helmclient.Interface
 	{
 		c := helmclient.Config{
@@ -139,7 +152,7 @@ func (r *Resource) addClientsToContext(ctx context.Context, cr v1alpha1.App) err
 			EnsureTillerInstalledMaxWait: 30 * time.Second,
 			RestConfig:                   restConfig,
 			TillerImageRegistry:          r.imageRegistry,
-			TillerNamespace:              r.tillerNamespace,
+			TillerNamespace:              tillerNamespace,
 		}
 
 		helmClient, err = helmclient.New(c)
