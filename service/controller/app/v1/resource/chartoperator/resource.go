@@ -135,7 +135,9 @@ func (r Resource) installChartOperator(ctx context.Context, cr v1alpha1.App) err
 	}
 
 	{
-		err = cc.Clients.Helm.InstallReleaseFromTarball(ctx, tarballPath, namespace, helm.ReleaseName(release), helm.ValueOverrides(chartOperatorValues))
+		err = cc.Clients.Helm.InstallReleaseFromTarball(ctx, tarballPath, namespace,
+			helm.ReleaseName(chartOperatorAppCR.Name),
+			helm.ValueOverrides(chartOperatorValues))
 		if err != nil {
 			return microerror.Mask(err)
 		}
@@ -221,7 +223,9 @@ func (r Resource) updateChartOperator(ctx context.Context, cr v1alpha1.App) erro
 	}
 
 	{
-		err = cc.Clients.Helm.UpdateReleaseFromTarball(ctx, release, tarballPath, helm.UpdateValueOverrides(chartOperatorValues), helm.UpgradeForce(true))
+		err = cc.Clients.Helm.UpdateReleaseFromTarball(ctx, chartOperatorAppCR.Name, tarballPath,
+			helm.UpdateValueOverrides(chartOperatorValues),
+			helm.UpgradeForce(true))
 		if err != nil {
 			return microerror.Mask(err)
 		}
