@@ -37,7 +37,7 @@ func (r Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return nil
 	}
 
-	// Check whether tenant cluster has a chart-operator helm release yet.
+	// Check whether cluster has a chart-operator helm release yet.
 	{
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding release %#q", cr.Name))
 
@@ -52,9 +52,9 @@ func (r Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 			return nil
 		} else if helmclient.IsTillerOutdated(err) {
-			// Tiller is upgraded by chart-operator in the tenant cluster. When we
-			// want to upgrade Tiller we deploy a new version of chart-operator.
-			// So here we can just cancel the resource.
+			// Tiller is upgraded by chart-operator. When we want to upgrade
+			// Tiller we deploy a new version of chart-operator. So here we
+			// can just cancel the resource.
 			r.logger.LogCtx(ctx, "level", "debug", "message", "tiller pod is outdated")
 			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 			return nil
@@ -76,7 +76,7 @@ func (r Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			if IsNotReady(err) {
 				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("%#q not ready", cr.Name))
 
-				// chart-operator installs the chart CRD in the tenant cluster.
+				// chart-operator installs the chart CRD in the cluster.
 				// So if its not ready we cancel and retry on the next
 				// reconciliation loop.
 				r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation")
