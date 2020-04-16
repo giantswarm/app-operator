@@ -30,12 +30,21 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
-	hasConfigMap, err := r.hasHelmV2ConfigMaps(ctx, cc.Clients.K8s.K8sClient(), key.ReleaseName(cr))
+	var tillerNamespace string
+	{
+		if key.InCluster(cr) {
+			tillerNamespace = "kube-system"
+		} else {
+			tillerNamespace = "giantswarm"
+		}
+	}
+
+	hasConfigMap, err := r.hasHelmV2ConfigMaps(cc.Clients.K8s.K8sClient(), key.ReleaseName(cr), tillerNamespace)
 	if err != nil {
 		return microerror.Mask(err)
 	}
 
-	hasSecret, err := r.hasHelmV3Secrets(ctx, cc.Clients.K8s.K8sClient(), key.ReleaseName(cr), key.Namespace(cr))
+	hasSecret, err := r.hasHelmV3Secrets(cc.Clients.K8s.K8sClient(), key.ReleaseName(cr), key.Namespace(cr))
 	if err != nil {
 		return microerror.Mask(err)
 	}
@@ -62,7 +71,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		}
 
 		// install helm-2to3-migration app
-		err = r.ensureReleasesMigrated(ctx, cc.Clients.K8s.K8sClient(), cc.Clients.Helm)
+		err = r.ensureReleasesMigrated(ctx, cc.Clients.K8s.K8sClient(), cc.Clients.Helm, tillerNamespace)
 		if IsReleaseAlreadyExists(err) {
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("release %#q already exists", migrationApp))
 			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation")
@@ -171,13 +180,13 @@ func (r *Resource) uncordonChart(ctx context.Context, g8sClient versioned.Interf
 	return nil
 }
 
-func (r *Resource) hasHelmV2ConfigMaps(ctx context.Context, k8sClient kubernetes.Interface, releaseName string) (bool, error) {
+func (r *Resource) hasHelmV2ConfigMaps(k8sClient kubernetes.Interface, releaseName, tillerNamespace string) (bool, error) {
 	lo := metav1.ListOptions{
 		LabelSelector: fmt.Sprintf("%s=%s,%s=%s", "NAME", releaseName, "OWNER", "TILLER"),
 	}
 
 	// Check whether helm 2 release configMaps still exist.
-	cms, err := k8sClient.CoreV1().ConfigMaps(r.tillerNamespace).List(lo)
+	cms, err := k8sClient.CoreV1().ConfigMaps(tillerNamespace).List(lo)
 	if err != nil {
 		return false, microerror.Mask(err)
 	}
@@ -185,7 +194,7 @@ func (r *Resource) hasHelmV2ConfigMaps(ctx context.Context, k8sClient kubernetes
 	return len(cms.Items) > 0, nil
 }
 
-func (r *Resource) hasHelmV3Secrets(ctx context.Context, k8sClient kubernetes.Interface, releaseName, releaseNamespace string) (bool, error) {
+func (r *Resource) hasHelmV3Secrets(k8sClient kubernetes.Interface, releaseName, releaseNamespace string) (bool, error) {
 	lo := metav1.ListOptions{
 		LabelSelector: fmt.Sprintf("%s=%s,%s=%s", "name", releaseName, "owner", "helm"),
 	}

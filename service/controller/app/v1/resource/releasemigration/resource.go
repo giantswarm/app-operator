@@ -26,17 +26,11 @@ const (
 type Config struct {
 	// Dependencies.
 	Logger micrologger.Logger
-
-	// Settings.
-	TillerNamespace string
 }
 
 type Resource struct {
 	// Dependencies.
 	logger micrologger.Logger
-
-	// Settings.
-	tillerNamespace string
 }
 
 func New(config Config) (*Resource, error) {
@@ -44,14 +38,8 @@ func New(config Config) (*Resource, error) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
 
-	if config.TillerNamespace == "" {
-		return nil, microerror.Maskf(invalidConfigError, "%T.TillerNamespace must not be empty", config)
-	}
-
 	r := &Resource{
 		logger: config.Logger,
-
-		tillerNamespace: config.TillerNamespace,
 	}
 
 	return r, nil
@@ -61,13 +49,13 @@ func (r *Resource) Name() string {
 	return Name
 }
 
-func (r *Resource) findHelmV2Releases(ctx context.Context, k8sClient kubernetes.Interface) ([]string, error) {
+func (r *Resource) findHelmV2Releases(k8sClient kubernetes.Interface, tillerNamespace string) ([]string, error) {
 	lo := metav1.ListOptions{
 		LabelSelector: fmt.Sprintf("%s=%s", "OWNER", "TILLER"),
 	}
 
 	// Check whether helm 2 release configMaps still exist.
-	cms, err := k8sClient.CoreV1().ConfigMaps(r.tillerNamespace).List(lo)
+	cms, err := k8sClient.CoreV1().ConfigMaps(tillerNamespace).List(lo)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
@@ -88,9 +76,9 @@ func (r *Resource) findHelmV2Releases(ctx context.Context, k8sClient kubernetes.
 	return releases, nil
 }
 
-func (r *Resource) ensureReleasesMigrated(ctx context.Context, k8sClient kubernetes.Interface, helmClient helmclient.Interface) error {
+func (r *Resource) ensureReleasesMigrated(ctx context.Context, k8sClient kubernetes.Interface, helmClient helmclient.Interface, tillerNamespace string) error {
 	// Found all dangling helm release v2
-	releases, err := r.findHelmV2Releases(ctx, k8sClient)
+	releases, err := r.findHelmV2Releases(k8sClient, tillerNamespace)
 	if err != nil {
 		return microerror.Mask(err)
 	}
@@ -124,11 +112,11 @@ func (r *Resource) ensureReleasesMigrated(ctx context.Context, k8sClient kuberne
 			values := map[string]interface{}{
 				"releases": releases,
 				"tiller": map[string]string{
-					"namespace": r.tillerNamespace,
+					"namespace": tillerNamespace,
 				},
 			}
 
-			err = helmClient.InstallReleaseFromTarball(ctx, tarballPath, r.tillerNamespace, values, opts)
+			err = helmClient.InstallReleaseFromTarball(ctx, tarballPath, tillerNamespace, values, opts)
 			if helmclient.IsReleaseAlreadyExists(err) {
 				return microerror.Maskf(releaseAlreadyExistsError, "release %#q already exists", migrationApp)
 			} else if err != nil {
@@ -139,7 +127,7 @@ func (r *Resource) ensureReleasesMigrated(ctx context.Context, k8sClient kuberne
 
 	// Wait until all helm v2 release are deleted
 	o := func() error {
-		releases, err := r.findHelmV2Releases(ctx, k8sClient)
+		releases, err := r.findHelmV2Releases(k8sClient, tillerNamespace)
 		if err != nil {
 			return microerror.Mask(err)
 		}

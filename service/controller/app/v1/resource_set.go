@@ -179,8 +179,6 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	{
 		c := releasemigration.Config{
 			Logger: config.Logger,
-
-			TillerNamespace: config.TillerNamespace,
 		}
 
 		releaseMigrationResource, err = releasemigration.New(c)
