@@ -10,9 +10,11 @@ import (
 	"github.com/giantswarm/kubeconfig"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 
 	"github.com/giantswarm/app-operator/service/controller/app/v1/controllercontext"
+	"github.com/giantswarm/app-operator/service/controller/app/v1/key"
 )
 
 const (
@@ -27,8 +29,7 @@ type Config struct {
 	Logger    micrologger.Logger
 
 	// Settings.
-	ImageRegistry   string
-	TillerNamespace string
+	ImageRegistry string
 }
 
 // Resource implements the clients resource.
@@ -38,8 +39,7 @@ type Resource struct {
 	logger    micrologger.Logger
 
 	// Settings.
-	imageRegistry   string
-	tillerNamespace string
+	imageRegistry string
 }
 
 // New creates a new configured clients resource.
@@ -54,9 +54,6 @@ func New(config Config) (*Resource, error) {
 	if config.ImageRegistry == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ImageRegistry must not be empty", config)
 	}
-	if config.TillerNamespace == "" {
-		config.TillerNamespace = "giantswarm"
-	}
 
 	r := &Resource{
 		// Dependencies.
@@ -64,8 +61,7 @@ func New(config Config) (*Resource, error) {
 		logger:    config.Logger,
 
 		// Settings
-		imageRegistry:   config.ImageRegistry,
-		tillerNamespace: config.TillerNamespace,
+		imageRegistry: config.ImageRegistry,
 	}
 
 	return r, nil
@@ -130,6 +126,16 @@ func (r *Resource) addClientsToContext(ctx context.Context, cr v1alpha1.App) err
 		}
 	}
 
+	var tillerNamespace string
+	{
+		// When InCluster is used we use the Tiller deployed in kube-system.
+		if key.InCluster(cr) {
+			tillerNamespace = metav1.NamespaceSystem
+		} else {
+			tillerNamespace = "giantswarm"
+		}
+	}
+
 	var helmClient helmclient.Interface
 	{
 		c := helmclient.Config{
@@ -139,7 +145,7 @@ func (r *Resource) addClientsToContext(ctx context.Context, cr v1alpha1.App) err
 			EnsureTillerInstalledMaxWait: 30 * time.Second,
 			RestConfig:                   restConfig,
 			TillerImageRegistry:          r.imageRegistry,
-			TillerNamespace:              r.tillerNamespace,
+			TillerNamespace:              tillerNamespace,
 		}
 
 		helmClient, err = helmclient.New(c)
