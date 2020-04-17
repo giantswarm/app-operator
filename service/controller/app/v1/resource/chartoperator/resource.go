@@ -13,7 +13,6 @@ import (
 	"github.com/giantswarm/helmclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
-	"github.com/giantswarm/operatorkit/controller/context/reconciliationcanceledcontext"
 	"github.com/spf13/afero"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -26,11 +25,6 @@ import (
 
 const (
 	Name = "chartoperatorv1"
-)
-
-const (
-	namespace = "giantswarm"
-	release   = "chart-operator"
 )
 
 // Config represents the configuration used to create a new clients resource.
@@ -103,7 +97,7 @@ func (r Resource) installChartOperator(ctx context.Context, cr v1alpha1.App) err
 	// check app CR for chart-operator and fetching app-catalog name and version.
 	var tarballURL string
 	{
-		tarballURL, err = appcatalog.NewTarballURL(key.AppCatalogStorageURL(cc.AppCatalog), release, key.Version(cr))
+		tarballURL, err = appcatalog.NewTarballURL(key.AppCatalogStorageURL(cc.AppCatalog), key.AppName(cr), key.Version(cr))
 		if err != nil {
 			return microerror.Mask(err)
 		}
@@ -126,7 +120,7 @@ func (r Resource) installChartOperator(ctx context.Context, cr v1alpha1.App) err
 
 	{
 		opts := helmclient.InstallOptions{
-			ReleaseName: release,
+			ReleaseName: cr.Name,
 		}
 		err = cc.Clients.Helm.InstallReleaseFromTarball(ctx,
 			tarballPath,
@@ -142,10 +136,10 @@ func (r Resource) installChartOperator(ctx context.Context, cr v1alpha1.App) err
 		// We wait for the chart-operator deployment to be ready so the
 		// chart CRD is installed. This allows the chart
 		// resource to create CRs in the same reconcilation loop.
-		r.logger.LogCtx(ctx, "level", "debug", "message", "waiting for ready chart-operator deployment")
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("waiting for ready %#q deployment", cr.Name))
 
 		o := func() error {
-			err := r.checkDeploymentReady(ctx, cc.Clients.K8s.K8sClient())
+			err := r.checkDeploymentReady(ctx, cc.Clients.K8s.K8sClient(), cr)
 			if err != nil {
 				return microerror.Mask(err)
 			}
@@ -154,11 +148,11 @@ func (r Resource) installChartOperator(ctx context.Context, cr v1alpha1.App) err
 		}
 
 		// Wait for chart-operator to be deployed. If it takes longer than
-		// the timeout the chartconfig CRs will be created during the next
+		// the timeout the chart CRs will be created during the next
 		// reconciliation loop.
 		b := backoff.NewConstant(20*time.Second, 5*time.Second)
 		n := func(err error, delay time.Duration) {
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("%#q deployment is not ready retrying in %s", release, delay), "stack", fmt.Sprintf("%#v", err))
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("%#q deployment is not ready retrying in %s", cr.Name, delay), "stack", fmt.Sprintf("%#v", err))
 		}
 
 		err = backoff.RetryNotify(o, b, n)
@@ -186,7 +180,7 @@ func (r Resource) updateChartOperator(ctx context.Context, cr v1alpha1.App) erro
 	// check app CR for chart-operator and fetching app-catalog name and version.
 	var tarballURL string
 	{
-		tarballURL, err = appcatalog.NewTarballURL(key.AppCatalogStorageURL(cc.AppCatalog), release, key.Version(cr))
+		tarballURL, err = appcatalog.NewTarballURL(key.AppCatalogStorageURL(cc.AppCatalog), key.AppName(cr), key.Version(cr))
 		if err != nil {
 			return microerror.Mask(err)
 		}
@@ -214,7 +208,7 @@ func (r Resource) updateChartOperator(ctx context.Context, cr v1alpha1.App) erro
 		err = cc.Clients.Helm.UpdateReleaseFromTarball(ctx,
 			tarballPath,
 			key.Namespace(cr),
-			release,
+			cr.Name,
 			chartOperatorValues,
 			opts)
 		if err != nil {
@@ -223,10 +217,10 @@ func (r Resource) updateChartOperator(ctx context.Context, cr v1alpha1.App) erro
 	}
 
 	{
-		r.logger.LogCtx(ctx, "level", "debug", "message", "waiting for ready chart-operator deployment")
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("waiting for ready %#q deployment", cr.Name))
 
 		o := func() error {
-			err := r.checkDeploymentReady(ctx, cc.Clients.K8s.K8sClient())
+			err := r.checkDeploymentReady(ctx, cc.Clients.K8s.K8sClient(), cr)
 			if err != nil {
 				return microerror.Mask(err)
 			}
@@ -236,7 +230,7 @@ func (r Resource) updateChartOperator(ctx context.Context, cr v1alpha1.App) erro
 
 		b := backoff.NewConstant(20*time.Second, 10*time.Second)
 		n := func(err error, delay time.Duration) {
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("%#q deployment is not ready retrying in %s", release, delay), "stack", fmt.Sprintf("%#v", err))
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("%#q deployment is not ready retrying in %s", cr.Name, delay), "stack", fmt.Sprintf("%#v", err))
 		}
 
 		err = backoff.RetryNotify(o, b, n)
@@ -244,54 +238,10 @@ func (r Resource) updateChartOperator(ctx context.Context, cr v1alpha1.App) erro
 			return microerror.Mask(err)
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", "chart-operator deployment is ready")
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("%#q deployment is ready", cr.Name))
 	}
 
 	return nil
-}
-
-func (r *Resource) getAppCatalogCR(ctx context.Context, chartOperatorAppCR *v1alpha1.App) (*v1alpha1.AppCatalog, error) {
-	var appCatalogCR *v1alpha1.AppCatalog
-	var err error
-	{
-		r.logger.LogCtx(ctx, "level", "debug", "message", "finding appCatalog CR")
-
-		catalogName := key.CatalogName(*chartOperatorAppCR)
-		appCatalogCR, err = r.g8sClient.ApplicationV1alpha1().AppCatalogs().Get(catalogName, metav1.GetOptions{})
-		if apierrors.IsNotFound(err) {
-			r.logger.LogCtx(ctx, "level", "debug", "message", "can't find appCatalog CR")
-			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling the reconciliation")
-			reconciliationcanceledcontext.SetCanceled(ctx)
-			return nil, nil
-		} else if err != nil {
-			return nil, microerror.Mask(err)
-		}
-
-		r.logger.LogCtx(ctx, "level", "debug", "message", "found appCatalog CR")
-	}
-
-	return appCatalogCR, nil
-}
-
-func (r *Resource) getChartOperatorAppCR(ctx context.Context, namespace string) (*v1alpha1.App, error) {
-	var chartOperatorAppCR *v1alpha1.App
-	var err error
-	{
-		r.logger.LogCtx(ctx, "level", "debug", "message", "finding chart-operator app CR")
-
-		chartOperatorAppCR, err = r.g8sClient.ApplicationV1alpha1().Apps(namespace).Get(release, metav1.GetOptions{})
-		if apierrors.IsNotFound(err) {
-			r.logger.LogCtx(ctx, "level", "debug", "message", "can't find chart-operator app CR")
-			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling the reconciliation")
-			reconciliationcanceledcontext.SetCanceled(ctx)
-			return nil, nil
-		} else if err != nil {
-			return nil, err
-		}
-
-		r.logger.LogCtx(ctx, "level", "debug", "message", "found chart-operator app CR")
-	}
-	return chartOperatorAppCR, nil
 }
 
 func (r *Resource) mergeChartOperatorValues(ctx context.Context, cr *v1alpha1.App, catalog *v1alpha1.AppCatalog) ([]byte, error) {
@@ -312,16 +262,17 @@ func (r *Resource) mergeChartOperatorValues(ctx context.Context, cr *v1alpha1.Ap
 
 // checkDeploymentReady checks for the specified deployment that the number of
 // ready replicas matches the desired state.
-func (r *Resource) checkDeploymentReady(ctx context.Context, k8sClient kubernetes.Interface) error {
-	deploy, err := k8sClient.AppsV1().Deployments(namespace).Get(release, metav1.GetOptions{})
+func (r *Resource) checkDeploymentReady(ctx context.Context, k8sClient kubernetes.Interface, cr v1alpha1.App) error {
+	namespace := key.Namespace(cr)
+	deploy, err := k8sClient.AppsV1().Deployments(namespace).Get(cr.Name, metav1.GetOptions{})
 	if apierrors.IsNotFound(err) {
-		return microerror.Maskf(notReadyError, "deployment %#q not found", release)
+		return microerror.Maskf(notReadyError, "deployment %#q not found", cr.Name)
 	} else if err != nil {
 		return microerror.Mask(err)
 	}
 
 	if deploy.Status.ReadyReplicas != *deploy.Spec.Replicas {
-		return microerror.Maskf(notReadyError, "deployment %#q want %d replicas %d ready", release, *deploy.Spec.Replicas, deploy.Status.ReadyReplicas)
+		return microerror.Maskf(notReadyError, "deployment %#q want %d replicas %d ready", cr.Name, *deploy.Spec.Replicas, deploy.Status.ReadyReplicas)
 	}
 
 	// Deployment is ready.
