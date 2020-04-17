@@ -25,17 +25,11 @@ func (r Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
-	// Resource is used to bootstrap chart-operator in tenant clusters.
-	// So for other apps we can skip this step.
+	// Resource is used to bootstrap chart-operator. So for other apps we can
+	// skip this step.
 	if key.AppName(cr) != key.ChartOperatorAppName {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("no need to install chart-operator for %#q", key.AppName(cr)))
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
-		return nil
-	}
-
-	if key.InCluster(cr) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("app %#q uses InCluster kubeconfig no need to install chart operator", key.AppName(cr)))
-		r.logger.LogCtx(ctx, "level", "debug", "message", "cancelling the resource")
 		return nil
 	}
 
@@ -85,7 +79,7 @@ func (r Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			if IsNotReady(err) {
 				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("%#q not ready", cr.Name))
 
-				// chart-operator installs the chart CRD in the tenant cluster.
+				// chart-operator installs the chart CRD in the cluster.
 				// So if its not ready we cancel and retry on the next
 				// reconciliation loop.
 				r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation")
