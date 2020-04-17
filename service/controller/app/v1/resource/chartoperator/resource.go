@@ -160,7 +160,7 @@ func (r Resource) installChartOperator(ctx context.Context, cr v1alpha1.App) err
 			return microerror.Mask(err)
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", "chart-operator deployment is ready")
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("%#q deployment is ready", cr.Name))
 	}
 
 	return nil
