@@ -2,7 +2,6 @@ package clients
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
@@ -101,7 +100,7 @@ func (r *Resource) addClientsToContext(ctx context.Context, cr v1alpha1.App) err
 		}
 	}
 
-	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("DEBUG REST CONFIG %#v", kubeConfig))
+	r.logger.LogCtx(ctx, "level", "debug", "message", "GETTING KUBECONFIG")
 
 	restConfig, err := kubeConfig.NewRESTConfigForApp(ctx, cr)
 	if kubeconfig.IsNotFoundError(err) {
@@ -116,6 +115,8 @@ func (r *Resource) addClientsToContext(ctx context.Context, cr v1alpha1.App) err
 	} else if err != nil {
 		return microerror.Mask(err)
 	}
+
+	r.logger.LogCtx(ctx, "level", "debug", "message", "GOT KUBECONFIG")
 
 	var g8sClient versioned.Interface
 	{

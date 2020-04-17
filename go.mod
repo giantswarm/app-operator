@@ -13,7 +13,7 @@ require (
 	github.com/giantswarm/exporterkit v0.2.0
 	github.com/giantswarm/helmclient v0.2.0
 	github.com/giantswarm/k8sclient v0.2.0
-	github.com/giantswarm/kubeconfig v0.2.0
+	github.com/giantswarm/kubeconfig v0.2.1-0.20200417084043-85145cdbe87b
 	github.com/giantswarm/microendpoint v0.2.0
 	github.com/giantswarm/microerror v0.2.0
 	github.com/giantswarm/microkit v0.2.0
