@@ -17,7 +17,7 @@ import (
 
 const (
 	// Name is the identifier of the resource.
-	Name = "appcatalogv1"
+	Name = "appcatalog"
 )
 
 // Config represents the configuration used to create a new appcatalog resource.

@@ -12,7 +12,7 @@ import (
 
 const (
 	// Name is the identifier of the resource.
-	Name = "secretv1"
+	Name = "secret"
 )
 
 // Config represents the configuration used to create a new secret resource.

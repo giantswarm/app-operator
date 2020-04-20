@@ -12,7 +12,7 @@ import (
 
 const (
 	// Name is the identifier of the resource.
-	Name = "configmapv1"
+	Name = "configmap"
 )
 
 // Config represents the configuration used to create a new configmap resource.

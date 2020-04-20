@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	Name = "statusv1"
+	Name = "status"
 )
 
 // Config represents the configuration used to create a new chartstatus resource.

@@ -24,7 +24,7 @@ import (
 )
 
 const (
-	Name = "chartoperatorv1"
+	Name = "chartoperator"
 )
 
 // Config represents the configuration used to create a new clients resource.

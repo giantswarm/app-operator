@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	Name = "tcnamespacev1"
+	Name = "tcnamespace"
 
 	namespace = "giantswarm"
 )

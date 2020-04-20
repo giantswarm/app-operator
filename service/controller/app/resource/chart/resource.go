@@ -14,7 +14,7 @@ import (
 
 const (
 	// Name is the identifier of the resource.
-	Name = "chartv1"
+	Name = "chart"
 
 	chartAPIVersion            = "application.giantswarm.io"
 	chartKind                  = "Chart"

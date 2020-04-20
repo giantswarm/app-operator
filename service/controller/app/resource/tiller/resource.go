@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	Name = "tillerv1"
+	Name = "tiller"
 
 	chartOperatorAppName = "chart-operator"
 )

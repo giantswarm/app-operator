@@ -12,6 +12,7 @@ import (
 	"github.com/giantswarm/operatorkit/resource/wrapper/retryresource"
 	"github.com/spf13/afero"
 
+	"github.com/giantswarm/app-operator/pkg/project"
 	"github.com/giantswarm/app-operator/service/controller/app/controllercontext"
 	"github.com/giantswarm/app-operator/service/controller/app/key"
 	"github.com/giantswarm/app-operator/service/controller/app/resource/appcatalog"
@@ -271,7 +272,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 			return false
 		}
 
-		if key.VersionLabel(cr) == VersionBundle().Version {
+		if key.VersionLabel(cr) == project.Version() {
 			return true
 		}
 

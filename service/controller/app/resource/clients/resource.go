@@ -19,7 +19,7 @@ import (
 
 const (
 	// Name is the identifier of the resource.
-	Name = "clientsv1"
+	Name = "clients"
 )
 
 // Config represents the configuration used to create a new clients resource.
