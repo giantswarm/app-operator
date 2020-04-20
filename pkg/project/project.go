@@ -9,7 +9,7 @@ var (
 )
 
 // AppVersion is fixed for app CRs. Its version is not linked to a release.
-// release. We may revisit this in future.
+// We may revisit this in future.
 func AppVersion() string {
 	return "1.0.0"
 }
