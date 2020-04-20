@@ -149,7 +149,7 @@ func (r *Resource) uncordonChart(ctx context.Context, g8sClient versioned.Interf
 	if err != nil {
 		return microerror.Mask(err)
 	}
-	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("uncordoning %d charts", len(charts.Items)))
+	r.logger.LogCtx(ctx, "level", "debug", "message", "uncordoning cordoned charts")
 
 	cordonReason := replaceToEscape(fmt.Sprintf("%s/%s", annotation.ChartOperatorPrefix, annotation.CordonReason))
 	cordonUntil := replaceToEscape(fmt.Sprintf("%s/%s", annotation.ChartOperatorPrefix, annotation.CordonUntil))
@@ -169,13 +169,18 @@ func (r *Resource) uncordonChart(ctx context.Context, g8sClient versioned.Interf
 		return microerror.Mask(err)
 	}
 
+	i := 0
 	for _, chart := range charts.Items {
+		if !key.IsChartCordoned(chart) {
+			continue
+		}
 		_, err = g8sClient.ApplicationV1alpha1().Charts(chart.Namespace).Patch(chart.Name, types.JSONPatchType, bytes)
 		if err != nil {
 			return microerror.Mask(err)
 		}
+		i++
 	}
-	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("uncordoned %d charts", len(charts.Items)))
+	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("uncordoned %d charts", i))
 
 	return nil
 }

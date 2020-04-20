@@ -120,9 +120,20 @@ func InCluster(customResource v1alpha1.App) bool {
 	return customResource.Spec.KubeConfig.InCluster
 }
 
-func IsCordoned(customResource v1alpha1.App) bool {
-	_, reasonOk := customResource.Annotations[annotation.CordonReason]
-	_, untilOk := customResource.Annotations[annotation.CordonUntil]
+func IsAppCordoned(customResource v1alpha1.App) bool {
+	_, reasonOk := customResource.Annotations[fmt.Sprintf("%s/%s", annotation.AppOperatorPrefix, annotation.CordonReason)]
+	_, untilOk := customResource.Annotations[fmt.Sprintf("%s/%s", annotation.AppOperatorPrefix, annotation.CordonUntil)]
+
+	if reasonOk && untilOk {
+		return true
+	} else {
+		return false
+	}
+}
+
+func IsChartCordoned(customResource v1alpha1.Chart) bool {
+	_, reasonOk := customResource.Annotations[fmt.Sprintf("%s/%s", annotation.ChartOperatorPrefix, annotation.CordonReason)]
+	_, untilOk := customResource.Annotations[fmt.Sprintf("%s/%s", annotation.ChartOperatorPrefix, annotation.CordonUntil)]
 
 	if reasonOk && untilOk {
 		return true
