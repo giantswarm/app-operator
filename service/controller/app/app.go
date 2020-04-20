@@ -10,7 +10,6 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 
 	"github.com/giantswarm/app-operator/pkg/project"
-	v1 "github.com/giantswarm/app-operator/service/controller/app/v1"
 )
 
 type Config struct {
@@ -45,7 +44,7 @@ func NewApp(config Config) (*App, error) {
 
 	var resourceSetV1 *controller.ResourceSet
 	{
-		c := v1.ResourceSetConfig{
+		c := ResourceSetConfig{
 			ChartNamespace: config.ChartNamespace,
 			FileSystem:     config.Fs,
 			ImageRegistry:  config.ImageRegistry,
@@ -53,7 +52,7 @@ func NewApp(config Config) (*App, error) {
 			Logger:         config.Logger,
 		}
 
-		resourceSetV1, err = v1.NewResourceSet(c)
+		resourceSetV1, err = NewResourceSet(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
