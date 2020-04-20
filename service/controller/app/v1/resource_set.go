@@ -37,9 +37,8 @@ type ResourceSetConfig struct {
 	Logger     micrologger.Logger
 
 	// Settings.
-	ChartNamespace  string
-	ImageRegistry   string
-	TillerNamespace string
+	ChartNamespace string
+	ImageRegistry  string
 }
 
 // NewResourceSet returns a configured App controller ResourceSet.
@@ -63,9 +62,6 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	}
 	if config.ImageRegistry == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ImageRegistry must not be empty", config)
-	}
-	if config.TillerNamespace == "" {
-		return nil, microerror.Maskf(invalidConfigError, "%T.TillerNamespace must not be empty", config)
 	}
 
 	var valuesService *values.Values
@@ -179,8 +175,6 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	{
 		c := releasemigration.Config{
 			Logger: config.Logger,
-
-			TillerNamespace: config.TillerNamespace,
 		}
 
 		releaseMigrationResource, err = releasemigration.New(c)

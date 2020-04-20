@@ -18,9 +18,8 @@ type Config struct {
 	K8sClient k8sclient.Interface
 	Logger    micrologger.Logger
 
-	ChartNamespace  string
-	ImageRegistry   string
-	TillerNamespace string
+	ChartNamespace string
+	ImageRegistry  string
 }
 
 type App struct {
@@ -43,9 +42,6 @@ func NewApp(config Config) (*App, error) {
 	if config.ImageRegistry == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ImageRegistry must not be empty", config)
 	}
-	if config.TillerNamespace == "" {
-		return nil, microerror.Maskf(invalidConfigError, "%T.TillerNamespace must not be empty", config)
-	}
 
 	var resourceSetV1 *controller.ResourceSet
 	{
@@ -54,9 +50,8 @@ func NewApp(config Config) (*App, error) {
 			K8sClient:  config.K8sClient,
 			Logger:     config.Logger,
 
-			ChartNamespace:  config.ChartNamespace,
-			ImageRegistry:   config.ImageRegistry,
-			TillerNamespace: config.TillerNamespace,
+			ChartNamespace: config.ChartNamespace,
+			ImageRegistry:  config.ImageRegistry,
 		}
 
 		resourceSetV1, err = v1.NewResourceSet(c)

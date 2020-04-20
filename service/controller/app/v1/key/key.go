@@ -2,6 +2,7 @@ package key
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/microerror"
@@ -99,11 +100,16 @@ func ClusterValuesConfigMapName(customResource v1alpha1.App) string {
 }
 
 func CordonReason(customResource v1alpha1.App) string {
-	return customResource.GetAnnotations()[annotation.CordonReason]
+	return customResource.GetAnnotations()[fmt.Sprintf("%s/%s", annotation.ChartOperatorPrefix, annotation.CordonReason)]
 }
 
 func CordonUntil(customResource v1alpha1.App) string {
-	return customResource.GetAnnotations()[annotation.CordonUntil]
+	return customResource.GetAnnotations()[fmt.Sprintf("%s/%s", annotation.ChartOperatorPrefix, annotation.CordonUntil)]
+}
+
+// CordonUntilDate sets the date that app CRs should be cordoned until the specific date.
+func CordonUntilDate() string {
+	return time.Now().Add(1 * time.Hour).Format("2006-01-02T15:04:05")
 }
 
 func DefaultCatalogStorageURL() string {
@@ -114,9 +120,20 @@ func InCluster(customResource v1alpha1.App) bool {
 	return customResource.Spec.KubeConfig.InCluster
 }
 
-func IsCordoned(customResource v1alpha1.App) bool {
-	_, reasonOk := customResource.Annotations[annotation.CordonReason]
-	_, untilOk := customResource.Annotations[annotation.CordonUntil]
+func IsAppCordoned(customResource v1alpha1.App) bool {
+	_, reasonOk := customResource.Annotations[fmt.Sprintf("%s/%s", annotation.AppOperatorPrefix, annotation.CordonReason)]
+	_, untilOk := customResource.Annotations[fmt.Sprintf("%s/%s", annotation.AppOperatorPrefix, annotation.CordonUntil)]
+
+	if reasonOk && untilOk {
+		return true
+	} else {
+		return false
+	}
+}
+
+func IsChartCordoned(customResource v1alpha1.Chart) bool {
+	_, reasonOk := customResource.Annotations[fmt.Sprintf("%s/%s", annotation.ChartOperatorPrefix, annotation.CordonReason)]
+	_, untilOk := customResource.Annotations[fmt.Sprintf("%s/%s", annotation.ChartOperatorPrefix, annotation.CordonUntil)]
 
 	if reasonOk && untilOk {
 		return true

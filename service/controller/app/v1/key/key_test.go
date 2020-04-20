@@ -1,6 +1,7 @@
 package key
 
 import (
+	"fmt"
 	"reflect"
 	"testing"
 
@@ -198,7 +199,7 @@ func Test_CordonReason(t *testing.T) {
 	obj := v1alpha1.App{
 		ObjectMeta: metav1.ObjectMeta{
 			Annotations: map[string]string{
-				annotation.CordonReason: "manual upgrade",
+				fmt.Sprintf("%s/%s", annotation.ChartOperatorPrefix, annotation.CordonReason): "manual upgrade",
 			},
 		},
 	}
@@ -214,7 +215,7 @@ func Test_CordonUntil(t *testing.T) {
 	obj := v1alpha1.App{
 		ObjectMeta: metav1.ObjectMeta{
 			Annotations: map[string]string{
-				annotation.CordonUntil: "2019-12-31T23:59:59Z",
+				fmt.Sprintf("%s/%s", annotation.ChartOperatorPrefix, annotation.CordonUntil): "2019-12-31T23:59:59Z",
 			},
 		},
 	}
@@ -238,7 +239,7 @@ func Test_InCluster(t *testing.T) {
 	}
 }
 
-func Test_IsCordoned(t *testing.T) {
+func Test_IsAppCordoned(t *testing.T) {
 	tests := []struct {
 		name           string
 		chart          v1alpha1.App
@@ -249,8 +250,8 @@ func Test_IsCordoned(t *testing.T) {
 			chart: v1alpha1.App{
 				ObjectMeta: metav1.ObjectMeta{
 					Annotations: map[string]string{
-						annotation.CordonReason: "testing manual upgrade",
-						annotation.CordonUntil:  "2019-12-31T23:59:59Z",
+						fmt.Sprintf("%s/%s", annotation.AppOperatorPrefix, annotation.CordonReason): "testing manual upgrade",
+						fmt.Sprintf("%s/%s", annotation.AppOperatorPrefix, annotation.CordonUntil):  "2019-12-31T23:59:59Z",
 					},
 				},
 			},
@@ -264,7 +265,7 @@ func Test_IsCordoned(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := IsCordoned(tt.chart); got != tt.expectedResult {
+			if got := IsAppCordoned(tt.chart); got != tt.expectedResult {
 				t.Errorf("IsCordoned() = %v, want %v", got, tt.expectedResult)
 			}
 		})
