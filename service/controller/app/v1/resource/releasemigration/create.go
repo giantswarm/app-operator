@@ -112,25 +112,36 @@ func (r *Resource) cordonChart(ctx context.Context, g8sClient versioned.Interfac
 
 	cordonReason := replaceToEscape(fmt.Sprintf("%s/%s", annotation.ChartOperatorPrefix, annotation.CordonReason))
 	cordonUntil := replaceToEscape(fmt.Sprintf("%s/%s", annotation.ChartOperatorPrefix, annotation.CordonUntil))
-	patches := []patch{
-		{
-			Op:    "add",
-			Path:  fmt.Sprintf("/metadata/annotations/%s", cordonReason),
-			Value: "Migrating to helm 3",
-		},
-		{
-			Op:    "add",
-			Path:  fmt.Sprintf("/metadata/annotations/%s", cordonUntil),
-			Value: key.CordonUntilDate(),
-		},
-	}
-
-	bytes, err := json.Marshal(patches)
-	if err != nil {
-		return microerror.Mask(err)
-	}
 
 	for _, chart := range charts.Items {
+		patches := []patch{}
+
+		if len(chart.Annotations) == 0 {
+			patches = append(patches, patch{
+				Op:    "add",
+				Path:  "/metadata/annotations",
+				Value: map[string]string{},
+			})
+		}
+
+		patches = append(patches, []patch{
+			{
+				Op:    "add",
+				Path:  fmt.Sprintf("/metadata/annotations/%s", cordonReason),
+				Value: "Migrating to helm 3",
+			},
+			{
+				Op:    "add",
+				Path:  fmt.Sprintf("/metadata/annotations/%s", cordonUntil),
+				Value: key.CordonUntilDate(),
+			},
+		}...)
+
+		bytes, err := json.Marshal(patches)
+		if err != nil {
+			return microerror.Mask(err)
+		}
+
 		_, err = g8sClient.ApplicationV1alpha1().Charts(chart.Namespace).Patch(chart.Name, types.JSONPatchType, bytes)
 		if err != nil {
 			return microerror.Mask(err)
