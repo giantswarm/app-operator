@@ -272,7 +272,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 			return false
 		}
 
-		if key.VersionLabel(cr) == project.Version() {
+		if key.VersionLabel(cr) == project.AppVersion() {
 			return true
 		}
 

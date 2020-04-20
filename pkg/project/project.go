@@ -5,8 +5,14 @@ var (
 	gitSHA      = "n/a"
 	name        = "app-operator"
 	source      = "https://github.com/giantswarm/app-operator"
-	version     = "1.0.0"
+	version     = "1.0.0-dev"
 )
+
+// AppVersion is fixed for app CRs. Its version is not linked to a release.
+// release. We may revisit this in future.
+func AppVersion() string {
+	return "1.0.0"
+}
 
 func Description() string {
 	return description
