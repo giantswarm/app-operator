@@ -21,6 +21,16 @@ jobs:
         - ./app-operator
         - ./architect
 
+  deploy:
+    machine: true
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - deploy:
+          command: |
+            ./architect deploy
+
 workflows:
   build_e2e:
     jobs:
