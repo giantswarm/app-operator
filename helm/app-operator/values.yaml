@@ -30,6 +30,10 @@ resource:
   psp:
     name: '{{ .Release.Name | replace "." "-" | trunc 47 }}-psp'
 
+project:
+  branch: "[[ .Branch ]]"
+  commit: "[[ .SHA ]]"
+
 deployment:
   requests:
     cpu: 250m
