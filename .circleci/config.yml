@@ -75,6 +75,7 @@ workflows:
           name: push-app-operator-to-aws-app-collection
           app_name: "app-operator"
           app_collection_repo: "aws-app-collection"
+          unique: "true"
           requires:
             - push-app-operator-to-control-plane-app-catalog
           filters:
@@ -88,6 +89,7 @@ workflows:
           name: push-app-operator-to-azure-app-collection
           app_name: "app-operator"
           app_collection_repo: "azure-app-collection"
+          unique: "true"
           requires:
             - push-app-operator-to-control-plane-app-catalog
           filters:
@@ -101,6 +103,7 @@ workflows:
           name: push-app-operator-to-kvm-app-collection
           app_name: "app-operator"
           app_collection_repo: "kvm-app-collection"
+          unique: "true"
           requires:
             - push-app-operator-to-control-plane-app-catalog
           filters:
