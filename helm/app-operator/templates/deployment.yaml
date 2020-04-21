@@ -1,14 +1,14 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ tpl .Values.resource.default.name  . }}
-  namespace: {{ tpl .Values.resource.default.namespace  . }}
+  name: {{ include "resource.default.name" . }}
+  namespace: {{ include "resource.default.namespace" . }}
   labels:
-    {{- include "app-operator.labels" . | nindent 4 }}
+    {{- include "labels.common" . | nindent 4 }}
 spec:
   selector:
     matchLabels:
-      {{- include "app-operator.selectorLabels" . | nindent 6 }}
+      {{- include "labels.selector" . | nindent 6 }}
   replicas: 1
   revisionHistoryLimit: 3
   strategy:
@@ -16,18 +16,18 @@ spec:
   template:
     metadata:
       labels:
-        {{- include "app-operator.selectorLabels" . | nindent 8 }}
+        {{- include "labels.selector" . | nindent 8 }}
       annotations:
         releasetime: {{ $.Release.Time }}
     spec:
       volumes:
-      - name: {{ .Chart.Name }}
+      - name: {{ .Chart.Name }}-configmap
         configMap:
-          name: {{ tpl .Values.resource.default.name  . }}
+          name: {{ include "resource.default.name"  . }}
           items:
           - key: config.yaml
             path: config.yaml
-      serviceAccountName: {{ tpl .Values.resource.default.name  . }}
+      serviceAccountName: {{ include "resource.default.name"  . }}
       securityContext:
         runAsUser: {{ .Values.userID }}
         runAsGroup: {{ .Values.groupID }}
@@ -35,7 +35,7 @@ spec:
       - name: {{ .Chart.Name }}
         image: "{{ .Values.Installation.V1.Registry.Domain }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}"
         volumeMounts:
-        - name: {{ .Chart.Name }}
+        - name: {{ .Chart.Name }}-configmap
           mountPath: /var/run/{{ .Chart.Name }}/configmap/
         ports:
         - name: http
