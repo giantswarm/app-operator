@@ -21,7 +21,7 @@ spec:
         releaseRevision: {{ $.Release.Revision}}
     spec:
       volumes:
-      - name: {{ .Chart.Name }}-configmap
+      - name: {{ include "name" . }}-configmap
         configMap:
           name: {{ include "resource.default.name"  . }}
           items:
@@ -32,17 +32,17 @@ spec:
         runAsUser: {{ .Values.userID }}
         runAsGroup: {{ .Values.groupID }}
       containers:
-      - name: {{ .Chart.Name }}
+      - name: {{ include "name" . }}
         image: "{{ .Values.Installation.V1.Registry.Domain }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}"
         volumeMounts:
-        - name: {{ .Chart.Name }}-configmap
-          mountPath: /var/run/{{ .Chart.Name }}/configmap/
+        - name: {{ include "name" . }}-configmap
+          mountPath: /var/run/{{ include "name" . }}/configmap/
         ports:
         - name: http
           containerPort: {{ .Values.port }}
         args:
         - daemon
-        - --config.dirs=/var/run/{{ .Chart.Name }}/configmap/
+        - --config.dirs=/var/run/{{ include "name" . }}/configmap/
         - --config.files=config
         livenessProbe:
           httpGet:
