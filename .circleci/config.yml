@@ -83,6 +83,7 @@ workflows:
 
       # deploy to aws installations (only tags)
       - architect/push-to-app-collection:
+          context: "architect"
           name: push-app-operator-to-aws-app-collection
           app_name: "app-operator"
           app_collection_repo: "aws-app-collection"
@@ -98,6 +99,7 @@ workflows:
 
       # deploy to azure installations (only tags)
       - architect/push-to-app-collection:
+          context: "architect"
           name: push-app-operator-to-azure-app-collection
           app_name: "app-operator"
           app_collection_repo: "azure-app-collection"
@@ -113,6 +115,7 @@ workflows:
 
       # deploy to kvm installations (only tags)
       - architect/push-to-app-collection:
+          context: "architect"
           name: push-app-operator-to-kvm-app-collection
           app_name: "app-operator"
           app_collection_repo: "kvm-app-collection"
