@@ -1,6 +1,6 @@
 version: 2.1
 orbs:
-  architect: giantswarm/architect@0.8.11
+  architect: giantswarm/architect@v0.8.12
 
 jobs:
   build:
@@ -86,6 +86,7 @@ workflows:
           name: push-app-operator-to-aws-app-collection
           app_name: "app-operator"
           app_collection_repo: "aws-app-collection"
+          disable_force_upgrade: "true"
           unique: "true"
           requires:
             - push-app-operator-to-control-plane-app-catalog
@@ -100,6 +101,7 @@ workflows:
           name: push-app-operator-to-azure-app-collection
           app_name: "app-operator"
           app_collection_repo: "azure-app-collection"
+          disable_force_upgrade: "true"
           unique: "true"
           requires:
             - push-app-operator-to-control-plane-app-catalog
@@ -114,6 +116,7 @@ workflows:
           name: push-app-operator-to-kvm-app-collection
           app_name: "app-operator"
           app_collection_repo: "kvm-app-collection"
+          disable_force_upgrade: "true"
           unique: "true"
           requires:
             - push-app-operator-to-control-plane-app-catalog
