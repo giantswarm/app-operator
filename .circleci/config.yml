@@ -24,11 +24,11 @@ jobs:
   deploy:
     machine: true
     steps:
-    - checkout
-    - attach_workspace:
-        at: .
-    - deploy:
-        command: |
+      - checkout
+      - attach_workspace:
+          at: .
+      - deploy:
+          command: |
             ./architect deploy
 
 workflows:
@@ -67,10 +67,16 @@ workflows:
           requires:
             - build
 
-      - deploy:
-          name: deploy
+      # build and push chart to app catalog
+      - architect/push-to-app-catalog:
+          name: push-app-operator-to-control-plane-app-catalog
+          app_catalog: "control-plane-catalog"
+          app_catalog_test: "control-plane-test-catalog"
+          chart: "app-operator"
+          # Make sure docker image is successfully built.
           requires:
+            - push-app-operator-to-quay
             - push-app-operator-to-aliyun
           filters:
-            branches:
-              only: master
+            tags:
+              only: /^v.*/
