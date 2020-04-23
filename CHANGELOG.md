@@ -9,8 +9,6 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ### Changed
 
-- Use go build from architect orb.
-
 ## [v1.0.1]
 
 ### Added
