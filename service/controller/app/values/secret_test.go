@@ -318,7 +318,7 @@ func Test_MergeSecretData(t *testing.T) {
 
 	for i, tc := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
-			objs := make([]runtime.Object, 0, 0)
+			objs := make([]runtime.Object, 0)
 			for _, cm := range tc.secrets {
 				objs = append(objs, cm)
 			}
