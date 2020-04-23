@@ -80,7 +80,6 @@ type server struct {
 	// Internals
 	bootOnce     sync.Once
 	config       microserver.Config
-	serviceName  string
 	shutdownOnce sync.Once
 }
 

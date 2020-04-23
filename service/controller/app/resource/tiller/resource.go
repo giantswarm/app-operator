@@ -12,8 +12,6 @@ import (
 
 const (
 	Name = "tiller"
-
-	chartOperatorAppName = "chart-operator"
 )
 
 // Config represents the configuration used to create a new tiller resource.
@@ -55,9 +53,7 @@ func (r *Resource) ensureTillerInstalled(ctx context.Context, helmClient helmcli
 		"spec.template.spec.tolerations[0].operator=Exists",
 	}
 
-	var err error
-
-	err = helmClient.EnsureTillerInstalledWithValues(ctx, values)
+	err := helmClient.EnsureTillerInstalledWithValues(ctx, values)
 	if helmclient.IsTillerNotFound(err) {
 		// Tiller may not be healthy and we cannot continue without a connection
 		// to Tiller. We will retry on next reconciliation loop.

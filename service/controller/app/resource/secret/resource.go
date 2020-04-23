@@ -23,7 +23,6 @@ type Config struct {
 
 	// Settings.
 	ChartNamespace string
-	ProjectName    string
 }
 
 // Resource implements the secret resource.
@@ -34,7 +33,6 @@ type Resource struct {
 
 	// Settings.
 	chartNamespace string
-	projectName    string
 }
 
 // New creates a new configured secret resource.

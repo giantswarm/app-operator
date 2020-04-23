@@ -44,9 +44,6 @@ type Resource struct {
 	k8sClient  kubernetes.Interface
 	logger     micrologger.Logger
 	values     *values.Values
-
-	// Settings.
-	registryDomain string
 }
 
 // New creates a new configured chartoperator resource.
