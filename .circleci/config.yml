@@ -7,7 +7,7 @@ workflows:
     jobs:
       - architect/go-build:
           name: go-build
-          binary: aws-operator
+          binary: app-operator
           resource_class: large
           filters:
             tags:
@@ -38,18 +38,6 @@ workflows:
             # Trigger the job also on git tag.
             tags:
               only: /^v.*/
-
-      - architect/integration-test:
-          name: basic-integration-test
-          test-dir: "integration/test/app/basic"
-          requires:
-            - go-build
-
-      - architect/integration-test:
-          name: kubeconfig-integration-test
-          test-dir: "integration/test/app/kubeconfig"
-          requires:
-            - go-build
 
       # build and push chart to app catalog
       - architect/push-to-app-catalog:
