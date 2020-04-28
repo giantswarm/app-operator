@@ -5,7 +5,7 @@ package templates
 // ChartOperatorValues values required by chart-operator-chart.
 const ChartOperatorValues = `
 clusterDNSIP: 10.96.0.10
-e2e: true
+e2e: false
 externalDNSIP: 8.8.8.8
 image:
   registry: "quay.io"

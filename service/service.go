@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"github.com/giantswarm/versionbundle"
 	"sync"
 
 	applicationv1alpha1 "github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
@@ -113,9 +114,8 @@ func New(config Config) (*Service, error) {
 			Logger:    config.Logger,
 			K8sClient: k8sClient,
 
-			ChartNamespace:  config.Viper.GetString(config.Flag.Service.Chart.Namespace),
-			ImageRegistry:   config.Viper.GetString(config.Flag.Service.Image.Registry),
-			TillerNamespace: config.Viper.GetString(config.Flag.Service.Helm.TillerNamespace),
+			ChartNamespace: config.Viper.GetString(config.Flag.Service.Chart.Namespace),
+			ImageRegistry:  config.Viper.GetString(config.Flag.Service.Image.Registry),
 		}
 
 		appController, err = app.NewApp(c)
@@ -145,7 +145,7 @@ func New(config Config) (*Service, error) {
 			Name:           project.Name(),
 			Source:         project.Source(),
 			Version:        project.Version(),
-			VersionBundles: NewVersionBundles(),
+			VersionBundles: []versionbundle.Bundle{project.NewVersionBundle()},
 		}
 
 		versionService, err = version.New(versionConfig)

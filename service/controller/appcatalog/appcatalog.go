@@ -9,7 +9,6 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 
 	"github.com/giantswarm/app-operator/pkg/project"
-	v1 "github.com/giantswarm/app-operator/service/controller/appcatalog/v1"
 )
 
 type Config struct {
@@ -33,11 +32,11 @@ func NewAppCatalog(config Config) (*AppCatalog, error) {
 
 	var resourceSetV1 *controller.ResourceSet
 	{
-		c := v1.ResourceSetConfig{
+		c := ResourceSetConfig{
 			Logger: config.Logger,
 		}
 
-		resourceSetV1, err = v1.NewResourceSet(c)
+		resourceSetV1, err = NewResourceSet(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
