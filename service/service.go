@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"github.com/giantswarm/versionbundle"
 	"sync"
 
 	applicationv1alpha1 "github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
@@ -11,6 +10,7 @@ import (
 	"github.com/giantswarm/microendpoint/service/version"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
+	"github.com/giantswarm/versionbundle"
 	"github.com/spf13/afero"
 	"github.com/spf13/viper"
 	"k8s.io/client-go/rest"
@@ -169,7 +169,7 @@ func New(config Config) (*Service, error) {
 // Boot starts top level service implementation.
 func (s *Service) Boot(ctx context.Context) {
 	s.bootOnce.Do(func() {
-		go s.operatorCollector.Boot(ctx)
+		go s.operatorCollector.Boot(ctx) // nolint:errcheck
 
 		// Start the controllers.
 		go s.appCatalogController.Boot(ctx)
