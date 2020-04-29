@@ -5,16 +5,16 @@ package setup
 import (
 	"context"
 	"fmt"
-	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
-	"github.com/giantswarm/backoff"
-	"k8s.io/helm/pkg/helm"
 	"os"
 	"testing"
 	"time"
 
+	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/appcatalog"
+	"github.com/giantswarm/backoff"
 	"github.com/giantswarm/microerror"
 	"github.com/spf13/afero"
+	"k8s.io/helm/pkg/helm"
 
 	"github.com/giantswarm/app-operator/integration/key"
 	"github.com/giantswarm/app-operator/integration/templates"
