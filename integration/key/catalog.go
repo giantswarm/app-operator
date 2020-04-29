@@ -4,6 +4,6 @@ func DefaultCatalogStorageURL() string {
 	return "https://giantswarm.github.com/default-catalog"
 }
 
-func DefaultTestCatalogStorageURL() string {
-	return "https://giantswarm.github.io/default-test-catalog"
+func ControlPlaneTestCatalogStorageURL() string {
+	return "https://giantswarm.github.io/control-plane-test-catalog"
 }
