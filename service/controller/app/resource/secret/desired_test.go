@@ -106,7 +106,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 
 	for i, tc := range testCases {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
-			objs := make([]runtime.Object, 0, 0)
+			objs := make([]runtime.Object, 0)
 			for _, cm := range tc.secrets {
 				objs = append(objs, cm)
 			}

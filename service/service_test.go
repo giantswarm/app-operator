@@ -15,7 +15,10 @@ func Test_Service_New(t *testing.T) {
 	// fake server to return empty response.
 	h := func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
-		w.Write([]byte("{}"))
+		_, err := w.Write([]byte("{}"))
+		if err != nil {
+			t.Fatalf("error == %#v, want nil", err)
+		}
 	}
 	ts := httptest.NewServer(http.HandlerFunc(h))
 	defer ts.Close()

@@ -2,7 +2,7 @@ package collector
 
 const (
 	gaugeValue float64 = 1
-	namespace          = "app_operator"
+	namespace  string  = "app_operator"
 )
 
 const (
