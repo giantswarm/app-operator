@@ -30,7 +30,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
-	//TODO: Remove this statement when we need to test on CP
+	//TODO: Remove this statement when we need to test on control planes.
 	if key.InCluster(cr) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("app %#q uses InCluster kubeconfig no need to migrate releases", key.AppName(cr)))
 		r.logger.LogCtx(ctx, "level", "debug", "message", "cancelling the resource")
