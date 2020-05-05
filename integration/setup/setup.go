@@ -8,11 +8,11 @@ import (
 	"os"
 	"testing"
 
+	"github.com/giantswarm/appcatalog"
 	"github.com/giantswarm/helmclient"
 	"github.com/giantswarm/microerror"
 	"github.com/spf13/afero"
 
-	"github.com/giantswarm/app-operator/integration/env"
 	"github.com/giantswarm/app-operator/integration/key"
 	"github.com/giantswarm/app-operator/pkg/project"
 )
@@ -53,21 +53,28 @@ func installResources(ctx context.Context, config Config) error {
 		}
 	}
 
+	var operatorTarballPath string
 	{
-		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("installing app-operator"))
+		config.Logger.LogCtx(ctx, "level", "debug", "message", "getting tarball URL")
 
-		// The app-operator version and chart name are because it is deployed
-		// by draughtsman using appr.
-		// TODO Remove once the operator is flattened.
-		//
-		// https://github.com/giantswarm/giantswarm/issues/7895
-		//
-		operatorVersion := fmt.Sprintf("1.0.0-%s", env.CircleSHA())
-		operatorTarballPath, err := config.ApprClient.PullChartTarballFromRelease(ctx, key.AppOperatorChartName(), operatorVersion)
+		operatorTarballURL, err := appcatalog.GetLatestChart(ctx, key.ControlPlaneTestCatalogStorageURL(), project.Name(), project.Version())
 		if err != nil {
 			return microerror.Mask(err)
 		}
 
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("tarball URL is %#q", operatorTarballURL))
+
+		config.Logger.LogCtx(ctx, "level", "debug", "message", "pulling tarball")
+
+		operatorTarballPath, err = config.HelmClient.PullChartTarball(ctx, operatorTarballURL)
+		if err != nil {
+			return microerror.Mask(err)
+		}
+
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("tarball path is %#q", operatorTarballPath))
+	}
+
+	{
 		defer func() {
 			fs := afero.NewOsFs()
 			err := fs.Remove(operatorTarballPath)
@@ -75,6 +82,8 @@ func installResources(ctx context.Context, config Config) error {
 				config.Logger.LogCtx(ctx, "level", "error", "message", fmt.Sprintf("deletion of %#q failed", operatorTarballPath), "stack", fmt.Sprintf("%#v", err))
 			}
 		}()
+
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("installing %#q", project.Name()))
 
 		appOperatorValues := map[string]interface{}{
 			"Installation": map[string]interface{}{
@@ -88,6 +97,7 @@ func installResources(ctx context.Context, config Config) error {
 		opts := helmclient.InstallOptions{
 			ReleaseName: project.Name(),
 		}
+
 		err = config.HelmClient.InstallReleaseFromTarball(ctx,
 			operatorTarballPath,
 			namespace,
@@ -97,7 +107,7 @@ func installResources(ctx context.Context, config Config) error {
 			return microerror.Mask(err)
 		}
 
-		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("installed app-operator"))
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("installed %#q", project.Name()))
 	}
 
 	{

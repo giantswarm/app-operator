@@ -2,25 +2,12 @@
 
 package key
 
-func AppOperatorName() string {
-	return "app-operator"
-}
-
-// AppOperatorChartName returns the name of the appr chart.
-// TODO Remove once the operator is flattened.
-//
-// https://github.com/giantswarm/giantswarm/issues/7895
-//
-func AppOperatorChartName() string {
-	return "app-operator-chart"
-}
-
 func AppOperatorVersion() string {
 	return "1.0.0"
 }
 
-func ChartOperatorName() string {
-	return "chart-operator"
+func ControlPlaneTestCatalogStorageURL() string {
+	return "https://giantswarm.github.io/control-plane-test-catalog"
 }
 
 func DefaultCatalogName() string {

@@ -2,7 +2,6 @@ package chartoperator
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"time"
 
@@ -44,9 +43,6 @@ type Resource struct {
 	k8sClient  kubernetes.Interface
 	logger     micrologger.Logger
 	values     *values.Values
-
-	// Settings.
-	registryDomain string
 }
 
 // New creates a new configured chartoperator resource.
@@ -242,22 +238,6 @@ func (r Resource) updateChartOperator(ctx context.Context, cr v1alpha1.App) erro
 	}
 
 	return nil
-}
-
-func (r *Resource) mergeChartOperatorValues(ctx context.Context, cr *v1alpha1.App, catalog *v1alpha1.AppCatalog) ([]byte, error) {
-	var chartOperatorValues []byte
-	{
-		values, err := r.values.MergeAll(ctx, *cr, *catalog)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-
-		chartOperatorValues, err = json.Marshal(values)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-	return chartOperatorValues, nil
 }
 
 // checkDeploymentReady checks for the specified deployment that the number of

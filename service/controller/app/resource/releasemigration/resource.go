@@ -62,7 +62,7 @@ func (r *Resource) findHelmV2Releases(k8sClient kubernetes.Interface, tillerName
 
 	hasReleases := map[string]bool{}
 	for _, cm := range cms.Items {
-		name, _ := cm.GetLabels()["NAME"]
+		name := cm.GetLabels()["NAME"]
 		if _, ok := hasReleases[name]; !ok {
 			hasReleases[name] = true
 		}
@@ -87,7 +87,7 @@ func (r *Resource) ensureReleasesMigrated(ctx context.Context, k8sClient kuberne
 	{
 		var tarballPath string
 		{
-			tarballURL, err := appcatalog.GetLatestChart(ctx, key.DefaultCatalogStorageURL(), "helm-2to3-migration")
+			tarballURL, err := appcatalog.GetLatestChart(ctx, key.DefaultCatalogStorageURL(), "helm-2to3-migration", "")
 			if err != nil {
 				return microerror.Mask(err)
 			}

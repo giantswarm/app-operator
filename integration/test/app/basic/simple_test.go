@@ -45,7 +45,7 @@ func TestAppLifecycle(t *testing.T) {
 
 		var tarballPath string
 		{
-			tarballURL, err := appcatalog.GetLatestChart(ctx, key.DefaultCatalogStorageURL(), chartOperatorRelease)
+			tarballURL, err := appcatalog.GetLatestChart(ctx, key.DefaultCatalogStorageURL(), chartOperatorRelease, "")
 			if err != nil {
 				t.Fatalf("expected %#v got %#v", nil, err)
 			}
