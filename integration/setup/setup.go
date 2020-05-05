@@ -100,7 +100,7 @@ func installResources(ctx context.Context, config Config) error {
 
 		err = config.HelmClient.InstallReleaseFromTarball(ctx,
 			operatorTarballPath,
-			"ginatswarm",
+			namespace,
 			appOperatorValues,
 			opts)
 		if err != nil {
