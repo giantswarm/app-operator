@@ -33,13 +33,6 @@ func (r Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return nil
 	}
 
-	//TODO: Remove this statement when we need to test on CP
-	if key.InCluster(cr) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("app %#q uses InCluster kubeconfig no need to install chart operator", key.AppName(cr)))
-		r.logger.LogCtx(ctx, "level", "debug", "message", "cancelling the resource")
-		return nil
-	}
-
 	if cc.Status.TenantCluster.IsUnavailable {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster is unavailable")
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
