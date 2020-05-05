@@ -184,14 +184,14 @@ func TestAppWithKubeconfig(t *testing.T) {
 	{
 		config.Logger.LogCtx(ctx, "level", "debug", "message", "creating chart-operator app CR")
 
-		tag, err := appcatalog.GetLatestVersion(ctx, key.DefaultCatalogStorageURL(), "chart-operator")
-		if err != nil {
-			t.Fatalf("expected nil got %#v", err)
-		}
+		//tag, err := appcatalog.GetLatestVersion(ctx, key.DefaultCatalogStorageURL(), "chart-operator")
+		//if err != nil {
+		//	t.Fatalf("expected nil got %#v", err)
+		//}
 
 		// TODO: Removing hardcoding once there is a chart-operator release
 		// with Helm 3 support in the default catalog.
-		tag = "0.12.1-13521d4e2cb5378dbff26995e094d1c23a15e121"
+		tag := "0.13.0-cabc326450846735cd579454be8c945465a9175e"
 
 		_, err = config.K8sClients.G8sClient().ApplicationV1alpha1().Apps(namespace).Create(&v1alpha1.App{
 			ObjectMeta: metav1.ObjectMeta{
