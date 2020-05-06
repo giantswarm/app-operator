@@ -62,12 +62,12 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return nil
 	}
 
-	content, err := cc.Clients.Helm.GetReleaseContent(ctx, key.Namespace(cr), key.ReleaseName(cr))
+	chart, err := cc.Clients.K8s.G8sClient().ApplicationV1alpha1().Charts(r.chartNamespace).Get(cr.GetName(), metav1.GetOptions{})
 	if err != nil {
 		return microerror.Mask(err)
 	}
 
-	if content.Version != key.Version(cr) || content.Status != "DEPLOYED" {
+	if chart.Status.Version != key.Version(cr) || chart.Status.Release.Status != "DEPLOYED" {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("%#q is not deployed yet", key.AppName(cr)))
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 		return nil
