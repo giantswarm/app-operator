@@ -190,7 +190,7 @@ func TestAppWithKubeconfig(t *testing.T) {
 
 		// TODO: Removing hardcoding once there is a chart-operator release
 		// with Helm 3 support in the default catalog.
-		tag := "0.13.0-cabc326450846735cd579454be8c945465a9175e"
+		tag := "0.12.1-cbacf365e9633281909eca61992c1fcd99927396"
 
 		_, err = config.K8sClients.G8sClient().ApplicationV1alpha1().Apps(namespace).Create(&v1alpha1.App{
 			ObjectMeta: metav1.ObjectMeta{

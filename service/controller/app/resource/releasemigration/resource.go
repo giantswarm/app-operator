@@ -26,11 +26,17 @@ const (
 type Config struct {
 	// Dependencies.
 	Logger micrologger.Logger
+
+	// Settings.
+	ChartNamespace string
 }
 
 type Resource struct {
 	// Dependencies.
 	logger micrologger.Logger
+
+	// Settings.
+	chartNamespace string
 }
 
 func New(config Config) (*Resource, error) {
@@ -38,8 +44,14 @@ func New(config Config) (*Resource, error) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
 
+	if config.ChartNamespace == "" {
+		return nil, microerror.Maskf(invalidConfigError, "%T.ChartNamespace must not be empty", config)
+	}
+
 	r := &Resource{
 		logger: config.Logger,
+
+		chartNamespace: config.ChartNamespace,
 	}
 
 	return r, nil
