@@ -52,7 +52,13 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return nil
 	}
 
-	v, err := semver.NewVersion(key.Version(cr))
+	if cr.Status.AppVersion == "" {
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("chart %#q is not installed yet", key.AppName(cr)))
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		return nil
+	}
+
+	v, err := semver.NewVersion(cr.Status.AppVersion)
 	if err != nil {
 		return microerror.Mask(err)
 	}
@@ -63,12 +69,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return nil
 	}
 
-	chart, err := cc.Clients.K8s.G8sClient().ApplicationV1alpha1().Charts(r.chartNamespace).Get(cr.GetName(), metav1.GetOptions{})
-	if err != nil {
-		return microerror.Mask(err)
-	}
-
-	if chart.Status.Version != key.Version(cr) || chart.Status.Release.Status != "DEPLOYED" {
+	if cr.Status.Release.Status != "DEPLOYED" {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("%#q is not deployed yet", key.AppName(cr)))
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 		return nil
