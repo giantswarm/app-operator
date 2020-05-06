@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/Masterminds/semver/v3"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/controller/context/reconciliationcanceledcontext"
@@ -40,6 +41,35 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	if key.InCluster(cr) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("app %#q uses InCluster kubeconfig no need to migrate releases", key.AppName(cr)))
 		r.logger.LogCtx(ctx, "level", "debug", "message", "cancelling the resource")
+		return nil
+	}
+
+	// Resource is used to migrating all charts. it's too noisy if it works on every reconciliation.
+	if key.AppName(cr) != key.ChartOperatorAppName {
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("no need to migrate %#q", key.AppName(cr)))
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		return nil
+	}
+
+	v, err := semver.NewVersion(key.Version(cr))
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
+	if v.Major() < 1 {
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("chart %#q's current version %#q is not greater than 1.0.0.", key.AppName(cr), key.Version(cr)))
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		return nil
+	}
+
+	content, err := cc.Clients.Helm.GetReleaseContent(ctx, key.Namespace(cr), key.ReleaseName(cr))
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
+	if content.Version != key.Version(cr) || content.Status != "DEPLOYED" {
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("%#q is not deployed yet", key.AppName(cr)))
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 		return nil
 	}
 
