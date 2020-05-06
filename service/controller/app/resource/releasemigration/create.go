@@ -53,7 +53,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	}
 
 	if cr.Status.AppVersion == "" {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("chart %#q is not installed yet", key.AppName(cr)))
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("app %#q is not installed yet", key.AppName(cr)))
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 		return nil
 	}
@@ -64,13 +64,13 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	}
 
 	if v.Major() < 1 {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("chart %#q, version %#q is using Helm 2. we don't need to trigger Helm 3 migration.", key.AppName(cr), key.Version(cr)))
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("app %#q with appVersion %#q is using Helm 2. we don't need to trigger Helm 3 migration.", key.AppName(cr), cr.Status.AppVersion))
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 		return nil
 	}
 
 	if cr.Status.Release.Status != "DEPLOYED" {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("%#q is not deployed yet", key.AppName(cr)))
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("app %#q is not deployed yet", key.AppName(cr)))
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 		return nil
 	}
