@@ -44,9 +44,10 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return nil
 	}
 
-	// Resource is used to migrating all charts. it's too noisy if it works on every reconciliation.
+	// Resource is used to migrating Helm 2 release into Helm 3 in case of chart-operator app reconciliation.
+	// So for other apps we can skip this step.
 	if key.AppName(cr) != key.ChartOperatorAppName {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("no need to migrate %#q", key.AppName(cr)))
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("no need to migrating Helm release for %#q", key.AppName(cr)))
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 		return nil
 	}
@@ -57,7 +58,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	}
 
 	if v.Major() < 1 {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("chart %#q's current version %#q is not greater than 1.0.0.", key.AppName(cr), key.Version(cr)))
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("chart %#q, version %#q is using Helm 2. we don't need to trigger Helm 3 migration.", key.AppName(cr), key.Version(cr)))
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 		return nil
 	}
