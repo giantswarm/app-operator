@@ -183,7 +183,7 @@ func (s *Service) Boot(ctx context.Context) {
 }
 
 func newAppTeamMapping(teams map[string]interface{}) map[string]string {
-	appTeamMapping := make(map[string]string, 0)
+	appTeamMapping := make(map[string]string)
 
 	for team, val := range teams {
 		for _, app := range strings.Split(fmt.Sprintf("%s", val), ",") {
