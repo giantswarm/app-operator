@@ -205,8 +205,8 @@ func newAppTeamMapping(input string) (map[string]string, error) {
 
 	fmt.Printf("TEAMS %#v", teams)
 
-	for team, val := range teams {
-		for _, app := range strings.Split(fmt.Sprintf("%s", val), ",") {
+	for team, apps := range teams {
+		for _, app := range strings.Split(apps, ",") {
 			appTeamMapping[app] = team
 		}
 	}
