@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"fmt"
 	"strings"
 	"sync"
 
@@ -127,6 +126,11 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
+	// TODO: Remove once appcatalogentry CRs exist and have the name of the
+	// team responsible for the app.
+	//
+	//	https://github.com/giantswarm/roadmap/issues/26
+	//
 	var appTeamMapping map[string]string
 	{
 		appTeamMapping, err = newAppTeamMapping(config.Viper.GetString(config.Flag.Service.Collector.Apps.Teams))
@@ -192,8 +196,6 @@ func (s *Service) Boot(ctx context.Context) {
 }
 
 func newAppTeamMapping(input string) (map[string]string, error) {
-	fmt.Printf("INPUT %#v", input)
-
 	appTeamMapping := make(map[string]string)
 
 	teams := map[string]string{}
@@ -203,15 +205,11 @@ func newAppTeamMapping(input string) (map[string]string, error) {
 		return nil, microerror.Mask(err)
 	}
 
-	fmt.Printf("TEAMS %#v", teams)
-
 	for team, apps := range teams {
 		for _, app := range strings.Split(apps, ",") {
 			appTeamMapping[app] = team
 		}
 	}
-
-	fmt.Printf("MAPPING %#v", appTeamMapping)
 
 	return appTeamMapping, nil
 }
