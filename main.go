@@ -103,7 +103,6 @@ func mainWithError() (err error) {
 	daemonCommand := newCommand.DaemonCommand().CobraCommand()
 
 	daemonCommand.PersistentFlags().String(f.Service.Chart.Namespace, "giantswarm", "The namespace where chart CRs are located.")
-	daemonCommand.PersistentFlags().String(f.Service.Chart.Namespace, "giantswarm", "The namespace where chart CRs are located.")
 	daemonCommand.PersistentFlags().String(f.Service.Collector.Apps.DefaultTeam, "batman", "The default team for alerting.")
 	daemonCommand.PersistentFlags().String(f.Service.Collector.Apps.Teams, "", "The mapping of apps to teams for alerting.")
 	daemonCommand.PersistentFlags().String(f.Service.Image.Registry, "quay.io", "The container registry for pulling Tiller images.")
