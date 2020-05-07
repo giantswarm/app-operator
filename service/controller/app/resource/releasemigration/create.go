@@ -70,7 +70,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return nil
 	}
 
-	if cr.Status.Release.Status != helmclient.StatusDeployed {
+	if strings.ToLower(cr.Status.Release.Status) != helmclient.StatusDeployed {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("app %#q is not deployed yet", key.AppName(cr)))
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 		return nil
