@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/giantswarm/helmclient"
 	"strings"
 
 	"github.com/Masterminds/semver/v3"
@@ -69,7 +70,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return nil
 	}
 
-	if cr.Status.Release.Status != "DEPLOYED" {
+	if cr.Status.Release.Status != helmclient.StatusDeployed {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("app %#q is not deployed yet", key.AppName(cr)))
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 		return nil
