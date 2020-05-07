@@ -183,6 +183,8 @@ func (s *Service) Boot(ctx context.Context) {
 }
 
 func newAppTeamMapping(teams map[string]interface{}) map[string]string {
+	fmt.Printf("TEAMS %#v", teams)
+
 	appTeamMapping := make(map[string]string)
 
 	for team, val := range teams {
@@ -190,6 +192,8 @@ func newAppTeamMapping(teams map[string]interface{}) map[string]string {
 			appTeamMapping[app] = team
 		}
 	}
+
+	fmt.Printf("MAPPING %#v", appTeamMapping)
 
 	return appTeamMapping
 }
