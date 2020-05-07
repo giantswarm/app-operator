@@ -10,6 +10,9 @@ import (
 type SetConfig struct {
 	K8sClient k8sclient.Interface
 	Logger    micrologger.Logger
+
+	AppTeamMapping map[string]string
+	DefaultTeam    string
 }
 
 // Set is basically only a wrapper for the operator's collector implementations.
@@ -35,6 +38,9 @@ func NewSet(config SetConfig) (*Set, error) {
 			G8sClient: config.K8sClient.G8sClient(),
 			K8sClient: config.K8sClient.K8sClient(),
 			Logger:    config.Logger,
+
+			AppTeamMapping: config.AppTeamMapping,
+			DefaultTeam:    config.DefaultTeam,
 		}
 
 		appOperatorCollector, err = NewAppResource(c)

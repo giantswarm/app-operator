@@ -2,6 +2,8 @@ package service
 
 import (
 	"context"
+	"fmt"
+	"strings"
 	"sync"
 
 	applicationv1alpha1 "github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
@@ -129,6 +131,9 @@ func New(config Config) (*Service, error) {
 		c := collector.SetConfig{
 			K8sClient: k8sClient,
 			Logger:    config.Logger,
+
+			AppTeamMapping: newAppTeamMapping(config.Viper.GetStringMap(config.Flag.Service.Collector.Apps.Teams)),
+			DefaultTeam:    config.Viper.GetString(config.Flag.Service.Collector.Apps.DefaultTeam),
 		}
 
 		operatorCollector, err = collector.NewSet(c)
@@ -175,4 +180,16 @@ func (s *Service) Boot(ctx context.Context) {
 		go s.appCatalogController.Boot(ctx)
 		go s.appController.Boot(ctx)
 	})
+}
+
+func newAppTeamMapping(teams map[string]interface{}) map[string]string {
+	appTeamMapping := make(map[string]string, 0)
+
+	for team, val := range teams {
+		for _, app := range strings.Split(fmt.Sprintf("%s", val), ",") {
+			appTeamMapping[app] = team
+		}
+	}
+
+	return appTeamMapping
 }
