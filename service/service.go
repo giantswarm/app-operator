@@ -16,6 +16,7 @@ import (
 	"github.com/spf13/afero"
 	"github.com/spf13/viper"
 	"k8s.io/client-go/rest"
+	"sigs.k8s.io/yaml"
 
 	"github.com/giantswarm/app-operator/flag"
 	"github.com/giantswarm/app-operator/pkg/project"
@@ -126,13 +127,21 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
+	var appTeamMapping map[string]string
+	{
+		appTeamMapping, err = newAppTeamMapping(config.Viper.GetString(config.Flag.Service.Collector.Apps.Teams))
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var operatorCollector *collector.Set
 	{
 		c := collector.SetConfig{
 			K8sClient: k8sClient,
 			Logger:    config.Logger,
 
-			AppTeamMapping: newAppTeamMapping(config.Viper.GetStringMap(config.Flag.Service.Collector.Apps.Teams)),
+			AppTeamMapping: appTeamMapping,
 			DefaultTeam:    config.Viper.GetString(config.Flag.Service.Collector.Apps.DefaultTeam),
 		}
 
@@ -182,10 +191,19 @@ func (s *Service) Boot(ctx context.Context) {
 	})
 }
 
-func newAppTeamMapping(teams map[string]interface{}) map[string]string {
-	fmt.Printf("TEAMS %#v", teams)
+func newAppTeamMapping(input string) (map[string]string, error) {
+	fmt.Printf("INPUT %#v", input)
 
 	appTeamMapping := make(map[string]string)
+
+	teams := map[string]string{}
+
+	err := yaml.Unmarshal([]byte(input), &teams)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	fmt.Printf("TEAMS %#v", teams)
 
 	for team, val := range teams {
 		for _, app := range strings.Split(fmt.Sprintf("%s", val), ",") {
@@ -195,5 +213,5 @@ func newAppTeamMapping(teams map[string]interface{}) map[string]string {
 
 	fmt.Printf("MAPPING %#v", appTeamMapping)
 
-	return appTeamMapping
+	return appTeamMapping, nil
 }
