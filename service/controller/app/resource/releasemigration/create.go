@@ -53,6 +53,12 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return nil
 	}
 
+	if key.Version(cr) != cr.Status.Version {
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("app %#q is not reconciled to the latest desired status yet", key.AppName(cr)))
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		return nil
+	}
+
 	if cr.Status.AppVersion == "" {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("app %#q is not installed yet", key.AppName(cr)))
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
