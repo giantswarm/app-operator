@@ -125,7 +125,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		}
 
 		// install helm-2to3-migration app
-		err = r.ensureReleasesMigrated(ctx, cc.Clients.K8s.K8sClient(), cc.Clients.Helm, tillerNamespace)
+		err = r.ensureReleasesMigrated(ctx, cc.Clients.K8s, cc.Clients.Helm, tillerNamespace)
 		if IsReleaseAlreadyExists(err) {
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("release %#q already exists", migrationApp))
 			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation")

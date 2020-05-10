@@ -8,11 +8,11 @@ import (
 	"github.com/giantswarm/appcatalog"
 	"github.com/giantswarm/backoff"
 	"github.com/giantswarm/helmclient"
+	"github.com/giantswarm/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/spf13/afero"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/client-go/kubernetes"
 
 	"github.com/giantswarm/app-operator/service/controller/app/key"
 )
@@ -61,13 +61,25 @@ func (r *Resource) Name() string {
 	return Name
 }
 
-func (r *Resource) findHelmV2Releases(k8sClient kubernetes.Interface, tillerNamespace string) ([]string, error) {
+func (r *Resource) findHelmV2Releases(k8sClient k8sclient.Interface, tillerNamespace string) ([]string, error) {
+	charts := make(map[string]bool)
+
+	// Get list of chart CRs as not all helm 2 releases will have a chart CR.
+	list, err := k8sClient.G8sClient().ApplicationV1alpha1().Charts("giantswarm").List(metav1.ListOptions{})
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	for _, chart := range list.Items {
+		charts[chart.Name] = true
+	}
+
 	lo := metav1.ListOptions{
 		LabelSelector: fmt.Sprintf("%s=%s", "OWNER", "TILLER"),
 	}
 
 	// Check whether helm 2 release configMaps still exist.
-	cms, err := k8sClient.CoreV1().ConfigMaps(tillerNamespace).List(lo)
+	cms, err := k8sClient.K8sClient().CoreV1().ConfigMaps(tillerNamespace).List(lo)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
@@ -75,6 +87,12 @@ func (r *Resource) findHelmV2Releases(k8sClient kubernetes.Interface, tillerName
 	hasReleases := map[string]bool{}
 	for _, cm := range cms.Items {
 		name := cm.GetLabels()["NAME"]
+
+		// Skip Helm release if it has no matching chart CR.
+		if _, ok := charts[name]; !ok {
+			continue
+		}
+
 		if _, ok := hasReleases[name]; !ok {
 			hasReleases[name] = true
 		}
@@ -88,7 +106,7 @@ func (r *Resource) findHelmV2Releases(k8sClient kubernetes.Interface, tillerName
 	return releases, nil
 }
 
-func (r *Resource) ensureReleasesMigrated(ctx context.Context, k8sClient kubernetes.Interface, helmClient helmclient.Interface, tillerNamespace string) error {
+func (r *Resource) ensureReleasesMigrated(ctx context.Context, k8sClient k8sclient.Interface, helmClient helmclient.Interface, tillerNamespace string) error {
 	// Found all dangling helm release v2
 	releases, err := r.findHelmV2Releases(k8sClient, tillerNamespace)
 	if err != nil {
