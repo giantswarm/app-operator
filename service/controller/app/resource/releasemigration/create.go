@@ -93,12 +93,12 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		}
 	}
 
-	hasConfigMap, err := r.hasHelmV2ConfigMaps(cc.Clients.K8s.K8sClient(), key.ReleaseName(cr), tillerNamespace)
+	hasConfigMap, err := r.hasHelmV2ConfigMaps(cc.Clients.K8s.K8sClient(), cr.Name, tillerNamespace)
 	if err != nil {
 		return microerror.Mask(err)
 	}
 
-	hasSecret, err := r.hasHelmV3Secrets(cc.Clients.K8s.K8sClient(), key.ReleaseName(cr), key.Namespace(cr))
+	hasSecret, err := r.hasHelmV3Secrets(cc.Clients.K8s.K8sClient(), cr.Name), key.Namespace(cr))
 	if err != nil {
 		return microerror.Mask(err)
 	}
