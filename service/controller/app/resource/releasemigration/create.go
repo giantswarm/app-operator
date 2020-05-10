@@ -98,7 +98,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
-	hasSecret, err := r.hasHelmV3Secrets(cc.Clients.K8s.K8sClient(), cr.Name), key.Namespace(cr))
+	hasSecret, err := r.hasHelmV3Secrets(cc.Clients.K8s.K8sClient(), cr.Name, key.Namespace(cr))
 	if err != nil {
 		return microerror.Mask(err)
 	}
