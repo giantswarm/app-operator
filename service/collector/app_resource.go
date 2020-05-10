@@ -24,6 +24,7 @@ var (
 			labelName,
 			labelNamespace,
 			labelStatus,
+			labelTeam,
 			labelVersion,
 		},
 		nil,
@@ -45,6 +46,9 @@ type AppResourceConfig struct {
 	G8sClient versioned.Interface
 	K8sClient kubernetes.Interface
 	Logger    micrologger.Logger
+
+	AppTeamMapping map[string]string
+	DefaultTeam    string
 }
 
 // AppResource is the main struct for this collector.
@@ -52,6 +56,9 @@ type AppResource struct {
 	g8sClient versioned.Interface
 	k8sClient kubernetes.Interface
 	logger    micrologger.Logger
+
+	appTeamMapping map[string]string
+	defaultTeam    string
 }
 
 // NewAppResource creates a new AppResource metrics collector
@@ -64,6 +71,13 @@ func NewAppResource(config AppResourceConfig) (*AppResource, error) {
 	}
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
+	}
+
+	if config.AppTeamMapping == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.AppTeamMapping must not be empty", config)
+	}
+	if config.DefaultTeam == "" {
+		return nil, microerror.Maskf(invalidConfigError, "%T.DefaultTeam must not be empty", config)
 	}
 
 	c := &AppResource{
@@ -104,6 +118,11 @@ func (c *AppResource) collectAppStatus(ctx context.Context, ch chan<- prometheus
 	}
 
 	for _, app := range r.Items {
+		team, ok := c.appTeamMapping[key.AppName(app)]
+		if !ok {
+			team = c.defaultTeam
+		}
+
 		ch <- prometheus.MustNewConstMetric(
 			appDesc,
 			prometheus.GaugeValue,
@@ -111,6 +130,7 @@ func (c *AppResource) collectAppStatus(ctx context.Context, ch chan<- prometheus
 			app.Name,
 			app.Namespace,
 			app.Status.Release.Status,
+			team,
 			app.Status.Version,
 		)
 
