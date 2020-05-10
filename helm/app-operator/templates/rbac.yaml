@@ -6,17 +6,17 @@ metadata:
     {{- include "labels.common" . | nindent 4 }}
 rules:
 - apiGroups:
-  - apiextensions.k8s.io
+    - apiextensions.k8s.io
   resources:
-  - customresourcedefinitions
+    - customresourcedefinitions
   verbs:
-  - "*"
+    - "*"
 - apiGroups:
-  - apiextensions.k8s.io
+    - apiextensions.k8s.io
   resources:
-  - customresourcedefinitions/status
+    - customresourcedefinitions/status
   verbs:
-  - "*"
+    - "*"
 - apiGroups:
     - application.giantswarm.io
   resources:
@@ -52,37 +52,37 @@ rules:
     - patch
     - update
 - apiGroups:
-  - "rbac.authorization.k8s.io"
+    - rbac.authorization.k8s.io
   resources:
-  - clusterrolebindings
+    - clusterrolebindings
   verbs:
-  - "create"
+    - create
 - apiGroups:
-  - "rbac.authorization.k8s.io"
+    - rbac.authorization.k8s.io
   resources:
-  - clusterroles
+    - clusterroles
   verbs:
-  - "bind"
+    - bind
 - apiGroups:
-  - ""
+    - ""
   resources:
-  - services
-  - serviceaccounts
+    - services
+    - serviceaccounts
   verbs:
-  - "create"
+    - create
 - apiGroups:
-  - extensions
+    - apps
   resources:
-  - deployments
+    - deployments
   verbs:
-  - 'create'
+    - create
 - apiGroups:
-  - ""
+    - ""
   resources:
-  - configmaps
-  - secrets
+    - configmaps
+    - secrets
   verbs:
-  - "*"
+    - "*"
 - apiGroups:
     - ""
   resources:
