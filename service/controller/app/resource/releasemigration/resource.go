@@ -169,7 +169,7 @@ func (r *Resource) ensureReleasesMigrated(ctx context.Context, k8sClient k8sclie
 	}
 
 	n := func(err error, t time.Duration) {
-		r.logger.Log("level", "debug", "message", "failed to deleted all helm v2 releases")
+		r.logger.Log("level", "debug", "message", "failed to delete all helm v2 releases")
 	}
 
 	b := backoff.NewConstant(backoff.ShortMaxWait, backoff.ShortMaxInterval)
