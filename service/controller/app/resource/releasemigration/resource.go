@@ -65,7 +65,7 @@ func (r *Resource) findHelmV2Releases(k8sClient k8sclient.Interface, tillerNames
 	charts := make(map[string]bool)
 
 	// Get list of chart CRs as not all helm 2 releases will have a chart CR.
-	list, err := k8sClient.G8sClient().ApplicationV1alpha1().Charts("giantswarm").List(metav1.ListOptions{})
+	list, err := k8sClient.G8sClient().ApplicationV1alpha1().Charts(r.chartNamespace).List(metav1.ListOptions{})
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}

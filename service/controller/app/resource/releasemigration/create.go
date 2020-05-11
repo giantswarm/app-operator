@@ -87,7 +87,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		if key.InCluster(cr) {
 			tillerNamespace = metav1.NamespaceSystem
 		} else {
-			tillerNamespace = "giantswarm"
+			tillerNamespace = r.chartNamespace
 		}
 	}
 
@@ -155,7 +155,7 @@ func (r *Resource) cordonChart(ctx context.Context, g8sClient versioned.Interfac
 	lo := metav1.ListOptions{
 		LabelSelector: "app notin (chart-operator)",
 	}
-	charts, err := g8sClient.ApplicationV1alpha1().Charts("giantswarm").List(lo)
+	charts, err := g8sClient.ApplicationV1alpha1().Charts(r.chartNamespace).List(lo)
 	if err != nil {
 		return microerror.Mask(err)
 	}
@@ -208,7 +208,7 @@ func (r *Resource) uncordonChart(ctx context.Context, g8sClient versioned.Interf
 	lo := metav1.ListOptions{
 		LabelSelector: "app notin (chart-operator)",
 	}
-	charts, err := g8sClient.ApplicationV1alpha1().Charts("giantswarm").List(lo)
+	charts, err := g8sClient.ApplicationV1alpha1().Charts(r.chartNamespace).List(lo)
 	if err != nil {
 		return microerror.Mask(err)
 	}
