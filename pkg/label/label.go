@@ -3,6 +3,9 @@
 package label
 
 const (
+	// App is a standard label for Kubernetes resources.
+	App = "app"
+
 	// AppOperatorVersion is used to determine if the custom resource is
 	// supported by this version of the operatorkit resource.
 	AppOperatorVersion = "app-operator.giantswarm.io/version"
@@ -12,6 +15,9 @@ const (
 
 	// Cluster label is a new style label for ClusterID
 	Cluster = "giantswarm.io/cluster"
+
+	// HelmMajorVersion label is set for a supported helm major version.
+	HelmMajorVersion = "app-operator.giantswarm.io/helm-major-version"
 
 	// Organization label denotes guest cluster's organization ID as displayed
 	// in the front-end.

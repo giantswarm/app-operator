@@ -5,6 +5,7 @@ import (
 
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/microerror"
+	"k8s.io/apimachinery/pkg/labels"
 
 	"github.com/giantswarm/app-operator/pkg/annotation"
 	"github.com/giantswarm/app-operator/pkg/label"
@@ -135,6 +136,18 @@ func KubecConfigSecretName(customResource v1alpha1.App) string {
 
 func KubecConfigSecretNamespace(customResource v1alpha1.App) string {
 	return customResource.Spec.KubeConfig.Secret.Namespace
+}
+
+func LabelSelectorService() labels.Selector {
+	// Selector to check if "app=chart-operator" and if helm-major-version is not belonging to 3.
+	s := fmt.Sprintf("%s=%s,%s notin (%d)", label.App, "chart-operator", label.HelmMajorVersion, 3)
+
+	selector, err := labels.Parse(s)
+	if err != nil {
+		panic(fmt.Sprintf("failed to parse selector %#q with error %#q", s, err))
+	}
+
+	return selector
 }
 
 func Namespace(customResource v1alpha1.App) string {

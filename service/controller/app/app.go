@@ -2,6 +2,7 @@ package app
 
 import (
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
+	"github.com/giantswarm/app-operator/service/controller/app/key"
 	"github.com/giantswarm/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
@@ -68,6 +69,7 @@ func NewApp(config Config) (*App, error) {
 			ResourceSets: []*controller.ResourceSet{
 				resourceSetV1,
 			},
+			Selector: key.LabelSelectorService(),
 			NewRuntimeObjectFunc: func() runtime.Object {
 				return new(v1alpha1.App)
 			},
