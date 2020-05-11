@@ -4,7 +4,7 @@ go 1.13
 
 require (
 	github.com/giantswarm/apiextensions v0.2.2
-	github.com/giantswarm/appcatalog v0.2.0
+	github.com/giantswarm/appcatalog v0.2.3
 	github.com/giantswarm/backoff v0.2.0
 	github.com/giantswarm/e2e-harness v0.2.0
 	github.com/giantswarm/e2esetup v0.2.0
@@ -18,12 +18,13 @@ require (
 	github.com/giantswarm/microerror v0.2.0
 	github.com/giantswarm/microkit v0.2.1
 	github.com/giantswarm/micrologger v0.3.1
-	github.com/giantswarm/operatorkit v0.2.0
+	github.com/giantswarm/operatorkit v0.2.1
 	github.com/giantswarm/versionbundle v0.2.0
 	github.com/google/go-cmp v0.4.0
 	github.com/prometheus/client_golang v1.5.1
 	github.com/spf13/afero v1.2.2
-	github.com/spf13/viper v1.6.3
+	github.com/spf13/viper v1.7.0
+	golang.org/x/net v0.0.0-20200226121028-0de0cce0169b // indirect
 	gopkg.in/yaml.v2 v2.2.8
 	k8s.io/api v0.16.6
 	k8s.io/apimachinery v0.16.6
