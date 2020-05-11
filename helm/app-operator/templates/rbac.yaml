@@ -52,29 +52,57 @@ rules:
     - patch
     - update
 - apiGroups:
+    - batch
+  resources:
+    - jobs
+  verbs:
+    - create
+    - delete
+    - get
+- apiGroups:
+    - networking.k8s.io
+  resources:
+    - networkpolicies
+  verbs:
+    - create
+    - get
+- apiGroups:
+    - policy
+  resources:
+    - podsecuritypolicies
+  verbs:
+    - create
+    - get
+    - use
+- apiGroups:
     - rbac.authorization.k8s.io
   resources:
     - clusterrolebindings
   verbs:
     - create
+    - get
 - apiGroups:
     - rbac.authorization.k8s.io
   resources:
     - clusterroles
   verbs:
     - bind
+    - create
+    - get
 - apiGroups:
     - ""
   resources:
     - services
     - serviceaccounts
   verbs:
+    - get
     - create
 - apiGroups:
     - apps
   resources:
     - deployments
   verbs:
+    - get
     - create
 - apiGroups:
     - ""
@@ -88,6 +116,7 @@ rules:
   resources:
     - pods
   verbs:
+    - get
     - list
 - apiGroups:
     - ""

@@ -53,6 +53,12 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return nil
 	}
 
+	if key.Version(cr) != cr.Status.Version {
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("app %#q is not reconciled to the latest desired status yet", key.AppName(cr)))
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		return nil
+	}
+
 	if cr.Status.AppVersion == "" {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("app %#q is not installed yet", key.AppName(cr)))
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
@@ -81,16 +87,16 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		if key.InCluster(cr) {
 			tillerNamespace = metav1.NamespaceSystem
 		} else {
-			tillerNamespace = "giantswarm"
+			tillerNamespace = r.chartNamespace
 		}
 	}
 
-	hasConfigMap, err := r.hasHelmV2ConfigMaps(cc.Clients.K8s.K8sClient(), key.ReleaseName(cr), tillerNamespace)
+	hasConfigMap, err := r.hasHelmV2ConfigMaps(cc.Clients.K8s.K8sClient(), cr.Name, tillerNamespace)
 	if err != nil {
 		return microerror.Mask(err)
 	}
 
-	hasSecret, err := r.hasHelmV3Secrets(cc.Clients.K8s.K8sClient(), key.ReleaseName(cr), key.Namespace(cr))
+	hasSecret, err := r.hasHelmV3Secrets(cc.Clients.K8s.K8sClient(), cr.Name, key.Namespace(cr))
 	if err != nil {
 		return microerror.Mask(err)
 	}
@@ -117,7 +123,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		}
 
 		// install helm-2to3-migration app
-		err = r.ensureReleasesMigrated(ctx, cc.Clients.K8s.K8sClient(), cc.Clients.Helm, tillerNamespace)
+		err = r.ensureReleasesMigrated(ctx, cc.Clients.K8s, cc.Clients.Helm, tillerNamespace)
 		if IsReleaseAlreadyExists(err) {
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("release %#q already exists", migrationApp))
 			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation")
@@ -149,7 +155,7 @@ func (r *Resource) cordonChart(ctx context.Context, g8sClient versioned.Interfac
 	lo := metav1.ListOptions{
 		LabelSelector: "app notin (chart-operator)",
 	}
-	charts, err := g8sClient.ApplicationV1alpha1().Charts("giantswarm").List(lo)
+	charts, err := g8sClient.ApplicationV1alpha1().Charts(r.chartNamespace).List(lo)
 	if err != nil {
 		return microerror.Mask(err)
 	}
@@ -202,7 +208,7 @@ func (r *Resource) uncordonChart(ctx context.Context, g8sClient versioned.Interf
 	lo := metav1.ListOptions{
 		LabelSelector: "app notin (chart-operator)",
 	}
-	charts, err := g8sClient.ApplicationV1alpha1().Charts("giantswarm").List(lo)
+	charts, err := g8sClient.ApplicationV1alpha1().Charts(r.chartNamespace).List(lo)
 	if err != nil {
 		return microerror.Mask(err)
 	}
