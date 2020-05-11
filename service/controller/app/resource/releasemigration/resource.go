@@ -172,7 +172,7 @@ func (r *Resource) ensureReleasesMigrated(ctx context.Context, k8sClient k8sclie
 		r.logger.Log("level", "debug", "message", "failed to delete all helm v2 releases")
 	}
 
-	b := backoff.NewConstant(backoff.ShortMaxWait, backoff.ShortMaxInterval)
+	b := backoff.NewConstant(5*time.Minute, 10*time.Second)
 	err = backoff.RetryNotify(o, b, n)
 	if err != nil {
 		return microerror.Mask(err)
