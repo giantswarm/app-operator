@@ -4,7 +4,7 @@ go 1.13
 
 require (
 	github.com/Masterminds/semver/v3 v3.0.3
-	github.com/giantswarm/apiextensions v0.3.8
+	github.com/giantswarm/apiextensions v0.2.2
 	github.com/giantswarm/appcatalog v0.2.3
 	github.com/giantswarm/apprclient v0.2.0
 	github.com/giantswarm/backoff v0.2.0
@@ -34,6 +34,7 @@ require (
 	github.com/spf13/afero v1.2.2
 	github.com/spf13/viper v1.7.0
 	golang.org/x/crypto v0.0.0-20200210222208-86ce3cb69678 // indirect
+	golang.org/x/net v0.0.0-20200226121028-0de0cce0169b // indirect
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d // indirect
 	golang.org/x/sys v0.0.0-20200202164722-d101bd2416d5 // indirect
 	gopkg.in/yaml.v2 v2.2.8
