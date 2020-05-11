@@ -39,11 +39,13 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	}
 
 	//TODO: Remove this statement when we need to test on control planes.
-	if key.InCluster(cr) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("app %#q uses InCluster kubeconfig no need to migrate releases", key.AppName(cr)))
-		r.logger.LogCtx(ctx, "level", "debug", "message", "cancelling the resource")
-		return nil
-	}
+	/*
+		if key.InCluster(cr) {
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("app %#q uses InCluster kubeconfig no need to migrate releases", key.AppName(cr)))
+			r.logger.LogCtx(ctx, "level", "debug", "message", "cancelling the resource")
+			return nil
+		}
+	*/
 
 	// Resource is used to migrating Helm 2 release into Helm 3 in case of chart-operator app reconciliation.
 	// So for other apps we can skip this step.
