@@ -50,7 +50,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	// Resource is used to migrating Helm 2 release into Helm 3 in case of chart-operator app reconciliation.
 	// So for other apps we can skip this step.
 	if key.AppName(cr) != key.ChartOperatorAppName {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("no need to migrating Helm release for %#q", key.AppName(cr)))
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("no need to migrate release for %#q", key.AppName(cr)))
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 		return nil
 	}

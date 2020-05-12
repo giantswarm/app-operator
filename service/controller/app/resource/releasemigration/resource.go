@@ -162,14 +162,17 @@ func (r *Resource) ensureReleasesMigrated(ctx context.Context, k8sClient k8sclie
 			return microerror.Mask(err)
 		}
 		if len(releases) > 0 {
-			return microerror.Maskf(executionFailedError, "helm v2 releases not deleted: %#q", releases)
+			desc := fmt.Sprintf("%d helm v2 releases not migrated", len(releases))
+			r.logger.Log("level", "debug", "message", desc)
+
+			return microerror.Maskf(executionFailedError, desc)
 		}
 
 		return nil
 	}
 
 	n := func(err error, t time.Duration) {
-		r.logger.Log("level", "debug", "message", "failed to delete all helm v2 releases")
+		r.logger.Log("level", "debug", "message", "failed to migrate all helm v2 releases")
 	}
 
 	b := backoff.NewConstant(5*time.Minute, 10*time.Second)
