@@ -37,14 +37,6 @@ workflows:
             tags:
               only: /^v.*/
 
-      - architect/push-to-docker:
-          name: push-app-operator-to-quay
-          image: "quay.io/giantswarm/app-operator"
-          username_envar: "QUAY_USERNAME"
-          password_envar: "QUAY_PASSWORD"
-          requires:
-            - build
-
       - architect/push-to-docker-legacy:
           name: push-app-operator-to-aliyun
           image: "registry-intl.cn-shanghai.aliyuncs.com/giantswarm/app-operator"
