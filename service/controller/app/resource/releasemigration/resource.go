@@ -29,6 +29,7 @@ type Config struct {
 
 	// Settings.
 	ChartNamespace string
+	ImageRegistry  string
 }
 
 type Resource struct {
@@ -37,6 +38,7 @@ type Resource struct {
 
 	// Settings.
 	chartNamespace string
+	imageRegistry  string
 }
 
 func New(config Config) (*Resource, error) {
@@ -47,11 +49,15 @@ func New(config Config) (*Resource, error) {
 	if config.ChartNamespace == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ChartNamespace must not be empty", config)
 	}
+	if config.ImageRegistry == "" {
+		return nil, microerror.Maskf(invalidConfigError, "%T.ImageRegistry must not be empty", config)
+	}
 
 	r := &Resource{
 		logger: config.Logger,
 
 		chartNamespace: config.ChartNamespace,
+		imageRegistry:  config.ImageRegistry,
 	}
 
 	return r, nil
@@ -140,6 +146,9 @@ func (r *Resource) ensureReleasesMigrated(ctx context.Context, k8sClient k8sclie
 			}
 
 			values := map[string]interface{}{
+				"image": map[string]string{
+					"registry": r.imageRegistry,
+				},
 				"releases": releases,
 				"tiller": map[string]string{
 					"namespace": tillerNamespace,
