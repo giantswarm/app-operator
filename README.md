@@ -3,3 +3,8 @@
 # app-operator
 
 The app-operator manages apps in Kubernetes clusters.
+
+## Branches
+
+- `thiccc`
+    - Only to support booting up chart-operator with Helm2 support.
