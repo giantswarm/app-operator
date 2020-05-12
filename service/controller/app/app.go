@@ -69,7 +69,7 @@ func NewApp(config Config) (*App, error) {
 			ResourceSets: []*controller.ResourceSet{
 				resourceSetV1,
 			},
-			Selector: key.LabelSelectorService(),
+			Selector: key.AppLabelSelector(),
 			NewRuntimeObjectFunc: func() runtime.Object {
 				return new(v1alpha1.App)
 			},

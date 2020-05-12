@@ -138,7 +138,7 @@ func KubecConfigSecretNamespace(customResource v1alpha1.App) string {
 	return customResource.Spec.KubeConfig.Secret.Namespace
 }
 
-func LabelSelectorService() labels.Selector {
+func AppLabelSelector() labels.Selector {
 	// Selector to check if "app=chart-operator" and if helm-major-version is not belonging to 3.
 	s := fmt.Sprintf("%s=%s,%s notin (%d)", label.App, "chart-operator", label.HelmMajorVersion, 3)
 
