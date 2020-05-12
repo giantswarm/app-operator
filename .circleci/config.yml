@@ -45,7 +45,7 @@ workflows:
           requires:
             - build
 
-      - architect/push-to-docker:
+      - architect/push-to-docker-legacy:
           name: push-app-operator-to-aliyun
           image: "registry-intl.cn-shanghai.aliyuncs.com/giantswarm/app-operator"
           username_envar: "ALIYUN_USERNAME"
