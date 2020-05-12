@@ -21,7 +21,6 @@ import (
 	"github.com/giantswarm/app-operator/pkg/project"
 	"github.com/giantswarm/app-operator/service/collector"
 	"github.com/giantswarm/app-operator/service/controller/app"
-	"github.com/giantswarm/app-operator/service/controller/appcatalog"
 )
 
 // Config represents the configuration used to create a new service.
@@ -37,10 +36,9 @@ type Service struct {
 	Version *version.Service
 
 	// Internals
-	appController        *app.App
-	appCatalogController *appcatalog.AppCatalog
-	bootOnce             sync.Once
-	operatorCollector    *collector.Set
+	appController     *app.App
+	bootOnce          sync.Once
+	operatorCollector *collector.Set
 }
 
 // New creates a new service with given configuration.
@@ -90,19 +88,6 @@ func New(config Config) (*Service, error) {
 		}
 
 		k8sClient, err = k8sclient.NewClients(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	var appCatalogController *appcatalog.AppCatalog
-	{
-		c := appcatalog.Config{
-			Logger:    config.Logger,
-			K8sClient: k8sClient,
-		}
-
-		appCatalogController, err = appcatalog.NewAppCatalog(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -175,10 +160,9 @@ func New(config Config) (*Service, error) {
 	newService := &Service{
 		Version: versionService,
 
-		appController:        appController,
-		appCatalogController: appCatalogController,
-		bootOnce:             sync.Once{},
-		operatorCollector:    operatorCollector,
+		appController:     appController,
+		bootOnce:          sync.Once{},
+		operatorCollector: operatorCollector,
 	}
 
 	return newService, nil
@@ -190,7 +174,6 @@ func (s *Service) Boot(ctx context.Context) {
 		go s.operatorCollector.Boot(ctx) // nolint:errcheck
 
 		// Start the controllers.
-		go s.appCatalogController.Boot(ctx)
 		go s.appController.Boot(ctx)
 	})
 }

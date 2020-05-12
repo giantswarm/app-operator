@@ -8,7 +8,6 @@ import (
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/controller"
 	"github.com/giantswarm/operatorkit/resource"
-	"github.com/giantswarm/operatorkit/resource/crud"
 	"github.com/giantswarm/operatorkit/resource/wrapper/metricsresource"
 	"github.com/giantswarm/operatorkit/resource/wrapper/retryresource"
 	"github.com/spf13/afero"
@@ -18,12 +17,8 @@ import (
 	"github.com/giantswarm/app-operator/service/controller/app/key"
 	"github.com/giantswarm/app-operator/service/controller/app/resource/appcatalog"
 	"github.com/giantswarm/app-operator/service/controller/app/resource/appnamespace"
-	"github.com/giantswarm/app-operator/service/controller/app/resource/chart"
 	"github.com/giantswarm/app-operator/service/controller/app/resource/chartoperator"
 	"github.com/giantswarm/app-operator/service/controller/app/resource/clients"
-	"github.com/giantswarm/app-operator/service/controller/app/resource/configmap"
-	"github.com/giantswarm/app-operator/service/controller/app/resource/secret"
-	"github.com/giantswarm/app-operator/service/controller/app/resource/status"
 	"github.com/giantswarm/app-operator/service/controller/app/resource/tcnamespace"
 	"github.com/giantswarm/app-operator/service/controller/app/resource/tiller"
 	"github.com/giantswarm/app-operator/service/controller/app/values"
@@ -117,26 +112,6 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 	}
 
-	var chartResource resource.Interface
-	{
-		c := chart.Config{
-			G8sClient: config.K8sClient.G8sClient(),
-			Logger:    config.Logger,
-
-			ChartNamespace: config.ChartNamespace,
-		}
-
-		ops, err := chart.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-
-		chartResource, err = toCRUDResource(config.Logger, ops)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
 	var clientsResource resource.Interface
 	{
 		c := clients.Config{
@@ -147,61 +122,6 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 
 		clientsResource, err = clients.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	var configMapResource resource.Interface
-	{
-		c := configmap.Config{
-			Logger: config.Logger,
-			Values: valuesService,
-
-			ChartNamespace: config.ChartNamespace,
-		}
-
-		ops, err := configmap.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-
-		configMapResource, err = toCRUDResource(config.Logger, ops)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	var secretResource resource.Interface
-	{
-		c := secret.Config{
-			Logger: config.Logger,
-			Values: valuesService,
-
-			ChartNamespace: config.ChartNamespace,
-		}
-
-		ops, err := secret.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-
-		secretResource, err = toCRUDResource(config.Logger, ops)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	var statusResource resource.Interface
-	{
-		c := status.Config{
-			G8sClient: config.K8sClient.G8sClient(),
-			Logger:    config.Logger,
-
-			ChartNamespace: config.ChartNamespace,
-		}
-
-		statusResource, err = status.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -240,12 +160,6 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		tcNamespaceResource,
 		tillerResource,
 		chartOperatorResource,
-
-		// Following resources process app CRs.
-		configMapResource,
-		secretResource,
-		chartResource,
-		statusResource,
 	}
 
 	{
@@ -303,18 +217,4 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	}
 
 	return resourceSet, nil
-}
-
-func toCRUDResource(logger micrologger.Logger, ops crud.Interface) (*crud.Resource, error) {
-	c := crud.ResourceConfig{
-		Logger: logger,
-		CRUD:   ops,
-	}
-
-	r, err := crud.NewResource(c)
-	if err != nil {
-		return nil, microerror.Mask(err)
-	}
-
-	return r, nil
 }

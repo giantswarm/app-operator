@@ -10,6 +10,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 
 	"github.com/giantswarm/app-operator/pkg/project"
+	"github.com/giantswarm/app-operator/service/controller/app/key"
 )
 
 type Config struct {
@@ -68,6 +69,7 @@ func NewApp(config Config) (*App, error) {
 			ResourceSets: []*controller.ResourceSet{
 				resourceSetV1,
 			},
+			Selector: key.AppLabelSelector(),
 			NewRuntimeObjectFunc: func() runtime.Object {
 				return new(v1alpha1.App)
 			},
