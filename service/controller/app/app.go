@@ -2,7 +2,6 @@ package app
 
 import (
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
-	"github.com/giantswarm/app-operator/service/controller/app/key"
 	"github.com/giantswarm/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
@@ -11,6 +10,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 
 	"github.com/giantswarm/app-operator/pkg/project"
+	"github.com/giantswarm/app-operator/service/controller/app/key"
 )
 
 type Config struct {
