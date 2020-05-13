@@ -41,6 +41,14 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return nil
 	}
 
+	// We only create the tenant namespace if the chart-operator app uses Helm 3.
+	// Helm 2 is managed by the thiccc deployment of app-operator.
+	if key.HelmMajorVersion(cr) != "3" {
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("app %#q not using helm 3", cr.Name))
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		return nil
+	}
+
 	if cc.Status.TenantCluster.IsUnavailable {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster is unavailable")
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
