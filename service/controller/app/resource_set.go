@@ -178,6 +178,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 			Logger: config.Logger,
 
 			ChartNamespace: config.ChartNamespace,
+			ImageRegistry:  config.ImageRegistry,
 		}
 
 		releaseMigrationResource, err = releasemigration.New(c)
