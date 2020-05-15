@@ -9,7 +9,7 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ### Changed
 
-- Cancelling resources on cordoned app CRs.
+- Cancel resources when app CRs are cordoned.
 
 ## [v1.0.2] 2020-05-08
 
