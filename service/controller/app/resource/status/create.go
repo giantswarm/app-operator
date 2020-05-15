@@ -37,12 +37,6 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return nil
 	}
 
-	if key.IsCordoned(cr) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("app %#q is cordoned", cr.Name))
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
-		return nil
-	}
-
 	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding status for chart %#q in namespace %#q", cr.Name, r.chartNamespace))
 
 	chart, err := cc.Clients.G8s.ApplicationV1alpha1().Charts(r.chartNamespace).Get(cr.Name, metav1.GetOptions{})
