@@ -36,7 +36,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return nil
 	}
 
-	if key.IsAppCordoned(cr) {
+	if key.IsCordoned(cr) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("app %#q is cordoned", cr.Name))
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 		return nil
