@@ -3,7 +3,6 @@ package status
 import (
 	"context"
 	"fmt"
-
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/microerror"
@@ -33,6 +32,12 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 	if cc.Status.TenantCluster.IsUnavailable {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster is unavailable")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		return nil
+	}
+
+	if key.IsAppCordoned(cr) {
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("app %#q is cordoned", cr.Name))
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 		return nil
 	}
