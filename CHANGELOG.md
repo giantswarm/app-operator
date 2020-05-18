@@ -7,6 +7,8 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## Unreleased
 
+## [v1.1.0] 2020-05-18
+
 ### Changed
 
 - Updated to use Helm 3 and add releasemigration resource for migrating releases
@@ -30,8 +32,9 @@ from Helm 2 to Helm 3.
 
 - Flattening operator release structure.
 
-[Unreleased]: https://github.com/giantswarm/app-operator/compare/v1.0.3..HEAD
+[Unreleased]: https://github.com/giantswarm/app-operator/compare/v1.1.0..HEAD
 
+[1.1.0]: https://github.com/giantswarm/app-operator/compare/v1.0.3..v1.1.0
 [1.0.3]: https://github.com/giantswarm/app-operator/compare/v1.0.2..v1.0.3
 [1.0.2]: https://github.com/giantswarm/app-operator/compare/v1.0.1..v1.0.2
 [1.0.1]: https://github.com/giantswarm/app-operator/releases/tag/v1.0.1
