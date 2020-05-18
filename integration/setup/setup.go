@@ -9,7 +9,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/appcatalog"
+	"github.com/giantswarm/backoff"
 	"github.com/giantswarm/helmclient"
 	"github.com/giantswarm/microerror"
 	"github.com/spf13/afero"
@@ -111,7 +113,6 @@ func installResources(ctx context.Context, config Config) error {
 		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("installed %#q", project.Name()))
 	}
 
-	var operatorTarballPath string
 	{
 		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("waiting for appcatalog crd"))
 
