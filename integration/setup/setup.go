@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/giantswarm/appcatalog"
 	"github.com/giantswarm/helmclient"
@@ -110,6 +111,7 @@ func installResources(ctx context.Context, config Config) error {
 		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("installed %#q", project.Name()))
 	}
 
+	var operatorTarballPath string
 	{
 		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("waiting for appcatalog crd"))
 
@@ -121,5 +123,17 @@ func installResources(ctx context.Context, config Config) error {
 		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("waited for appcatalog crd"))
 	}
 
+	{
+		config.Logger.LogCtx(ctx, "level", "debug", "message", "ensuring app CRD exists")
+
+		// The operator will install the CRD on boot but we create chart CRs
+		// in the tests so this ensures the CRD is present.
+		err = config.K8sClients.CRDClient().EnsureCreated(ctx, v1alpha1.NewAppCRD(), backoff.NewMaxRetries(7, 1*time.Second))
+		if err != nil {
+			return microerror.Mask(err)
+		}
+
+		config.Logger.LogCtx(ctx, "level", "debug", "message", "ensured app CRD exists")
+	}
 	return nil
 }

@@ -84,6 +84,9 @@ func NewAppResource(config AppResourceConfig) (*AppResource, error) {
 		g8sClient: config.G8sClient,
 		k8sClient: config.K8sClient,
 		logger:    config.Logger,
+
+		appTeamMapping: config.AppTeamMapping,
+		defaultTeam:    config.DefaultTeam,
 	}
 
 	return c, nil
