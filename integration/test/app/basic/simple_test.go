@@ -50,10 +50,6 @@ func TestAppLifecycle(t *testing.T) {
 				t.Fatalf("expected %#v got %#v", nil, err)
 			}
 
-			// TODO: Removing hardcoding once there is a chart-operator release
-			// with Helm 3 support in the default catalog.
-			tarballURL = "https://giantswarm.github.io/default-test-catalog/chart-operator-0.12.1-13521d4e2cb5378dbff26995e094d1c23a15e121.tgz"
-
 			tarballPath, err = config.HelmClient.PullChartTarball(ctx, tarballURL)
 			if err != nil {
 				t.Fatalf("expected %#v got %#v", nil, err)
