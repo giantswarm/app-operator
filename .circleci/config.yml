@@ -1,6 +1,6 @@
 version: 2.1
 orbs:
-  architect: giantswarm/architect@0.8.14
+  architect: giantswarm/architect@0.8.15
 
 workflows:
   build:
@@ -106,6 +106,7 @@ workflows:
 #              only: /^v.*/
 
       - architect/integration-test:
+          context: architect
           name: basic-integration-test
           test-dir: "integration/test/app/basic"
           requires:
@@ -113,6 +114,7 @@ workflows:
             - push-app-operator-to-control-plane-app-catalog
 
       - architect/integration-test:
+          context: architect
           name: kubeconfig-integration-test
           test-dir: "integration/test/app/kubeconfig"
           requires:
