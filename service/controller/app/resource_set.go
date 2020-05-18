@@ -22,10 +22,10 @@ import (
 	"github.com/giantswarm/app-operator/service/controller/app/resource/chartoperator"
 	"github.com/giantswarm/app-operator/service/controller/app/resource/clients"
 	"github.com/giantswarm/app-operator/service/controller/app/resource/configmap"
+	"github.com/giantswarm/app-operator/service/controller/app/resource/releasemigration"
 	"github.com/giantswarm/app-operator/service/controller/app/resource/secret"
 	"github.com/giantswarm/app-operator/service/controller/app/resource/status"
 	"github.com/giantswarm/app-operator/service/controller/app/resource/tcnamespace"
-	"github.com/giantswarm/app-operator/service/controller/app/resource/tiller"
 	"github.com/giantswarm/app-operator/service/controller/app/values"
 )
 
@@ -172,6 +172,21 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 	}
 
+	var releaseMigrationResource resource.Interface
+	{
+		c := releasemigration.Config{
+			Logger: config.Logger,
+
+			ChartNamespace: config.ChartNamespace,
+			ImageRegistry:  config.ImageRegistry,
+		}
+
+		releaseMigrationResource, err = releasemigration.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var secretResource resource.Interface
 	{
 		c := secret.Config{
@@ -219,17 +234,6 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 	}
 
-	var tillerResource resource.Interface
-	{
-		c := tiller.Config{
-			Logger: config.Logger,
-		}
-		tillerResource, err = tiller.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
 	resources := []resource.Interface{
 		// Following resources manage controller context information.
 		appNamespaceResource,
@@ -238,8 +242,8 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 
 		// Following resources bootstrap chart-operator in tenant clusters.
 		tcNamespaceResource,
-		tillerResource,
 		chartOperatorResource,
+		releaseMigrationResource,
 
 		// Following resources process app CRs.
 		configMapResource,

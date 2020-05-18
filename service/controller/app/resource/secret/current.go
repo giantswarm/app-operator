@@ -41,7 +41,7 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 		return nil, nil
 	}
 
-	if key.IsCordoned(cr) {
+	if key.IsAppCordoned(cr) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("app %#q is cordoned", cr.Name))
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 		resourcecanceledcontext.SetCanceled(ctx)
@@ -50,7 +50,7 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 
 	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding secret %#q in namespace %#q", name, r.chartNamespace))
 
-	secret, err := cc.Clients.K8s.CoreV1().Secrets(r.chartNamespace).Get(name, metav1.GetOptions{})
+	secret, err := cc.Clients.K8s.K8sClient().CoreV1().Secrets(r.chartNamespace).Get(name, metav1.GetOptions{})
 	if apierrors.IsNotFound(err) {
 		// Return early as secret does not exist.
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("did not find secret %#q in namespace %#q", name, r.chartNamespace))

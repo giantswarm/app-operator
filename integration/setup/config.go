@@ -3,13 +3,15 @@
 package setup
 
 import (
-	"github.com/giantswarm/e2e-harness/pkg/release"
 	"github.com/giantswarm/e2esetup/chart/env"
 	"github.com/giantswarm/helmclient"
 	"github.com/giantswarm/k8sclient"
 	"github.com/giantswarm/kubeconfig"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
+	"github.com/spf13/afero"
+
+	"github.com/giantswarm/app-operator/integration/release"
 )
 
 const (
@@ -17,9 +19,9 @@ const (
 )
 
 type Config struct {
-	HelmClient *helmclient.Client
+	HelmClient helmclient.Interface
 	K8s        *k8sclient.Setup
-	K8sClients *k8sclient.Clients
+	K8sClients k8sclient.Interface
 	KubeConfig *kubeconfig.KubeConfig
 	Release    *release.Release
 	Logger     micrologger.Logger
@@ -37,6 +39,8 @@ func NewConfig() (Config, error) {
 			return Config{}, microerror.Mask(err)
 		}
 	}
+
+	fs := afero.NewOsFs()
 
 	var cpK8sClients *k8sclient.Clients
 	{
@@ -78,14 +82,12 @@ func NewConfig() (Config, error) {
 		}
 	}
 
-	var helmClient *helmclient.Client
+	var helmClient helmclient.Interface
 	{
 		c := helmclient.Config{
+			Fs:        fs,
 			Logger:    logger,
-			K8sClient: cpK8sClients.K8sClient(),
-
-			RestConfig:      cpK8sClients.RESTConfig(),
-			TillerNamespace: namespace,
+			K8sClient: cpK8sClients,
 		}
 
 		helmClient, err = helmclient.New(c)
@@ -97,13 +99,9 @@ func NewConfig() (Config, error) {
 	var newRelease *release.Release
 	{
 		c := release.Config{
-			ExtClient:  cpK8sClients.ExtClient(),
-			G8sClient:  cpK8sClients.G8sClient(),
 			HelmClient: helmClient,
-			K8sClient:  cpK8sClients.K8sClient(),
+			K8sClient:  cpK8sClients,
 			Logger:     logger,
-
-			Namespace: namespace,
 		}
 
 		newRelease, err = release.New(c)

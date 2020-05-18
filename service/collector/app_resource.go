@@ -137,7 +137,7 @@ func (c *AppResource) collectAppStatus(ctx context.Context, ch chan<- prometheus
 			app.Status.Version,
 		)
 
-		if !key.IsCordoned(app) {
+		if !key.IsAppCordoned(app) {
 			continue
 		}
 

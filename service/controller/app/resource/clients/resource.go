@@ -2,19 +2,19 @@ package clients
 
 import (
 	"context"
-	"time"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
-	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
+	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/helmclient"
+	"github.com/giantswarm/k8sclient"
 	"github.com/giantswarm/kubeconfig"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"github.com/spf13/afero"
 	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/rest"
 
 	"github.com/giantswarm/app-operator/service/controller/app/controllercontext"
-	"github.com/giantswarm/app-operator/service/controller/app/key"
 )
 
 const (
@@ -110,42 +110,36 @@ func (r *Resource) addClientsToContext(ctx context.Context, cr v1alpha1.App) err
 		return microerror.Mask(err)
 	}
 
-	var g8sClient versioned.Interface
+	var k8sClient k8sclient.Interface
 	{
-		g8sClient, err = versioned.NewForConfig(restConfig)
-		if err != nil {
+		c := k8sclient.ClientsConfig{
+			Logger:     r.logger,
+			RestConfig: rest.CopyConfig(restConfig),
+		}
+
+		k8sClient, err = k8sclient.NewClients(c)
+		if tenant.IsAPINotAvailable(err) {
+			// Set status so we don't try to connect to the tenant cluster
+			// again in this reconciliation loop.
+			cc.Status.TenantCluster.IsUnavailable = true
+
+			r.logger.LogCtx(ctx, "level", "debug", "message", "tenant API not available yet")
+			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+			return nil
+
+		} else if err != nil {
 			return microerror.Mask(err)
 		}
 	}
 
-	var k8sClient kubernetes.Interface
-	{
-		k8sClient, err = kubernetes.NewForConfig(restConfig)
-		if err != nil {
-			return microerror.Mask(err)
-		}
-	}
-
-	var tillerNamespace string
-	{
-		// When InCluster is used we use the Tiller deployed in kube-system.
-		if key.InCluster(cr) {
-			tillerNamespace = metav1.NamespaceSystem
-		} else {
-			tillerNamespace = "giantswarm"
-		}
-	}
+	fs := afero.NewOsFs()
 
 	var helmClient helmclient.Interface
 	{
 		c := helmclient.Config{
+			Fs:        fs,
 			K8sClient: k8sClient,
 			Logger:    r.logger,
-
-			EnsureTillerInstalledMaxWait: 30 * time.Second,
-			RestConfig:                   restConfig,
-			TillerImageRegistry:          r.imageRegistry,
-			TillerNamespace:              tillerNamespace,
 		}
 
 		helmClient, err = helmclient.New(c)
@@ -155,7 +149,6 @@ func (r *Resource) addClientsToContext(ctx context.Context, cr v1alpha1.App) err
 	}
 
 	cc.Clients = controllercontext.Clients{
-		G8s:  g8sClient,
 		K8s:  k8sClient,
 		Helm: helmClient,
 	}

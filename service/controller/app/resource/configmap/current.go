@@ -43,7 +43,7 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 		return nil, nil
 	}
 
-	if key.IsCordoned(cr) {
+	if key.IsAppCordoned(cr) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("app %#q is cordoned", cr.Name))
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 		resourcecanceledcontext.SetCanceled(ctx)
@@ -57,7 +57,7 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 	var configmap *corev1.ConfigMap
 
 	go func() {
-		configmap, err = cc.Clients.K8s.CoreV1().ConfigMaps(r.chartNamespace).Get(name, metav1.GetOptions{})
+		configmap, err = cc.Clients.K8s.K8sClient().CoreV1().ConfigMaps(r.chartNamespace).Get(name, metav1.GetOptions{})
 		close(ch)
 	}()
 
