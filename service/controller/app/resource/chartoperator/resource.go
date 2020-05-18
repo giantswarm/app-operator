@@ -2,7 +2,6 @@ package chartoperator
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"time"
 
@@ -10,13 +9,13 @@ import (
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/appcatalog"
 	"github.com/giantswarm/backoff"
+	"github.com/giantswarm/helmclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/spf13/afero"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
-	"k8s.io/helm/pkg/helm"
 
 	"github.com/giantswarm/app-operator/service/controller/app/controllercontext"
 	"github.com/giantswarm/app-operator/service/controller/app/key"
@@ -86,7 +85,7 @@ func (r Resource) installChartOperator(ctx context.Context, cr v1alpha1.App) err
 		return microerror.Mask(err)
 	}
 
-	chartOperatorValues, err := r.mergeChartOperatorValues(ctx, cr, cc.AppCatalog)
+	chartOperatorValues, err := r.values.MergeAll(ctx, cr, cc.AppCatalog)
 	if err != nil {
 		return microerror.Mask(err)
 	}
@@ -116,7 +115,14 @@ func (r Resource) installChartOperator(ctx context.Context, cr v1alpha1.App) err
 	}
 
 	{
-		err = cc.Clients.Helm.InstallReleaseFromTarball(ctx, tarballPath, key.Namespace(cr), helm.ReleaseName(cr.Name), helm.ValueOverrides(chartOperatorValues))
+		opts := helmclient.InstallOptions{
+			ReleaseName: cr.Name,
+		}
+		err = cc.Clients.Helm.InstallReleaseFromTarball(ctx,
+			tarballPath,
+			key.Namespace(cr),
+			chartOperatorValues,
+			opts)
 		if err != nil {
 			return microerror.Mask(err)
 		}
@@ -129,7 +135,7 @@ func (r Resource) installChartOperator(ctx context.Context, cr v1alpha1.App) err
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("waiting for ready %#q deployment", cr.Name))
 
 		o := func() error {
-			err := r.checkDeploymentReady(ctx, cc.Clients.K8s, cr)
+			err := r.checkDeploymentReady(ctx, cc.Clients.K8s.K8sClient(), cr)
 			if err != nil {
 				return microerror.Mask(err)
 			}
@@ -138,7 +144,7 @@ func (r Resource) installChartOperator(ctx context.Context, cr v1alpha1.App) err
 		}
 
 		// Wait for chart-operator to be deployed. If it takes longer than
-		// the timeout the chartconfig CRs will be created during the next
+		// the timeout the chart CRs will be created during the next
 		// reconciliation loop.
 		b := backoff.NewConstant(20*time.Second, 5*time.Second)
 		n := func(err error, delay time.Duration) {
@@ -162,7 +168,7 @@ func (r Resource) updateChartOperator(ctx context.Context, cr v1alpha1.App) erro
 		return microerror.Mask(err)
 	}
 
-	chartOperatorValues, err := r.mergeChartOperatorValues(ctx, cr, cc.AppCatalog)
+	chartOperatorValues, err := r.values.MergeAll(ctx, cr, cc.AppCatalog)
 	if err != nil {
 		return microerror.Mask(err)
 	}
@@ -192,7 +198,15 @@ func (r Resource) updateChartOperator(ctx context.Context, cr v1alpha1.App) erro
 	}
 
 	{
-		err = cc.Clients.Helm.UpdateReleaseFromTarball(ctx, cr.Name, tarballPath, helm.UpdateValueOverrides(chartOperatorValues), helm.UpgradeForce(true))
+		opts := helmclient.UpdateOptions{
+			Force: true,
+		}
+		err = cc.Clients.Helm.UpdateReleaseFromTarball(ctx,
+			tarballPath,
+			key.Namespace(cr),
+			cr.Name,
+			chartOperatorValues,
+			opts)
 		if err != nil {
 			return microerror.Mask(err)
 		}
@@ -202,7 +216,7 @@ func (r Resource) updateChartOperator(ctx context.Context, cr v1alpha1.App) erro
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("waiting for ready %#q deployment", cr.Name))
 
 		o := func() error {
-			err := r.checkDeploymentReady(ctx, cc.Clients.K8s, cr)
+			err := r.checkDeploymentReady(ctx, cc.Clients.K8s.K8sClient(), cr)
 			if err != nil {
 				return microerror.Mask(err)
 			}
@@ -224,22 +238,6 @@ func (r Resource) updateChartOperator(ctx context.Context, cr v1alpha1.App) erro
 	}
 
 	return nil
-}
-
-func (r *Resource) mergeChartOperatorValues(ctx context.Context, cr v1alpha1.App, catalog v1alpha1.AppCatalog) ([]byte, error) {
-	var chartOperatorValues []byte
-	{
-		values, err := r.values.MergeAll(ctx, cr, catalog)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-
-		chartOperatorValues, err = json.Marshal(values)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-	return chartOperatorValues, nil
 }
 
 // checkDeploymentReady checks for the specified deployment that the number of

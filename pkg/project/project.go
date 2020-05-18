@@ -5,7 +5,7 @@ var (
 	gitSHA      = "n/a"
 	name        = "app-operator"
 	source      = "https://github.com/giantswarm/app-operator"
-	version     = "1.1.0-dev"
+	version     = "1.0.2-dev"
 )
 
 // AppVersion is fixed for app CRs. Its version is not linked to a release.

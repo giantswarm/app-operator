@@ -45,11 +45,12 @@ func NewApp(config Config) (*App, error) {
 	var resourceSetV1 *controller.ResourceSet
 	{
 		c := ResourceSetConfig{
+			FileSystem: config.Fs,
+			K8sClient:  config.K8sClient,
+			Logger:     config.Logger,
+
 			ChartNamespace: config.ChartNamespace,
-			FileSystem:     config.Fs,
 			ImageRegistry:  config.ImageRegistry,
-			K8sClient:      config.K8sClient,
-			Logger:         config.Logger,
 		}
 
 		resourceSetV1, err = NewResourceSet(c)

@@ -7,17 +7,13 @@ import (
 	"fmt"
 	"os"
 	"testing"
-	"time"
 
-	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/appcatalog"
-	"github.com/giantswarm/backoff"
+	"github.com/giantswarm/helmclient"
 	"github.com/giantswarm/microerror"
 	"github.com/spf13/afero"
-	"k8s.io/helm/pkg/helm"
 
 	"github.com/giantswarm/app-operator/integration/key"
-	"github.com/giantswarm/app-operator/integration/templates"
 	"github.com/giantswarm/app-operator/pkg/project"
 )
 
@@ -57,13 +53,6 @@ func installResources(ctx context.Context, config Config) error {
 		}
 	}
 
-	{
-		err = config.HelmClient.EnsureTillerInstalled(ctx)
-		if err != nil {
-			return microerror.Mask(err)
-		}
-	}
-
 	var operatorTarballPath string
 	{
 		config.Logger.LogCtx(ctx, "level", "debug", "message", "getting tarball URL")
@@ -96,12 +85,24 @@ func installResources(ctx context.Context, config Config) error {
 
 		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("installing %#q", project.Name()))
 
+		appOperatorValues := map[string]interface{}{
+			"Installation": map[string]interface{}{
+				"V1": map[string]interface{}{
+					"Registry": map[string]interface{}{
+						"Domain": "quay.io",
+					},
+				},
+			},
+		}
+		opts := helmclient.InstallOptions{
+			ReleaseName: project.Name(),
+		}
+
 		err = config.HelmClient.InstallReleaseFromTarball(ctx,
 			operatorTarballPath,
-			"ginatswarm",
-			helm.ReleaseName(key.AppOperatorReleaseName()),
-			helm.ValueOverrides([]byte(templates.AppOperatorValues)),
-			helm.InstallWait(true))
+			namespace,
+			appOperatorValues,
+			opts)
 		if err != nil {
 			return microerror.Mask(err)
 		}
@@ -110,16 +111,15 @@ func installResources(ctx context.Context, config Config) error {
 	}
 
 	{
-		config.Logger.LogCtx(ctx, "level", "debug", "message", "ensuring app CRD exists")
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("waiting for appcatalog crd"))
 
-		// The operator will install the CRD on boot but we create chart CRs
-		// in the tests so this ensures the CRD is present.
-		err = config.K8sClients.CRDClient().EnsureCreated(ctx, v1alpha1.NewAppCRD(), backoff.NewMaxRetries(7, 1*time.Second))
+		err = config.Release.WaitForAppCatalogCRD(ctx)
 		if err != nil {
 			return microerror.Mask(err)
 		}
 
-		config.Logger.LogCtx(ctx, "level", "debug", "message", "ensured app CRD exists")
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("waited for appcatalog crd"))
 	}
+
 	return nil
 }
