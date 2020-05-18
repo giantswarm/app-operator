@@ -146,9 +146,11 @@ func (r *Resource) ensureReleasesMigrated(ctx context.Context, k8sClient k8sclie
 			}
 
 			values := map[string]interface{}{
-				"image": map[string]string{
-					"registry": r.imageRegistry,
-				},
+				/*
+					"image": map[string]string{
+						"registry": r.imageRegistry,
+					},
+				*/
 				"releases": releases,
 				"tiller": map[string]string{
 					"namespace": tillerNamespace,
