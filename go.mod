@@ -4,7 +4,7 @@ go 1.13
 
 require (
 	github.com/Masterminds/semver/v3 v3.0.3
-	github.com/giantswarm/apiextensions v0.2.2
+	github.com/giantswarm/apiextensions v0.3.10
 	github.com/giantswarm/appcatalog v0.2.3
 	github.com/giantswarm/backoff v0.2.0
 	github.com/giantswarm/e2esetup v0.2.1-0.20200401192455-acfdbff0dabe
@@ -37,6 +37,5 @@ require (
 	k8s.io/api v0.17.3
 	k8s.io/apimachinery v0.17.3
 	k8s.io/client-go v0.17.3
-	k8s.io/utils v0.0.0-20191114200735-6ca3b61696b6 // indirect
 	sigs.k8s.io/yaml v1.2.0
 )
