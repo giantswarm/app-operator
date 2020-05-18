@@ -7,8 +7,11 @@ import (
 	"fmt"
 	"os"
 	"testing"
+	"time"
 
+	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/appcatalog"
+	"github.com/giantswarm/backoff"
 	"github.com/giantswarm/helmclient"
 	"github.com/giantswarm/microerror"
 	"github.com/spf13/afero"
@@ -110,16 +113,63 @@ func installResources(ctx context.Context, config Config) error {
 		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("installed %#q", project.Name()))
 	}
 
+	var operatorTarballPath string
 	{
-		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("waiting for appcatalog crd"))
+		config.Logger.LogCtx(ctx, "level", "debug", "message", "getting tarball URL")
 
-		err = config.Release.WaitForAppCatalogCRD(ctx)
+		operatorTarballURL, err := appcatalog.GetLatestChart(ctx, key.ControlPlaneTestCatalogStorageURL(), project.Name(), project.Version())
 		if err != nil {
 			return microerror.Mask(err)
 		}
 
-		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("waited for appcatalog crd"))
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("tarball URL is %#q", operatorTarballURL))
+
+		config.Logger.LogCtx(ctx, "level", "debug", "message", "pulling tarball")
+
+		operatorTarballPath, err = config.HelmClient.PullChartTarball(ctx, operatorTarballURL)
+		if err != nil {
+			return microerror.Mask(err)
+		}
+
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("tarball path is %#q", operatorTarballPath))
 	}
 
+	{
+		defer func() {
+			fs := afero.NewOsFs()
+			err := fs.Remove(operatorTarballPath)
+			if err != nil {
+				config.Logger.LogCtx(ctx, "level", "error", "message", fmt.Sprintf("deletion of %#q failed", operatorTarballPath), "stack", fmt.Sprintf("%#v", err))
+			}
+		}()
+
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("installing %#q", project.Name()))
+
+		opts := helmclient.InstallOptions{
+			ReleaseName: key.AppOperatorReleaseName(),
+		}
+		err = config.HelmClient.InstallReleaseFromTarball(ctx,
+			operatorTarballPath,
+			"giantswarm",
+			opts)
+		if err != nil {
+			return microerror.Mask(err)
+		}
+
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("installed %#q", project.Name()))
+	}
+
+	{
+		config.Logger.LogCtx(ctx, "level", "debug", "message", "ensuring app CRD exists")
+
+		// The operator will install the CRD on boot but we create chart CRs
+		// in the tests so this ensures the CRD is present.
+		err = config.K8sClients.CRDClient().EnsureCreated(ctx, v1alpha1.NewAppCRD(), backoff.NewMaxRetries(7, 1*time.Second))
+		if err != nil {
+			return microerror.Mask(err)
+		}
+
+		config.Logger.LogCtx(ctx, "level", "debug", "message", "ensured app CRD exists")
+	}
 	return nil
 }

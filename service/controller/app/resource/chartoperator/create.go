@@ -35,6 +35,7 @@ func (r Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 	if cc.Status.TenantCluster.IsUnavailable {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster is unavailable")
+<<<<<<< HEAD:service/controller/app/resource/chartoperator/create.go
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 		return nil
 	}
@@ -43,16 +44,40 @@ func (r Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	// Helm 2 is managed by the thiccc deployment of app-operator.
 	if key.HelmMajorVersion(cr) != "3" {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("app %#q not using helm 3", cr.Name))
+=======
+>>>>>>> master:service/controller/app/v1/resource/chartoperator/create.go
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 		return nil
 	}
 
+<<<<<<< HEAD:service/controller/app/resource/chartoperator/create.go
 	{
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding %#q deployment", cr.Name))
 
 		_, err = cc.Clients.K8s.K8sClient().AppsV1().Deployments(key.Namespace(cr)).Get(cr.Name, metav1.GetOptions{})
 		if err == nil {
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found %#q deployment", cr.Name))
+=======
+	// Check whether cluster has a chart-operator helm release yet.
+	{
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding release %#q", cr.Name))
+
+		_, err := cc.Clients.Helm.GetReleaseContent(ctx, cr.Name)
+		if helmclient.IsTillerNotFound(err) {
+			r.logger.LogCtx(ctx, "level", "debug", "message", "no healthy tiller pod found")
+
+			// Tiller may not be healthy and we cannot continue without a connection
+			// to Tiller. We will retry on next reconciliation loop.
+			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation")
+			reconciliationcanceledcontext.SetCanceled(ctx)
+
+			return nil
+		} else if helmclient.IsTillerOutdated(err) {
+			// Tiller is upgraded by chart-operator. When we want to upgrade
+			// Tiller we deploy a new version of chart-operator. So here we
+			// can just cancel the resource.
+			r.logger.LogCtx(ctx, "level", "debug", "message", "tiller pod is outdated")
+>>>>>>> master:service/controller/app/v1/resource/chartoperator/create.go
 			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 			return nil
 		} else if apierrors.IsNotFound(err) {
@@ -104,12 +129,20 @@ func (r Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		} else {
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found release %#q", cr.Name))
 
+<<<<<<< HEAD:service/controller/app/resource/chartoperator/create.go
 			releaseContent, err := cc.Clients.Helm.GetReleaseContent(ctx, key.Namespace(cr), cr.Name)
+=======
+			releaseContent, err := cc.Clients.Helm.GetReleaseContent(ctx, cr.Name)
+>>>>>>> master:service/controller/app/v1/resource/chartoperator/create.go
 			if err != nil {
 				return microerror.Mask(err)
 			}
 
+<<<<<<< HEAD:service/controller/app/resource/chartoperator/create.go
 			if releaseContent.Status == helmclient.StatusFailed {
+=======
+			if releaseContent.Status == "FAILED" {
+>>>>>>> master:service/controller/app/v1/resource/chartoperator/create.go
 				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("release %#q failed to install", cr.Name))
 				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating release %#q", cr.Name))
 
