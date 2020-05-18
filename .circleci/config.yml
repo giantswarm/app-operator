@@ -52,6 +52,7 @@ workflows:
             tags:
               only: /^v.*/
 
+#      TODO: Uncomment it after we deployed helm 3 supported app-operator into all installations.
 #      # deploy to aws installations (only tags)
 #      - architect/push-to-app-collection:
 #          context: "architect"
