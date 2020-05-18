@@ -7,6 +7,11 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## Unreleased
 
+### Changed
+
+- Updated to use Helm 3 and added releasemigration resource for migrating releases
+from Helm 2 to Helm 3.
+
 ## [v1.0.3] 2020-05-18
 
 ### Changed
