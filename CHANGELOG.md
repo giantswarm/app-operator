@@ -7,6 +7,8 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## Unreleased
 
+## [v1.0.3] 2020-05-18
+
 ### Changed
 
 - Cancel resources when app CRs are cordoned.
@@ -23,7 +25,8 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 - Flattening operator release structure.
 
-[Unreleased]: https://github.com/giantswarm/app-operator/compare/v1.0.2..HEAD
+[Unreleased]: https://github.com/giantswarm/app-operator/compare/v1.0.3..HEAD
 
+[1.0.3]: https://github.com/giantswarm/app-operator/compare/v1.0.2..v1.0.3
 [1.0.2]: https://github.com/giantswarm/app-operator/compare/v1.0.1..v1.0.2
 [1.0.1]: https://github.com/giantswarm/app-operator/releases/tag/v1.0.1
