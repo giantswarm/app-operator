@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
+	"github.com/giantswarm/appcatalog"
 	"github.com/giantswarm/e2esetup/chart/env"
 	"github.com/giantswarm/helmclient"
 	corev1 "k8s.io/api/core/v1"
@@ -126,10 +127,7 @@ func TestAppWithKubeconfig(t *testing.T) {
 				Description: key.DefaultCatalogName(),
 				Storage: v1alpha1.AppCatalogSpecStorage{
 					Type: "helm",
-					// URL:  key.DefaultCatalogStorageURL(),
-					// TODO: Use default catalog once there is a chart-operator
-					// release with Helm 3 support.
-					URL: "https://giantswarm.github.io/default-test-catalog",
+					URL:  key.DefaultCatalogStorageURL(),
 				},
 				Title: key.DefaultCatalogName(),
 			},
@@ -167,9 +165,7 @@ func TestAppWithKubeconfig(t *testing.T) {
 				},
 				Name:      key.TestAppReleaseName(),
 				Namespace: namespace,
-				// TODO: Removing SHA once there is a chart-operator release
-				// with Helm 3 support in the default catalog.
-				Version: "0.1.0-0fe003278fb0b829e3254b9c5f0dbf1b3cbbe9a0",
+				Version:   "0.1.0",
 			},
 		}
 		_, err = config.K8sClients.G8sClient().ApplicationV1alpha1().Apps(namespace).Create(appCR)
@@ -183,14 +179,10 @@ func TestAppWithKubeconfig(t *testing.T) {
 	{
 		config.Logger.LogCtx(ctx, "level", "debug", "message", "creating chart-operator app CR")
 
-		//tag, err := appcatalog.GetLatestVersion(ctx, key.DefaultCatalogStorageURL(), "chart-operator")
-		//if err != nil {
-		//	t.Fatalf("expected nil got %#v", err)
-		//}
-
-		// TODO: Removing hardcoding once there is a chart-operator release
-		// with Helm 3 support in the default catalog.
-		tag := "0.12.1-cbacf365e9633281909eca61992c1fcd99927396"
+		tag, err := appcatalog.GetLatestVersion(ctx, key.DefaultCatalogStorageURL(), "chart-operator")
+		if err != nil {
+			t.Fatalf("expected nil got %#v", err)
+		}
 
 		_, err = config.K8sClients.G8sClient().ApplicationV1alpha1().Apps(namespace).Create(&v1alpha1.App{
 			ObjectMeta: metav1.ObjectMeta{
