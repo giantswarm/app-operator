@@ -8,7 +8,7 @@ require (
 	github.com/giantswarm/appcatalog v0.2.3
 	github.com/giantswarm/backoff v0.2.0
 	github.com/giantswarm/e2esetup v0.2.1-0.20200401192455-acfdbff0dabe
-	github.com/giantswarm/errors v0.2.0
+	github.com/giantswarm/errors v0.2.3
 	github.com/giantswarm/exporterkit v0.2.0
 	github.com/giantswarm/helmclient v1.0.0
 	github.com/giantswarm/k8sclient v0.2.0

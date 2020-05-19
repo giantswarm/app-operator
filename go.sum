@@ -233,6 +233,8 @@ github.com/giantswarm/e2esetup v0.2.1-0.20200401192455-acfdbff0dabe h1:kAzT7fQm/
 github.com/giantswarm/e2esetup v0.2.1-0.20200401192455-acfdbff0dabe/go.mod h1:jG/s6HU+/JhuAwpE9nOTQfhpCT3O44aMbWT3sR+kXJ4=
 github.com/giantswarm/errors v0.2.0 h1:l9bAe0IQBHLkZQVT+h79DTCJQ3tuDFrOfUySVlbKn10=
 github.com/giantswarm/errors v0.2.0/go.mod h1:Oj1LIWs9Uoj6JGtK5HxTb50iZuqe9f60LDI0nLXA5vU=
+github.com/giantswarm/errors v0.2.3 h1:gE1dDSD0RNwYUah5hG6oUQh0unPyZ74tVwR1/PW3ZQ0=
+github.com/giantswarm/errors v0.2.3/go.mod h1:Oj1LIWs9Uoj6JGtK5HxTb50iZuqe9f60LDI0nLXA5vU=
 github.com/giantswarm/exporterkit v0.2.0 h1:+HTGl4fmT/1OkTox8HbV3JXeavmsZv94+2CDW8cSrq0=
 github.com/giantswarm/exporterkit v0.2.0/go.mod h1:b4fuHVjsvZgznC9OEPfn0y5zvN8SnEKTiI5zTTfck94=
 github.com/giantswarm/helmclient v0.0.0-20200331110847-d697c5c4a0fb h1:k8AjjEiQu0T5D6ObicQN93VfXfWMvwZQ1kfDpnbx/m4=
