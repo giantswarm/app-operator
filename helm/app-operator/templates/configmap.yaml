@@ -22,6 +22,9 @@ data:
             firecracker: "aws-operator,cluster-operator,kiam,releases-aws"
             ludacris: "bridge-operator,cert-exporter,cert-operator,coredns-app,flannel-operator,ignition-operator,kvm-operator,kube-state-metrics-app,metrics-server-app,net-exporter,node-operator,release-operator,releases-kvm"
             magic: "cluster-service,dex-app,g8s-cert-manager,g8s-efk,g8s-grafana,g8s-oauth2-proxy,g8s-prometheus,gatekeeper-app,gatekeeper-control-plane-rules,kubernetesd,rbac-operator,tokend,userd,vault-app"
+      helm:
+        http:
+          clientTimeout: '{{ .Values.Installation.V1.Helm.HTTP.ClientTimeout }}'
       image:
         registry: '{{ .Values.Installation.V1.Registry.Domain }}' 
       kubernetes:

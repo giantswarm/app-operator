@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"time"
 
 	"github.com/giantswarm/k8sclient"
 	"github.com/giantswarm/microerror"
@@ -38,8 +39,9 @@ type ResourceSetConfig struct {
 	Logger     micrologger.Logger
 
 	// Settings.
-	ChartNamespace string
-	ImageRegistry  string
+	ChartNamespace    string
+	HTTPClientTimeout time.Duration
+	ImageRegistry     string
 }
 
 // NewResourceSet returns a configured App controller ResourceSet.
@@ -60,6 +62,9 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	// Settings.
 	if config.ChartNamespace == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ChartNamespace must not be empty", config)
+	}
+	if config.HTTPClientTimeout == 0 {
+		return nil, microerror.Maskf(invalidConfigError, "%T.HTTPClientTimeout must not be empty", config)
 	}
 	if config.ImageRegistry == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ImageRegistry must not be empty", config)
@@ -143,7 +148,8 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 			K8sClient: config.K8sClient.K8sClient(),
 			Logger:    config.Logger,
 
-			ImageRegistry: config.ImageRegistry,
+			HTTPClientTimeout: config.HTTPClientTimeout,
+			ImageRegistry:     config.ImageRegistry,
 		}
 
 		clientsResource, err = clients.New(c)
