@@ -181,7 +181,7 @@ func (r *Resource) ensureReleasesMigrated(ctx context.Context, k8sClient k8sclie
 	}
 
 	n := func(err error, t time.Duration) {
-		r.logger.Log("level", "debug", "message", "failed to migrate all helm v2 releases")
+		r.logger.Log("level", "debug", "message", "migration not complete")
 	}
 
 	b := backoff.NewConstant(5*time.Minute, 10*time.Second)

@@ -116,8 +116,9 @@ func New(config Config) (*Service, error) {
 			Logger:    config.Logger,
 			K8sClient: k8sClient,
 
-			ChartNamespace: config.Viper.GetString(config.Flag.Service.Chart.Namespace),
-			ImageRegistry:  config.Viper.GetString(config.Flag.Service.Image.Registry),
+			ChartNamespace:    config.Viper.GetString(config.Flag.Service.Chart.Namespace),
+			HTTPClientTimeout: config.Viper.GetDuration(config.Flag.Service.Helm.HTTP.ClientTimeout),
+			ImageRegistry:     config.Viper.GetString(config.Flag.Service.Image.Registry),
 		}
 
 		appController, err = app.NewApp(c)

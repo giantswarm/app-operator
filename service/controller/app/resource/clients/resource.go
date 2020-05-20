@@ -2,6 +2,7 @@ package clients
 
 import (
 	"context"
+	"time"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/errors/tenant"
@@ -29,7 +30,8 @@ type Config struct {
 	Logger    micrologger.Logger
 
 	// Settings.
-	ImageRegistry string
+	HTTPClientTimeout time.Duration
+	ImageRegistry     string
 }
 
 // Resource implements the clients resource.
@@ -39,7 +41,8 @@ type Resource struct {
 	logger    micrologger.Logger
 
 	// Settings.
-	imageRegistry string
+	httpClientTimeout time.Duration
+	imageRegistry     string
 }
 
 // New creates a new configured clients resource.
@@ -51,6 +54,9 @@ func New(config Config) (*Resource, error) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
 
+	if config.HTTPClientTimeout == 0 {
+		return nil, microerror.Maskf(invalidConfigError, "%T.HTTPClientTimeout must not be empty", config)
+	}
 	if config.ImageRegistry == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ImageRegistry must not be empty", config)
 	}
@@ -61,7 +67,8 @@ func New(config Config) (*Resource, error) {
 		logger:    config.Logger,
 
 		// Settings
-		imageRegistry: config.ImageRegistry,
+		httpClientTimeout: config.HTTPClientTimeout,
+		imageRegistry:     config.ImageRegistry,
 	}
 
 	return r, nil
@@ -140,6 +147,8 @@ func (r *Resource) addClientsToContext(ctx context.Context, cr v1alpha1.App) err
 			Fs:        fs,
 			K8sClient: k8sClient,
 			Logger:    r.logger,
+
+			HTTPClientTimeout: r.httpClientTimeout,
 		}
 
 		helmClient, err = helmclient.New(c)

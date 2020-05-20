@@ -1,6 +1,8 @@
 package app
 
 import (
+	"time"
+
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/k8sclient"
 	"github.com/giantswarm/microerror"
@@ -17,8 +19,9 @@ type Config struct {
 	K8sClient k8sclient.Interface
 	Logger    micrologger.Logger
 
-	ChartNamespace string
-	ImageRegistry  string
+	ChartNamespace    string
+	HTTPClientTimeout time.Duration
+	ImageRegistry     string
 }
 
 type App struct {
@@ -38,6 +41,9 @@ func NewApp(config Config) (*App, error) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
 
+	if config.HTTPClientTimeout == 0 {
+		return nil, microerror.Maskf(invalidConfigError, "%T.HTTPClientTimeout must not be empty", config)
+	}
 	if config.ImageRegistry == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ImageRegistry must not be empty", config)
 	}
@@ -49,8 +55,9 @@ func NewApp(config Config) (*App, error) {
 			K8sClient:  config.K8sClient,
 			Logger:     config.Logger,
 
-			ChartNamespace: config.ChartNamespace,
-			ImageRegistry:  config.ImageRegistry,
+			ChartNamespace:    config.ChartNamespace,
+			HTTPClientTimeout: config.HTTPClientTimeout,
+			ImageRegistry:     config.ImageRegistry,
 		}
 
 		resourceSetV1, err = NewResourceSet(c)

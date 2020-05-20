@@ -5,6 +5,7 @@ import (
 
 	"github.com/giantswarm/app-operator/flag/service/chart"
 	"github.com/giantswarm/app-operator/flag/service/collector"
+	"github.com/giantswarm/app-operator/flag/service/helm"
 	"github.com/giantswarm/app-operator/flag/service/image"
 )
 
@@ -12,6 +13,7 @@ import (
 type Service struct {
 	Chart      chart.Chart
 	Collector  collector.Collector
+	Helm       helm.Helm
 	Image      image.Image
 	Kubernetes kubernetes.Kubernetes
 }
