@@ -1,11 +1,12 @@
 version: 2.1
 orbs:
-  architect: giantswarm/architect@0.8.14
+  architect: giantswarm/architect@0.8.15
 
 workflows:
   build:
     jobs:
       - architect/go-build:
+          context: architect
           name: go-build
           binary: app-operator
           filters:
@@ -13,6 +14,7 @@ workflows:
               only: /^v.*/
 
       - architect/push-to-docker:
+          context: architect
           name: push-app-operator-to-quay
           image: "quay.io/giantswarm/app-operator"
           username_envar: "QUAY_USERNAME"
@@ -25,6 +27,7 @@ workflows:
               only: /^v.*/
 
       - architect/push-to-docker:
+          context: architect
           name: push-app-operator-to-aliyun
           image: "registry-intl.cn-shanghai.aliyuncs.com/giantswarm/app-operator"
           username_envar: "ALIYUN_USERNAME"
@@ -32,14 +35,13 @@ workflows:
           requires:
             - go-build
           filters:
-            branches:
-              only: master
             # Trigger the job also on git tag.
             tags:
               only: /^v.*/
 
       # build and push chart to app catalog
       - architect/push-to-app-catalog:
+          context: architect
           name: push-app-operator-to-control-plane-app-catalog
           app_catalog: "control-plane-catalog"
           app_catalog_test: "control-plane-test-catalog"
@@ -102,6 +104,7 @@ workflows:
 #              only: /^v.*/
 
       - architect/integration-test:
+          context: architect
           name: basic-integration-test
           test-dir: "integration/test/app/basic"
           requires:
@@ -109,6 +112,7 @@ workflows:
             - push-app-operator-to-control-plane-app-catalog
 
       - architect/integration-test:
+          context: architect
           name: kubeconfig-integration-test
           test-dir: "integration/test/app/kubeconfig"
           requires:
