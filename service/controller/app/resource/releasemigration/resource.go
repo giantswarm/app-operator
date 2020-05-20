@@ -127,7 +127,7 @@ func (r *Resource) ensureReleasesMigrated(ctx context.Context, k8sClient k8sclie
 				}
 			*/
 
-			tarballURL := "https://giantswarm.github.com/default-test-catalog/helm-2to3-migration-1.1.3-f462eccbbe844bf08605df90d2f04761a2df43db.tgz"
+			tarballURL := "https://giantswarm.github.com/default-test-catalog/helm-2to3-migration-1.1.3-f743ad3376f9162e79335afc9569963616220ad2.tgz"
 
 			tarballPath, err = helmClient.PullChartTarball(ctx, tarballURL)
 			if err != nil {
