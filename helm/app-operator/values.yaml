@@ -18,6 +18,9 @@ image:
 
 Installation:
   V1:
+    Helm:
+      HTTP:
+        ClientTimeout: "5s"
     Registry:
       Domain: quay.io
 
