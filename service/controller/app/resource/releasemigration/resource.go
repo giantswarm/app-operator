@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/giantswarm/app-operator/service/controller/app/key"
+	"github.com/giantswarm/appcatalog"
 	"github.com/giantswarm/backoff"
 	"github.com/giantswarm/helmclient"
 	"github.com/giantswarm/k8sclient"
@@ -120,14 +122,10 @@ func (r *Resource) ensureReleasesMigrated(ctx context.Context, k8sClient k8sclie
 	{
 		var tarballPath string
 		{
-			/*
-				tarballURL, err := appcatalog.GetLatestChart(ctx, key.DefaultCatalogStorageURL(), "helm-2to3-migration", "")
-				if err != nil {
-					return microerror.Mask(err)
-				}
-			*/
-
-			tarballURL := "https://giantswarm.github.com/default-test-catalog/helm-2to3-migration-1.1.3-84571c923d4d65d24a8820f489de99716dc857f8.tgz"
+			tarballURL, err := appcatalog.GetLatestChart(ctx, key.DefaultCatalogStorageURL(), "helm-2to3-migration", "")
+			if err != nil {
+				return microerror.Mask(err)
+			}
 
 			tarballPath, err = helmClient.PullChartTarball(ctx, tarballURL)
 			if err != nil {
@@ -182,7 +180,7 @@ func (r *Resource) ensureReleasesMigrated(ctx context.Context, k8sClient k8sclie
 	}
 
 	n := func(err error, t time.Duration) {
-		r.logger.Log("level", "debug", "message", "failed to migrate all helm v2 releases")
+		r.logger.Log("level", "debug", "message", "migration not complete")
 	}
 
 	b := backoff.NewConstant(5*time.Minute, 10*time.Second)
