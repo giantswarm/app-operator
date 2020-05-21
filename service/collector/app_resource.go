@@ -143,7 +143,7 @@ func (c *AppResource) collectAppStatus(ctx context.Context, ch chan<- prometheus
 
 		t, err := convertToTime(key.CordonUntil(app))
 		if err != nil {
-			c.logger.Log("level", "warning", "message", "could not convert cordon-until", "stack", fmt.Sprintf("%#v", err))
+			c.logger.Log("level", "warning", "message", fmt.Sprintf("could not convert cordon-until for app %q", key.AppName(app)), "stack", fmt.Sprintf("%#v", err))
 			continue
 		}
 

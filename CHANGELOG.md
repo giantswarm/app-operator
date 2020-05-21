@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## Unreleased
 
+### Changed
+
+- Log app name in collector when cordon-until annotation cannot be parsed.
+
 ## [v1.1.2] 2020-05-21
 
 ### Changed
