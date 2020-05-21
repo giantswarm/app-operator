@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## Unreleased
 
+### Changed
+
+- Update dependencies including error handling for unavailable tenant clusters.
+
 ## [v1.1.1] 2020-05-21
 
 ### Changed
