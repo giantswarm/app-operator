@@ -10,7 +10,7 @@ require (
 	github.com/giantswarm/e2esetup v0.3.0
 	github.com/giantswarm/errors v0.2.3
 	github.com/giantswarm/exporterkit v0.2.0
-	github.com/giantswarm/helmclient v1.0.0
+	github.com/giantswarm/helmclient v1.0.1
 	github.com/giantswarm/k8sclient v0.2.0
 	github.com/giantswarm/kubeconfig v0.2.0
 	github.com/giantswarm/microendpoint v0.2.0
