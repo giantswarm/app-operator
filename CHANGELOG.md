@@ -10,6 +10,7 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 ### Changed
 
 - Log app name in collector when cordon-until annotation cannot be parsed.
+- Update to helmclient v1.0.1 for security patch.
 
 ## [v1.1.2] 2020-05-21
 
