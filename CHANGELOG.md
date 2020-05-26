@@ -7,6 +7,8 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## Unreleased
 
+## [v1.1.3] 2020-05-26
+
 ### Changed
 
 - Log app name in collector when cordon-until annotation cannot be parsed.
@@ -50,8 +52,9 @@ from Helm 2 to Helm 3.
 
 - Flattening operator release structure.
 
-[Unreleased]: https://github.com/giantswarm/app-operator/compare/v1.1.2..HEAD
+[Unreleased]: https://github.com/giantswarm/app-operator/compare/v1.1.3..HEAD
 
+[1.1.3]: https://github.com/giantswarm/app-operator/compare/v1.1.2..v1.1.3
 [1.1.2]: https://github.com/giantswarm/app-operator/compare/v1.1.1..v1.1.2
 [1.1.1]: https://github.com/giantswarm/app-operator/compare/v1.1.0..v1.1.1
 [1.1.0]: https://github.com/giantswarm/app-operator/compare/v1.0.3..v1.1.0
