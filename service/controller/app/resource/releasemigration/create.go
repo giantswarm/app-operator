@@ -8,7 +8,6 @@ import (
 
 	"github.com/Masterminds/semver/v3"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
-	"github.com/giantswarm/helmclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/controller/context/reconciliationcanceledcontext"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -52,12 +51,6 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return nil
 	}
 
-	if cr.Status.AppVersion == "" {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("app %#q is not installed yet", key.AppName(cr)))
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
-		return nil
-	}
-
 	v, err := semver.NewVersion(cr.Status.AppVersion)
 	if err != nil {
 		return microerror.Mask(err)
@@ -69,7 +62,27 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return nil
 	}
 
-	if strings.ToLower(cr.Status.Release.Status) != helmclient.StatusDeployed {
+	deploy, err := cc.Clients.K8s.K8sClient().AppsV1().Deployments(key.Namespace(cr)).Get(cr.Name, metav1.GetOptions{})
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
+	// extract spec container image
+	image := deploy.Spec.Template.Spec.Containers[0].Image
+	tag := strings.Split(image, ":")[1]
+
+	v, err = semver.NewVersion(tag)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
+	if v.Major() < 1 {
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("app %#q with appVersion %#q is using Helm 2. we don't need to trigger Helm 3 migration.", key.AppName(cr), cr.Status.AppVersion))
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		return nil
+	}
+
+	if deploy.Status.ReadyReplicas > 0 {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("app %#q is not deployed yet", key.AppName(cr)))
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 		return nil
