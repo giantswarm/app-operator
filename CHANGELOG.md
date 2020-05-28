@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## Unreleased
 
+### Changed
+
+- Check chart-operator deployment status before initiating helm 3 migration.
+
 ## [v1.1.3] 2020-05-26
 
 ### Changed
