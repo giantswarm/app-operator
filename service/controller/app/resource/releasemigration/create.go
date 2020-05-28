@@ -51,6 +51,10 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return nil
 	}
 
+	if cr.Status.AppVersion == "" {
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("app %#q is not installed yet", key.AppName(cr)))
+	}
+
 	v, err := semver.NewVersion(cr.Status.AppVersion)
 	if err != nil {
 		return microerror.Mask(err)
