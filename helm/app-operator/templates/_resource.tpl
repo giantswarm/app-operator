@@ -30,3 +30,7 @@ giantswarm
 {{- define "resource.app.unique" -}}
 {{ if eq .Release.Name "app-operator-unique" }}true{{ else }}false{{ end }}
 {{- end -}}
+
+{{- define "resource.app.version" -}}
+{{ if eq .Release.Name "app-operator-unique" }}0.0.0{{ else }}.Chart.AppVersion{{ end }}
+{{- end -}}
