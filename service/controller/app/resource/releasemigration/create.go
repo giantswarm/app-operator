@@ -86,7 +86,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return nil
 	}
 
-	if deploy.Status.ReadyReplicas > 0 {
+	if deploy.Status.ReadyReplicas == 0 {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("app %#q is not deployed yet", key.AppName(cr)))
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 		return nil
