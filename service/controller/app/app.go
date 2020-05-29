@@ -59,6 +59,7 @@ func NewApp(config Config) (*App, error) {
 			ChartNamespace:    config.ChartNamespace,
 			HTTPClientTimeout: config.HTTPClientTimeout,
 			ImageRegistry:     config.ImageRegistry,
+			UniqueApp:         config.UniqueApp,
 		}
 
 		resourceSetV1, err = NewResourceSet(c)
