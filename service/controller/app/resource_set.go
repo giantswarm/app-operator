@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/giantswarm/k8sclient"
@@ -283,6 +284,15 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		if err != nil {
 			return false
 		}
+
+		fmt.Printf("UNIQUE APP %t", config.UniqueApp)
+		fmt.Printf("CR NAME %#q", cr.Name)
+
+		cpRes := key.VersionLabel(cr) == project.AppControlPlaneVersion()
+		fmt.Printf("MATCHING CP VERSION %t", cpRes)
+
+		tcRes := key.VersionLabel(cr) == project.AppTenantVersion()
+		fmt.Printf("MATCHING CP VERSION %t", tcRes)
 
 		// When app-operator is deployed as a unique app it only processes
 		// control plane app CRs. These CRs always have the version label
