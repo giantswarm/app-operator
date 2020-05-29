@@ -26,3 +26,7 @@ room for such suffix.
 {{- define "resource.default.namespace" -}}
 giantswarm
 {{- end -}}
+
+{{- define "resource.app.unique" -}}
+{{ if eq .Values.Release.Name "app-operator-unique" }}true{{ else }}false{{ end }}
+{{- end -}}
