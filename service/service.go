@@ -119,6 +119,7 @@ func New(config Config) (*Service, error) {
 			ChartNamespace:    config.Viper.GetString(config.Flag.Service.Chart.Namespace),
 			HTTPClientTimeout: config.Viper.GetDuration(config.Flag.Service.Helm.HTTP.ClientTimeout),
 			ImageRegistry:     config.Viper.GetString(config.Flag.Service.Image.Registry),
+			UniqueApp:         config.Viper.GetBool(config.Flag.Service.App.Unique),
 		}
 
 		appController, err = app.NewApp(c)

@@ -22,6 +22,7 @@ type Config struct {
 	ChartNamespace    string
 	HTTPClientTimeout time.Duration
 	ImageRegistry     string
+	UniqueApp         bool
 }
 
 type App struct {
