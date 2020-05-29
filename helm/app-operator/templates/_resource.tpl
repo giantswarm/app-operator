@@ -34,4 +34,4 @@ giantswarm
 {{- define "resource.app.version" -}}
 {{ if eq .Release.Name "app-operator-unique" }}0.0.0{{ else }}.Chart.AppVersion{{ end }}
 {{- end -}}
-
+ 
