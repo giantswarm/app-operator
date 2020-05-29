@@ -25,8 +25,8 @@ Installation:
       Domain: quay.io
 
 project:
-  branch: "[[ .Branch ]]"
-  commit: "[[ .SHA ]]"
+  branch: "master"
+  commit: "sha"
 
 deployment:
   requests:
