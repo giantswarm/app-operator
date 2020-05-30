@@ -32,9 +32,9 @@ The unique deployment of app-operator manages control plane app CRs and uses
 a special app version of 0.0.0.
 */}}
 {{- define "resource.app.unique" -}}
-{{ if eq .Release.Name "app-operator-unique" }}true{{ else }}false{{ end }}
+{{- if hasSuffix "-unique" .Release.Name }}true{{ else }}false{{ end }}
 {{- end -}}
 {{- define "resource.app.version" -}}
-{{- if eq .Release.Name "app-operator-unique" }}0.0.0{{ else }}{{ .Chart.AppVersion }}{{ end }}
+{{- if hasSuffix "-unique" .Release.Name }}0.0.0{{ else }}{{ .Chart.AppVersion }}{{ end }}
 {{- end -}}
 
