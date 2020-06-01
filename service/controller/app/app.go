@@ -19,6 +19,7 @@ type Config struct {
 
 	ChartNamespace string
 	ImageRegistry  string
+	UniqueApp      bool
 }
 
 type App struct {
@@ -50,6 +51,7 @@ func NewApp(config Config) (*App, error) {
 			ImageRegistry:  config.ImageRegistry,
 			K8sClient:      config.K8sClient,
 			Logger:         config.Logger,
+			UniqueApp:      config.UniqueApp,
 		}
 
 		resourceSetV1, err = NewResourceSet(c)

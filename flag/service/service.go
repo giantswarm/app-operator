@@ -3,6 +3,7 @@ package service
 import (
 	"github.com/giantswarm/operatorkit/flag/service/kubernetes"
 
+	"github.com/giantswarm/app-operator/flag/service/app"
 	"github.com/giantswarm/app-operator/flag/service/chart"
 	"github.com/giantswarm/app-operator/flag/service/collector"
 	"github.com/giantswarm/app-operator/flag/service/image"
@@ -10,6 +11,7 @@ import (
 
 // Service is an intermediate data structure for command line configuration flags.
 type Service struct {
+	App        app.App
 	Chart      chart.Chart
 	Collector  collector.Collector
 	Image      image.Image

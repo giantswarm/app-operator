@@ -118,6 +118,7 @@ func New(config Config) (*Service, error) {
 
 			ChartNamespace: config.Viper.GetString(config.Flag.Service.Chart.Namespace),
 			ImageRegistry:  config.Viper.GetString(config.Flag.Service.Image.Registry),
+			UniqueApp:      config.Viper.GetBool(config.Flag.Service.App.Unique),
 		}
 
 		appController, err = app.NewApp(c)
