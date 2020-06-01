@@ -286,8 +286,6 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		// This hardcoding will be removed in a future release and we will then
 		// use project.Version().
 		return key.VersionLabel(cr) == project.AppTenantVersion()
-
-		return false
 	}
 
 	initCtxFunc := func(ctx context.Context, obj interface{}) (context.Context, error) {
