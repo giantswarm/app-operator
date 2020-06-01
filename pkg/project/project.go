@@ -8,9 +8,15 @@ var (
 	version     = "1.1.4-dev"
 )
 
-// AppVersion is fixed for app CRs. Its version is not linked to a release.
-// We may revisit this in future.
-func AppVersion() string {
+// AppControlPlaneVersion is always 0.0.0 for control plane app CRs. These CRs
+// are processed by app-operator-unique which always runs the latest version.
+func AppControlPlaneVersion() string {
+	return "0.0.0"
+}
+
+// AppTenantVersion is currently always 1.0.0 for tenant cluster app CRs. In a
+// future release this hardcoding will be removed.
+func AppTenantVersion() string {
 	return "1.0.0"
 }
 

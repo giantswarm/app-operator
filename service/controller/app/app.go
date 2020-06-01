@@ -22,6 +22,7 @@ type Config struct {
 	ChartNamespace    string
 	HTTPClientTimeout time.Duration
 	ImageRegistry     string
+	UniqueApp         bool
 }
 
 type App struct {
@@ -58,6 +59,7 @@ func NewApp(config Config) (*App, error) {
 			ChartNamespace:    config.ChartNamespace,
 			HTTPClientTimeout: config.HTTPClientTimeout,
 			ImageRegistry:     config.ImageRegistry,
+			UniqueApp:         config.UniqueApp,
 		}
 
 		resourceSetV1, err = NewResourceSet(c)
