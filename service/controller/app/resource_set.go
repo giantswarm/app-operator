@@ -286,7 +286,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 
 		// When app-operator is deployed as a unique app it only processes
 		// control plane app CRs. These CRs always have the version label
-		// app-operator.giantswarm.io/verson: 0.0.0
+		// app-operator.giantswarm.io/version: 0.0.0
 		if config.UniqueApp {
 			return key.VersionLabel(cr) == project.AppControlPlaneVersion()
 		}
