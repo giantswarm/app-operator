@@ -7,7 +7,16 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## Unreleased
 
+## [v1.0.5] 2020-06-03
+
+### Changed
+
+- Reconcile app CRs with both versions 1.0.0 and 0.0.0. This will be removed
+later.
+
 ## [v1.0.4] 2020-06-01
+
+### Changed
 
 - Reconcile different app CR versions for tenant and control planes.
 
@@ -29,8 +38,9 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 - Flattening operator release structure.
 
-[Unreleased]: https://github.com/giantswarm/app-operator/compare/v1.0.4..HEAD
+[Unreleased]: https://github.com/giantswarm/app-operator/compare/v1.0.5..HEAD
 
+[1.0.5]: https://github.com/giantswarm/app-operator/compare/v1.0.4..v1.0.5
 [1.0.4]: https://github.com/giantswarm/app-operator/compare/v1.0.3..v1.0.4
 [1.0.3]: https://github.com/giantswarm/app-operator/compare/v1.0.2..v1.0.3
 [1.0.2]: https://github.com/giantswarm/app-operator/compare/v1.0.1..v1.0.2
