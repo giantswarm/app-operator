@@ -277,15 +277,23 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		// When app-operator is deployed as a unique app it only processes
 		// control plane app CRs. These CRs always have the version label
 		// app-operator.giantswarm.io/version: 0.0.0
-		if config.UniqueApp {
-			return key.VersionLabel(cr) == project.AppControlPlaneVersion()
-		}
+		//if config.UniqueApp {
+		//	return key.VersionLabel(cr) == project.AppControlPlaneVersion()
+		//}
 
 		// Currently tenant cluster app CRs always have the version label
 		// app-operator.giantswarm.io/verson: 1.0.0
 		// This hardcoding will be removed in a future release and we will then
 		// use project.Version().
-		return key.VersionLabel(cr) == project.AppTenantVersion()
+		//return key.VersionLabel(cr) == project.AppTenantVersion()
+
+		// TODO: Enable logic above once separate app-operator instances for
+		// tenant and control planes are re-enabled.
+		if key.VersionLabel(cr) == project.AppControlPlaneVersion() || key.VersionLabel(cr) == project.AppTenantVersion() {
+			return true
+		}
+
+		return false
 	}
 
 	initCtxFunc := func(ctx context.Context, obj interface{}) (context.Context, error) {
