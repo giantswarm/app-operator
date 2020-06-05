@@ -13,9 +13,7 @@ import (
 	"github.com/giantswarm/operatorkit/resource/wrapper/retryresource"
 	"github.com/spf13/afero"
 
-	"github.com/giantswarm/app-operator/pkg/project"
 	"github.com/giantswarm/app-operator/service/controller/app/controllercontext"
-	"github.com/giantswarm/app-operator/service/controller/app/key"
 	"github.com/giantswarm/app-operator/service/controller/app/resource/appcatalog"
 	"github.com/giantswarm/app-operator/service/controller/app/resource/appnamespace"
 	"github.com/giantswarm/app-operator/service/controller/app/resource/chart"
@@ -268,26 +266,6 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 	}
 
-	handlesFunc := func(obj interface{}) bool {
-		cr, err := key.ToCustomResource(obj)
-		if err != nil {
-			return false
-		}
-
-		// When app-operator is deployed as a unique app it only processes
-		// control plane app CRs. These CRs always have the version label
-		// app-operator.giantswarm.io/version: 0.0.0
-		if config.UniqueApp {
-			return key.VersionLabel(cr) == project.AppControlPlaneVersion()
-		}
-
-		// Currently tenant cluster app CRs always have the version label
-		// app-operator.giantswarm.io/verson: 1.0.0
-		// This hardcoding will be removed in a future release and we will then
-		// use project.Version().
-		return key.VersionLabel(cr) == project.AppTenantVersion()
-	}
-
 	initCtxFunc := func(ctx context.Context, obj interface{}) (context.Context, error) {
 		cc := controllercontext.Context{}
 		ctx = controllercontext.NewContext(ctx, cc)
@@ -298,7 +276,6 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	var resourceSet *controller.ResourceSet
 	{
 		c := controller.ResourceSetConfig{
-			Handles:   handlesFunc,
 			InitCtx:   initCtxFunc,
 			Logger:    config.Logger,
 			Resources: resources,
