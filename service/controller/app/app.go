@@ -79,7 +79,7 @@ func NewApp(config Config) (*App, error) {
 			ResourceSets: []*controller.ResourceSet{
 				resourceSetV1,
 			},
-			Selector: key.AppLabelSelector(config.UniqueApp),
+			Selector: key.AppVersionSelector(config.UniqueApp),
 			NewRuntimeObjectFunc: func() runtime.Object {
 				return new(v1alpha1.App)
 			},

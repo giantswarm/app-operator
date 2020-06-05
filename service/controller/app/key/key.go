@@ -164,7 +164,7 @@ func KubecConfigSecretNamespace(customResource v1alpha1.App) string {
 	return customResource.Spec.KubeConfig.Secret.Namespace
 }
 
-func AppLabelSelector(unique bool) labels.Selector {
+func AppVersionSelector(unique bool) labels.Selector {
 	var version string
 
 	// Currently tenant cluster app CRs always have the version label
@@ -178,7 +178,6 @@ func AppLabelSelector(unique bool) labels.Selector {
 		// app-operator.giantswarm.io/version: 0.0.0
 		version = project.AppControlPlaneVersion()
 	}
-	// Selector to check if "app=chart-operator" and if helm-major-version is not belonging to 3.
 	s := fmt.Sprintf("%s=%s", label.AppOperatorVersion, version)
 
 	selector, err := labels.Parse(s)
