@@ -6,9 +6,11 @@ import (
 
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/microerror"
+	"k8s.io/apimachinery/pkg/labels"
 
 	"github.com/giantswarm/app-operator/pkg/annotation"
 	"github.com/giantswarm/app-operator/pkg/label"
+	"github.com/giantswarm/app-operator/pkg/project"
 )
 
 const (
@@ -160,6 +162,30 @@ func KubecConfigSecretName(customResource v1alpha1.App) string {
 
 func KubecConfigSecretNamespace(customResource v1alpha1.App) string {
 	return customResource.Spec.KubeConfig.Secret.Namespace
+}
+
+func AppVersionSelector(unique bool) labels.Selector {
+	var version string
+
+	// Currently tenant cluster app CRs always have the version label
+	// app-operator.giantswarm.io/verson: 1.0.0
+	// This hardcoding will be removed in a future release and we will then
+	// use project.Version().
+	version = project.AppTenantVersion()
+	if unique {
+		// When app-operator is deployed as a unique app it only processes
+		// control plane app CRs. These CRs always have the version label
+		// app-operator.giantswarm.io/version: 0.0.0
+		version = project.AppControlPlaneVersion()
+	}
+	s := fmt.Sprintf("%s=%s", label.AppOperatorVersion, version)
+
+	selector, err := labels.Parse(s)
+	if err != nil {
+		panic(fmt.Sprintf("failed to parse selector %#q with error %#q", s, err))
+	}
+
+	return selector
 }
 
 func Namespace(customResource v1alpha1.App) string {
