@@ -311,6 +311,61 @@ func Test_MergeConfigMapData(t *testing.T) {
 				"values": "catalog: test\ncluster: test\ntest: user\nuser: test\n",
 			},
 		},
+		{
+			name: "case 6: parsing error from wrong user values",
+			app: v1alpha1.App{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "my-test-app",
+					Namespace: "giantswarm",
+				},
+				Spec: v1alpha1.AppSpec{
+					Catalog:   "test-catalog",
+					Name:      "test-app",
+					Namespace: "giantswarm",
+					UserConfig: v1alpha1.AppSpecUserConfig{
+						ConfigMap: v1alpha1.AppSpecUserConfigConfigMap{
+							Name:      "user-values",
+							Namespace: "giantswarm",
+						},
+					},
+				},
+			},
+			appCatalog: v1alpha1.AppCatalog{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "test-catalog",
+				},
+				Spec: v1alpha1.AppCatalogSpec{
+					Title: "test-catalog",
+					Config: v1alpha1.AppCatalogSpecConfig{
+						ConfigMap: v1alpha1.AppCatalogSpecConfigConfigMap{
+							Name:      "test-catalog-values",
+							Namespace: "giantswarm",
+						},
+					},
+				},
+			},
+			configMaps: []*corev1.ConfigMap{
+				{
+					Data: map[string]string{
+						"values": `values: val`,
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "test-catalog-values",
+						Namespace: "giantswarm",
+					},
+				},
+				{
+					Data: map[string]string{
+						"values": `values: -`,
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "user-values",
+						Namespace: "giantswarm",
+					},
+				},
+			},
+			errorMatcher: IsParsingError,
+		},
 	}
 
 	ctx := context.Background()
