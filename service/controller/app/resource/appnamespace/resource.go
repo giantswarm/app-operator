@@ -68,9 +68,9 @@ func (r *Resource) addNamespaceStatusToContext(ctx context.Context, cr v1alpha1.
 	}
 
 	if ns.GetDeletionTimestamp() != nil {
-		cc.Status.TenantCluster.IsDeleting = true
+		cc.Status.ClusterStatus.IsDeleting = true
 	} else {
-		cc.Status.TenantCluster.IsDeleting = false
+		cc.Status.ClusterStatus.IsDeleting = false
 	}
 
 	return nil
