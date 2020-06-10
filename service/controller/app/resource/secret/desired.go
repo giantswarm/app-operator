@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/giantswarm/microerror"
+	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
@@ -40,7 +41,18 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 
 	mergedData, err := r.values.MergeSecretData(ctx, cr, cc.AppCatalog)
 	if values.IsNotFound(err) {
-		r.logger.LogCtx(ctx, "level", "warning", "message", fmt.Sprintf("dependent secrets are not found"), "stack", fmt.Sprintf("%#v", err))
+		r.logger.LogCtx(ctx, "level", "warning", "message", "dependent secrets are not found")
+		addStatusToContext(cc, err.Error(), secretMergeFailedStatus)
+
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		resourcecanceledcontext.SetCanceled(ctx)
+		return nil, nil
+	} else if values.IsParsingError(err) {
+		r.logger.LogCtx(ctx, "level", "warning", "message", "failed to merging secrets")
+		addStatusToContext(cc, err.Error(), secretMergeFailedStatus)
+
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		resourcecanceledcontext.SetCanceled(ctx)
 		return nil, nil
 	} else if err != nil {
 		return nil, microerror.Mask(err)

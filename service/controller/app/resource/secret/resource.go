@@ -7,12 +7,17 @@ import (
 	"github.com/giantswarm/micrologger"
 	corev1 "k8s.io/api/core/v1"
 
+	"github.com/giantswarm/app-operator/service/controller/app/controllercontext"
 	"github.com/giantswarm/app-operator/service/controller/app/values"
 )
 
 const (
 	// Name is the identifier of the resource.
 	Name = "secret"
+
+	// secretMergeFailedStatus is set in the CR status when there is an failure during
+	// merge secrets.
+	secretMergeFailedStatus = "secret-merge-failed"
 )
 
 // Config represents the configuration used to create a new secret resource.
@@ -60,6 +65,17 @@ func New(config Config) (*Resource, error) {
 
 func (r *Resource) Name() string {
 	return Name
+}
+
+// addStatusToContext adds the status to the controller context. It will be
+// used to set the CR status in the status resource.
+func addStatusToContext(cc *controllercontext.Context, reason, status string) {
+	cc.Status = controllercontext.Status{
+		ChartStatus: controllercontext.ChartStatus{
+			Reason: reason,
+			Status: status,
+		},
+	}
 }
 
 // equals asseses the equality of Secrets with regards to distinguishing

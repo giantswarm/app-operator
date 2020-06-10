@@ -29,14 +29,14 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 		return nil, microerror.Mask(err)
 	}
 
-	if cc.Status.TenantCluster.IsDeleting {
+	if cc.Status.ClusterStatus.IsDeleting {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("namespace %#q is being deleted, no need to reconcile resource", cr.Namespace))
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 		resourcecanceledcontext.SetCanceled(ctx)
 		return nil, nil
 	}
 
-	if cc.Status.TenantCluster.IsUnavailable {
+	if cc.Status.ClusterStatus.IsUnavailable {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster is unavailable")
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 		resourcecanceledcontext.SetCanceled(ctx)
@@ -67,7 +67,7 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 	case <-time.After(3 * time.Second):
 		// Set status so we don't try to connect to the tenant cluster
 		// again in this reconciliation loop.
-		cc.Status.TenantCluster.IsUnavailable = true
+		cc.Status.ClusterStatus.IsUnavailable = true
 
 		r.logger.LogCtx(ctx, "level", "debug", "message", "timeout getting configmap")
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
@@ -82,7 +82,7 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 	} else if tenant.IsAPINotAvailable(err) {
 		// Set status so we don't try to connect to the tenant cluster
 		// again in this reconciliation loop.
-		cc.Status.TenantCluster.IsUnavailable = true
+		cc.Status.ClusterStatus.IsUnavailable = true
 
 		// We should not hammer tenant API if it is not available. We cancel
 		// the reconciliation because its likely following resources will also

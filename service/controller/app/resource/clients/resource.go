@@ -79,7 +79,7 @@ func (r *Resource) addClientsToContext(ctx context.Context, cr v1alpha1.App) err
 		return microerror.Mask(err)
 	}
 
-	if cc.Status.TenantCluster.IsDeleting {
+	if cc.Status.ClusterStatus.IsDeleting {
 		return nil
 	}
 
@@ -100,7 +100,7 @@ func (r *Resource) addClientsToContext(ctx context.Context, cr v1alpha1.App) err
 	if kubeconfig.IsNotFoundError(err) {
 		// Set status so we don't try to connect to the tenant cluster
 		// again in this reconciliation loop.
-		cc.Status.TenantCluster.IsUnavailable = true
+		cc.Status.ClusterStatus.IsUnavailable = true
 
 		r.logger.LogCtx(ctx, "level", "debug", "message", "kubeconfig secret not found")
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
