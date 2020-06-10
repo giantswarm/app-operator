@@ -1,13 +1,13 @@
 package secret
 
 import (
-	"github.com/giantswarm/app-operator/service/controller/app/controllercontext"
 	"reflect"
 
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	corev1 "k8s.io/api/core/v1"
 
+	"github.com/giantswarm/app-operator/service/controller/app/controllercontext"
 	"github.com/giantswarm/app-operator/service/controller/app/values"
 )
 
