@@ -31,7 +31,7 @@ func (r Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return nil
 	}
 
-	if cc.Status.TenantCluster.IsUnavailable {
+	if cc.Status.ClusterStatus.IsUnavailable {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster is unavailable")
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 		return nil
