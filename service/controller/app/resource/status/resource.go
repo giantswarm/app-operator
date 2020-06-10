@@ -59,6 +59,9 @@ func equals(a, b v1alpha1.AppStatus) bool {
 	if a.Release.LastDeployed != b.Release.LastDeployed {
 		return false
 	}
+	if a.Release.Reason != b.Release.Reason {
+		return false
+	}
 	if a.Release.Status != b.Release.Status {
 		return false
 	}
