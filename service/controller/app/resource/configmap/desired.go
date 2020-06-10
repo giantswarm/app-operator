@@ -14,6 +14,7 @@ import (
 	"github.com/giantswarm/app-operator/service/controller/app/controllercontext"
 	"github.com/giantswarm/app-operator/service/controller/app/key"
 	"github.com/giantswarm/app-operator/service/controller/app/values"
+	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
 )
 
 func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interface{}, error) {
@@ -40,10 +41,18 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 
 	mergedData, err := r.values.MergeConfigMapData(ctx, cr, cc.AppCatalog)
 	if values.IsNotFound(err) {
-		r.logger.LogCtx(ctx, "level", "warning", "message", fmt.Sprintf("dependent configMaps are not found"), "stack", fmt.Sprintf("%#v", err))
+		r.logger.LogCtx(ctx, "level", "warning", "message", "dependent configMaps are not found")
+		addStatusToContext(cc, err.Error(), configmapMergeFailedStatus)
+
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		resourcecanceledcontext.SetCanceled(ctx)
 		return nil, nil
 	} else if values.IsParsingError(err) {
+		r.logger.LogCtx(ctx, "level", "warning", "message", "failed to merging configMaps")
 		addStatusToContext(cc, err.Error(), configmapMergeFailedStatus)
+
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		resourcecanceledcontext.SetCanceled(ctx)
 		return nil, nil
 	} else if err != nil {
 		return nil, microerror.Mask(err)
