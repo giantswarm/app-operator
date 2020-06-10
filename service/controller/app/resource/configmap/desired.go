@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/giantswarm/microerror"
+	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
@@ -14,7 +15,6 @@ import (
 	"github.com/giantswarm/app-operator/service/controller/app/controllercontext"
 	"github.com/giantswarm/app-operator/service/controller/app/key"
 	"github.com/giantswarm/app-operator/service/controller/app/values"
-	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
 )
 
 func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interface{}, error) {
