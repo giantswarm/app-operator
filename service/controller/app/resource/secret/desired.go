@@ -42,6 +42,9 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 	if values.IsNotFound(err) {
 		r.logger.LogCtx(ctx, "level", "warning", "message", fmt.Sprintf("dependent secrets are not found"), "stack", fmt.Sprintf("%#v", err))
 		return nil, nil
+	} else if values.IsParsingError(err) {
+		addStatusToContext(cc, err.Error(), secretMergeFailedStatus)
+		return nil, nil
 	} else if err != nil {
 		return nil, microerror.Mask(err)
 	}
