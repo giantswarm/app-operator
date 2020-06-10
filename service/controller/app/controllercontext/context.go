@@ -27,10 +27,16 @@ type Clients struct {
 }
 
 type Status struct {
-	TenantCluster TenantCluster
+	ChartStatus   ChartStatus
+	ClusterStatus ClusterStatus
 }
 
-type TenantCluster struct {
+type ChartStatus struct {
+	Reason string
+	Status string
+}
+
+type ClusterStatus struct {
 	IsDeleting    bool
 	IsUnavailable bool
 }
