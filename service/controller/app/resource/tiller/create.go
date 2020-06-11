@@ -5,6 +5,8 @@ import (
 	"fmt"
 
 	"github.com/giantswarm/microerror"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/giantswarm/app-operator/service/controller/app/controllercontext"
 	"github.com/giantswarm/app-operator/service/controller/app/key"
@@ -36,6 +38,17 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 	if cc.Status.ClusterStatus.IsUnavailable {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster is unavailable")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		return nil
+	}
+
+	_, err = cc.Clients.K8s.AppsV1().Deployments(key.Namespace(cr)).Get(key.AppName(cr), metav1.GetOptions{})
+	if apierrors.IsNotFound(err) {
+		// no-op
+	} else if err != nil {
+		return microerror.Mask(err)
+	} else {
+		r.logger.LogCtx(ctx, "level", "debug", "message", "chart-operator is taking care of tiller resource already")
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 		return nil
 	}
