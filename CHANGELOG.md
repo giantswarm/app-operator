@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## Unreleased
 
+### Changed
+
+- Cancel the reconciliation when failed to merge configMaps/secrets. 
+
 ## [v1.1.4] 2020-06-04
 
 ### Changed
