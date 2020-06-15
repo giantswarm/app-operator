@@ -15,9 +15,9 @@ const (
 	// Name is the identifier of the resource.
 	Name = "secret"
 
-	// secretMergeFailedStatus is set in the CR status when there is an failure during
+	// SecretMergeFailedStatus is set in the CR status when there is an failure during
 	// merge secrets.
-	secretMergeFailedStatus = "secret-merge-failed"
+
 )
 
 // Config represents the configuration used to create a new secret resource.

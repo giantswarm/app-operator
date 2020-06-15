@@ -14,10 +14,6 @@ import (
 const (
 	// Name is the identifier of the resource.
 	Name = "configmap"
-
-	// configmapMergeFailedStatus is set in the CR status when there is an failure during
-	// merge configmaps.
-	configmapMergeFailedStatus = "configmap-merge-failed"
 )
 
 // Config represents the configuration used to create a new configmap resource.
