@@ -19,3 +19,12 @@ var notFoundError = &microerror.Error{
 func IsNotFound(err error) bool {
 	return microerror.Cause(err) == notFoundError
 }
+
+var parsingError = &microerror.Error{
+	Kind: "parsingError",
+}
+
+// IsParsingError asserts parsingError.
+func IsParsingError(err error) bool {
+	return microerror.Cause(err) == parsingError
+}

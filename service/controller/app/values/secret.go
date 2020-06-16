@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
+	"github.com/giantswarm/helmclient"
 	"github.com/giantswarm/microerror"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -39,7 +40,11 @@ func (v *Values) MergeSecretData(ctx context.Context, app v1alpha1.App, appCatal
 	// Secrets are merged and in case of intersecting values the app level
 	// secrets are preferred.
 	mergedData, err := mergeSecretData(catalogData, appData)
-	if err != nil {
+	if helmclient.IsParsingDestFailedError(err) {
+		return nil, microerror.Maskf(parsingError, "failed to parse catalog secret")
+	} else if helmclient.IsParsingSrcFailedError(err) {
+		return nil, microerror.Maskf(parsingError, "failed to parse app secret")
+	} else if err != nil {
 		return nil, microerror.Mask(err)
 	}
 
@@ -53,7 +58,11 @@ func (v *Values) MergeSecretData(ctx context.Context, app v1alpha1.App, appCatal
 		// Secrets are merged again and in case of intersecting values the user
 		// level secrets are preferred.
 		mergedData, err = mergeSecretData(mergedData, userData)
-		if err != nil {
+		if helmclient.IsParsingDestFailedError(err) {
+			return nil, microerror.Maskf(parsingError, "failed to parse previous merged secret")
+		} else if helmclient.IsParsingSrcFailedError(err) {
+			return nil, microerror.Maskf(parsingError, "failed to parse user secret")
+		} else if err != nil {
 			return nil, microerror.Mask(err)
 		}
 	}

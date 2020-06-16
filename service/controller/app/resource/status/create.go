@@ -25,13 +25,13 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
-	if cc.Status.TenantCluster.IsDeleting {
+	if cc.Status.ClusterStatus.IsDeleting {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("namespace %#q is being deleted, no need to reconcile resource", cr.Namespace))
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 		return nil
 	}
 
-	if cc.Status.TenantCluster.IsUnavailable {
+	if cc.Status.ClusterStatus.IsUnavailable {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster is unavailable")
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 		return nil
@@ -57,14 +57,24 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found status for chart %#q in namespace %#q", cr.Name, r.chartNamespace))
 
 	chartStatus := key.ChartStatus(*chart)
-	desiredStatus := v1alpha1.AppStatus{
-		AppVersion: chartStatus.AppVersion,
-		Release: v1alpha1.AppStatusRelease{
-			LastDeployed: chartStatus.Release.LastDeployed,
-			Reason:       chartStatus.Reason,
-			Status:       chartStatus.Release.Status,
-		},
-		Version: chartStatus.Version,
+	var desiredStatus v1alpha1.AppStatus
+	if cc.Status.ChartStatus.Status != "" {
+		desiredStatus = v1alpha1.AppStatus{
+			Release: v1alpha1.AppStatusRelease{
+				Reason: cc.Status.ChartStatus.Reason,
+				Status: cc.Status.ChartStatus.Status,
+			},
+		}
+	} else {
+		desiredStatus = v1alpha1.AppStatus{
+			AppVersion: chartStatus.AppVersion,
+			Release: v1alpha1.AppStatusRelease{
+				LastDeployed: chartStatus.Release.LastDeployed,
+				Reason:       chartStatus.Reason,
+				Status:       chartStatus.Release.Status,
+			},
+			Version: chartStatus.Version,
+		}
 	}
 
 	if !equals(desiredStatus, key.AppStatus(cr)) {

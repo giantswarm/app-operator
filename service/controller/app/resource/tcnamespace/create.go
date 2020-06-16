@@ -49,7 +49,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return nil
 	}
 
-	if cc.Status.TenantCluster.IsUnavailable {
+	if cc.Status.ClusterStatus.IsUnavailable {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster is unavailable")
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 		return nil
@@ -81,7 +81,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	case <-time.After(3 * time.Second):
 		// Set status so we don't try to connect to the tenant cluster
 		// again in this reconciliation loop.
-		cc.Status.TenantCluster.IsUnavailable = true
+		cc.Status.ClusterStatus.IsUnavailable = true
 
 		r.logger.LogCtx(ctx, "level", "debug", "message", "timeout creating namespace")
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
@@ -93,7 +93,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	} else if tenant.IsAPINotAvailable(err) {
 		// Set status so we don't try to connect to the tenant cluster
 		// again in this reconciliation loop.
-		cc.Status.TenantCluster.IsUnavailable = true
+		cc.Status.ClusterStatus.IsUnavailable = true
 
 		r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster not available")
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")

@@ -18,9 +18,10 @@ import (
 )
 
 const (
-	chartOperatorVersion = "chart-operator.giantswarm.io/version"
-	chartOperatorRelease = "chart-operator"
-	namespace            = "giantswarm"
+	chartOperatorAppVersion = "1.0.2"
+	chartOperatorVersion    = "chart-operator.giantswarm.io/version"
+	chartOperatorRelease    = "chart-operator"
+	namespace               = "giantswarm"
 )
 
 // TestAppLifecycle tests a chart CR can be created, updated and deleted
@@ -45,7 +46,7 @@ func TestAppLifecycle(t *testing.T) {
 
 		var tarballPath string
 		{
-			tarballURL, err := appcatalog.GetLatestChart(ctx, key.DefaultCatalogStorageURL(), chartOperatorRelease, "")
+			tarballURL, err := appcatalog.GetLatestChart(ctx, key.DefaultCatalogStorageURL(), chartOperatorRelease, chartOperatorAppVersion)
 			if err != nil {
 				t.Fatalf("expected %#v got %#v", nil, err)
 			}
