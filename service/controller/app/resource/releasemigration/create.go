@@ -151,6 +151,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	// It means helm v3 release migration is finished.
 	if !hasConfigMap && hasSecret {
 		err = r.uncordonChart(ctx, cc.Clients.K8s.G8sClient())
+		err = r.deleteMigrationApp(ctx, cc.Clients.Helm, tillerNamespace)
 		if err != nil {
 			return microerror.Mask(err)
 		}
