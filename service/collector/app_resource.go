@@ -134,7 +134,8 @@ func (c *AppResource) collectAppStatus(ctx context.Context, ch chan<- prometheus
 			app.Namespace,
 			app.Status.Release.Status,
 			team,
-			app.Status.Version,
+			// Getting version from spec, not status since the version in the spec is the desired version.
+			app.Spec.Version,
 		)
 
 		if !key.IsCordoned(app) {
