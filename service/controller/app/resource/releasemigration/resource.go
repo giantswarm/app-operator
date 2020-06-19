@@ -67,49 +67,12 @@ func (r *Resource) Name() string {
 	return Name
 }
 
-func (r *Resource) findHelmV2Releases(k8sClient k8sclient.Interface, tillerNamespace string) ([]string, error) {
-	charts := make(map[string]bool)
-
-	// Get list of chart CRs as not all helm 2 releases will have a chart CR.
-	list, err := k8sClient.G8sClient().ApplicationV1alpha1().Charts(r.chartNamespace).List(metav1.ListOptions{})
+func (r *Resource) deleteMigrationApp(ctx context.Context, helmClient helmclient.Interface, tillerNamespace string) error {
+	err := helmClient.DeleteRelease(ctx, tillerNamespace, migrationApp)
 	if err != nil {
-		return nil, microerror.Mask(err)
+		return microerror.Mask(err)
 	}
-
-	for _, chart := range list.Items {
-		charts[chart.Name] = true
-	}
-
-	lo := metav1.ListOptions{
-		LabelSelector: fmt.Sprintf("%s=%s", "OWNER", "TILLER"),
-	}
-
-	// Check whether helm 2 release configMaps still exist.
-	cms, err := k8sClient.K8sClient().CoreV1().ConfigMaps(tillerNamespace).List(lo)
-	if err != nil {
-		return nil, microerror.Mask(err)
-	}
-
-	hasReleases := map[string]bool{}
-	for _, cm := range cms.Items {
-		name := cm.GetLabels()["NAME"]
-
-		// Skip Helm release if it has no matching chart CR.
-		if _, ok := charts[name]; !ok {
-			continue
-		}
-
-		if _, ok := hasReleases[name]; !ok {
-			hasReleases[name] = true
-		}
-	}
-
-	releases := make([]string, 0, len(hasReleases))
-	for k := range hasReleases {
-		releases = append(releases, k)
-	}
-
-	return releases, nil
+	return nil
 }
 
 func (r *Resource) ensureReleasesMigrated(ctx context.Context, k8sClient k8sclient.Interface, helmClient helmclient.Interface, tillerNamespace string) error {
@@ -142,7 +105,7 @@ func (r *Resource) ensureReleasesMigrated(ctx context.Context, k8sClient k8sclie
 			}()
 
 			opts := helmclient.InstallOptions{
-				ReleaseName: "helm-2to3-migration",
+				ReleaseName: migrationApp,
 			}
 
 			values := map[string]interface{}{
@@ -191,4 +154,49 @@ func (r *Resource) ensureReleasesMigrated(ctx context.Context, k8sClient k8sclie
 	}
 
 	return nil
+}
+
+func (r *Resource) findHelmV2Releases(k8sClient k8sclient.Interface, tillerNamespace string) ([]string, error) {
+	charts := make(map[string]bool)
+
+	// Get list of chart CRs as not all helm 2 releases will have a chart CR.
+	list, err := k8sClient.G8sClient().ApplicationV1alpha1().Charts(r.chartNamespace).List(metav1.ListOptions{})
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	for _, chart := range list.Items {
+		charts[chart.Name] = true
+	}
+
+	lo := metav1.ListOptions{
+		LabelSelector: fmt.Sprintf("%s=%s", "OWNER", "TILLER"),
+	}
+
+	// Check whether helm 2 release configMaps still exist.
+	cms, err := k8sClient.K8sClient().CoreV1().ConfigMaps(tillerNamespace).List(lo)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	hasReleases := map[string]bool{}
+	for _, cm := range cms.Items {
+		name := cm.GetLabels()["NAME"]
+
+		// Skip Helm release if it has no matching chart CR.
+		if _, ok := charts[name]; !ok {
+			continue
+		}
+
+		if _, ok := hasReleases[name]; !ok {
+			hasReleases[name] = true
+		}
+	}
+
+	releases := make([]string, 0, len(hasReleases))
+	for k := range hasReleases {
+		releases = append(releases, k)
+	}
+
+	return releases, nil
 }

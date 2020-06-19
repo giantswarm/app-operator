@@ -154,6 +154,10 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		if err != nil {
 			return microerror.Mask(err)
 		}
+		err = r.deleteMigrationApp(ctx, cc.Clients.Helm, tillerNamespace)
+		if err != nil {
+			return microerror.Mask(err)
+		}
 	}
 
 	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("no pending migration for release %#q", key.ReleaseName(cr)))
