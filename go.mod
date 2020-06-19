@@ -21,6 +21,7 @@ require (
 	github.com/giantswarm/operatorkit v0.2.1
 	github.com/giantswarm/versionbundle v0.2.0
 	github.com/google/go-cmp v0.4.0
+	github.com/imdario/mergo v0.3.7 // indirect
 	github.com/prometheus/client_golang v1.5.1
 	github.com/spf13/afero v1.2.2
 	github.com/spf13/viper v1.7.0
@@ -30,7 +31,6 @@ require (
 	k8s.io/apimachinery v0.16.6
 	k8s.io/client-go v0.16.6
 	k8s.io/helm v2.16.4+incompatible
-	sigs.k8s.io/cluster-api v0.2.10 // indirect
 	sigs.k8s.io/yaml v1.2.0
 )
 
