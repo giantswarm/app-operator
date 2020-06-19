@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Changed
+
+- Sending metrics with app CR's version in the spec.
+
 ## [v1.1.5] 2020-06-16
 
 ### Changed
