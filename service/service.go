@@ -149,6 +149,7 @@ func New(config Config) (*Service, error) {
 
 			AppTeamMapping: appTeamMapping,
 			DefaultTeam:    config.Viper.GetString(config.Flag.Service.Collector.Apps.DefaultTeam),
+			UniqueApp:      config.Viper.GetBool(config.Flag.Service.App.Unique),
 		}
 
 		operatorCollector, err = collector.NewSet(c)

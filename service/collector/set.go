@@ -13,6 +13,7 @@ type SetConfig struct {
 
 	AppTeamMapping map[string]string
 	DefaultTeam    string
+	UniqueApp      bool
 }
 
 // Set is basically only a wrapper for the operator's collector implementations.
@@ -41,6 +42,7 @@ func NewSet(config SetConfig) (*Set, error) {
 
 			AppTeamMapping: config.AppTeamMapping,
 			DefaultTeam:    config.DefaultTeam,
+			UniqueApp:      config.UniqueApp,
 		}
 
 		appOperatorCollector, err = NewAppResource(c)
