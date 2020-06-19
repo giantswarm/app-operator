@@ -121,6 +121,7 @@ func (c *AppResource) collectAppStatus(ctx context.Context, ch chan<- prometheus
 	options := metav1.ListOptions{
 		LabelSelector: key.AppVersionSelector(c.uniqueApp).String(),
 	}
+
 	r, err := c.g8sClient.ApplicationV1alpha1().Apps("").List(options)
 	if err != nil {
 		return microerror.Mask(err)
