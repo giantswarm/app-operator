@@ -230,8 +230,8 @@ github.com/giantswarm/errors v0.2.3/go.mod h1:Oj1LIWs9Uoj6JGtK5HxTb50iZuqe9f60LD
 github.com/giantswarm/exporterkit v0.2.0 h1:+HTGl4fmT/1OkTox8HbV3JXeavmsZv94+2CDW8cSrq0=
 github.com/giantswarm/exporterkit v0.2.0/go.mod h1:b4fuHVjsvZgznC9OEPfn0y5zvN8SnEKTiI5zTTfck94=
 github.com/giantswarm/helmclient v0.2.0/go.mod h1:KRqUJrPL3QO/iISztTp+Ds+PJYBU8iGWNe9ZlJCdEAs=
-github.com/giantswarm/helmclient v0.2.3 h1:nwp76CDc+snWZpZ9FUoCm9z0sTAvO2nEkmMls6YQZdU=
-github.com/giantswarm/helmclient v0.2.3/go.mod h1:jhrck2Juio1/LfjGitrOmvysu7RdhKWNqCthds52NXo=
+github.com/giantswarm/helmclient v0.2.4 h1:BfYbv53VEUPRDBS4YEKeaDhlrNu1GgIlTvTb3vDW95o=
+github.com/giantswarm/helmclient v0.2.4/go.mod h1:jhrck2Juio1/LfjGitrOmvysu7RdhKWNqCthds52NXo=
 github.com/giantswarm/k8sclient v0.2.0 h1:Az+Knfs2UJrNFoqfOsfkudg+rt3fn5EM1aKrnLSg3fU=
 github.com/giantswarm/k8sclient v0.2.0/go.mod h1:tUgUynwKgMnjnN2PldGmxJW6+8eZn2p7tT+tEhXDwOg=
 github.com/giantswarm/k8sportforward v0.2.0 h1:nzyKUtSWEbayvF74u3Pkr8AKKa3rk6LccxuIONDq4T8=
