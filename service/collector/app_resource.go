@@ -49,6 +49,7 @@ type AppResourceConfig struct {
 
 	AppTeamMapping map[string]string
 	DefaultTeam    string
+	UniqueApp      bool
 }
 
 // AppResource is the main struct for this collector.
@@ -59,6 +60,7 @@ type AppResource struct {
 
 	appTeamMapping map[string]string
 	defaultTeam    string
+	uniqueApp      bool
 }
 
 // NewAppResource creates a new AppResource metrics collector
@@ -87,6 +89,7 @@ func NewAppResource(config AppResourceConfig) (*AppResource, error) {
 
 		appTeamMapping: config.AppTeamMapping,
 		defaultTeam:    config.DefaultTeam,
+		uniqueApp:      config.UniqueApp,
 	}
 
 	return c, nil
@@ -115,7 +118,11 @@ func (c *AppResource) Describe(ch chan<- *prometheus.Desc) error {
 }
 
 func (c *AppResource) collectAppStatus(ctx context.Context, ch chan<- prometheus.Metric) error {
-	r, err := c.g8sClient.ApplicationV1alpha1().Apps("").List(metav1.ListOptions{})
+	options := metav1.ListOptions{
+		LabelSelector: key.AppVersionSelector(c.uniqueApp).String(),
+	}
+
+	r, err := c.g8sClient.ApplicationV1alpha1().Apps("").List(options)
 	if err != nil {
 		return microerror.Mask(err)
 	}
