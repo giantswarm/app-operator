@@ -7,10 +7,9 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## Unreleased
 
-### Changed
-
 - Fix problems with openapi valdidation rules for app and appcatalog CRDs.
 - Make optional fields nullable for app and appcatalog CRDs.
+- Only emit metrics for app CRs reconciled by this instance of the operator.
 
 ## [v1.0.7] 2020-06-11
 
