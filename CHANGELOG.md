@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## Unreleased
 
+### Changed 
+
+- Only emit metrics for app CRs reconciled by this instance of the operator.
+
 ## [v1.0.4] 2020-06-01
 
 - Reconcile different app CR versions for tenant and control planes.
