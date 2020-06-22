@@ -3,6 +3,7 @@ package key
 import (
 	"fmt"
 	"reflect"
+	"strconv"
 	"testing"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
@@ -12,44 +13,82 @@ import (
 )
 
 func Test_AppConfigMapName(t *testing.T) {
-	expectedName := "giant-swarm-configmap-name"
-
-	obj := v1alpha1.App{
-		Spec: v1alpha1.AppSpec{
-			Name:    "giant-swarm-name",
-			Catalog: "giant-swarm-catalog-name",
-			Config: v1alpha1.AppSpecConfig{
-				ConfigMap: v1alpha1.AppSpecConfigConfigMap{
-					Name:      "giant-swarm-configmap-name",
-					Namespace: "giant-swarm-configmap-namespace",
+	testCases := []struct {
+		name          string
+		obj           v1alpha1.App
+		expectedValue string
+	}{
+		{
+			name:          "case 0: config is empty",
+			obj:           v1alpha1.App{},
+			expectedValue: "",
+		},
+		{
+			name: "case 1: config has value",
+			obj: v1alpha1.App{
+				Spec: v1alpha1.AppSpec{
+					Config: v1alpha1.AppSpecConfig{
+						ConfigMap: v1alpha1.AppSpecConfigConfigMap{
+							Name:      "configmap-name",
+							Namespace: "configmap-namespace",
+						},
+					},
 				},
 			},
+			expectedValue: "configmap-name",
 		},
 	}
 
-	if AppConfigMapName(obj) != expectedName {
-		t.Fatalf("AppConfigMapName %#q, want %#q", AppConfigMapName(obj), expectedName)
+	for i, tc := range testCases {
+		t.Run(strconv.Itoa(i), func(t *testing.T) {
+			t.Log(tc.name)
+
+			name := AppConfigMapName(tc.obj)
+
+			if name != tc.expectedValue {
+				t.Fatalf("AppConfigMapName %#q, want %#q", name, tc.expectedValue)
+			}
+		})
 	}
 }
 
 func Test_AppConfigMapNamespace(t *testing.T) {
-	expectedNamespace := "giant-swarm-configmap-namespace"
-
-	obj := v1alpha1.App{
-		Spec: v1alpha1.AppSpec{
-			Name:    "giant-swarm-name",
-			Catalog: "giant-swarm-catalog-name",
-			Config: v1alpha1.AppSpecConfig{
-				ConfigMap: v1alpha1.AppSpecConfigConfigMap{
-					Name:      "giant-swarm-configmap-name",
-					Namespace: "giant-swarm-configmap-namespace",
+	testCases := []struct {
+		name          string
+		obj           v1alpha1.App
+		expectedValue string
+	}{
+		{
+			name:          "case 0: config is empty",
+			obj:           v1alpha1.App{},
+			expectedValue: "",
+		},
+		{
+			name: "case 1: config has value",
+			obj: v1alpha1.App{
+				Spec: v1alpha1.AppSpec{
+					Config: v1alpha1.AppSpecConfig{
+						ConfigMap: v1alpha1.AppSpecConfigConfigMap{
+							Name:      "configmap-name",
+							Namespace: "configmap-namespace",
+						},
+					},
 				},
 			},
+			expectedValue: "configmap-namespace",
 		},
 	}
 
-	if AppConfigMapNamespace(obj) != expectedNamespace {
-		t.Fatalf("AppConfigMapNamespace %#q, want %#q", AppConfigMapNamespace(obj), expectedNamespace)
+	for i, tc := range testCases {
+		t.Run(strconv.Itoa(i), func(t *testing.T) {
+			t.Log(tc.name)
+
+			name := AppConfigMapNamespace(tc.obj)
+
+			if name != tc.expectedValue {
+				t.Fatalf("AppConfigMapNamespace %#q, want %#q", name, tc.expectedValue)
+			}
+		})
 	}
 }
 
@@ -67,42 +106,82 @@ func Test_AppName(t *testing.T) {
 	}
 }
 func Test_AppSecretName(t *testing.T) {
-	expectedName := "giant-swarm-secret-name"
-
-	obj := v1alpha1.App{
-		Spec: v1alpha1.AppSpec{
-			Name:    "giant-swarm-name",
-			Catalog: "giant-swarm-catalog-name",
-			Config: v1alpha1.AppSpecConfig{
-				Secret: v1alpha1.AppSpecConfigSecret{
-					Name: "giant-swarm-secret-name",
+	testCases := []struct {
+		name          string
+		obj           v1alpha1.App
+		expectedValue string
+	}{
+		{
+			name:          "case 0: config is empty",
+			obj:           v1alpha1.App{},
+			expectedValue: "",
+		},
+		{
+			name: "case 1: config has value",
+			obj: v1alpha1.App{
+				Spec: v1alpha1.AppSpec{
+					Config: v1alpha1.AppSpecConfig{
+						Secret: v1alpha1.AppSpecConfigSecret{
+							Name:      "secret-name",
+							Namespace: "secret-namespace",
+						},
+					},
 				},
 			},
+			expectedValue: "secret-name",
 		},
 	}
 
-	if AppSecretName(obj) != expectedName {
-		t.Fatalf("AppSecretName %#q, want %#q", AppSecretName(obj), expectedName)
+	for i, tc := range testCases {
+		t.Run(strconv.Itoa(i), func(t *testing.T) {
+			t.Log(tc.name)
+
+			name := AppSecretName(tc.obj)
+
+			if name != tc.expectedValue {
+				t.Fatalf("AppSecretName %#q, want %#q", name, tc.expectedValue)
+			}
+		})
 	}
 }
 
 func Test_AppSecretNamespace(t *testing.T) {
-	expectedNamespace := "giant-swarm-secret-namespace"
-
-	obj := v1alpha1.App{
-		Spec: v1alpha1.AppSpec{
-			Name:    "giant-swarm-name",
-			Catalog: "giant-swarm-catalog-name",
-			Config: v1alpha1.AppSpecConfig{
-				Secret: v1alpha1.AppSpecConfigSecret{
-					Namespace: "giant-swarm-secret-namespace",
+	testCases := []struct {
+		name          string
+		obj           v1alpha1.App
+		expectedValue string
+	}{
+		{
+			name:          "case 0: config is empty",
+			obj:           v1alpha1.App{},
+			expectedValue: "",
+		},
+		{
+			name: "case 1: config has value",
+			obj: v1alpha1.App{
+				Spec: v1alpha1.AppSpec{
+					Config: v1alpha1.AppSpecConfig{
+						Secret: v1alpha1.AppSpecConfigSecret{
+							Name:      "secret-name",
+							Namespace: "secret-namespace",
+						},
+					},
 				},
 			},
+			expectedValue: "secret-namespace",
 		},
 	}
 
-	if AppSecretNamespace(obj) != expectedNamespace {
-		t.Fatalf("AppSecretNamespace %#q, want %#q", AppSecretNamespace(obj), expectedNamespace)
+	for i, tc := range testCases {
+		t.Run(strconv.Itoa(i), func(t *testing.T) {
+			t.Log(tc.name)
+
+			name := AppSecretNamespace(tc.obj)
+
+			if name != tc.expectedValue {
+				t.Fatalf("AppSecretNamespace %#q, want %#q", name, tc.expectedValue)
+			}
+		})
 	}
 }
 
@@ -285,36 +364,84 @@ func Test_KubecConfigFinalizer(t *testing.T) {
 }
 
 func Test_KubecConfigSecretName(t *testing.T) {
-	obj := v1alpha1.App{
-		Spec: v1alpha1.AppSpec{
-			KubeConfig: v1alpha1.AppSpecKubeConfig{
-				InCluster: false,
-				Secret: v1alpha1.AppSpecKubeConfigSecret{
-					Name: "kubename",
+	testCases := []struct {
+		name          string
+		obj           v1alpha1.App
+		expectedValue string
+	}{
+		{
+			name:          "case 0: config is empty",
+			obj:           v1alpha1.App{},
+			expectedValue: "",
+		},
+		{
+			name: "case 1: config has value",
+			obj: v1alpha1.App{
+				Spec: v1alpha1.AppSpec{
+					KubeConfig: v1alpha1.AppSpecKubeConfig{
+						InCluster: false,
+						Secret: v1alpha1.AppSpecKubeConfigSecret{
+							Name:      "kubeconfig-name",
+							Namespace: "kubeconfig-namespace",
+						},
+					},
 				},
 			},
+			expectedValue: "kubeconfig-name",
 		},
 	}
 
-	if KubecConfigSecretName(obj) != "kubename" {
-		t.Fatalf("kubeconfig secret name %#v, want %#v", KubecConfigSecretName(obj), "kubename")
+	for i, tc := range testCases {
+		t.Run(strconv.Itoa(i), func(t *testing.T) {
+			t.Log(tc.name)
+
+			name := KubecConfigSecretName(tc.obj)
+
+			if name != tc.expectedValue {
+				t.Fatalf("KubecConfigSecretName %#q, want %#q", name, tc.expectedValue)
+			}
+		})
 	}
 }
 
 func Test_KubecConfigSecretNamespace(t *testing.T) {
-	obj := v1alpha1.App{
-		Spec: v1alpha1.AppSpec{
-			KubeConfig: v1alpha1.AppSpecKubeConfig{
-				InCluster: false,
-				Secret: v1alpha1.AppSpecKubeConfigSecret{
-					Namespace: "kubenamespace",
+	testCases := []struct {
+		name          string
+		obj           v1alpha1.App
+		expectedValue string
+	}{
+		{
+			name:          "case 0: config is empty",
+			obj:           v1alpha1.App{},
+			expectedValue: "",
+		},
+		{
+			name: "case 1: config has value",
+			obj: v1alpha1.App{
+				Spec: v1alpha1.AppSpec{
+					KubeConfig: v1alpha1.AppSpecKubeConfig{
+						InCluster: false,
+						Secret: v1alpha1.AppSpecKubeConfigSecret{
+							Name:      "kubeconfig-name",
+							Namespace: "kubeconfig-namespace",
+						},
+					},
 				},
 			},
+			expectedValue: "kubeconfig-namespace",
 		},
 	}
 
-	if KubecConfigSecretNamespace(obj) != "kubenamespace" {
-		t.Fatalf("kubeconfig secret namespace %#v, want %#v", KubecConfigSecretNamespace(obj), "kubenamespace")
+	for i, tc := range testCases {
+		t.Run(strconv.Itoa(i), func(t *testing.T) {
+			t.Log(tc.name)
+
+			name := KubecConfigSecretNamespace(tc.obj)
+
+			if name != tc.expectedValue {
+				t.Fatalf("KubecConfigSecretNamespace %#q, want %#q", name, tc.expectedValue)
+			}
+		})
 	}
 }
 
@@ -384,82 +511,166 @@ func Test_ToCustomResource(t *testing.T) {
 }
 
 func Test_UserConfigMapName(t *testing.T) {
-	expectedName := "giant-swarm-user-configmap-name"
-
-	obj := v1alpha1.App{
-		Spec: v1alpha1.AppSpec{
-			Name:    "giant-swarm-name",
-			Catalog: "giant-swarm-catalog-name",
-			UserConfig: v1alpha1.AppSpecUserConfig{
-				ConfigMap: v1alpha1.AppSpecUserConfigConfigMap{
-					Name: "giant-swarm-user-configmap-name",
+	testCases := []struct {
+		name          string
+		obj           v1alpha1.App
+		expectedValue string
+	}{
+		{
+			name:          "case 0: config is empty",
+			obj:           v1alpha1.App{},
+			expectedValue: "",
+		},
+		{
+			name: "case 1: config has value",
+			obj: v1alpha1.App{
+				Spec: v1alpha1.AppSpec{
+					UserConfig: v1alpha1.AppSpecUserConfig{
+						ConfigMap: v1alpha1.AppSpecUserConfigConfigMap{
+							Name:      "configmap-name",
+							Namespace: "configmap-namespace",
+						},
+					},
 				},
 			},
+			expectedValue: "configmap-name",
 		},
 	}
 
-	if UserConfigMapName(obj) != expectedName {
-		t.Fatalf("UserConfigMapName %#q, want %#q", UserConfigMapName(obj), expectedName)
+	for i, tc := range testCases {
+		t.Run(strconv.Itoa(i), func(t *testing.T) {
+			t.Log(tc.name)
+
+			name := UserConfigMapName(tc.obj)
+
+			if name != tc.expectedValue {
+				t.Fatalf("UserConfigMapName %#q, want %#q", name, tc.expectedValue)
+			}
+		})
 	}
 }
 
 func Test_UserConfigMapNamespace(t *testing.T) {
-	expectedNamespace := "giant-swarm-user-configmap-namespace"
-
-	obj := v1alpha1.App{
-		Spec: v1alpha1.AppSpec{
-			Name:    "giant-swarm-name",
-			Catalog: "giant-swarm-catalog-name",
-			UserConfig: v1alpha1.AppSpecUserConfig{
-				ConfigMap: v1alpha1.AppSpecUserConfigConfigMap{
-					Namespace: "giant-swarm-user-configmap-namespace",
+	testCases := []struct {
+		name          string
+		obj           v1alpha1.App
+		expectedValue string
+	}{
+		{
+			name:          "case 0: config is empty",
+			obj:           v1alpha1.App{},
+			expectedValue: "",
+		},
+		{
+			name: "case 1: config has value",
+			obj: v1alpha1.App{
+				Spec: v1alpha1.AppSpec{
+					UserConfig: v1alpha1.AppSpecUserConfig{
+						ConfigMap: v1alpha1.AppSpecUserConfigConfigMap{
+							Name:      "configmap-name",
+							Namespace: "configmap-namespace",
+						},
+					},
 				},
 			},
+			expectedValue: "configmap-namespace",
 		},
 	}
 
-	if UserConfigMapNamespace(obj) != expectedNamespace {
-		t.Fatalf("UserConfigMapNamespace %#q, want %#q", UserConfigMapNamespace(obj), expectedNamespace)
+	for i, tc := range testCases {
+		t.Run(strconv.Itoa(i), func(t *testing.T) {
+			t.Log(tc.name)
+
+			name := UserConfigMapNamespace(tc.obj)
+
+			if name != tc.expectedValue {
+				t.Fatalf("UserConfigMapNamespace %#q, want %#q", name, tc.expectedValue)
+			}
+		})
 	}
 }
 
 func Test_UserSecretName(t *testing.T) {
-	expectedName := "giant-swarm-user-secret-name"
-
-	obj := v1alpha1.App{
-		Spec: v1alpha1.AppSpec{
-			Name:    "giant-swarm-name",
-			Catalog: "giant-swarm-catalog-name",
-			UserConfig: v1alpha1.AppSpecUserConfig{
-				Secret: v1alpha1.AppSpecUserConfigSecret{
-					Name: "giant-swarm-user-secret-name",
+	testCases := []struct {
+		name          string
+		obj           v1alpha1.App
+		expectedValue string
+	}{
+		{
+			name:          "case 0: config is empty",
+			obj:           v1alpha1.App{},
+			expectedValue: "",
+		},
+		{
+			name: "case 1: config has value",
+			obj: v1alpha1.App{
+				Spec: v1alpha1.AppSpec{
+					Name:    "name",
+					Catalog: "catalog",
+					UserConfig: v1alpha1.AppSpecUserConfig{
+						Secret: v1alpha1.AppSpecUserConfigSecret{
+							Name:      "secret-name",
+							Namespace: "secret-namespace",
+						},
+					},
 				},
 			},
+			expectedValue: "secret-name",
 		},
 	}
 
-	if UserSecretName(obj) != expectedName {
-		t.Fatalf("UserSecretName %#q, want %#q", UserSecretName(obj), expectedName)
+	for i, tc := range testCases {
+		t.Run(strconv.Itoa(i), func(t *testing.T) {
+			t.Log(tc.name)
+
+			name := UserSecretName(tc.obj)
+
+			if name != tc.expectedValue {
+				t.Fatalf("UserSecretName %#q, want %#q", name, tc.expectedValue)
+			}
+		})
 	}
 }
 
 func Test_UserSecretNamespace(t *testing.T) {
-	expectedNamespace := "giant-swarm-user-secret-namespace"
-
-	obj := v1alpha1.App{
-		Spec: v1alpha1.AppSpec{
-			Name:    "giant-swarm-name",
-			Catalog: "giant-swarm-catalog-name",
-			UserConfig: v1alpha1.AppSpecUserConfig{
-				Secret: v1alpha1.AppSpecUserConfigSecret{
-					Namespace: "giant-swarm-user-secret-namespace",
+	testCases := []struct {
+		name          string
+		obj           v1alpha1.App
+		expectedValue string
+	}{
+		{
+			name:          "case 0: config is empty",
+			obj:           v1alpha1.App{},
+			expectedValue: "",
+		},
+		{
+			name: "case 1: config has value",
+			obj: v1alpha1.App{
+				Spec: v1alpha1.AppSpec{
+					Name:    "name",
+					Catalog: "catalog",
+					UserConfig: v1alpha1.AppSpecUserConfig{
+						Secret: v1alpha1.AppSpecUserConfigSecret{
+							Name:      "secret-name",
+							Namespace: "secret-namespace",
+						},
+					},
 				},
 			},
+			expectedValue: "secret-namespace",
 		},
 	}
 
-	if UserSecretNamespace(obj) != expectedNamespace {
-		t.Fatalf("UserSecretNamespace %#q, want %#q", UserSecretNamespace(obj), expectedNamespace)
+	for i, tc := range testCases {
+		t.Run(strconv.Itoa(i), func(t *testing.T) {
+			t.Log(tc.name)
+
+			name := UserSecretNamespace(tc.obj)
+
+			if name != tc.expectedValue {
+				t.Fatalf("UserSecretNamespace %#q, want %#q", name, tc.expectedValue)
+			}
+		})
 	}
 }
 
