@@ -158,7 +158,7 @@ func TestAppLifecycleUsingKubeconfig(t *testing.T) {
 			t.Fatalf("expected nil got %#v", err)
 		}
 
-		tag, err := appcatalog.GetLatestVersion(ctx, c.Spec.Storage.URL, "chart-operator")
+		tag, err := appcatalog.GetLatestVersion(ctx, c.Spec.Storage.URL, "chart-operator", "0.13.0")
 		if err != nil {
 			t.Fatalf("expected nil got %#v", err)
 		}
