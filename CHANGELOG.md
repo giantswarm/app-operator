@@ -11,7 +11,7 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 - Delete helm-2to3-migration job after migration is finished.
 - Sending metrics with app CR's version in the spec.
-- Only send metrics from app CRs that reconciled from the controller. 
+- Only emit metrics for app CRs reconciled by this instance of the operator.
 
 ## [v1.1.5] 2020-06-16
 
