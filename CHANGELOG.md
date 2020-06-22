@@ -7,9 +7,21 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## Unreleased
 
-### Changed 
-
+- Fix problems with openapi valdidation rules for app and appcatalog CRDs.
+- Make optional fields nullable for app and appcatalog CRDs.
 - Only emit metrics for app CRs reconciled by this instance of the operator.
+
+## [v1.0.7] 2020-06-11
+
+- Cancel tiller resource if the chart-operator is already deployed in clusters.
+
+## [v1.0.6] 2020-06-10
+
+- Update status accordingly when parsing configMaps/secrets failed.
+
+## [v1.0.5] 2020-06-05
+
+- Using selector in controller instead of handleFunc in resourceset.
 
 ## [v1.0.4] 2020-06-01
 
@@ -33,8 +45,11 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 - Flattening operator release structure.
 
-[Unreleased]: https://github.com/giantswarm/app-operator/compare/v1.0.4..HEAD
+[Unreleased]: https://github.com/giantswarm/app-operator/compare/v1.0.7..HEAD
 
+[1.0.7]: https://github.com/giantswarm/app-operator/compare/v1.0.6..v1.0.7
+[1.0.6]: https://github.com/giantswarm/app-operator/compare/v1.0.5..v1.0.6
+[1.0.5]: https://github.com/giantswarm/app-operator/compare/v1.0.4..v1.0.5
 [1.0.4]: https://github.com/giantswarm/app-operator/compare/v1.0.3..v1.0.4
 [1.0.3]: https://github.com/giantswarm/app-operator/compare/v1.0.2..v1.0.3
 [1.0.2]: https://github.com/giantswarm/app-operator/compare/v1.0.1..v1.0.2
