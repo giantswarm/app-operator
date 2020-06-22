@@ -10,6 +10,8 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 ### Changed
 
 - Cancel the reconciliation when failed to merge configMaps/secrets. 
+- Fix problems with openapi valdidation rules for app and appcatalog CRDs.
+- Make optional fields nullable for app and appcatalog CRDs.
 
 ## [v1.1.4] 2020-06-04
 
