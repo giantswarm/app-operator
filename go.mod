@@ -3,7 +3,7 @@ module github.com/giantswarm/app-operator
 go 1.13
 
 require (
-	github.com/giantswarm/apiextensions v0.2.2
+	github.com/giantswarm/apiextensions v0.4.8
 	github.com/giantswarm/appcatalog v0.2.3
 	github.com/giantswarm/backoff v0.2.0
 	github.com/giantswarm/e2e-harness v0.2.0
@@ -21,6 +21,7 @@ require (
 	github.com/giantswarm/operatorkit v0.2.1
 	github.com/giantswarm/versionbundle v0.2.0
 	github.com/google/go-cmp v0.4.0
+	github.com/imdario/mergo v0.3.7 // indirect
 	github.com/prometheus/client_golang v1.5.1
 	github.com/spf13/afero v1.2.2
 	github.com/spf13/viper v1.7.0
