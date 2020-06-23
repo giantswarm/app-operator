@@ -158,7 +158,8 @@ func TestAppLifecycleUsingKubeconfig(t *testing.T) {
 			t.Fatalf("expected nil got %#v", err)
 		}
 
-		tag, err := appcatalog.GetLatestVersion(ctx, c.Spec.Storage.URL, "chart-operator")
+		// Get the latest chart-operator which have appVersion as 0.13.0 since this is the last version supporting helm 2.
+		tag, err := appcatalog.GetLatestVersion(ctx, c.Spec.Storage.URL, "chart-operator", "0.13.0")
 		if err != nil {
 			t.Fatalf("expected nil got %#v", err)
 		}
