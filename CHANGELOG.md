@@ -12,12 +12,13 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 - Delete helm-2to3-migration job after migration is finished.
 - Sending metrics with app CR's version in the spec.
 - Only emit metrics for app CRs reconciled by this instance of the operator.
+- Expose App's `.spec.catalog` field as a collected metric
 
 ## [v1.1.5] 2020-06-16
 
 ### Changed
 
-- Cancel the reconciliation when failed to merge configMaps/secrets. 
+- Cancel the reconciliation when failed to merge configMaps/secrets.
 - Fix problems with openapi valdidation rules for app and appcatalog CRDs.
 - Make optional fields nullable for app and appcatalog CRDs.
 
