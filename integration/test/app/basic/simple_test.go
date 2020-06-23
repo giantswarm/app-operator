@@ -92,6 +92,7 @@ func TestAppLifecycle(t *testing.T) {
 
 		var tarballPath string
 		{
+			// Get the latest chart-operator which have appVersion as 0.13.0 since this is the last version supporting helm 2.
 			tarballURL, err := appcatalog.GetLatestChart(ctx, key.DefaultCatalogStorageURL(), "chart-operator", "0.13.0")
 			if err != nil {
 				t.Fatalf("expected %#v got %#v", nil, err)
