@@ -26,6 +26,7 @@ var (
 			labelStatus,
 			labelTeam,
 			labelVersion,
+			labelCatalog,
 		},
 		nil,
 	)
@@ -143,6 +144,7 @@ func (c *AppResource) collectAppStatus(ctx context.Context, ch chan<- prometheus
 			team,
 			// Getting version from spec, not status since the version in the spec is the desired version.
 			app.Spec.Version,
+			app.Spec.Catalog,
 		)
 
 		if !key.IsCordoned(app) {
