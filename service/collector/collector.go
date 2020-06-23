@@ -11,4 +11,5 @@ const (
 	labelStatus    = "status"
 	labelTeam      = "team"
 	labelVersion   = "version"
+	labelCatalog   = "catalog"
 )
