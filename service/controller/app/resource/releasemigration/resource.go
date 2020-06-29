@@ -68,7 +68,16 @@ func (r *Resource) Name() string {
 }
 
 func (r *Resource) deleteMigrationApp(ctx context.Context, helmClient helmclient.Interface, tillerNamespace string) error {
-	err := helmClient.DeleteRelease(ctx, tillerNamespace, migrationApp)
+	_, err := helmClient.GetReleaseContent(ctx, tillerNamespace, migrationApp)
+	if helmclient.IsReleaseNotFound(err) {
+		// migration app had been deleted already.
+		// no-op
+		return nil
+	} else if err != nil {
+		return microerror.Mask(err)
+	}
+
+	err = helmClient.DeleteRelease(ctx, tillerNamespace, migrationApp)
 	if err != nil {
 		return microerror.Mask(err)
 	}
@@ -135,16 +144,17 @@ func (r *Resource) ensureReleasesMigrated(ctx context.Context, k8sClient k8sclie
 		}
 		if len(releases) > 0 {
 			desc := fmt.Sprintf("%d helm v2 releases not migrated", len(releases))
-			r.logger.Log("level", "debug", "message", desc)
+			r.logger.LogCtx(ctx, "level", "debug", "message", desc)
 
 			return microerror.Maskf(executionFailedError, desc)
 		}
+		r.logger.LogCtx(ctx, "level", "debug", "message", "migration completed")
 
 		return nil
 	}
 
 	n := func(err error, t time.Duration) {
-		r.logger.Log("level", "debug", "message", "migration not complete")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "migration not complete")
 	}
 
 	b := backoff.NewConstant(5*time.Minute, 10*time.Second)
