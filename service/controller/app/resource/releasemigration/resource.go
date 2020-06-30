@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/giantswarm/appcatalog"
 	"github.com/giantswarm/backoff"
 	"github.com/giantswarm/helmclient"
 	"github.com/giantswarm/k8sclient"
@@ -13,8 +12,6 @@ import (
 	"github.com/giantswarm/micrologger"
 	"github.com/spf13/afero"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-
-	"github.com/giantswarm/app-operator/service/controller/app/key"
 )
 
 const (
@@ -99,10 +96,14 @@ func (r *Resource) ensureReleasesMigrated(ctx context.Context, k8sClient k8sclie
 	{
 		var tarballPath string
 		{
-			tarballURL, err := appcatalog.GetLatestChart(ctx, key.DefaultCatalogStorageURL(), "helm-2to3-migration", "")
-			if err != nil {
-				return microerror.Mask(err)
-			}
+			/*
+				tarballURL, err := appcatalog.GetLatestChart(ctx, key.DefaultCatalogStorageURL(), "helm-2to3-migration", "")
+				if err != nil {
+					return microerror.Mask(err)
+				}
+			*/
+
+			tarballURL := "https://giantswarm.github.com/default-test-catalog/helm-2to3-migration-1.1.6-e2dc8b1b6b8b3a956d13dbae1e13f7c9d7b8eefc.tgz"
 
 			tarballPath, err = helmClient.PullChartTarball(ctx, tarballURL)
 			if err != nil {
