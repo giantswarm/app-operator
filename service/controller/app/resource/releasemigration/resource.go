@@ -91,6 +91,10 @@ func (r *Resource) ensureReleasesMigrated(ctx context.Context, k8sClient k8sclie
 		return microerror.Mask(err)
 	}
 
+	// Log releases to be migrated.
+	r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("migrating %d releases", len(releases)))
+	r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("releases %v", releases))
+
 	// Install helm-2to3-migration app
 	{
 		var tarballPath string
