@@ -162,7 +162,7 @@ func (r *Resource) ensureReleasesMigrated(ctx context.Context, k8sClient k8sclie
 		r.logger.LogCtx(ctx, "level", "debug", "message", "migration not complete")
 	}
 
-	b := backoff.NewConstant(5*time.Minute, 10*time.Second)
+	b := backoff.NewConstant(20*time.Minute, 10*time.Second)
 	err = backoff.RetryNotify(o, b, n)
 	if err != nil {
 		return microerror.Mask(err)
