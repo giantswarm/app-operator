@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Changed
+
+- Delete migration app after checking the release.
+
 ## [v1.1.6] 2020-06-29
 
 ### Changed
