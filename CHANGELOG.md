@@ -7,6 +7,8 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+## [v1.1.8] 2020-07-01
+
 - Extend to 20 minutes for waiting helm 3 migration completed.
 - RBAC added to deletion migration resources.
 
@@ -84,9 +86,11 @@ from Helm 2 to Helm 3.
 
 - Flattening operator release structure.
 
-[Unreleased]: https://github.com/giantswarm/app-operator/compare/v1.1.6..HEAD
+[Unreleased]: https://github.com/giantswarm/app-operator/compare/v1.1.8..HEAD
 
-[v1.1.5]: https://github.com/giantswarm/app-operator/compare/v1.1.5..v1.1.6
+[v1.1.8]: https://github.com/giantswarm/app-operator/compare/v1.1.7..v1.1.8
+[v1.1.7]: https://github.com/giantswarm/app-operator/compare/v1.1.6..v1.1.7
+[v1.1.6]: https://github.com/giantswarm/app-operator/compare/v1.1.5..v1.1.6
 [v1.1.5]: https://github.com/giantswarm/app-operator/compare/v1.1.4..v1.1.5
 [v1.1.4]: https://github.com/giantswarm/app-operator/compare/v1.1.3..v1.1.4
 [v1.1.3]: https://github.com/giantswarm/app-operator/compare/v1.1.2..v1.1.3
