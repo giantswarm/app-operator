@@ -138,7 +138,7 @@ func (r *Resource) ensureReleasesMigrated(ctx context.Context, k8sClient k8sclie
 
 	// Wait until all helm v2 release are deleted
 	o := func() error {
-		completed, err := r.checkMigrationJobStatus(k8sClient, "giantswarm")
+		completed, err := checkMigrationJobStatus(k8sClient, "giantswarm")
 		if err != nil {
 			return microerror.Mask(err)
 		}
@@ -173,16 +173,9 @@ func (r *Resource) ensureReleasesMigrated(ctx context.Context, k8sClient k8sclie
 }
 
 func (r *Resource) findHelmV2Releases(k8sClient k8sclient.Interface, tillerNamespace string) ([]string, error) {
-	charts := make(map[string]bool)
-
-	// Get list of chart CRs as not all helm 2 releases will have a chart CR.
-	list, err := k8sClient.G8sClient().ApplicationV1alpha1().Charts(r.chartNamespace).List(metav1.ListOptions{})
+	chartMap, err := getChartMap(k8sClient, r.chartNamespace)
 	if err != nil {
 		return nil, microerror.Mask(err)
-	}
-
-	for _, chart := range list.Items {
-		charts[chart.Name] = true
 	}
 
 	lo := metav1.ListOptions{
@@ -200,7 +193,7 @@ func (r *Resource) findHelmV2Releases(k8sClient k8sclient.Interface, tillerNames
 		name := cm.GetLabels()["NAME"]
 
 		// Skip Helm release if it has no matching chart CR.
-		if _, ok := charts[name]; !ok {
+		if _, ok := chartMap[name]; !ok {
 			continue
 		}
 
