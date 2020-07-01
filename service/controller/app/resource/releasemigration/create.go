@@ -317,8 +317,8 @@ func (r *Resource) hasHelmV3Secrets(k8sClient k8sclient.Interface) (bool, error)
 			namespaces[chart.Spec.Namespace] = true
 		}
 
-		for name, _ := range namespaces {
-			releaseNamespaces = append(releaseNamespaces, name)
+		for ns := range namespaces {
+			releaseNamespaces = append(releaseNamespaces, ns)
 		}
 	}
 
