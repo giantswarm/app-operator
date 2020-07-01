@@ -7,6 +7,9 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+- Extend to 20 minutes for waiting helm 3 migration completed.
+- RBAC added to deletion migration resources.
+
 ## [v1.1.7] 2020-06-30
 
 ### Changed
