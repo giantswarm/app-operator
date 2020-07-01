@@ -115,6 +115,21 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	// It means helm release migration is in progress.
 	if hasConfigMap && hasSecret {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("release %#q helmV3 migration in progress", key.ReleaseName(cr)))
+
+		found, err := findMigrationApp(ctx, cc.Clients.Helm, tillerNamespace)
+		if err != nil {
+			return microerror.Mask(err)
+		}
+
+		if !found {
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("release %#q had been purged during migration, reinstalling..", migrationApp))
+			err = r.ensureReleasesMigrated(ctx, cc.Clients.K8s, cc.Clients.Helm, tillerNamespace)
+			if err != nil {
+				return microerror.Mask(err)
+			}
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("installed %#q", migrationApp))
+		}
+
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation")
 		reconciliationcanceledcontext.SetCanceled(ctx)
 		return nil

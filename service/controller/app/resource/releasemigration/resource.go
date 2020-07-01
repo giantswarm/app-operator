@@ -68,13 +68,14 @@ func (r *Resource) Name() string {
 }
 
 func (r *Resource) deleteMigrationApp(ctx context.Context, helmClient helmclient.Interface, tillerNamespace string) error {
-	_, err := helmClient.GetReleaseContent(ctx, tillerNamespace, migrationApp)
-	if helmclient.IsReleaseNotFound(err) {
-		// migration app had been deleted already.
+	found, err := findMigrationApp(ctx, helmClient, tillerNamespace)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
+	if !found {
 		// no-op
 		return nil
-	} else if err != nil {
-		return microerror.Mask(err)
 	}
 
 	err = helmClient.DeleteRelease(ctx, tillerNamespace, migrationApp)
@@ -208,4 +209,14 @@ func (r *Resource) findHelmV2Releases(k8sClient k8sclient.Interface, tillerNames
 	}
 
 	return releases, nil
+}
+
+func findMigrationApp(ctx context.Context, helmClient helmclient.Interface, tillerNamespace string) (bool, error) {
+	_, err := helmClient.GetReleaseContent(ctx, tillerNamespace, migrationApp)
+	if helmclient.IsReleaseNotFound(err) {
+		return false, nil
+	} else if err != nil {
+		return false, microerror.Mask(err)
+	}
+	return true, nil
 }
