@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/giantswarm/k8sclient"
 	"strings"
 
 	"github.com/Masterminds/semver/v3"
@@ -292,4 +293,13 @@ func (r *Resource) hasHelmV3Secrets(k8sClient kubernetes.Interface, releaseName,
 
 func replaceToEscape(from string) string {
 	return strings.Replace(from, "/", "~1", -1)
+}
+
+func (r *Resource) checkMigrationJobStatus(k8sClient k8sclient.Interface, releaseNamespace string) (bool, error) {
+	job, err := k8sClient.K8sClient().BatchV1().Jobs(releaseNamespace).Get(migrationApp, metav1.GetOptions{})
+	if err != nil {
+		return false, microerror.Mask(err)
+	}
+
+	return job.Status.Succeeded > 0, nil
 }

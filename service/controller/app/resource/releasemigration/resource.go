@@ -138,11 +138,17 @@ func (r *Resource) ensureReleasesMigrated(ctx context.Context, k8sClient k8sclie
 
 	// Wait until all helm v2 release are deleted
 	o := func() error {
-		releases, err := r.findHelmV2Releases(k8sClient, tillerNamespace)
+		completed, err := r.checkMigrationJobStatus(k8sClient, "giantswarm")
 		if err != nil {
 			return microerror.Mask(err)
 		}
-		if len(releases) > 0 {
+
+		if !completed {
+			releases, err := r.findHelmV2Releases(k8sClient, tillerNamespace)
+			if err != nil {
+				return microerror.Mask(err)
+			}
+
 			desc := fmt.Sprintf("%d helm v2 releases not migrated", len(releases))
 			r.logger.LogCtx(ctx, "level", "debug", "message", desc)
 
@@ -157,7 +163,7 @@ func (r *Resource) ensureReleasesMigrated(ctx context.Context, k8sClient k8sclie
 		r.logger.LogCtx(ctx, "level", "debug", "message", "migration not complete")
 	}
 
-	b := backoff.NewConstant(5*time.Minute, 10*time.Second)
+	b := backoff.NewConstant(20*time.Minute, 10*time.Second)
 	err = backoff.RetryNotify(o, b, n)
 	if err != nil {
 		return microerror.Mask(err)
