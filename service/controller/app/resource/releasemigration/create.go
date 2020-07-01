@@ -122,7 +122,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		}
 
 		if !found {
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("release %#q had been purged during migration, reinstalling..", migrationApp))
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("release %#q had been purged during migration, reinstalling...", migrationApp))
 			err = r.ensureReleasesMigrated(ctx, cc.Clients.K8s, cc.Clients.Helm, tillerNamespace)
 			if err != nil {
 				return microerror.Mask(err)
