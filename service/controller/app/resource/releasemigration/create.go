@@ -182,6 +182,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 func (r *Resource) cordonChart(ctx context.Context, g8sClient versioned.Interface) error {
 	lo := metav1.ListOptions{
+		FieldSelector: "metadata.name!=chart-operator-unique",
 		LabelSelector: "app notin (chart-operator)",
 	}
 	charts, err := g8sClient.ApplicationV1alpha1().Charts(r.chartNamespace).List(lo)
@@ -235,6 +236,7 @@ func (r *Resource) cordonChart(ctx context.Context, g8sClient versioned.Interfac
 
 func (r *Resource) uncordonChart(ctx context.Context, g8sClient versioned.Interface) error {
 	lo := metav1.ListOptions{
+		FieldSelector: "metadata.name!=chart-operator-unique",
 		LabelSelector: "app notin (chart-operator)",
 	}
 	charts, err := g8sClient.ApplicationV1alpha1().Charts(r.chartNamespace).List(lo)
