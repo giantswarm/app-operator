@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Fixed
+
+- Fix API group for PSPs
+
 ## [v1.1.8] 2020-07-01
 
 - Extend to 20 minutes for waiting helm 3 migration completed.
