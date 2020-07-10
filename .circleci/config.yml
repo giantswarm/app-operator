@@ -39,14 +39,12 @@ workflows:
             tags:
               only: /^v.*/
 
-      # build and push chart to app catalog
       - architect/push-to-app-catalog:
           context: architect
           name: push-app-operator-to-control-plane-app-catalog
           app_catalog: "control-plane-catalog"
           app_catalog_test: "control-plane-test-catalog"
           chart: "app-operator"
-          # Make sure docker image is successfully built.
           requires:
             - push-app-operator-to-quay
             - push-app-operator-to-aliyun
@@ -54,7 +52,6 @@ workflows:
             tags:
               only: /^v.*/
 
-      # deploy to aws installations (only tags)
       - architect/push-to-app-collection:
           context: "architect"
           name: push-app-operator-to-aws-app-collection
@@ -70,7 +67,6 @@ workflows:
             tags:
               only: /^v.*/
 
-      # deploy to azure installations (only tags)
       - architect/push-to-app-collection:
           context: "architect"
           name: push-app-operator-to-azure-app-collection
@@ -86,7 +82,6 @@ workflows:
             tags:
               only: /^v.*/
 
-      # deploy to kvm installations (only tags)
       - architect/push-to-app-collection:
           context: "architect"
           name: push-app-operator-to-kvm-app-collection
