@@ -179,7 +179,7 @@ func TestAppWithKubeconfig(t *testing.T) {
 	{
 		config.Logger.LogCtx(ctx, "level", "debug", "message", "creating chart-operator app CR")
 
-		tag, err := appcatalog.GetLatestVersion(ctx, key.DefaultCatalogStorageURL(), "chart-operator")
+		tag, err := appcatalog.GetLatestVersion(ctx, key.DefaultCatalogStorageURL(), "chart-operator", "")
 		if err != nil {
 			t.Fatalf("expected nil got %#v", err)
 		}
