@@ -217,6 +217,7 @@ github.com/ghodss/yaml v1.0.0/go.mod h1:4dBDuWmgqj2HViK6kFavaiC9ZROes6MMH2rRYeME
 github.com/ghodss/yaml v1.0.1-0.20190212211648-25d852aebe32 h1:Mn26/9ZMNWSw9C9ERFA1PUxfmGpolnw2v0bKOREu5ew=
 github.com/ghodss/yaml v1.0.1-0.20190212211648-25d852aebe32/go.mod h1:GIjDIg/heH5DOkXY3YJ/wNhfHsQHoXGjl8G8amsYQ1I=
 github.com/giantswarm/apiextensions v0.2.0/go.mod h1:iw66G0WDcrQl9mi2m/6mov2fWTD6ZiT2+FC62b2Mczw=
+github.com/giantswarm/apiextensions v0.4.8/go.mod h1:iMZLjyvqRIVPTAQGbjwTSqifwrGB41a4mW8MwC45mYI=
 github.com/giantswarm/apiextensions v0.4.13 h1:vQVspVaMlmNRsV7I2PITJTEBBY1PRa250XBeuRyYZis=
 github.com/giantswarm/apiextensions v0.4.13/go.mod h1:iMZLjyvqRIVPTAQGbjwTSqifwrGB41a4mW8MwC45mYI=
 github.com/giantswarm/appcatalog v0.2.6 h1:ReygHSarOnuAZ4kgqXCKoAOfW0RpHth+bAM0dPFkQEA=
@@ -233,8 +234,12 @@ github.com/giantswarm/exporterkit v0.2.0/go.mod h1:b4fuHVjsvZgznC9OEPfn0y5zvN8Sn
 github.com/giantswarm/helmclient v1.0.0/go.mod h1:2KJ2cg7UTbVnYwpar92Qnm6x60gA6RGIoGATBvAaf/g=
 github.com/giantswarm/helmclient v1.0.3 h1:TQHma7GFvy72WfAc69bW629lZqynTK0JzQHlOafKwfo=
 github.com/giantswarm/helmclient v1.0.3/go.mod h1:5jfYwrjmyGq8u7Q51qsq9RzsT/Zs27sTcA34c8dkUf4=
+github.com/giantswarm/helmclient v1.0.5 h1:r5nGWQDV3eZaGrox/kZPKsnp8FhMUJJd41qrF+9rkJc=
+github.com/giantswarm/helmclient v1.0.5/go.mod h1:BjGESTZyJv1b2Cx5ZYZWE3mNQjn+J+VAAzL5HS6FqdM=
 github.com/giantswarm/k8sclient v0.2.0 h1:Az+Knfs2UJrNFoqfOsfkudg+rt3fn5EM1aKrnLSg3fU=
 github.com/giantswarm/k8sclient v0.2.0/go.mod h1:tUgUynwKgMnjnN2PldGmxJW6+8eZn2p7tT+tEhXDwOg=
+github.com/giantswarm/k8sclient/v3 v3.1.1 h1:iJYop1h59ItPzmroa7wGHrhXSzeh7QblViUMIQPm9dY=
+github.com/giantswarm/k8sclient/v3 v3.1.1/go.mod h1:ezorsMUa1az9KC2a0C3FmG10x6AqEiNr4R246hWj9h4=
 github.com/giantswarm/k8sportforward v0.2.0/go.mod h1:+hyTTG0V2f3V28hDyEhJZQ341LTgSeXCgcZO2AeqLlI=
 github.com/giantswarm/kubeconfig v0.2.0/go.mod h1:3WrVk85sYExwZ38bYlZwazG/BzWU2FkYOjTyKb7tnU0=
 github.com/giantswarm/kubeconfig v0.2.1 h1:cDKTcq7BJXBTsvMT/yfQnabZ9ua59vIarjUEynqqgX8=
