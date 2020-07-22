@@ -9,7 +9,7 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ### Changed
 
-- Graduation application group CRDs to v1.
+- Graduate application group CRDs to v1.
 - Upgrade to operatorkit 1.2.0.
 
 ### Fixed
