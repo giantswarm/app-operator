@@ -31,7 +31,6 @@ require (
 replace (
 	github.com/ghodss/yaml => github.com/ghodss/yaml v1.0.1-0.20190212211648-25d852aebe32
 	github.com/mailru/easyjson => github.com/mailru/easyjson v0.7.0
-	github.com/mattn/go-colorable => github.com/mattn/go-colorable v0.0.9
+	github.com/mattn/go-colorable => github.com/mattn/go-colorable v0.1.2
 	github.com/mattn/go-isatty => github.com/mattn/go-isatty v0.0.9
-	github.com/subosito/gotenv => github.com/subosito/gotenv v1.2.0
 )
