@@ -28,4 +28,8 @@ require (
 	sigs.k8s.io/yaml v1.2.0
 )
 
-replace github.com/mattn/go-isatty => github.com/mattn/go-isatty v0.0.9
+replace (
+	github.com/ghodss/yaml => github.com/ghodss/yaml v1.0.0
+	github.com/mattn/go-colorable => github.com/mattn/go-colorable v0.0.9
+	github.com/mattn/go-isatty => github.com/mattn/go-isatty v0.0.9
+)
