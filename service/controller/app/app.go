@@ -1,6 +1,7 @@
 package app
 
 import (
+	"context"
 	"time"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
@@ -13,6 +14,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 
 	"github.com/giantswarm/app-operator/pkg/project"
+	"github.com/giantswarm/app-operator/service/controller/app/controllercontext"
 	"github.com/giantswarm/app-operator/service/controller/app/key"
 )
 
@@ -51,6 +53,13 @@ func NewApp(config Config) (*App, error) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ImageRegistry must not be empty", config)
 	}
 
+	initCtxFunc := func(ctx context.Context, obj interface{}) (context.Context, error) {
+		cc := controllercontext.Context{}
+		ctx = controllercontext.NewContext(ctx, cc)
+
+		return ctx, nil
+	}
+
 	var resources []resource.Interface
 	{
 		c := appResourcesConfig{
@@ -73,6 +82,7 @@ func NewApp(config Config) (*App, error) {
 	var appController *controller.Controller
 	{
 		c := controller.Config{
+			InitCtx:   initCtxFunc,
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
 			Resources: resources,
