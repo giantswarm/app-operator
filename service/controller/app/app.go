@@ -53,6 +53,10 @@ func NewApp(config Config) (*App, error) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ImageRegistry must not be empty", config)
 	}
 
+	// TODO: Remove usage of deprecated controller context.
+	//
+	//	https://github.com/giantswarm/giantswarm/issues/12324
+	//
 	initCtxFunc := func(ctx context.Context, obj interface{}) (context.Context, error) {
 		cc := controllercontext.Context{}
 		ctx = controllercontext.NewContext(ctx, cc)
