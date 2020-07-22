@@ -5,7 +5,7 @@ go 1.14
 require (
 	github.com/Masterminds/semver/v3 v3.1.0
 	github.com/giantswarm/apiextensions v0.4.17-0.20200721152857-93b97954496a
-	github.com/giantswarm/appcatalog v0.2.6
+	github.com/giantswarm/appcatalog v0.2.7-0.20200722133540-11a29db78af8
 	github.com/giantswarm/backoff v0.2.0
 	github.com/giantswarm/errors v0.2.3
 	github.com/giantswarm/exporterkit v0.2.0
@@ -28,8 +28,4 @@ require (
 	sigs.k8s.io/yaml v1.2.0
 )
 
-replace (
-	github.com/ghodss/yaml v0.0.0 => github.com/ghodss/yaml v1.0.0
-	github.com/mattn/go-colorable => github.com/mattn/go-colorable v0.0.9
-	github.com/mattn/go-isatty => github.com/mattn/go-isatty v0.0.9
-)
+replace github.com/mattn/go-isatty => github.com/mattn/go-isatty v0.0.9
