@@ -1,28 +1,22 @@
 package appcatalog
 
 import (
-	"context"
-
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
-	"github.com/giantswarm/operatorkit/controller"
 	"github.com/giantswarm/operatorkit/resource"
 	"github.com/giantswarm/operatorkit/resource/wrapper/metricsresource"
 	"github.com/giantswarm/operatorkit/resource/wrapper/retryresource"
 
-	"github.com/giantswarm/app-operator/service/controller/appcatalog/key"
 	"github.com/giantswarm/app-operator/service/controller/appcatalog/resource/empty"
 )
 
-// ResourceSetConfig contains necessary dependencies and settings for
-// AppCatalog controller ResourceSet configuration.
-type ResourceSetConfig struct {
+type appCatalogResourcesConfig struct {
 	// Dependencies.
 	Logger micrologger.Logger
 }
 
 // NewResourceSet returns a configured AppCatalog controller ResourceSet.
-func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
+func newAppCatalogResources(config appCatalogResourcesConfig) ([]resource.Interface, error) {
 	var err error
 
 	// Dependencies.
@@ -58,37 +52,5 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 	}
 
-	initCtxFunc := func(ctx context.Context, obj interface{}) (context.Context, error) {
-		return ctx, nil
-	}
-
-	handlesFunc := func(obj interface{}) bool {
-		cr, err := key.ToCustomResource(obj)
-		if err != nil {
-			return false
-		}
-
-		if key.VersionLabel(cr) == VersionBundle().Version {
-			return true
-		}
-
-		return false
-	}
-
-	var resourceSet *controller.ResourceSet
-	{
-		c := controller.ResourceSetConfig{
-			Handles:   handlesFunc,
-			InitCtx:   initCtxFunc,
-			Logger:    config.Logger,
-			Resources: resources,
-		}
-
-		resourceSet, err = controller.NewResourceSet(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	return resourceSet, nil
+	return resources, nil
 }
