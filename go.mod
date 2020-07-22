@@ -27,9 +27,3 @@ require (
 	k8s.io/client-go v0.17.3
 	sigs.k8s.io/yaml v1.2.0
 )
-
-replace (
-	github.com/ghodss/yaml => github.com/ghodss/yaml v0.0.0-20150909031657-73d445a93680
-	github.com/mattn/go-colorable => github.com/mattn/go-colorable v0.0.9
-	github.com/mattn/go-isatty => github.com/mattn/go-isatty v0.0.9
-)
