@@ -9,13 +9,13 @@ import (
 
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/appcatalog"
-	"github.com/giantswarm/e2esetup/chart/env"
 	"github.com/giantswarm/helmclient"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/tools/clientcmd/api"
 
+	"github.com/giantswarm/app-operator/integration/env"
 	"github.com/giantswarm/app-operator/integration/key"
 	"github.com/giantswarm/app-operator/integration/templates"
 	"github.com/giantswarm/app-operator/pkg/label"
