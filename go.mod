@@ -29,7 +29,7 @@ require (
 )
 
 replace (
-	github.com/ghodss/yaml => github.com/ghodss/yaml v1.0.0
+	github.com/ghodss/yaml => github.com/ghodss/yaml v1.0.1-0.20190212211648-25d852aebe32
 	github.com/mattn/go-colorable => github.com/mattn/go-colorable v0.0.9
 	github.com/mattn/go-isatty => github.com/mattn/go-isatty v0.0.9
 )
