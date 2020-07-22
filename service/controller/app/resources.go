@@ -1,20 +1,17 @@
 package app
 
 import (
-	"context"
 	"time"
 
-	"github.com/giantswarm/k8sclient"
+	"github.com/giantswarm/k8sclient/v3/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
-	"github.com/giantswarm/operatorkit/controller"
 	"github.com/giantswarm/operatorkit/resource"
 	"github.com/giantswarm/operatorkit/resource/crud"
 	"github.com/giantswarm/operatorkit/resource/wrapper/metricsresource"
 	"github.com/giantswarm/operatorkit/resource/wrapper/retryresource"
 	"github.com/spf13/afero"
 
-	"github.com/giantswarm/app-operator/service/controller/app/controllercontext"
 	"github.com/giantswarm/app-operator/service/controller/app/resource/appcatalog"
 	"github.com/giantswarm/app-operator/service/controller/app/resource/appnamespace"
 	"github.com/giantswarm/app-operator/service/controller/app/resource/chart"
@@ -28,9 +25,7 @@ import (
 	"github.com/giantswarm/app-operator/service/controller/app/values"
 )
 
-// ResourceSetConfig contains necessary dependencies and settings for
-// AppConfig controller ResourceSet configuration.
-type ResourceSetConfig struct {
+type appResourcesConfig struct {
 	// Dependencies.
 	FileSystem afero.Fs
 	K8sClient  k8sclient.Interface
@@ -43,8 +38,7 @@ type ResourceSetConfig struct {
 	UniqueApp         bool
 }
 
-// NewResourceSet returns a configured App controller ResourceSet.
-func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
+func newAppResources(config appResourcesConfig) ([]resource.Interface, error) {
 	var err error
 
 	// Dependencies.
@@ -276,28 +270,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 	}
 
-	initCtxFunc := func(ctx context.Context, obj interface{}) (context.Context, error) {
-		cc := controllercontext.Context{}
-		ctx = controllercontext.NewContext(ctx, cc)
-
-		return ctx, nil
-	}
-
-	var resourceSet *controller.ResourceSet
-	{
-		c := controller.ResourceSetConfig{
-			InitCtx:   initCtxFunc,
-			Logger:    config.Logger,
-			Resources: resources,
-		}
-
-		resourceSet, err = controller.NewResourceSet(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	return resourceSet, nil
+	return resources, nil
 }
 
 func toCRUDResource(logger micrologger.Logger, ops crud.Interface) (*crud.Resource, error) {
