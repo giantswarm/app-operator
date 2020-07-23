@@ -64,7 +64,6 @@ func NewApp(config Config) (*App, error) {
 	var appController *controller.Controller
 	{
 		c := controller.Config{
-			CRD:       v1alpha1.NewAppCRD(),
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
 			Name:      project.Name(),
