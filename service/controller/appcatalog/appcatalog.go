@@ -45,7 +45,6 @@ func NewAppCatalog(config Config) (*AppCatalog, error) {
 	var appCatalogController *controller.Controller
 	{
 		c := controller.Config{
-			CRD:       v1alpha1.NewAppCatalogCRD(),
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
 			Name:      project.Name(),

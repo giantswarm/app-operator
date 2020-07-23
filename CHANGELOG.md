@@ -7,6 +7,8 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## Unreleased
 
+- Disable app, appcatalog CRDs creation.
+
 ## [v1.0.8] 2020-06-23
 
 - Fix problems with openapi valdidation rules for app and appcatalog CRDs.

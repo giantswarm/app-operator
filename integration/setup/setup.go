@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
+	"github.com/giantswarm/apiextensions/pkg/crd"
 	"github.com/giantswarm/appcatalog"
 	"github.com/giantswarm/backoff"
 	"github.com/giantswarm/microerror"
@@ -85,6 +85,25 @@ func installResources(ctx context.Context, config Config) error {
 		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("tarball path is %#q", operatorTarballPath))
 	}
 
+	crds := []string{
+		"AppCatalog",
+		"App",
+		"Chart",
+	}
+
+	{
+		for _, crdName := range crds {
+			config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("ensuring %#q CRD exists", crdName))
+
+			err := config.K8sClients.CRDClient().EnsureCreated(ctx, crd.LoadV1Beta1("application.giantswarm.io", crdName), backoff.NewMaxRetries(7, 1*time.Second))
+			if err != nil {
+				return microerror.Mask(err)
+			}
+
+			config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("ensured %#q CRD exists", crdName))
+		}
+	}
+
 	{
 		defer func() {
 			fs := afero.NewOsFs()
@@ -109,17 +128,5 @@ func installResources(ctx context.Context, config Config) error {
 		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("installed %#q", project.Name()))
 	}
 
-	{
-		config.Logger.LogCtx(ctx, "level", "debug", "message", "ensuring app CRD exists")
-
-		// The operator will install the CRD on boot but we create chart CRs
-		// in the tests so this ensures the CRD is present.
-		err = config.K8sClients.CRDClient().EnsureCreated(ctx, v1alpha1.NewAppCRD(), backoff.NewMaxRetries(7, 1*time.Second))
-		if err != nil {
-			return microerror.Mask(err)
-		}
-
-		config.Logger.LogCtx(ctx, "level", "debug", "message", "ensured app CRD exists")
-	}
 	return nil
 }
