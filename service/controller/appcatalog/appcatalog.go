@@ -2,10 +2,11 @@ package appcatalog
 
 import (
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
-	"github.com/giantswarm/k8sclient"
+	"github.com/giantswarm/k8sclient/v3/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/controller"
+	"github.com/giantswarm/operatorkit/resource"
 	"k8s.io/apimachinery/pkg/runtime"
 
 	"github.com/giantswarm/app-operator/pkg/project"
@@ -30,13 +31,13 @@ func NewAppCatalog(config Config) (*AppCatalog, error) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
 
-	var resourceSetV1 *controller.ResourceSet
+	var resources []resource.Interface
 	{
-		c := ResourceSetConfig{
+		c := appCatalogResourcesConfig{
 			Logger: config.Logger,
 		}
 
-		resourceSetV1, err = NewResourceSet(c)
+		resources, err = newAppCatalogResources(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -45,16 +46,14 @@ func NewAppCatalog(config Config) (*AppCatalog, error) {
 	var appCatalogController *controller.Controller
 	{
 		c := controller.Config{
-			CRD:       v1alpha1.NewAppCatalogCRD(),
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
-			Name:      project.Name(),
-			ResourceSets: []*controller.ResourceSet{
-				resourceSetV1,
-			},
+			Resources: resources,
 			NewRuntimeObjectFunc: func() runtime.Object {
 				return new(v1alpha1.AppCatalog)
 			},
+
+			Name: project.Name(),
 		}
 
 		appCatalogController, err = controller.New(c)

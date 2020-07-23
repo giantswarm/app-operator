@@ -7,6 +7,11 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Changed
+
+- Graduate application group CRDs to v1.
+- Upgrade to operatorkit 1.2.0.
+
 ### Fixed
 
 - Fix API group for PSPs

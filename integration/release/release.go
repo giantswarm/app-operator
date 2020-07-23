@@ -9,7 +9,7 @@ import (
 
 	"github.com/giantswarm/backoff"
 	"github.com/giantswarm/helmclient"
-	"github.com/giantswarm/k8sclient"
+	"github.com/giantswarm/k8sclient/v3/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	corev1 "k8s.io/api/core/v1"
@@ -47,29 +47,6 @@ func New(config Config) (*Release, error) {
 	}
 
 	return r, nil
-}
-
-func (r *Release) WaitForAppCatalogCRD(ctx context.Context) error {
-	o := func() error {
-		_, err := r.k8sClient.G8sClient().ApplicationV1alpha1().AppCatalogs().List(metav1.ListOptions{})
-		if err != nil {
-			return microerror.Mask(err)
-		}
-
-		return nil
-	}
-
-	n := func(err error, t time.Duration) {
-		r.logger.Log("level", "debug", "message", fmt.Sprintf("failed to list appcatalogs: retrying in %s", t), "stack", fmt.Sprintf("%v", err))
-	}
-
-	b := backoff.NewExponential(10*time.Minute, 60*time.Second)
-	err := backoff.RetryNotify(o, b, n)
-	if err != nil {
-		return microerror.Mask(err)
-	}
-
-	return nil
 }
 
 func (r *Release) WaitForDeletedApp(ctx context.Context, namespace, appName string) error {

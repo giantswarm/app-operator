@@ -1,17 +1,20 @@
 package app
 
 import (
+	"context"
 	"time"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
-	"github.com/giantswarm/k8sclient"
+	"github.com/giantswarm/k8sclient/v3/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/controller"
+	"github.com/giantswarm/operatorkit/resource"
 	"github.com/spf13/afero"
 	"k8s.io/apimachinery/pkg/runtime"
 
 	"github.com/giantswarm/app-operator/pkg/project"
+	"github.com/giantswarm/app-operator/service/controller/app/controllercontext"
 	"github.com/giantswarm/app-operator/service/controller/app/key"
 )
 
@@ -50,9 +53,20 @@ func NewApp(config Config) (*App, error) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ImageRegistry must not be empty", config)
 	}
 
-	var resourceSetV1 *controller.ResourceSet
+	// TODO: Remove usage of deprecated controller context.
+	//
+	//	https://github.com/giantswarm/giantswarm/issues/12324
+	//
+	initCtxFunc := func(ctx context.Context, obj interface{}) (context.Context, error) {
+		cc := controllercontext.Context{}
+		ctx = controllercontext.NewContext(ctx, cc)
+
+		return ctx, nil
+	}
+
+	var resources []resource.Interface
 	{
-		c := ResourceSetConfig{
+		c := appResourcesConfig{
 			FileSystem: config.Fs,
 			K8sClient:  config.K8sClient,
 			Logger:     config.Logger,
@@ -63,7 +77,7 @@ func NewApp(config Config) (*App, error) {
 			UniqueApp:         config.UniqueApp,
 		}
 
-		resourceSetV1, err = NewResourceSet(c)
+		resources, err = newAppResources(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -72,17 +86,16 @@ func NewApp(config Config) (*App, error) {
 	var appController *controller.Controller
 	{
 		c := controller.Config{
-			CRD:       v1alpha1.NewAppCRD(),
+			InitCtx:   initCtxFunc,
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
-			Name:      project.Name(),
-			ResourceSets: []*controller.ResourceSet{
-				resourceSetV1,
-			},
-			Selector: key.AppVersionSelector(config.UniqueApp),
+			Resources: resources,
+			Selector:  key.AppVersionSelector(config.UniqueApp),
 			NewRuntimeObjectFunc: func() runtime.Object {
 				return new(v1alpha1.App)
 			},
+
+			Name: project.Name(),
 		}
 
 		appController, err = controller.New(c)
