@@ -8,6 +8,7 @@ on:
     branches:
       - 'legacy'
       - 'master'
+      - 'helm2'
       - 'release-v*.*.x'
       # "!" negates previous positive patterns so it has to be at the end.
       - '!release-v*.x.x'
