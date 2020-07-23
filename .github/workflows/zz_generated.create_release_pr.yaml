@@ -7,7 +7,6 @@ on:
   push:
     branches:
       - 'master#release#v*.*.*'
-      - 'helm2#release#v*.*.*'
       - 'legacy#release#v*.*.*'
       - 'release-v*.*.x#release#v*.*.*'
       # "!" negates previous positive patterns so it has to be at the end.
