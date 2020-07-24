@@ -95,17 +95,17 @@ from Helm 2 to Helm 3.
 
 - Flattening operator release structure.
 
-[Unreleased]: https://github.com/giantswarm/app-operator/compare/v1.1.8..HEAD
+[Unreleased]: https://github.com/giantswarm/app-operator/compare/v1.1.8...HEAD
 
-[v1.1.8]: https://github.com/giantswarm/app-operator/compare/v1.1.7..v1.1.8
-[v1.1.7]: https://github.com/giantswarm/app-operator/compare/v1.1.6..v1.1.7
-[v1.1.6]: https://github.com/giantswarm/app-operator/compare/v1.1.5..v1.1.6
-[v1.1.5]: https://github.com/giantswarm/app-operator/compare/v1.1.4..v1.1.5
-[v1.1.4]: https://github.com/giantswarm/app-operator/compare/v1.1.3..v1.1.4
-[v1.1.3]: https://github.com/giantswarm/app-operator/compare/v1.1.2..v1.1.3
-[v1.1.2]: https://github.com/giantswarm/app-operator/compare/v1.1.1..v1.1.2
-[v1.1.1]: https://github.com/giantswarm/app-operator/compare/v1.1.0..v1.1.1
-[v1.1.0]: https://github.com/giantswarm/app-operator/compare/v1.0.3..v1.1.0
-[v1.0.3]: https://github.com/giantswarm/app-operator/compare/v1.0.2..v1.0.3
-[v1.0.2]: https://github.com/giantswarm/app-operator/compare/v1.0.1..v1.0.2
+[v1.1.8]: https://github.com/giantswarm/app-operator/compare/v1.1.7...v1.1.8
+[v1.1.7]: https://github.com/giantswarm/app-operator/compare/v1.1.6...v1.1.7
+[v1.1.6]: https://github.com/giantswarm/app-operator/compare/v1.1.5...v1.1.6
+[v1.1.5]: https://github.com/giantswarm/app-operator/compare/v1.1.4...v1.1.5
+[v1.1.4]: https://github.com/giantswarm/app-operator/compare/v1.1.3...v1.1.4
+[v1.1.3]: https://github.com/giantswarm/app-operator/compare/v1.1.2...v1.1.3
+[v1.1.2]: https://github.com/giantswarm/app-operator/compare/v1.1.1...v1.1.2
+[v1.1.1]: https://github.com/giantswarm/app-operator/compare/v1.1.0...v1.1.1
+[v1.1.0]: https://github.com/giantswarm/app-operator/compare/v1.0.3...v1.1.0
+[v1.0.3]: https://github.com/giantswarm/app-operator/compare/v1.0.2...v1.0.3
+[v1.0.2]: https://github.com/giantswarm/app-operator/compare/v1.0.1...v1.0.2
 [v1.0.1]: https://github.com/giantswarm/app-operator/releases/tag/v1.0.1
