@@ -134,6 +134,9 @@ func (c *AppResource) collectAppStatus(ctx context.Context, ch chan<- prometheus
 			team = c.defaultTeam
 		}
 
+		c.logger.Log("level", "debug", "message", fmt.Sprintf("DEBUG STATUS %#q", app.Status.Release.Status))
+		c.logger.Log("level", "debug", "message", fmt.Sprintf("DEBUG VERSION %#q", app.Spec.Version))
+
 		ch <- prometheus.MustNewConstMetric(
 			appDesc,
 			prometheus.GaugeValue,
