@@ -36,8 +36,7 @@ func NewSet(config SetConfig) (*Set, error) {
 	var appCollector *App
 	{
 		c := AppConfig{
-			G8sClient: config.K8sClient.G8sClient(),
-			K8sClient: config.K8sClient.K8sClient(),
+			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
 
 			AppTeamMapping: config.AppTeamMapping,
