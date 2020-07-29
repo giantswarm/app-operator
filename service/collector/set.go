@@ -50,13 +50,32 @@ func NewSet(config SetConfig) (*Set, error) {
 		}
 	}
 
+	var appOperatorCollector *AppOperator
+	{
+		c := AppOperatorConfig{
+			K8sClient: config.K8sClient,
+			Logger:    config.Logger,
+		}
+
+		appOperatorCollector, err = NewAppOperator(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var collectorSet *collector.Set
 	{
 		c := collector.SetConfig{
 			Collectors: []collector.Interface{
 				appCollector,
+				appOperatorCollector,
 			},
 			Logger: config.Logger,
+		}
+
+		if config.UniqueApp {
+			config.Logger.Log("level", "debug", "message", "app-operator collector is enabled")
+			c.Collectors = append(c.Collectors, appOperatorCollector)
 		}
 
 		collectorSet, err = collector.NewSet(c)
