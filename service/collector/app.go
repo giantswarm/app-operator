@@ -6,12 +6,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
+	"github.com/giantswarm/k8sclient/v3/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/prometheus/client_golang/prometheus"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/client-go/kubernetes"
 
 	"github.com/giantswarm/app-operator/service/controller/app/key"
 )
@@ -44,8 +43,7 @@ var (
 
 // AppConfig is this collector's configuration struct.
 type AppConfig struct {
-	G8sClient versioned.Interface
-	K8sClient kubernetes.Interface
+	K8sClient k8sclient.Interface
 	Logger    micrologger.Logger
 
 	AppTeamMapping map[string]string
@@ -55,8 +53,7 @@ type AppConfig struct {
 
 // App is the main struct for this collector.
 type App struct {
-	g8sClient versioned.Interface
-	k8sClient kubernetes.Interface
+	k8sClient k8sclient.Interface
 	logger    micrologger.Logger
 
 	appTeamMapping map[string]string
@@ -66,9 +63,6 @@ type App struct {
 
 // NewApp creates a new App metrics collector
 func NewApp(config AppConfig) (*App, error) {
-	if config.G8sClient == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.G8sClient must not be empty", config)
-	}
 	if config.K8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
 	}
@@ -84,7 +78,6 @@ func NewApp(config AppConfig) (*App, error) {
 	}
 
 	c := &App{
-		g8sClient: config.G8sClient,
 		k8sClient: config.K8sClient,
 		logger:    config.Logger,
 
@@ -100,14 +93,11 @@ func NewApp(config AppConfig) (*App, error) {
 func (c *App) Collect(ch chan<- prometheus.Metric) error {
 	ctx := context.Background()
 
-	c.logger.LogCtx(ctx, "level", "debug", "message", "collecting metrics")
-
 	err := c.collectAppStatus(ctx, ch)
 	if err != nil {
 		return microerror.Mask(err)
 	}
 
-	c.logger.LogCtx(ctx, "level", "debug", "message", "finished collecting metrics")
 	return nil
 }
 
@@ -123,7 +113,7 @@ func (c *App) collectAppStatus(ctx context.Context, ch chan<- prometheus.Metric)
 		LabelSelector: key.AppVersionSelector(c.uniqueApp).String(),
 	}
 
-	r, err := c.g8sClient.ApplicationV1alpha1().Apps("").List(options)
+	r, err := c.k8sClient.G8sClient().ApplicationV1alpha1().Apps("").List(options)
 	if err != nil {
 		return microerror.Mask(err)
 	}
