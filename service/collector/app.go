@@ -42,8 +42,8 @@ var (
 	)
 )
 
-// AppResourceConfig is this collector's configuration struct.
-type AppResourceConfig struct {
+// AppConfig is this collector's configuration struct.
+type AppConfig struct {
 	G8sClient versioned.Interface
 	K8sClient kubernetes.Interface
 	Logger    micrologger.Logger
@@ -53,8 +53,8 @@ type AppResourceConfig struct {
 	UniqueApp      bool
 }
 
-// AppResource is the main struct for this collector.
-type AppResource struct {
+// App is the main struct for this collector.
+type App struct {
 	g8sClient versioned.Interface
 	k8sClient kubernetes.Interface
 	logger    micrologger.Logger
@@ -64,8 +64,8 @@ type AppResource struct {
 	uniqueApp      bool
 }
 
-// NewAppResource creates a new AppResource metrics collector
-func NewAppResource(config AppResourceConfig) (*AppResource, error) {
+// NewApp creates a new App metrics collector
+func NewApp(config AppConfig) (*App, error) {
 	if config.G8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.G8sClient must not be empty", config)
 	}
@@ -83,7 +83,7 @@ func NewAppResource(config AppResourceConfig) (*AppResource, error) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.DefaultTeam must not be empty", config)
 	}
 
-	c := &AppResource{
+	c := &App{
 		g8sClient: config.G8sClient,
 		k8sClient: config.K8sClient,
 		logger:    config.Logger,
@@ -97,7 +97,7 @@ func NewAppResource(config AppResourceConfig) (*AppResource, error) {
 }
 
 // Collect is the main metrics collection function.
-func (c *AppResource) Collect(ch chan<- prometheus.Metric) error {
+func (c *App) Collect(ch chan<- prometheus.Metric) error {
 	ctx := context.Background()
 
 	c.logger.LogCtx(ctx, "level", "debug", "message", "collecting metrics")
@@ -112,13 +112,13 @@ func (c *AppResource) Collect(ch chan<- prometheus.Metric) error {
 }
 
 // Describe emits the description for the metrics collected here.
-func (c *AppResource) Describe(ch chan<- *prometheus.Desc) error {
+func (c *App) Describe(ch chan<- *prometheus.Desc) error {
 	ch <- appDesc
 	ch <- appCordonExpireTimeDesc
 	return nil
 }
 
-func (c *AppResource) collectAppStatus(ctx context.Context, ch chan<- prometheus.Metric) error {
+func (c *App) collectAppStatus(ctx context.Context, ch chan<- prometheus.Metric) error {
 	options := metav1.ListOptions{
 		LabelSelector: key.AppVersionSelector(c.uniqueApp).String(),
 	}

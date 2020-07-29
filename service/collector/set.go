@@ -33,9 +33,9 @@ func NewSet(config SetConfig) (*Set, error) {
 
 	var err error
 
-	var appOperatorCollector *AppResource
+	var appCollector *App
 	{
-		c := AppResourceConfig{
+		c := AppConfig{
 			G8sClient: config.K8sClient.G8sClient(),
 			K8sClient: config.K8sClient.K8sClient(),
 			Logger:    config.Logger,
@@ -45,7 +45,7 @@ func NewSet(config SetConfig) (*Set, error) {
 			UniqueApp:      config.UniqueApp,
 		}
 
-		appOperatorCollector, err = NewAppResource(c)
+		appCollector, err = NewApp(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -55,7 +55,7 @@ func NewSet(config SetConfig) (*Set, error) {
 	{
 		c := collector.SetConfig{
 			Collectors: []collector.Interface{
-				appOperatorCollector,
+				appCollector,
 			},
 			Logger: config.Logger,
 		}
