@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func Test_helm2AppOperatorExists(t *testing.T) {
+func Test_helm2AppOperatorReady(t *testing.T) {
 	tests := []struct {
 		name             string
 		operatorVersions map[string]int32
@@ -59,7 +59,7 @@ func Test_helm2AppOperatorExists(t *testing.T) {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
 			t.Log(tc.name)
 
-			result, err := helm2AppOperatorExists(tc.operatorVersions)
+			result, err := helm2AppOperatorReady(tc.operatorVersions)
 
 			switch {
 			case err == nil && tc.hasError == false:

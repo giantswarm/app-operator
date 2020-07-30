@@ -92,9 +92,9 @@ func (a *AppOperator) collectAppOperatorStatus(ctx context.Context, ch chan<- pr
 		if version == project.AppTenantVersion() {
 			// There should be a single app-operator instance with major version
 			// 1 for Helm 2 tenant clusters.
-			ready, err = helm2AppOperatorExists(operatorVersions)
+			ready, err = helm2AppOperatorReady(operatorVersions)
 			if err != nil {
-				a.logger.LogCtx(ctx, "level", "error", "message", fmt.Sprintf("failed to check app-operator exists for version %#q", version), "stack", fmt.Sprintf("%#v", err))
+				a.logger.LogCtx(ctx, "level", "error", "message", "failed to check helm 2 app-operator ready", "stack", fmt.Sprintf("%#v", err))
 				ready = 0
 			}
 		} else {
@@ -155,7 +155,7 @@ func (a *AppOperator) collectOperatorVersions(ctx context.Context) (map[string]i
 	return operatorVersions, nil
 }
 
-func helm2AppOperatorExists(operatorVersions map[string]int32) (int32, error) {
+func helm2AppOperatorReady(operatorVersions map[string]int32) (int32, error) {
 	var helm2AppOperators int32
 
 	for version, ready := range operatorVersions {
