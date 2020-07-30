@@ -49,7 +49,7 @@ func Test_helm2AppOperatorExists(t *testing.T) {
 			expectedResult: 2,
 		},
 		{
-			name:             "case 4: no versions returns false",
+			name:             "case 4: no versions",
 			operatorVersions: map[string]int32{},
 			expectedResult:   0,
 		},
