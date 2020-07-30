@@ -17,7 +17,7 @@ import (
 
 var (
 	appOperatorDesc = prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, "ready", "info"),
+		prometheus.BuildFQName(namespace, "ready", "total"),
 		"Gauge with ready app-operator instances per app CR version.",
 		[]string{
 			labelVersion,
