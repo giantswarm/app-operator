@@ -68,7 +68,6 @@ func NewSet(config SetConfig) (*Set, error) {
 		c := collector.SetConfig{
 			Collectors: []collector.Interface{
 				appCollector,
-				appOperatorCollector,
 			},
 			Logger: config.Logger,
 		}
