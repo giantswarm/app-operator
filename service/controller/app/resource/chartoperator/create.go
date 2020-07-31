@@ -39,14 +39,6 @@ func (r Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return nil
 	}
 
-	// We only bootstrap chart-operator if the app CR uses Helm 3.
-	// Helm 2 is managed by the thiccc deployment of app-operator.
-	if key.HelmMajorVersion(cr) != "3" {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("app %#q not using helm 3", cr.Name))
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
-		return nil
-	}
-
 	{
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding %#q deployment", cr.Name))
 

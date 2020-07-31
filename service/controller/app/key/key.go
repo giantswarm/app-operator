@@ -148,10 +148,6 @@ func IsDeleted(customResource v1alpha1.App) bool {
 	return customResource.DeletionTimestamp != nil
 }
 
-func HelmMajorVersion(customResource v1alpha1.App) string {
-	return customResource.GetLabels()[label.HelmMajorVersion]
-}
-
 func KubeConfigFinalizer(customResource v1alpha1.App) string {
 	return fmt.Sprintf("app-operator.giantswarm.io/app-%s", customResource.GetName())
 }
