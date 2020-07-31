@@ -9,6 +9,7 @@ import (
 	"github.com/giantswarm/operatorkit/resource/crud"
 
 	"github.com/giantswarm/app-operator/service/controller/app/controllercontext"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange interface{}) error {
@@ -25,7 +26,7 @@ func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange inte
 			return microerror.Mask(err)
 		}
 
-		_, err = cc.Clients.K8s.G8sClient().ApplicationV1alpha1().Charts(chart.Namespace).Update(chart)
+		_, err = cc.Clients.K8s.G8sClient().ApplicationV1alpha1().Charts(chart.Namespace).Update(ctx, chart, metav1.UpdateOptions{})
 		if err != nil {
 			return microerror.Mask(err)
 		}

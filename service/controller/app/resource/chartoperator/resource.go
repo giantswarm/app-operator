@@ -244,7 +244,7 @@ func (r Resource) updateChartOperator(ctx context.Context, cr v1alpha1.App) erro
 // ready replicas matches the desired state.
 func (r *Resource) checkDeploymentReady(ctx context.Context, k8sClient kubernetes.Interface, cr v1alpha1.App) error {
 	namespace := key.Namespace(cr)
-	deploy, err := k8sClient.AppsV1().Deployments(namespace).Get(cr.Name, metav1.GetOptions{})
+	deploy, err := k8sClient.AppsV1().Deployments(namespace).Get(ctx, cr.Name, metav1.GetOptions{})
 	if apierrors.IsNotFound(err) {
 		return microerror.Maskf(notReadyError, "deployment %#q not found", cr.Name)
 	} else if err != nil {

@@ -67,7 +67,7 @@ func (r *Resource) getCatalogForApp(ctx context.Context, customResource v1alpha1
 
 	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("looking for appCatalog %#q", catalogName))
 
-	appCatalog, err := r.g8sClient.ApplicationV1alpha1().AppCatalogs().Get(catalogName, metav1.GetOptions{})
+	appCatalog, err := r.g8sClient.ApplicationV1alpha1().AppCatalogs().Get(ctx, catalogName, metav1.GetOptions{})
 	if apierrors.IsNotFound(err) {
 		return microerror.Maskf(notFoundError, "appCatalog %#q", catalogName)
 	} else if err != nil {

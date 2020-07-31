@@ -123,7 +123,7 @@ func (a *AppOperator) collectAppOperatorStatus(ctx context.Context, ch chan<- pr
 func (a *AppOperator) collectAppVersions(ctx context.Context) (map[string]bool, error) {
 	appVersions := map[string]bool{}
 
-	l, err := a.k8sClient.G8sClient().ApplicationV1alpha1().Apps("").List(metav1.ListOptions{})
+	l, err := a.k8sClient.G8sClient().ApplicationV1alpha1().Apps("").List(ctx, metav1.ListOptions{})
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
@@ -142,7 +142,7 @@ func (a *AppOperator) collectOperatorVersions(ctx context.Context) (map[string]i
 	lo := metav1.ListOptions{
 		LabelSelector: fmt.Sprintf("%s=%s", label.App, project.Name()),
 	}
-	d, err := a.k8sClient.K8sClient().AppsV1().Deployments("giantswarm").List(lo)
+	d, err := a.k8sClient.K8sClient().AppsV1().Deployments("giantswarm").List(ctx, lo)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}

@@ -62,7 +62,7 @@ func (r *Resource) addNamespaceStatusToContext(ctx context.Context, cr v1alpha1.
 		return microerror.Mask(err)
 	}
 
-	ns, err := r.k8sClient.CoreV1().Namespaces().Get(cr.Namespace, metav1.GetOptions{})
+	ns, err := r.k8sClient.CoreV1().Namespaces().Get(ctx, cr.Namespace, metav1.GetOptions{})
 	if err != nil {
 		return microerror.Mask(err)
 	}

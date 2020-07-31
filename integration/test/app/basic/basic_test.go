@@ -110,7 +110,7 @@ func TestAppLifecycle(t *testing.T) {
 				},
 			},
 		}
-		_, err = config.K8sClients.G8sClient().ApplicationV1alpha1().AppCatalogs().Create(appCatalogCR)
+		_, err = config.K8sClients.G8sClient().ApplicationV1alpha1().AppCatalogs().Create(context.TODO(), appCatalogCR, metav1.CreateOptions{})
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
@@ -139,7 +139,7 @@ func TestAppLifecycle(t *testing.T) {
 				Version:   "0.1.0",
 			},
 		}
-		_, err = config.K8sClients.G8sClient().ApplicationV1alpha1().Apps(key.Namespace()).Create(appCR)
+		_, err = config.K8sClients.G8sClient().ApplicationV1alpha1().Apps(key.Namespace()).Create(context.TODO(), appCR, metav1.CreateOptions{})
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
@@ -162,7 +162,7 @@ func TestAppLifecycle(t *testing.T) {
 		config.Logger.LogCtx(ctx, "level", "debug", "message", "checking tarball URL in chart spec")
 
 		tarballURL := "https://giantswarm.github.com/default-catalog/test-app-0.1.0.tgz"
-		chart, err := config.K8sClients.G8sClient().ApplicationV1alpha1().Charts(namespace).Get(key.TestAppReleaseName(), metav1.GetOptions{})
+		chart, err := config.K8sClients.G8sClient().ApplicationV1alpha1().Charts(namespace).Get(context.TODO(), key.TestAppReleaseName(), metav1.GetOptions{})
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
@@ -179,13 +179,13 @@ func TestAppLifecycle(t *testing.T) {
 	{
 		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating app %#q", key.TestAppReleaseName()))
 
-		cr, err := config.K8sClients.G8sClient().ApplicationV1alpha1().Apps(key.Namespace()).Get(key.TestAppReleaseName(), metav1.GetOptions{})
+		cr, err := config.K8sClients.G8sClient().ApplicationV1alpha1().Apps(key.Namespace()).Get(context.TODO(), key.TestAppReleaseName(), metav1.GetOptions{})
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
 
 		cr.Spec.Version = "0.1.1"
-		_, err = config.K8sClients.G8sClient().ApplicationV1alpha1().Apps(key.Namespace()).Update(cr)
+		_, err = config.K8sClients.G8sClient().ApplicationV1alpha1().Apps(key.Namespace()).Update(context.TODO(), cr, metav1.UpdateOptions{})
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
@@ -201,7 +201,7 @@ func TestAppLifecycle(t *testing.T) {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
 
-		chart, err := config.K8sClients.G8sClient().ApplicationV1alpha1().Charts(namespace).Get(key.TestAppReleaseName(), metav1.GetOptions{})
+		chart, err := config.K8sClients.G8sClient().ApplicationV1alpha1().Charts(namespace).Get(context.TODO(), key.TestAppReleaseName(), metav1.GetOptions{})
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
@@ -217,7 +217,7 @@ func TestAppLifecycle(t *testing.T) {
 	{
 		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("checking status for app CR %#q", key.TestAppReleaseName()))
 
-		cr, err := config.K8sClients.G8sClient().ApplicationV1alpha1().Apps("giantswarm").Get(key.TestAppReleaseName(), metav1.GetOptions{})
+		cr, err := config.K8sClients.G8sClient().ApplicationV1alpha1().Apps("giantswarm").Get(context.TODO(), key.TestAppReleaseName(), metav1.GetOptions{})
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
@@ -231,7 +231,7 @@ func TestAppLifecycle(t *testing.T) {
 	{
 		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleting app CR %#q", key.TestAppReleaseName()))
 
-		err = config.K8sClients.G8sClient().ApplicationV1alpha1().Apps(namespace).Delete(key.TestAppReleaseName(), &metav1.DeleteOptions{})
+		err = config.K8sClients.G8sClient().ApplicationV1alpha1().Apps(namespace).Delete(context.TODO(), key.TestAppReleaseName(), metav1.DeleteOptions{})
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}

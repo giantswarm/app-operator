@@ -39,7 +39,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding status for chart %#q in namespace %#q", cr.Name, r.chartNamespace))
 
-	chart, err := cc.Clients.K8s.G8sClient().ApplicationV1alpha1().Charts(r.chartNamespace).Get(cr.Name, metav1.GetOptions{})
+	chart, err := cc.Clients.K8s.G8sClient().ApplicationV1alpha1().Charts(r.chartNamespace).Get(ctx, cr.Name, metav1.GetOptions{})
 	if apierrors.IsNotFound(err) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("did not find chart %#q in namespace %#q", cr.Name, r.chartNamespace))
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
@@ -81,14 +81,14 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("setting status for app %#q in namespace %#q", cr.Name, cr.Namespace))
 
 		// Get app CR again to ensure the resource version is correct.
-		currentCR, err := r.g8sClient.ApplicationV1alpha1().Apps(cr.Namespace).Get(cr.Name, metav1.GetOptions{})
+		currentCR, err := r.g8sClient.ApplicationV1alpha1().Apps(cr.Namespace).Get(ctx, cr.Name, metav1.GetOptions{})
 		if err != nil {
 			return microerror.Mask(err)
 		}
 
 		currentCR.Status = desiredStatus
 
-		_, err = r.g8sClient.ApplicationV1alpha1().Apps(cr.Namespace).UpdateStatus(currentCR)
+		_, err = r.g8sClient.ApplicationV1alpha1().Apps(cr.Namespace).UpdateStatus(ctx, currentCR, metav1.UpdateOptions{})
 		if err != nil {
 			return microerror.Mask(err)
 		}

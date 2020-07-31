@@ -113,7 +113,7 @@ func (c *App) collectAppStatus(ctx context.Context, ch chan<- prometheus.Metric)
 		LabelSelector: key.AppVersionSelector(c.uniqueApp).String(),
 	}
 
-	r, err := c.k8sClient.G8sClient().ApplicationV1alpha1().Apps("").List(options)
+	r, err := c.k8sClient.G8sClient().ApplicationV1alpha1().Apps("").List(ctx, options)
 	if err != nil {
 		return microerror.Mask(err)
 	}
