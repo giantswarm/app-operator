@@ -13,12 +13,12 @@ import (
 	"github.com/giantswarm/appcatalog"
 	"github.com/giantswarm/backoff"
 	"github.com/giantswarm/helmclient"
-	"github.com/giantswarm/microerror"
 	"github.com/spf13/afero"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/giantswarm/app-operator/integration/key"
 	"github.com/giantswarm/app-operator/pkg/label"
+	"github.com/giantswarm/app-operator/pkg/project"
 )
 
 const (
@@ -85,11 +85,12 @@ func TestAppLifecycle(t *testing.T) {
 	}
 
 	{
+		crdName := "Chart"
 		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("ensuring %#q CRD exists", crdName))
 
 		err := config.K8sClients.CRDClient().EnsureCreated(ctx, crd.LoadV1("application.giantswarm.io", crdName), backoff.NewMaxRetries(7, 1*time.Second))
 		if err != nil {
-			return microerror.Mask(err)
+			t.Fatalf("expected %#v got %#v", nil, err)
 		}
 
 		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("ensured %#q CRD exists", crdName))
@@ -102,7 +103,7 @@ func TestAppLifecycle(t *testing.T) {
 			ObjectMeta: metav1.ObjectMeta{
 				Name: key.DefaultCatalogName(),
 				Labels: map[string]string{
-					label.AppOperatorVersion: key.AppOperatorVersion(),
+					label.AppOperatorVersion: project.Version(),
 				},
 			},
 			Spec: v1alpha1.AppCatalogSpec{
@@ -130,7 +131,7 @@ func TestAppLifecycle(t *testing.T) {
 				Name:      key.TestAppReleaseName(),
 				Namespace: namespace,
 				Labels: map[string]string{
-					label.AppOperatorVersion: key.AppOperatorVersion(),
+					label.AppOperatorVersion: project.Version(),
 				},
 			},
 			Spec: v1alpha1.AppSpec{
