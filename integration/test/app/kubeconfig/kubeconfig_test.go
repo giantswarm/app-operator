@@ -73,7 +73,7 @@ func TestAppWithKubeconfig(t *testing.T) {
 	{
 		config.Logger.LogCtx(ctx, "level", "debug", "message", "creating kubeconfig secret")
 
-		_, err = config.K8sClients.K8sClient().CoreV1().Secrets(namespace).Create(context.TODO(), &corev1.Secret{
+		_, err = config.K8sClients.K8sClient().CoreV1().Secrets(namespace).Create(ctx, &corev1.Secret{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      kubeConfigName,
 				Namespace: namespace,
@@ -92,7 +92,7 @@ func TestAppWithKubeconfig(t *testing.T) {
 	{
 		config.Logger.LogCtx(ctx, "level", "debug", "message", "creating catalog configmap")
 
-		_, err = config.K8sClients.K8sClient().CoreV1().ConfigMaps(namespace).Create(context.TODO(), &corev1.ConfigMap{
+		_, err = config.K8sClients.K8sClient().CoreV1().ConfigMaps(namespace).Create(ctx, &corev1.ConfigMap{
 			Data: map[string]string{
 				"values": templates.ChartOperatorValues,
 			},
@@ -133,7 +133,7 @@ func TestAppWithKubeconfig(t *testing.T) {
 				Title: key.DefaultCatalogName(),
 			},
 		}
-		_, err = config.K8sClients.G8sClient().ApplicationV1alpha1().AppCatalogs().Create(context.TODO(), appCatalogCR, metav1.CreateOptions{})
+		_, err = config.K8sClients.G8sClient().ApplicationV1alpha1().AppCatalogs().Create(ctx, appCatalogCR, metav1.CreateOptions{})
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
@@ -169,7 +169,7 @@ func TestAppWithKubeconfig(t *testing.T) {
 				Version:   "0.1.0",
 			},
 		}
-		_, err = config.K8sClients.G8sClient().ApplicationV1alpha1().Apps(namespace).Create(context.TODO(), appCR, metav1.CreateOptions{})
+		_, err = config.K8sClients.G8sClient().ApplicationV1alpha1().Apps(namespace).Create(ctx, appCR, metav1.CreateOptions{})
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
@@ -185,7 +185,7 @@ func TestAppWithKubeconfig(t *testing.T) {
 			t.Fatalf("expected nil got %#v", err)
 		}
 
-		_, err = config.K8sClients.G8sClient().ApplicationV1alpha1().Apps(namespace).Create(context.TODO(), &v1alpha1.App{
+		_, err = config.K8sClients.G8sClient().ApplicationV1alpha1().Apps(namespace).Create(ctx, &v1alpha1.App{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      chartOperatorName,
 				Namespace: namespace,
