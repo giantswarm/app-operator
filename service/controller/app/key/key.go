@@ -163,11 +163,7 @@ func KubecConfigSecretNamespace(customResource v1alpha1.App) string {
 func AppVersionSelector(unique bool) labels.Selector {
 	var version string
 
-	// Currently tenant cluster app CRs always have the version label
-	// app-operator.giantswarm.io/verson: 1.0.0
-	// This hardcoding will be removed in a future release and we will then
-	// use project.Version().
-	version = project.AppTenantVersion()
+	version = project.Version()
 	if unique {
 		// When app-operator is deployed as a unique app it only processes
 		// control plane app CRs. These CRs always have the version label

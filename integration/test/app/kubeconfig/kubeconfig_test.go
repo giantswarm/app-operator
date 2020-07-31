@@ -19,6 +19,7 @@ import (
 	"github.com/giantswarm/app-operator/integration/key"
 	"github.com/giantswarm/app-operator/integration/templates"
 	"github.com/giantswarm/app-operator/pkg/label"
+	"github.com/giantswarm/app-operator/pkg/project"
 )
 
 const (
@@ -148,7 +149,7 @@ func TestAppWithKubeconfig(t *testing.T) {
 				Name:      key.TestAppReleaseName(),
 				Namespace: namespace,
 				Labels: map[string]string{
-					label.AppOperatorVersion: key.AppOperatorVersion(),
+					label.AppOperatorVersion: project.Version(),
 				},
 			},
 			Spec: v1alpha1.AppSpec{
