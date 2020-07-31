@@ -3,6 +3,13 @@
 package label
 
 const (
+	// App label is used to identify Kubernetes resources.
+	App = "app"
+
+	// AppKubernetesVersion label is used to identify the version of Kubernetes
+	// resources.
+	AppKubernetesVersion = "app.kubernetes.io/version"
+
 	// AppOperatorVersion is used to determine if the custom resource is
 	// supported by this version of the operatorkit resource.
 	AppOperatorVersion = "app-operator.giantswarm.io/version"

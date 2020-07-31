@@ -107,8 +107,9 @@ rules:
   resources:
     - deployments
   verbs:
-    - get
     - create
+    - get
+    - list
 - apiGroups:
     - ""
   resources:

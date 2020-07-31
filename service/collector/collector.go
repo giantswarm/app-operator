@@ -6,10 +6,10 @@ const (
 )
 
 const (
+	labelCatalog   = "catalog"
 	labelName      = "name"
 	labelNamespace = "namespace"
 	labelStatus    = "status"
 	labelTeam      = "team"
 	labelVersion   = "version"
-	labelCatalog   = "catalog"
 )

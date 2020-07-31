@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Added
+
+- Add metrics for ready app-operator instances per app CR version.
+
 ## [1.1.9] - 2020-07-24
 
 ### Changed
