@@ -19,6 +19,7 @@ import (
 	"github.com/giantswarm/app-operator/v2/integration/key"
 	"github.com/giantswarm/app-operator/v2/integration/templates"
 	"github.com/giantswarm/app-operator/v2/pkg/label"
+	"github.com/giantswarm/app-operator/v2/pkg/project"
 )
 
 const (
@@ -114,7 +115,7 @@ func TestAppWithKubeconfig(t *testing.T) {
 			ObjectMeta: metav1.ObjectMeta{
 				Name: key.DefaultCatalogName(),
 				Labels: map[string]string{
-					label.AppOperatorVersion: key.AppOperatorVersion(),
+					label.AppOperatorVersion: project.Version(),
 				},
 			},
 			Spec: v1alpha1.AppCatalogSpec{
@@ -148,7 +149,7 @@ func TestAppWithKubeconfig(t *testing.T) {
 				Name:      key.TestAppReleaseName(),
 				Namespace: namespace,
 				Labels: map[string]string{
-					label.AppOperatorVersion: key.AppOperatorVersion(),
+					label.AppOperatorVersion: project.Version(),
 				},
 			},
 			Spec: v1alpha1.AppSpec{
@@ -189,9 +190,7 @@ func TestAppWithKubeconfig(t *testing.T) {
 				Name:      chartOperatorName,
 				Namespace: namespace,
 				Labels: map[string]string{
-					label.AppOperatorVersion: key.AppOperatorVersion(),
-					// Helm major version is 3 for the master branch.
-					label.HelmMajorVersion: "3",
+					label.AppOperatorVersion: project.Version(),
 				},
 			},
 			Spec: v1alpha1.AppSpec{
