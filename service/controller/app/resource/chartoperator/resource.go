@@ -3,18 +3,14 @@ package chartoperator
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/appcatalog"
-	"github.com/giantswarm/backoff"
 	"github.com/giantswarm/helmclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/spf13/afero"
-	apierrors "k8s.io/apimachinery/pkg/api/errors"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 
 	"github.com/giantswarm/app-operator/service/controller/app/controllercontext"
@@ -128,37 +124,6 @@ func (r Resource) installChartOperator(ctx context.Context, cr v1alpha1.App) err
 		}
 	}
 
-	{
-		// We wait for the chart-operator deployment to be ready so the
-		// chart CRD is installed. This allows the chart
-		// resource to create CRs in the same reconcilation loop.
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("waiting for ready %#q deployment", cr.Name))
-
-		o := func() error {
-			err := r.checkDeploymentReady(ctx, cc.Clients.K8s.K8sClient(), cr)
-			if err != nil {
-				return microerror.Mask(err)
-			}
-
-			return nil
-		}
-
-		// Wait for chart-operator to be deployed. If it takes longer than
-		// the timeout the chart CRs will be created during the next
-		// reconciliation loop.
-		b := backoff.NewConstant(20*time.Second, 5*time.Second)
-		n := func(err error, delay time.Duration) {
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("%#q deployment is not ready retrying in %s", cr.Name, delay), "stack", fmt.Sprintf("%#v", err))
-		}
-
-		err = backoff.RetryNotify(o, b, n)
-		if err != nil {
-			return microerror.Mask(err)
-		}
-
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("%#q deployment is ready", cr.Name))
-	}
-
 	return nil
 }
 
@@ -212,49 +177,5 @@ func (r Resource) updateChartOperator(ctx context.Context, cr v1alpha1.App) erro
 		}
 	}
 
-	{
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("waiting for ready %#q deployment", cr.Name))
-
-		o := func() error {
-			err := r.checkDeploymentReady(ctx, cc.Clients.K8s.K8sClient(), cr)
-			if err != nil {
-				return microerror.Mask(err)
-			}
-
-			return nil
-		}
-
-		b := backoff.NewConstant(20*time.Second, 10*time.Second)
-		n := func(err error, delay time.Duration) {
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("%#q deployment is not ready retrying in %s", cr.Name, delay), "stack", fmt.Sprintf("%#v", err))
-		}
-
-		err = backoff.RetryNotify(o, b, n)
-		if err != nil {
-			return microerror.Mask(err)
-		}
-
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("%#q deployment is ready", cr.Name))
-	}
-
-	return nil
-}
-
-// checkDeploymentReady checks for the specified deployment that the number of
-// ready replicas matches the desired state.
-func (r *Resource) checkDeploymentReady(ctx context.Context, k8sClient kubernetes.Interface, cr v1alpha1.App) error {
-	namespace := key.Namespace(cr)
-	deploy, err := k8sClient.AppsV1().Deployments(namespace).Get(ctx, cr.Name, metav1.GetOptions{})
-	if apierrors.IsNotFound(err) {
-		return microerror.Maskf(notReadyError, "deployment %#q not found", cr.Name)
-	} else if err != nil {
-		return microerror.Mask(err)
-	}
-
-	if deploy.Status.ReadyReplicas != *deploy.Spec.Replicas {
-		return microerror.Maskf(notReadyError, "deployment %#q want %d replicas %d ready", cr.Name, *deploy.Spec.Replicas, deploy.Status.ReadyReplicas)
-	}
-
-	// Deployment is ready.
 	return nil
 }
