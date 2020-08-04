@@ -7,6 +7,8 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+## [1.1.10] - 2020-08-04
+
 ### Added
 
 - Add metrics for ready app-operator instances per app CR version.
@@ -101,7 +103,8 @@ from Helm 2 to Helm 3.
 
 - Flattening operator release structure.
 
-[Unreleased]: https://github.com/giantswarm/app-operator/compare/v1.1.9...HEAD
+[Unreleased]: https://github.com/giantswarm/app-operator/compare/v1.1.10...HEAD
+[1.1.10]: https://github.com/giantswarm/app-operator/compare/v1.1.9...v1.1.10
 [1.1.9]: https://github.com/giantswarm/app-operator/compare/v1.1.8...v1.1.9
 [v1.1.8]: https://github.com/giantswarm/app-operator/compare/v1.1.7...v1.1.8
 [v1.1.7]: https://github.com/giantswarm/app-operator/compare/v1.1.6...v1.1.7
