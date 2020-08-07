@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Changed
+
+- Updated app to team mappings for app alerts.
+
 ## [1.1.10] - 2020-08-04
 
 ### Added
