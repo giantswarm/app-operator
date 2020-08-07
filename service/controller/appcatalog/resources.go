@@ -3,11 +3,11 @@ package appcatalog
 import (
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
-	"github.com/giantswarm/operatorkit/resource"
-	"github.com/giantswarm/operatorkit/resource/wrapper/metricsresource"
-	"github.com/giantswarm/operatorkit/resource/wrapper/retryresource"
+	"github.com/giantswarm/operatorkit/v2/resource"
+	"github.com/giantswarm/operatorkit/v2/resource/wrapper/metricsresource"
+	"github.com/giantswarm/operatorkit/v2/resource/wrapper/retryresource"
 
-	"github.com/giantswarm/app-operator/service/controller/appcatalog/resource/empty"
+	"github.com/giantswarm/app-operator/v2/service/controller/appcatalog/resource/empty"
 )
 
 type appCatalogResourcesConfig struct {

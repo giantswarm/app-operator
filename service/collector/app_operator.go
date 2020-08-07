@@ -5,14 +5,14 @@ import (
 	"fmt"
 
 	"github.com/Masterminds/semver/v3"
-	"github.com/giantswarm/k8sclient/v3/pkg/k8sclient"
+	"github.com/giantswarm/k8sclient/v4/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/prometheus/client_golang/prometheus"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"github.com/giantswarm/app-operator/pkg/label"
-	"github.com/giantswarm/app-operator/pkg/project"
+	"github.com/giantswarm/app-operator/v2/pkg/label"
+	"github.com/giantswarm/app-operator/v2/pkg/project"
 )
 
 var (

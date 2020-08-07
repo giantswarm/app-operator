@@ -4,18 +4,18 @@ import (
 	"context"
 	"time"
 
-	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
+	"github.com/giantswarm/apiextensions/v2/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/errors/tenant"
-	"github.com/giantswarm/helmclient"
-	"github.com/giantswarm/k8sclient/v3/pkg/k8sclient"
-	"github.com/giantswarm/kubeconfig"
+	"github.com/giantswarm/helmclient/v2"
+	"github.com/giantswarm/k8sclient/v4/pkg/k8sclient"
+	"github.com/giantswarm/kubeconfig/v2"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/spf13/afero"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 
-	"github.com/giantswarm/app-operator/service/controller/app/controllercontext"
+	"github.com/giantswarm/app-operator/v2/service/controller/app/controllercontext"
 )
 
 const (

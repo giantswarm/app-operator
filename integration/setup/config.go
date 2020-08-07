@@ -3,15 +3,15 @@
 package setup
 
 import (
-	"github.com/giantswarm/helmclient"
-	"github.com/giantswarm/k8sclient/v3/pkg/k8sclient"
-	"github.com/giantswarm/kubeconfig"
+	"github.com/giantswarm/helmclient/v2"
+	"github.com/giantswarm/k8sclient/v4/pkg/k8sclient"
+	"github.com/giantswarm/kubeconfig/v2"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/spf13/afero"
 
-	"github.com/giantswarm/app-operator/integration/env"
-	"github.com/giantswarm/app-operator/integration/release"
+	"github.com/giantswarm/app-operator/v2/integration/env"
+	"github.com/giantswarm/app-operator/v2/integration/release"
 )
 
 const (

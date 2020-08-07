@@ -9,15 +9,15 @@ import (
 	"testing"
 	"time"
 
-	"github.com/giantswarm/apiextensions/pkg/crd"
+	"github.com/giantswarm/apiextensions/v2/pkg/crd"
 	"github.com/giantswarm/appcatalog"
 	"github.com/giantswarm/backoff"
-	"github.com/giantswarm/helmclient"
+	"github.com/giantswarm/helmclient/v2"
 	"github.com/giantswarm/microerror"
 	"github.com/spf13/afero"
 
-	"github.com/giantswarm/app-operator/integration/key"
-	"github.com/giantswarm/app-operator/pkg/project"
+	"github.com/giantswarm/app-operator/v2/integration/key"
+	"github.com/giantswarm/app-operator/v2/pkg/project"
 )
 
 func Setup(m *testing.M, config Config) {
