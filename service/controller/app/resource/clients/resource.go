@@ -6,7 +6,7 @@ import (
 
 	"github.com/giantswarm/apiextensions/v2/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/errors/tenant"
-	"github.com/giantswarm/helmclient/v2"
+	"github.com/giantswarm/helmclient/v2/pkg/helmclient"
 	"github.com/giantswarm/k8sclient/v4/pkg/k8sclient"
 	"github.com/giantswarm/kubeconfig/v2"
 	"github.com/giantswarm/microerror"
