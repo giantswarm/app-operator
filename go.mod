@@ -20,8 +20,8 @@ require (
 	github.com/giantswarm/versionbundle v0.2.0
 	github.com/google/go-cmp v0.5.1
 	github.com/prometheus/client_golang v1.7.1
-	github.com/spf13/afero v1.3.3
-	github.com/spf13/viper v1.7.0
+	github.com/spf13/afero v1.3.4
+	github.com/spf13/viper v1.7.1
 	k8s.io/api v0.18.5
 	k8s.io/apimachinery v0.18.5
 	k8s.io/client-go v0.18.5
