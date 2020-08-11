@@ -4,19 +4,19 @@ go 1.14
 
 require (
 	github.com/Masterminds/semver/v3 v3.1.0
-	github.com/giantswarm/apiextensions/v2 v2.0.0-20200806181735-9cd3e758e49e
+	github.com/giantswarm/apiextensions/v2 v2.0.0
 	github.com/giantswarm/appcatalog v0.2.7
 	github.com/giantswarm/backoff v0.2.0
 	github.com/giantswarm/errors v0.2.3
 	github.com/giantswarm/exporterkit v0.2.0
-	github.com/giantswarm/helmclient/v2 v2.0.0-20200809132331-a75d70f49755
-	github.com/giantswarm/k8sclient/v4 v4.0.0-20200806115259-2d3b230ace59
-	github.com/giantswarm/kubeconfig/v2 v2.0.0-20200806114529-9ef53912cf03
+	github.com/giantswarm/helmclient/v2 v2.0.0
+	github.com/giantswarm/k8sclient/v4 v4.0.0
+	github.com/giantswarm/kubeconfig/v2 v2.0.0
 	github.com/giantswarm/microendpoint v0.2.0
 	github.com/giantswarm/microerror v0.2.1
 	github.com/giantswarm/microkit v0.2.1
 	github.com/giantswarm/micrologger v0.3.1
-	github.com/giantswarm/operatorkit/v2 v2.0.0-20200810113941-edc8f5257617
+	github.com/giantswarm/operatorkit/v2 v2.0.0
 	github.com/giantswarm/versionbundle v0.2.0
 	github.com/google/go-cmp v0.5.1
 	github.com/prometheus/client_golang v1.7.1
