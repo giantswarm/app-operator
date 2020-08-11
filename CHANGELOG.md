@@ -9,7 +9,7 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ### Changed
 
-- Updated Kubernetes dependencies to v1.8.5.
+- Updated backward incompatible Kubernetes dependencies to v1.18.5.
 - Updated Helm to v3.2.4.
 
 ## [1.1.11] - 2020-08-10
