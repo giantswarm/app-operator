@@ -9,13 +9,16 @@ import (
 	"time"
 
 	"github.com/giantswarm/apiextensions/v2/pkg/apis/application/v1alpha1"
+	"github.com/giantswarm/apiextensions/v2/pkg/crd"
 	"github.com/giantswarm/appcatalog"
+	"github.com/giantswarm/backoff"
 	"github.com/giantswarm/helmclient/v2/pkg/helmclient"
 	"github.com/spf13/afero"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/giantswarm/app-operator/v2/integration/key"
 	"github.com/giantswarm/app-operator/v2/pkg/label"
+	"github.com/giantswarm/app-operator/v2/pkg/project"
 )
 
 const (
