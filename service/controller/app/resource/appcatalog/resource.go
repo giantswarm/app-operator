@@ -4,15 +4,15 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
-	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
+	"github.com/giantswarm/apiextensions/v2/pkg/apis/application/v1alpha1"
+	"github.com/giantswarm/apiextensions/v2/pkg/clientset/versioned"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"github.com/giantswarm/app-operator/service/controller/app/controllercontext"
-	"github.com/giantswarm/app-operator/service/controller/app/key"
+	"github.com/giantswarm/app-operator/v2/service/controller/app/controllercontext"
+	"github.com/giantswarm/app-operator/v2/service/controller/app/key"
 )
 
 const (
@@ -67,7 +67,7 @@ func (r *Resource) getCatalogForApp(ctx context.Context, customResource v1alpha1
 
 	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("looking for appCatalog %#q", catalogName))
 
-	appCatalog, err := r.g8sClient.ApplicationV1alpha1().AppCatalogs().Get(catalogName, metav1.GetOptions{})
+	appCatalog, err := r.g8sClient.ApplicationV1alpha1().AppCatalogs().Get(ctx, catalogName, metav1.GetOptions{})
 	if apierrors.IsNotFound(err) {
 		return microerror.Maskf(notFoundError, "appCatalog %#q", catalogName)
 	} else if err != nil {

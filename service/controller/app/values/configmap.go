@@ -4,13 +4,13 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
-	"github.com/giantswarm/helmclient"
+	"github.com/giantswarm/apiextensions/v2/pkg/apis/application/v1alpha1"
+	"github.com/giantswarm/helmclient/v2/pkg/helmclient"
 	"github.com/giantswarm/microerror"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"github.com/giantswarm/app-operator/service/controller/app/key"
+	"github.com/giantswarm/app-operator/v2/service/controller/app/key"
 )
 
 // MergeConfigMapData merges the data from the catalog, app and user configmaps
@@ -78,7 +78,7 @@ func (v *Values) getConfigMap(ctx context.Context, configMapName, configMapNames
 
 	v.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("looking for configmap %#q in namespace %#q", configMapName, configMapNamespace))
 
-	configMap, err := v.k8sClient.CoreV1().ConfigMaps(configMapNamespace).Get(configMapName, metav1.GetOptions{})
+	configMap, err := v.k8sClient.CoreV1().ConfigMaps(configMapNamespace).Get(ctx, configMapName, metav1.GetOptions{})
 	if apierrors.IsNotFound(err) {
 		return nil, microerror.Maskf(notFoundError, "configmap %#q in namespace %#q not found", configMapName, configMapNamespace)
 	} else if err != nil {

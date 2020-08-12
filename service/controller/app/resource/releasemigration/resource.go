@@ -7,14 +7,14 @@ import (
 
 	"github.com/giantswarm/appcatalog"
 	"github.com/giantswarm/backoff"
-	"github.com/giantswarm/helmclient"
-	"github.com/giantswarm/k8sclient/v3/pkg/k8sclient"
+	"github.com/giantswarm/helmclient/v2/pkg/helmclient"
+	"github.com/giantswarm/k8sclient/v4/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/spf13/afero"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"github.com/giantswarm/app-operator/service/controller/app/key"
+	"github.com/giantswarm/app-operator/v2/service/controller/app/key"
 )
 
 const (
@@ -87,7 +87,7 @@ func (r *Resource) deleteMigrationApp(ctx context.Context, helmClient helmclient
 
 func (r *Resource) ensureReleasesMigrated(ctx context.Context, k8sClient k8sclient.Interface, helmClient helmclient.Interface, tillerNamespace string) error {
 	// Found all dangling helm release v2
-	releases, err := r.findHelmV2Releases(k8sClient, tillerNamespace)
+	releases, err := r.findHelmV2Releases(ctx, k8sClient, tillerNamespace)
 	if err != nil {
 		return microerror.Mask(err)
 	}
@@ -139,13 +139,13 @@ func (r *Resource) ensureReleasesMigrated(ctx context.Context, k8sClient k8sclie
 
 	// Wait until all helm v2 release are deleted
 	o := func() error {
-		completed, err := checkMigrationJobStatus(k8sClient, "giantswarm")
+		completed, err := checkMigrationJobStatus(ctx, k8sClient, "giantswarm")
 		if err != nil {
 			return microerror.Mask(err)
 		}
 
 		if !completed {
-			releases, err := r.findHelmV2Releases(k8sClient, tillerNamespace)
+			releases, err := r.findHelmV2Releases(ctx, k8sClient, tillerNamespace)
 			if err != nil {
 				return microerror.Mask(err)
 			}
@@ -173,8 +173,8 @@ func (r *Resource) ensureReleasesMigrated(ctx context.Context, k8sClient k8sclie
 	return nil
 }
 
-func (r *Resource) findHelmV2Releases(k8sClient k8sclient.Interface, tillerNamespace string) ([]string, error) {
-	chartMap, err := getChartMap(k8sClient, r.chartNamespace)
+func (r *Resource) findHelmV2Releases(ctx context.Context, k8sClient k8sclient.Interface, tillerNamespace string) ([]string, error) {
+	chartMap, err := getChartMap(ctx, k8sClient, r.chartNamespace)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
@@ -184,7 +184,7 @@ func (r *Resource) findHelmV2Releases(k8sClient k8sclient.Interface, tillerNames
 	}
 
 	// Check whether helm 2 release configMaps still exist.
-	cms, err := k8sClient.K8sClient().CoreV1().ConfigMaps(tillerNamespace).List(lo)
+	cms, err := k8sClient.K8sClient().CoreV1().ConfigMaps(tillerNamespace).List(ctx, lo)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}

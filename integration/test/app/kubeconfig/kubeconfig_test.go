@@ -7,18 +7,18 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
+	"github.com/giantswarm/apiextensions/v2/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/appcatalog"
-	"github.com/giantswarm/helmclient"
+	"github.com/giantswarm/helmclient/v2/pkg/helmclient"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/tools/clientcmd/api"
 
-	"github.com/giantswarm/app-operator/integration/env"
-	"github.com/giantswarm/app-operator/integration/key"
-	"github.com/giantswarm/app-operator/integration/templates"
-	"github.com/giantswarm/app-operator/pkg/label"
+	"github.com/giantswarm/app-operator/v2/integration/env"
+	"github.com/giantswarm/app-operator/v2/integration/key"
+	"github.com/giantswarm/app-operator/v2/integration/templates"
+	"github.com/giantswarm/app-operator/v2/pkg/label"
 )
 
 const (
@@ -72,7 +72,7 @@ func TestAppWithKubeconfig(t *testing.T) {
 	{
 		config.Logger.LogCtx(ctx, "level", "debug", "message", "creating kubeconfig secret")
 
-		_, err = config.K8sClients.K8sClient().CoreV1().Secrets(namespace).Create(&corev1.Secret{
+		_, err = config.K8sClients.K8sClient().CoreV1().Secrets(namespace).Create(ctx, &corev1.Secret{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      kubeConfigName,
 				Namespace: namespace,
@@ -80,7 +80,7 @@ func TestAppWithKubeconfig(t *testing.T) {
 			Data: map[string][]byte{
 				"kubeConfig": bytes,
 			},
-		})
+		}, metav1.CreateOptions{})
 		if err != nil {
 			t.Fatalf("expected nil got %#v", err)
 		}
@@ -91,7 +91,7 @@ func TestAppWithKubeconfig(t *testing.T) {
 	{
 		config.Logger.LogCtx(ctx, "level", "debug", "message", "creating catalog configmap")
 
-		_, err = config.K8sClients.K8sClient().CoreV1().ConfigMaps(namespace).Create(&corev1.ConfigMap{
+		_, err = config.K8sClients.K8sClient().CoreV1().ConfigMaps(namespace).Create(ctx, &corev1.ConfigMap{
 			Data: map[string]string{
 				"values": templates.ChartOperatorValues,
 			},
@@ -99,7 +99,7 @@ func TestAppWithKubeconfig(t *testing.T) {
 				Name:      catalogConfigMapName,
 				Namespace: namespace,
 			},
-		})
+		}, metav1.CreateOptions{})
 		if err != nil {
 			t.Fatalf("expected nil got %#v", err)
 		}
@@ -132,7 +132,7 @@ func TestAppWithKubeconfig(t *testing.T) {
 				Title: key.DefaultCatalogName(),
 			},
 		}
-		_, err = config.K8sClients.G8sClient().ApplicationV1alpha1().AppCatalogs().Create(appCatalogCR)
+		_, err = config.K8sClients.G8sClient().ApplicationV1alpha1().AppCatalogs().Create(ctx, appCatalogCR, metav1.CreateOptions{})
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
@@ -168,7 +168,7 @@ func TestAppWithKubeconfig(t *testing.T) {
 				Version:   "0.1.0",
 			},
 		}
-		_, err = config.K8sClients.G8sClient().ApplicationV1alpha1().Apps(namespace).Create(appCR)
+		_, err = config.K8sClients.G8sClient().ApplicationV1alpha1().Apps(namespace).Create(ctx, appCR, metav1.CreateOptions{})
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
@@ -184,7 +184,7 @@ func TestAppWithKubeconfig(t *testing.T) {
 			t.Fatalf("expected nil got %#v", err)
 		}
 
-		_, err = config.K8sClients.G8sClient().ApplicationV1alpha1().Apps(namespace).Create(&v1alpha1.App{
+		_, err = config.K8sClients.G8sClient().ApplicationV1alpha1().Apps(namespace).Create(ctx, &v1alpha1.App{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      chartOperatorName,
 				Namespace: namespace,
@@ -210,7 +210,7 @@ func TestAppWithKubeconfig(t *testing.T) {
 				Namespace: namespace,
 				Version:   tag,
 			},
-		})
+		}, metav1.CreateOptions{})
 		if err != nil {
 			t.Fatalf("expected nil got %#v", err)
 		}

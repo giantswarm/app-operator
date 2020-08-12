@@ -7,16 +7,16 @@ import (
 	"strings"
 
 	"github.com/Masterminds/semver/v3"
-	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
-	"github.com/giantswarm/k8sclient/v3/pkg/k8sclient"
+	"github.com/giantswarm/apiextensions/v2/pkg/clientset/versioned"
+	"github.com/giantswarm/k8sclient/v4/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
-	"github.com/giantswarm/operatorkit/controller/context/reconciliationcanceledcontext"
+	"github.com/giantswarm/operatorkit/v2/pkg/controller/context/reconciliationcanceledcontext"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 
-	"github.com/giantswarm/app-operator/pkg/annotation"
-	"github.com/giantswarm/app-operator/service/controller/app/controllercontext"
-	"github.com/giantswarm/app-operator/service/controller/app/key"
+	"github.com/giantswarm/app-operator/v2/pkg/annotation"
+	"github.com/giantswarm/app-operator/v2/service/controller/app/controllercontext"
+	"github.com/giantswarm/app-operator/v2/service/controller/app/key"
 )
 
 // EnsureCreated ensures helm release is migrated from a v2 configmap to a v3 secret.
@@ -66,7 +66,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return nil
 	}
 
-	deploy, err := cc.Clients.K8s.K8sClient().AppsV1().Deployments(key.Namespace(cr)).Get(cr.Name, metav1.GetOptions{})
+	deploy, err := cc.Clients.K8s.K8sClient().AppsV1().Deployments(key.Namespace(cr)).Get(ctx, cr.Name, metav1.GetOptions{})
 	if err != nil {
 		return microerror.Mask(err)
 	}
@@ -101,12 +101,12 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		}
 	}
 
-	hasConfigMap, err := r.hasHelmV2ConfigMaps(cc.Clients.K8s, tillerNamespace)
+	hasConfigMap, err := r.hasHelmV2ConfigMaps(ctx, cc.Clients.K8s, tillerNamespace)
 	if err != nil {
 		return microerror.Mask(err)
 	}
 
-	hasSecret, err := r.hasHelmV3Secrets(cc.Clients.K8s)
+	hasSecret, err := r.hasHelmV3Secrets(ctx, cc.Clients.K8s)
 	if err != nil {
 		return microerror.Mask(err)
 	}
@@ -185,7 +185,7 @@ func (r *Resource) cordonChart(ctx context.Context, g8sClient versioned.Interfac
 		FieldSelector: "metadata.name!=chart-operator-unique",
 		LabelSelector: "app notin (chart-operator)",
 	}
-	charts, err := g8sClient.ApplicationV1alpha1().Charts(r.chartNamespace).List(lo)
+	charts, err := g8sClient.ApplicationV1alpha1().Charts(r.chartNamespace).List(ctx, lo)
 	if err != nil {
 		return microerror.Mask(err)
 	}
@@ -224,7 +224,7 @@ func (r *Resource) cordonChart(ctx context.Context, g8sClient versioned.Interfac
 			return microerror.Mask(err)
 		}
 
-		_, err = g8sClient.ApplicationV1alpha1().Charts(chart.Namespace).Patch(chart.Name, types.JSONPatchType, bytes)
+		_, err = g8sClient.ApplicationV1alpha1().Charts(chart.Namespace).Patch(ctx, chart.Name, types.JSONPatchType, bytes, metav1.PatchOptions{})
 		if err != nil {
 			return microerror.Mask(err)
 		}
@@ -239,7 +239,7 @@ func (r *Resource) uncordonChart(ctx context.Context, g8sClient versioned.Interf
 		FieldSelector: "metadata.name!=chart-operator-unique",
 		LabelSelector: "app notin (chart-operator)",
 	}
-	charts, err := g8sClient.ApplicationV1alpha1().Charts(r.chartNamespace).List(lo)
+	charts, err := g8sClient.ApplicationV1alpha1().Charts(r.chartNamespace).List(ctx, lo)
 	if err != nil {
 		return microerror.Mask(err)
 	}
@@ -268,7 +268,7 @@ func (r *Resource) uncordonChart(ctx context.Context, g8sClient versioned.Interf
 		if !key.IsChartCordoned(chart) {
 			continue
 		}
-		_, err = g8sClient.ApplicationV1alpha1().Charts(chart.Namespace).Patch(chart.Name, types.JSONPatchType, bytes)
+		_, err = g8sClient.ApplicationV1alpha1().Charts(chart.Namespace).Patch(ctx, chart.Name, types.JSONPatchType, bytes, metav1.PatchOptions{})
 		if err != nil {
 			return microerror.Mask(err)
 		}
@@ -279,8 +279,8 @@ func (r *Resource) uncordonChart(ctx context.Context, g8sClient versioned.Interf
 	return nil
 }
 
-func (r *Resource) hasHelmV2ConfigMaps(k8sClient k8sclient.Interface, tillerNamespace string) (bool, error) {
-	chartMap, err := getChartMap(k8sClient, r.chartNamespace)
+func (r *Resource) hasHelmV2ConfigMaps(ctx context.Context, k8sClient k8sclient.Interface, tillerNamespace string) (bool, error) {
+	chartMap, err := getChartMap(ctx, k8sClient, r.chartNamespace)
 	if err != nil {
 		return false, microerror.Mask(err)
 	}
@@ -290,7 +290,7 @@ func (r *Resource) hasHelmV2ConfigMaps(k8sClient k8sclient.Interface, tillerName
 	}
 
 	// Check whether helm 2 release configMaps still exist.
-	cms, err := k8sClient.K8sClient().CoreV1().ConfigMaps(tillerNamespace).List(lo)
+	cms, err := k8sClient.K8sClient().CoreV1().ConfigMaps(tillerNamespace).List(ctx, lo)
 	if err != nil {
 		return false, microerror.Mask(err)
 	}
@@ -306,10 +306,10 @@ func (r *Resource) hasHelmV2ConfigMaps(k8sClient k8sclient.Interface, tillerName
 	return count > 0, nil
 }
 
-func (r *Resource) hasHelmV3Secrets(k8sClient k8sclient.Interface) (bool, error) {
+func (r *Resource) hasHelmV3Secrets(ctx context.Context, k8sClient k8sclient.Interface) (bool, error) {
 	var releaseNamespaces []string
 	{
-		list, err := k8sClient.G8sClient().ApplicationV1alpha1().Charts(r.chartNamespace).List(metav1.ListOptions{})
+		list, err := k8sClient.G8sClient().ApplicationV1alpha1().Charts(r.chartNamespace).List(ctx, metav1.ListOptions{})
 		if err != nil {
 			return false, microerror.Mask(err)
 		}
@@ -330,7 +330,7 @@ func (r *Resource) hasHelmV3Secrets(k8sClient k8sclient.Interface) (bool, error)
 	var length int
 	// Check whether helm 3 release secret exists.
 	for _, namespace := range releaseNamespaces {
-		secrets, err := k8sClient.K8sClient().CoreV1().Secrets(namespace).List(lo)
+		secrets, err := k8sClient.K8sClient().CoreV1().Secrets(namespace).List(ctx, lo)
 		if err != nil {
 			return false, microerror.Mask(err)
 		}
@@ -345,8 +345,8 @@ func replaceToEscape(from string) string {
 	return strings.Replace(from, "/", "~1", -1)
 }
 
-func checkMigrationJobStatus(k8sClient k8sclient.Interface, releaseNamespace string) (bool, error) {
-	job, err := k8sClient.K8sClient().BatchV1().Jobs(releaseNamespace).Get(migrationApp, metav1.GetOptions{})
+func checkMigrationJobStatus(ctx context.Context, k8sClient k8sclient.Interface, releaseNamespace string) (bool, error) {
+	job, err := k8sClient.K8sClient().BatchV1().Jobs(releaseNamespace).Get(ctx, migrationApp, metav1.GetOptions{})
 	if err != nil {
 		return false, microerror.Mask(err)
 	}
@@ -354,11 +354,11 @@ func checkMigrationJobStatus(k8sClient k8sclient.Interface, releaseNamespace str
 	return job.Status.Succeeded > 0, nil
 }
 
-func getChartMap(k8sClient k8sclient.Interface, namespace string) (map[string]bool, error) {
+func getChartMap(ctx context.Context, k8sClient k8sclient.Interface, namespace string) (map[string]bool, error) {
 	charts := make(map[string]bool)
 
 	// Get list of chart CRs as not all helm 2 releases will have a chart CR.
-	list, err := k8sClient.G8sClient().ApplicationV1alpha1().Charts(namespace).List(metav1.ListOptions{})
+	list, err := k8sClient.G8sClient().ApplicationV1alpha1().Charts(namespace).List(ctx, metav1.ListOptions{})
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}

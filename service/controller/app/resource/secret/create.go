@@ -6,11 +6,12 @@ import (
 
 	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/microerror"
-	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
+	"github.com/giantswarm/operatorkit/v2/pkg/controller/context/resourcecanceledcontext"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"github.com/giantswarm/app-operator/service/controller/app/controllercontext"
+	"github.com/giantswarm/app-operator/v2/service/controller/app/controllercontext"
 )
 
 func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange interface{}) error {
@@ -27,7 +28,7 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 			return microerror.Mask(err)
 		}
 
-		_, err = cc.Clients.K8s.K8sClient().CoreV1().Secrets(secret.Namespace).Create(secret)
+		_, err = cc.Clients.K8s.K8sClient().CoreV1().Secrets(secret.Namespace).Create(ctx, secret, metav1.CreateOptions{})
 		if apierrors.IsAlreadyExists(err) {
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("already created secret %#q in namespace %#q", secret.Name, secret.Namespace))
 		} else if tenant.IsAPINotAvailable(err) {

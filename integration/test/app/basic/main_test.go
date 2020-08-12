@@ -5,7 +5,7 @@ package basic
 import (
 	"testing"
 
-	"github.com/giantswarm/app-operator/integration/setup"
+	"github.com/giantswarm/app-operator/v2/integration/setup"
 )
 
 var (

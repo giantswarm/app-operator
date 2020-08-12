@@ -5,11 +5,11 @@ import (
 	"fmt"
 
 	"github.com/giantswarm/microerror"
-	"github.com/giantswarm/operatorkit/resource/crud"
+	"github.com/giantswarm/operatorkit/v2/pkg/resource/crud"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"github.com/giantswarm/app-operator/service/controller/app/controllercontext"
+	"github.com/giantswarm/app-operator/v2/service/controller/app/controllercontext"
 )
 
 func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange interface{}) error {
@@ -26,7 +26,7 @@ func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange inte
 			return microerror.Mask(err)
 		}
 
-		err = cc.Clients.K8s.K8sClient().CoreV1().ConfigMaps(configMap.Namespace).Delete(configMap.Name, &metav1.DeleteOptions{})
+		err = cc.Clients.K8s.K8sClient().CoreV1().ConfigMaps(configMap.Namespace).Delete(ctx, configMap.Name, metav1.DeleteOptions{})
 		if apierrors.IsNotFound(err) {
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("already deleted configmap %#q in namespace %#q", configMap.Name, configMap.Namespace))
 		} else if err != nil {

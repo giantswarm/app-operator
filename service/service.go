@@ -5,9 +5,9 @@ import (
 	"strings"
 	"sync"
 
-	applicationv1alpha1 "github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
-	"github.com/giantswarm/k8sclient/v3/pkg/k8sclient"
-	"github.com/giantswarm/k8sclient/v3/pkg/k8srestconfig"
+	applicationv1alpha1 "github.com/giantswarm/apiextensions/v2/pkg/apis/application/v1alpha1"
+	"github.com/giantswarm/k8sclient/v4/pkg/k8sclient"
+	"github.com/giantswarm/k8sclient/v4/pkg/k8srestconfig"
 	"github.com/giantswarm/microendpoint/service/version"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
@@ -17,11 +17,11 @@ import (
 	"k8s.io/client-go/rest"
 	"sigs.k8s.io/yaml"
 
-	"github.com/giantswarm/app-operator/flag"
-	"github.com/giantswarm/app-operator/pkg/project"
-	"github.com/giantswarm/app-operator/service/collector"
-	"github.com/giantswarm/app-operator/service/controller/app"
-	"github.com/giantswarm/app-operator/service/controller/appcatalog"
+	"github.com/giantswarm/app-operator/v2/flag"
+	"github.com/giantswarm/app-operator/v2/pkg/project"
+	"github.com/giantswarm/app-operator/v2/service/collector"
+	"github.com/giantswarm/app-operator/v2/service/controller/app"
+	"github.com/giantswarm/app-operator/v2/service/controller/appcatalog"
 )
 
 // Config represents the configuration used to create a new service.

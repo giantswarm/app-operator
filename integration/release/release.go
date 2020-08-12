@@ -8,8 +8,8 @@ import (
 	"time"
 
 	"github.com/giantswarm/backoff"
-	"github.com/giantswarm/helmclient"
-	"github.com/giantswarm/k8sclient/v3/pkg/k8sclient"
+	"github.com/giantswarm/helmclient/v2/pkg/helmclient"
+	"github.com/giantswarm/k8sclient/v4/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	corev1 "k8s.io/api/core/v1"
@@ -51,7 +51,7 @@ func New(config Config) (*Release, error) {
 
 func (r *Release) WaitForDeletedApp(ctx context.Context, namespace, appName string) error {
 	o := func() error {
-		_, err := r.k8sClient.G8sClient().ApplicationV1alpha1().Apps(namespace).Get(appName, metav1.GetOptions{})
+		_, err := r.k8sClient.G8sClient().ApplicationV1alpha1().Apps(namespace).Get(ctx, appName, metav1.GetOptions{})
 		if apierrors.IsNotFound(err) {
 			// Fall through.
 			return nil
@@ -76,7 +76,7 @@ func (r *Release) WaitForDeletedApp(ctx context.Context, namespace, appName stri
 
 func (r *Release) WaitForDeletedChart(ctx context.Context, namespace, chartName string) error {
 	o := func() error {
-		_, err := r.k8sClient.G8sClient().ApplicationV1alpha1().Charts(namespace).Get(chartName, metav1.GetOptions{})
+		_, err := r.k8sClient.G8sClient().ApplicationV1alpha1().Charts(namespace).Get(ctx, chartName, metav1.GetOptions{})
 		if apierrors.IsNotFound(err) {
 			// Fall through.
 			return nil
@@ -101,7 +101,7 @@ func (r *Release) WaitForDeletedChart(ctx context.Context, namespace, chartName 
 
 func (r *Release) WaitForPod(ctx context.Context, namespace, labelSelector string) error {
 	o := func() error {
-		pods, err := r.k8sClient.K8sClient().CoreV1().Pods(namespace).List(metav1.ListOptions{LabelSelector: labelSelector})
+		pods, err := r.k8sClient.K8sClient().CoreV1().Pods(namespace).List(ctx, metav1.ListOptions{LabelSelector: labelSelector})
 		if err != nil {
 			return microerror.Mask(err)
 		}

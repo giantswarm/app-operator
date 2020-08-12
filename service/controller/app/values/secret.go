@@ -4,13 +4,13 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
-	"github.com/giantswarm/helmclient"
+	"github.com/giantswarm/apiextensions/v2/pkg/apis/application/v1alpha1"
+	"github.com/giantswarm/helmclient/v2/pkg/helmclient"
 	"github.com/giantswarm/microerror"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"github.com/giantswarm/app-operator/service/controller/app/key"
+	"github.com/giantswarm/app-operator/v2/service/controller/app/key"
 )
 
 // MergeSecretData merges the data from the catalog, app and user secretss
@@ -78,7 +78,7 @@ func (v *Values) getSecret(ctx context.Context, secretName, secretNamespace stri
 
 	v.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("looking for secret %#q in namespace %#q", secretName, secretNamespace))
 
-	secret, err := v.k8sClient.CoreV1().Secrets(secretNamespace).Get(secretName, metav1.GetOptions{})
+	secret, err := v.k8sClient.CoreV1().Secrets(secretNamespace).Get(ctx, secretName, metav1.GetOptions{})
 	if apierrors.IsNotFound(err) {
 		return nil, microerror.Maskf(notFoundError, "secret %#q in namespace %#q not found", secretName, secretNamespace)
 	} else if err != nil {

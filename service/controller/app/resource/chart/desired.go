@@ -5,16 +5,16 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
+	"github.com/giantswarm/apiextensions/v2/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/appcatalog"
 	"github.com/giantswarm/microerror"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"github.com/giantswarm/app-operator/pkg/annotation"
-	"github.com/giantswarm/app-operator/pkg/label"
-	"github.com/giantswarm/app-operator/pkg/project"
-	"github.com/giantswarm/app-operator/service/controller/app/controllercontext"
-	"github.com/giantswarm/app-operator/service/controller/app/key"
+	"github.com/giantswarm/app-operator/v2/pkg/annotation"
+	"github.com/giantswarm/app-operator/v2/pkg/label"
+	"github.com/giantswarm/app-operator/v2/pkg/project"
+	"github.com/giantswarm/app-operator/v2/service/controller/app/controllercontext"
+	"github.com/giantswarm/app-operator/v2/service/controller/app/key"
 )
 
 func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interface{}, error) {
