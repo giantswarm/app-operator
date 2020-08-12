@@ -4,13 +4,13 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
+	"github.com/giantswarm/apiextensions/v2/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/microerror"
 	"k8s.io/apimachinery/pkg/labels"
 
-	"github.com/giantswarm/app-operator/pkg/annotation"
-	"github.com/giantswarm/app-operator/pkg/label"
-	"github.com/giantswarm/app-operator/pkg/project"
+	"github.com/giantswarm/app-operator/v2/pkg/annotation"
+	"github.com/giantswarm/app-operator/v2/pkg/label"
+	"github.com/giantswarm/app-operator/v2/pkg/project"
 )
 
 const (

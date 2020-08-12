@@ -7,19 +7,19 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
+	"github.com/giantswarm/apiextensions/v2/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/appcatalog"
-	"github.com/giantswarm/helmclient"
+	"github.com/giantswarm/helmclient/v2/pkg/helmclient"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/tools/clientcmd/api"
 
-	"github.com/giantswarm/app-operator/integration/env"
-	"github.com/giantswarm/app-operator/integration/key"
-	"github.com/giantswarm/app-operator/integration/templates"
-	"github.com/giantswarm/app-operator/pkg/label"
-	"github.com/giantswarm/app-operator/pkg/project"
+	"github.com/giantswarm/app-operator/v2/integration/env"
+	"github.com/giantswarm/app-operator/v2/integration/key"
+	"github.com/giantswarm/app-operator/v2/integration/templates"
+	"github.com/giantswarm/app-operator/v2/pkg/label"
+	"github.com/giantswarm/app-operator/v2/pkg/project"
 )
 
 const (
