@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/giantswarm/apiextensions/pkg/crd"
+	"github.com/giantswarm/apiextensions/v2/pkg/crd"
 	"github.com/giantswarm/backoff"
 	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/microerror"
