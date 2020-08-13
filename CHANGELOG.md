@@ -7,6 +7,8 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+## [2.0.0] - 2020-08-13
+
 ### Changed
 
 - Updated backward incompatible Kubernetes dependencies to v1.18.5.
@@ -114,7 +116,8 @@ from Helm 2 to Helm 3.
 
 - Flattening operator release structure.
 
-[Unreleased]: https://github.com/giantswarm/app-operator/compare/v1.1.11...HEAD
+[Unreleased]: https://github.com/giantswarm/app-operator/compare/v2.0.0...HEAD
+[2.0.0]: https://github.com/giantswarm/app-operator/compare/v1.1.11...v2.0.0
 [1.1.11]: https://github.com/giantswarm/app-operator/compare/v1.1.10...v1.1.11
 [1.1.10]: https://github.com/giantswarm/app-operator/compare/v1.1.9...v1.1.10
 [1.1.9]: https://github.com/giantswarm/app-operator/compare/v1.1.8...v1.1.9
