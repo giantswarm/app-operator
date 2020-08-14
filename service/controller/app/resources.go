@@ -254,9 +254,9 @@ func newAppResources(config appResourcesConfig) ([]resource.Interface, error) {
 
 		// Following resources bootstrap chart-operator in tenant clusters.
 		tcNamespaceResource,
+		chartCRDResource,
 		chartOperatorResource,
 		releaseMigrationResource,
-		chartCRDResource,
 
 		// Following resources process app CRs.
 		configMapResource,
