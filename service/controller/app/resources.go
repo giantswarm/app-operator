@@ -15,6 +15,7 @@ import (
 	"github.com/giantswarm/app-operator/v2/service/controller/app/resource/appcatalog"
 	"github.com/giantswarm/app-operator/v2/service/controller/app/resource/appnamespace"
 	"github.com/giantswarm/app-operator/v2/service/controller/app/resource/chart"
+	"github.com/giantswarm/app-operator/v2/service/controller/app/resource/chartcrd"
 	"github.com/giantswarm/app-operator/v2/service/controller/app/resource/chartoperator"
 	"github.com/giantswarm/app-operator/v2/service/controller/app/resource/clients"
 	"github.com/giantswarm/app-operator/v2/service/controller/app/resource/configmap"
@@ -135,6 +136,18 @@ func newAppResources(config appResourcesConfig) ([]resource.Interface, error) {
 		}
 	}
 
+	var chartCRDResource resource.Interface
+	{
+		c := chartcrd.Config{
+			Logger: config.Logger,
+		}
+
+		chartCRDResource, err = chartcrd.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var clientsResource resource.Interface
 	{
 		c := clients.Config{
@@ -241,6 +254,7 @@ func newAppResources(config appResourcesConfig) ([]resource.Interface, error) {
 
 		// Following resources bootstrap chart-operator in tenant clusters.
 		tcNamespaceResource,
+		chartCRDResource,
 		chartOperatorResource,
 		releaseMigrationResource,
 
