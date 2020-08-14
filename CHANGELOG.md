@@ -11,6 +11,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 - Add chartcrd resource for creating chart CRD in tenant clusters.
 
+### Removed
+
+- Don't wait for chart-operator pod since chart CRD is created by the operator.
+
 ## [2.0.0] - 2020-08-13
 
 ### Changed
