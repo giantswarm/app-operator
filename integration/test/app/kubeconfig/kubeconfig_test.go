@@ -190,7 +190,7 @@ func TestAppWithKubeconfig(t *testing.T) {
 				Name:      chartOperatorName,
 				Namespace: namespace,
 				Labels: map[string]string{
-					label.AppOperatorVersion: project.Version(),
+					label.AppOperatorVersion: project.AppOperatorVersion(),
 					// Helm major version is 3 for the master branch.
 					label.HelmMajorVersion: "3",
 				},
