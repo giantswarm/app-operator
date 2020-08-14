@@ -2,9 +2,8 @@ package key
 
 import (
 	"github.com/giantswarm/apiextensions/v2/pkg/apis/application/v1alpha1"
+	"github.com/giantswarm/apiextensions/v2/pkg/label"
 	"github.com/giantswarm/microerror"
-
-	"github.com/giantswarm/app-operator/v2/pkg/label"
 )
 
 // ToCustomResource converts value to v1alpha1.AppCatalog and returns it or error

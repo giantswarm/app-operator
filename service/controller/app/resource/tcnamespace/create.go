@@ -5,13 +5,13 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/giantswarm/apiextensions/v2/pkg/label"
 	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/microerror"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"github.com/giantswarm/app-operator/v2/pkg/label"
 	"github.com/giantswarm/app-operator/v2/pkg/project"
 	"github.com/giantswarm/app-operator/v2/service/controller/app/controllercontext"
 	"github.com/giantswarm/app-operator/v2/service/controller/app/key"
