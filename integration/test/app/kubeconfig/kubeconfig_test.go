@@ -19,7 +19,6 @@ import (
 	"github.com/giantswarm/app-operator/v2/integration/key"
 	"github.com/giantswarm/app-operator/v2/integration/templates"
 	"github.com/giantswarm/app-operator/v2/pkg/label"
-	"github.com/giantswarm/app-operator/v2/pkg/project"
 )
 
 const (
@@ -190,7 +189,7 @@ func TestAppWithKubeconfig(t *testing.T) {
 				Name:      chartOperatorName,
 				Namespace: namespace,
 				Labels: map[string]string{
-					label.AppOperatorVersion: project.AppOperatorVersion(),
+					label.AppOperatorVersion: key.AppOperatorVersion(),
 					// Helm major version is 3 for the master branch.
 					label.HelmMajorVersion: "3",
 				},
