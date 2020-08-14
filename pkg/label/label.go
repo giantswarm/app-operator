@@ -20,10 +20,6 @@ const (
 	// Cluster label is a new style label for ClusterID
 	Cluster = "giantswarm.io/cluster"
 
-	// HelmMajorVersion is set for chart-operator app CRs and controls whether
-	// we bootstrap chart-operator in tenant clusters.
-	HelmMajorVersion = "app-operator.giantswarm.io/helm-major-version"
-
 	// Organization label denotes guest cluster's organization ID as displayed
 	// in the front-end.
 	Organization = "giantswarm.io/organization"
