@@ -9,7 +9,11 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ### Added
 
-- Add chartcrd resource for creating chart CRD in tenant clusters.
+- Added chartcrd resource for creating chart CRD in tenant clusters.
+
+### Changed
+
+- Removed hardcoded version in app CR version label.
 
 ### Removed
 
