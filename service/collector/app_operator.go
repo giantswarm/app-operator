@@ -5,13 +5,14 @@ import (
 	"fmt"
 
 	"github.com/Masterminds/semver/v3"
+	"github.com/giantswarm/apiextensions/v2/pkg/label"
 	"github.com/giantswarm/k8sclient/v4/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/prometheus/client_golang/prometheus"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"github.com/giantswarm/app-operator/v2/pkg/label"
+	pkglabel "github.com/giantswarm/app-operator/v2/pkg/label"
 	"github.com/giantswarm/app-operator/v2/pkg/project"
 )
 
@@ -140,7 +141,7 @@ func (a *AppOperator) collectOperatorVersions(ctx context.Context) (map[string]i
 	operatorVersions := map[string]int32{}
 
 	lo := metav1.ListOptions{
-		LabelSelector: fmt.Sprintf("%s=%s", label.App, project.Name()),
+		LabelSelector: fmt.Sprintf("%s=%s", pkglabel.App, project.Name()),
 	}
 	d, err := a.k8sClient.K8sClient().AppsV1().Deployments("giantswarm").List(ctx, lo)
 	if err != nil {
@@ -148,7 +149,7 @@ func (a *AppOperator) collectOperatorVersions(ctx context.Context) (map[string]i
 	}
 
 	for _, deploy := range d.Items {
-		version := deploy.Labels[label.AppKubernetesVersion]
+		version := deploy.Labels[pkglabel.AppKubernetesVersion]
 		operatorVersions[version] = deploy.Status.ReadyReplicas
 	}
 
