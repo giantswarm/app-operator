@@ -5,11 +5,11 @@ import (
 	"time"
 
 	"github.com/giantswarm/apiextensions/v2/pkg/apis/application/v1alpha1"
+	"github.com/giantswarm/apiextensions/v2/pkg/label"
 	"github.com/giantswarm/microerror"
 	"k8s.io/apimachinery/pkg/labels"
 
 	"github.com/giantswarm/app-operator/v2/pkg/annotation"
-	"github.com/giantswarm/app-operator/v2/pkg/label"
 	"github.com/giantswarm/app-operator/v2/pkg/project"
 )
 
@@ -146,10 +146,6 @@ func IsChartCordoned(customResource v1alpha1.Chart) bool {
 
 func IsDeleted(customResource v1alpha1.App) bool {
 	return customResource.DeletionTimestamp != nil
-}
-
-func HelmMajorVersion(customResource v1alpha1.App) string {
-	return customResource.GetLabels()[label.HelmMajorVersion]
 }
 
 func KubeConfigFinalizer(customResource v1alpha1.App) string {

@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/giantswarm/apiextensions/v2/pkg/apis/application/v1alpha1"
+	"github.com/giantswarm/apiextensions/v2/pkg/label"
 	"github.com/giantswarm/appcatalog"
 	"github.com/giantswarm/helmclient/v2/pkg/helmclient"
 	corev1 "k8s.io/api/core/v1"
@@ -18,7 +19,6 @@ import (
 	"github.com/giantswarm/app-operator/v2/integration/env"
 	"github.com/giantswarm/app-operator/v2/integration/key"
 	"github.com/giantswarm/app-operator/v2/integration/templates"
-	"github.com/giantswarm/app-operator/v2/pkg/label"
 )
 
 const (
@@ -190,8 +190,6 @@ func TestAppWithKubeconfig(t *testing.T) {
 				Namespace: namespace,
 				Labels: map[string]string{
 					label.AppOperatorVersion: key.AppOperatorVersion(),
-					// Helm major version is 3 for the master branch.
-					label.HelmMajorVersion: "3",
 				},
 			},
 			Spec: v1alpha1.AppSpec{

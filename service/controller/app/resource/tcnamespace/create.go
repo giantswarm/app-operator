@@ -5,13 +5,13 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/giantswarm/apiextensions/v2/pkg/label"
 	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/microerror"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"github.com/giantswarm/app-operator/v2/pkg/label"
 	"github.com/giantswarm/app-operator/v2/pkg/project"
 	"github.com/giantswarm/app-operator/v2/service/controller/app/controllercontext"
 	"github.com/giantswarm/app-operator/v2/service/controller/app/key"
@@ -37,14 +37,6 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 	if key.InCluster(cr) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("app %#q in %#q uses InCluster kubeconfig no need to create namespace", cr.Name, cr.Namespace))
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
-		return nil
-	}
-
-	// We only create the tenant namespace if the chart-operator app uses Helm 3.
-	// Helm 2 is managed by the thiccc deployment of app-operator.
-	if key.HelmMajorVersion(cr) != "3" {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("app %#q not using helm 3", cr.Name))
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 		return nil
 	}
