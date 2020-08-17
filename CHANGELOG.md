@@ -19,6 +19,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 - Don't wait for chart-operator pod since chart CRD is created by the operator.
 
+### Removed
+
+- Don't wait for chart-operator pod since chart CRD is created by the `chartcrd` resource. 
+
 ## [2.0.0] - 2020-08-13
 
 ### Changed
