@@ -7,6 +7,8 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+## [2.1.0] - 2020-08-18
+
 ### Added
 
 - Added chartcrd resource for creating chart CRD in tenant clusters.
@@ -129,7 +131,8 @@ from Helm 2 to Helm 3.
 
 - Flattening operator release structure.
 
-[Unreleased]: https://github.com/giantswarm/app-operator/compare/v2.0.0...HEAD
+[Unreleased]: https://github.com/giantswarm/app-operator/compare/v2.1.0...HEAD
+[2.1.0]: https://github.com/giantswarm/app-operator/compare/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/giantswarm/app-operator/compare/v1.1.11...v2.0.0
 [1.1.11]: https://github.com/giantswarm/app-operator/compare/v1.1.10...v1.1.11
 [1.1.10]: https://github.com/giantswarm/app-operator/compare/v1.1.9...v1.1.10
