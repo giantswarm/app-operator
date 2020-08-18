@@ -2,10 +2,6 @@
 
 package key
 
-func AppOperatorVersion() string {
-	return "1.0.0"
-}
-
 func ControlPlaneTestCatalogStorageURL() string {
 	return "https://giantswarm.github.io/control-plane-test-catalog"
 }
