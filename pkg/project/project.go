@@ -14,8 +14,8 @@ func AppControlPlaneVersion() string {
 	return "0.0.0"
 }
 
-// AppTenantVersion is currently always 1.0.0 for tenant cluster app CRs. In a
-// future release this hardcoding will be removed.
+// AppTenantVersion is always 1.0.0 for tenant cluster app CRs using Helm 2.
+// For app CRs using Helm 3 we use project.Version().
 func AppTenantVersion() string {
 	return "1.0.0"
 }

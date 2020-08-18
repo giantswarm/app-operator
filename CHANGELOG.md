@@ -9,11 +9,16 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ### Added
 
-- Add chartcrd resource for creating chart CRD in tenant clusters.
+- Added chartcrd resource for creating chart CRD in tenant clusters.
+
+### Changed
+
+- Removed hardcoded version in app CR version label.
+- Updated Helm to v3.3.0.
 
 ### Removed
 
-- Don't wait for chart-operator pod since chart CRD is created by the `chartcrd` resource. 
+- Don't wait for chart-operator pod since chart CRD is created by the chartcrd resource. 
 
 ## [2.0.0] - 2020-08-13
 

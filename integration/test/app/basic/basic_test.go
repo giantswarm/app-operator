@@ -18,6 +18,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/giantswarm/app-operator/v2/integration/key"
+	"github.com/giantswarm/app-operator/v2/pkg/project"
 )
 
 const (
@@ -102,7 +103,7 @@ func TestAppLifecycle(t *testing.T) {
 			ObjectMeta: metav1.ObjectMeta{
 				Name: key.DefaultCatalogName(),
 				Labels: map[string]string{
-					label.AppOperatorVersion: key.AppOperatorVersion(),
+					label.AppOperatorVersion: project.Version(),
 				},
 			},
 			Spec: v1alpha1.AppCatalogSpec{
@@ -130,7 +131,7 @@ func TestAppLifecycle(t *testing.T) {
 				Name:      key.TestAppReleaseName(),
 				Namespace: namespace,
 				Labels: map[string]string{
-					label.AppOperatorVersion: key.AppOperatorVersion(),
+					label.AppOperatorVersion: project.Version(),
 				},
 			},
 			Spec: v1alpha1.AppSpec{
