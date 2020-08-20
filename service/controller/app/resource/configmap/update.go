@@ -26,10 +26,12 @@ func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange inte
 			return microerror.Mask(err)
 		}
 
-		_, err = cc.Clients.K8s.K8sClient().CoreV1().ConfigMaps(configMap.Namespace).Update(ctx, configMap, metav1.UpdateOptions{})
+		cm, err := cc.Clients.K8s.K8sClient().CoreV1().ConfigMaps(configMap.Namespace).Update(ctx, configMap, metav1.UpdateOptions{})
 		if err != nil {
 			return microerror.Mask(err)
 		}
+
+		cc.ResourceVersion.ConfigMap = cm.ResourceVersion
 
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updated configmap %#q in namespace %#q", configMap.Name, configMap.Namespace))
 	}

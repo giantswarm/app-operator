@@ -26,10 +26,12 @@ func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange inte
 			return microerror.Mask(err)
 		}
 
-		_, err = cc.Clients.K8s.K8sClient().CoreV1().Secrets(secret.Namespace).Update(ctx, secret, metav1.UpdateOptions{})
+		secret, err := cc.Clients.K8s.K8sClient().CoreV1().Secrets(secret.Namespace).Update(ctx, secret, metav1.UpdateOptions{})
 		if err != nil {
 			return microerror.Mask(err)
 		}
+
+		cc.ResourceVersion.Secret = secret.ResourceVersion
 
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updated secret %#q in namespace %#q", secret.Name, secret.Namespace))
 	}

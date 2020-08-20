@@ -96,5 +96,7 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 	}
 	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found configmap %#q in namespace %#q", name, r.chartNamespace))
 
+	cc.ResourceVersion.ConfigMap = configmap.ResourceVersion
+
 	return configmap, nil
 }

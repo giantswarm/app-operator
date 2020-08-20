@@ -68,5 +68,7 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 
 	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found secret %#q in namespace %#q", name, r.chartNamespace))
 
+	cc.ResourceVersion.Secret = secret.ResourceVersion
+
 	return secret, nil
 }

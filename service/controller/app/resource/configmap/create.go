@@ -28,7 +28,7 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 			return microerror.Mask(err)
 		}
 
-		_, err = cc.Clients.K8s.K8sClient().CoreV1().ConfigMaps(configMap.Namespace).Create(ctx, configMap, metav1.CreateOptions{})
+		cm, err := cc.Clients.K8s.K8sClient().CoreV1().ConfigMaps(configMap.Namespace).Create(ctx, configMap, metav1.CreateOptions{})
 		if apierrors.IsAlreadyExists(err) {
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("already created configmap %#q in namespace %#q", configMap.Name, configMap.Namespace))
 		} else if tenant.IsAPINotAvailable(err) {
@@ -41,6 +41,8 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 		} else if err != nil {
 			return microerror.Mask(err)
 		} else {
+			cc.ResourceVersion.ConfigMap = cm.ResourceVersion
+
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("created configmap %#q in namespace %#q", configMap.Name, configMap.Namespace))
 		}
 	}

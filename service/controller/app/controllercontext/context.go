@@ -14,9 +14,10 @@ type contextKey string
 const controllerKey contextKey = "controller"
 
 type Context struct {
-	AppCatalog v1alpha1.AppCatalog
-	Clients    Clients
-	Status     Status
+	AppCatalog      v1alpha1.AppCatalog
+	Clients         Clients
+	ResourceVersion ResourceVersion
+	Status          Status
 }
 
 type Clients struct {
@@ -37,6 +38,11 @@ type ChartStatus struct {
 type ClusterStatus struct {
 	IsDeleting    bool
 	IsUnavailable bool
+}
+
+type ResourceVersion struct {
+	ConfigMap string
+	Secret    string
 }
 
 func NewContext(ctx context.Context, c Context) context.Context {

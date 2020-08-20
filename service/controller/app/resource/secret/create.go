@@ -28,7 +28,7 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 			return microerror.Mask(err)
 		}
 
-		_, err = cc.Clients.K8s.K8sClient().CoreV1().Secrets(secret.Namespace).Create(ctx, secret, metav1.CreateOptions{})
+		secret, err := cc.Clients.K8s.K8sClient().CoreV1().Secrets(secret.Namespace).Create(ctx, secret, metav1.CreateOptions{})
 		if apierrors.IsAlreadyExists(err) {
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("already created secret %#q in namespace %#q", secret.Name, secret.Namespace))
 		} else if tenant.IsAPINotAvailable(err) {
@@ -43,6 +43,8 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 		} else {
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("created secret %#q in namespace %#q", secret.Name, secret.Namespace))
 		}
+
+		cc.ResourceVersion.Secret = secret.ResourceVersion
 	}
 
 	return nil
