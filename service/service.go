@@ -2,10 +2,13 @@ package service
 
 import (
 	"context"
-	"strings"
 	"sync"
 
 	applicationv1alpha1 "github.com/giantswarm/apiextensions/v2/pkg/apis/application/v1alpha1"
+	"github.com/giantswarm/app-operator/v2/flag"
+	"github.com/giantswarm/app-operator/v2/pkg/project"
+	"github.com/giantswarm/app-operator/v2/service/controller/app"
+	"github.com/giantswarm/app-operator/v2/service/controller/appcatalog"
 	"github.com/giantswarm/k8sclient/v4/pkg/k8sclient"
 	"github.com/giantswarm/k8sclient/v4/pkg/k8srestconfig"
 	"github.com/giantswarm/microendpoint/service/version"
@@ -15,12 +18,6 @@ import (
 	"github.com/spf13/afero"
 	"github.com/spf13/viper"
 	"k8s.io/client-go/rest"
-	"sigs.k8s.io/yaml"
-
-	"github.com/giantswarm/app-operator/v2/flag"
-	"github.com/giantswarm/app-operator/v2/pkg/project"
-	"github.com/giantswarm/app-operator/v2/service/controller/app"
-	"github.com/giantswarm/app-operator/v2/service/controller/appcatalog"
 )
 
 // Config represents the configuration used to create a new service.
@@ -161,23 +158,4 @@ func (s *Service) Boot(ctx context.Context) {
 		go s.appCatalogController.Boot(ctx)
 		go s.appController.Boot(ctx)
 	})
-}
-
-func newAppTeamMapping(input string) (map[string]string, error) {
-	appTeamMapping := make(map[string]string)
-
-	teams := map[string]string{}
-
-	err := yaml.Unmarshal([]byte(input), &teams)
-	if err != nil {
-		return nil, microerror.Mask(err)
-	}
-
-	for team, apps := range teams {
-		for _, app := range strings.Split(apps, ",") {
-			appTeamMapping[app] = team
-		}
-	}
-
-	return appTeamMapping, nil
 }
