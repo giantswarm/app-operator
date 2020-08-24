@@ -5,10 +5,6 @@ import (
 	"sync"
 
 	applicationv1alpha1 "github.com/giantswarm/apiextensions/v2/pkg/apis/application/v1alpha1"
-	"github.com/giantswarm/app-operator/v2/flag"
-	"github.com/giantswarm/app-operator/v2/pkg/project"
-	"github.com/giantswarm/app-operator/v2/service/controller/app"
-	"github.com/giantswarm/app-operator/v2/service/controller/appcatalog"
 	"github.com/giantswarm/k8sclient/v4/pkg/k8sclient"
 	"github.com/giantswarm/k8sclient/v4/pkg/k8srestconfig"
 	"github.com/giantswarm/microendpoint/service/version"
@@ -18,6 +14,11 @@ import (
 	"github.com/spf13/afero"
 	"github.com/spf13/viper"
 	"k8s.io/client-go/rest"
+
+	"github.com/giantswarm/app-operator/v2/flag"
+	"github.com/giantswarm/app-operator/v2/pkg/project"
+	"github.com/giantswarm/app-operator/v2/service/controller/app"
+	"github.com/giantswarm/app-operator/v2/service/controller/appcatalog"
 )
 
 // Config represents the configuration used to create a new service.
