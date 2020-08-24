@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Removed
+
+- Removed a collector from the operator.
+
 ## [2.1.0] - 2020-08-18
 
 ### Added
