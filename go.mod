@@ -8,7 +8,6 @@ require (
 	github.com/giantswarm/appcatalog v0.2.7
 	github.com/giantswarm/backoff v0.2.0
 	github.com/giantswarm/errors v0.2.3
-	github.com/giantswarm/exporterkit v0.2.0
 	github.com/giantswarm/helmclient/v2 v2.1.0
 	github.com/giantswarm/k8sclient/v4 v4.0.0
 	github.com/giantswarm/kubeconfig/v2 v2.0.0
@@ -19,7 +18,6 @@ require (
 	github.com/giantswarm/operatorkit/v2 v2.0.0
 	github.com/giantswarm/versionbundle v0.2.0
 	github.com/google/go-cmp v0.5.1
-	github.com/prometheus/client_golang v1.7.1
 	github.com/spf13/afero v1.3.4
 	github.com/spf13/viper v1.7.1
 	k8s.io/api v0.18.5
