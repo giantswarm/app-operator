@@ -102,8 +102,8 @@ func (r Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		}
 
 		switch releaseContent.Status {
-		case helmclient.StatusFailed:
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("release %#q failed to install", cr.Name))
+		case helmclient.StatusFailed, helmclient.StatusPendingInstall:
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("release %#q stuck in %#q", cr.Name, releaseContent.Status))
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating release %#q", cr.Name))
 
 			err = r.updateChartOperator(ctx, cr)
@@ -112,16 +112,6 @@ func (r Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			}
 
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updated release %#q", cr.Name))
-		case helmclient.StatusPendingInstall:
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("release %#q stuck in pending-install", cr.Name))
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("delete release %#q", cr.Name))
-
-			err = cc.Clients.Helm.DeleteRelease(ctx, key.Namespace(cr), key.ReleaseName(cr))
-			if err != nil {
-				return microerror.Mask(err)
-			}
-
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleted release %#q", cr.Name))
 		case helmclient.StatusPendingUpgrade:
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("release %#q stuck in pending-upgrade", cr.Name))
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("rollback release %#q", cr.Name))
