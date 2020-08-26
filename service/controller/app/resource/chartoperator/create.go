@@ -116,7 +116,7 @@ func (r Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("release %#q stuck in pending-install", cr.Name))
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("delete release %#q", cr.Name))
 
-			err = cc.Clients.Helm.DeleteRelease(ctx, key.Namespace(cr), key.ReleaseName(cr))
+			err = cc.Clients.Helm.DeleteRelease(ctx, key.Namespace(cr), cr.Name)
 			if err != nil {
 				return microerror.Mask(err)
 			}
@@ -126,7 +126,7 @@ func (r Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("release %#q stuck in pending-upgrade", cr.Name))
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("rollback release %#q", cr.Name))
 
-			err = cc.Clients.Helm.Rollback(ctx, key.Namespace(cr), key.ReleaseName(cr), 0, helmclient.RollbackOptions{})
+			err = cc.Clients.Helm.Rollback(ctx, key.Namespace(cr), cr.Name, 0, helmclient.RollbackOptions{})
 			if err != nil {
 				return microerror.Mask(err)
 			}
