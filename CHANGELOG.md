@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Changed
+
+- Delete chart-operator release if it stuck in `pending-install` status.
+
 ### Removed
 
 - Removed a collector from the operator.

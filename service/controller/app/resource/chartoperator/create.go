@@ -93,25 +93,35 @@ func (r Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("installed release %#q", cr.Name))
 		} else if err != nil {
 			return microerror.Mask(err)
-		} else {
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found release %#q", cr.Name))
+		}
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found release %#q", cr.Name))
 
-			releaseContent, err := cc.Clients.Helm.GetReleaseContent(ctx, key.Namespace(cr), cr.Name)
+		releaseContent, err := cc.Clients.Helm.GetReleaseContent(ctx, key.Namespace(cr), cr.Name)
+		if err != nil {
+			return microerror.Mask(err)
+		}
+
+		switch releaseContent.Status {
+		case helmclient.StatusFailed:
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("release %#q failed to install", cr.Name))
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating release %#q", cr.Name))
+
+			err = r.updateChartOperator(ctx, cr)
 			if err != nil {
 				return microerror.Mask(err)
 			}
 
-			if releaseContent.Status == helmclient.StatusFailed {
-				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("release %#q failed to install", cr.Name))
-				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating release %#q", cr.Name))
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updated release %#q", cr.Name))
+		case helmclient.StatusPendingInstall:
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("release %#q stuck in pending-install", cr.Name))
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("delete release %#q", cr.Name))
 
-				err = r.updateChartOperator(ctx, cr)
-				if err != nil {
-					return microerror.Mask(err)
-				}
-
-				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updated release %#q", cr.Name))
+			err = cc.Clients.Helm.DeleteRelease(ctx, key.Namespace(cr), cr.Name)
+			if err != nil {
+				return microerror.Mask(err)
 			}
+
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleted release %#q", cr.Name))
 		}
 	}
 
