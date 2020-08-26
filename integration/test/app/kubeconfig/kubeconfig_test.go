@@ -142,42 +142,6 @@ func TestAppWithKubeconfig(t *testing.T) {
 	}
 
 	{
-		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating %#q app cr", key.TestAppReleaseName()))
-
-		appCR := &v1alpha1.App{
-			ObjectMeta: metav1.ObjectMeta{
-				Name:      key.TestAppReleaseName(),
-				Namespace: namespace,
-				Labels: map[string]string{
-					label.AppOperatorVersion: project.Version(),
-				},
-			},
-			Spec: v1alpha1.AppSpec{
-				Catalog: key.DefaultCatalogName(),
-				KubeConfig: v1alpha1.AppSpecKubeConfig{
-					Context: v1alpha1.AppSpecKubeConfigContext{
-						Name: clusterName,
-					},
-					InCluster: false,
-					Secret: v1alpha1.AppSpecKubeConfigSecret{
-						Name:      kubeConfigName,
-						Namespace: namespace,
-					},
-				},
-				Name:      key.TestAppReleaseName(),
-				Namespace: namespace,
-				Version:   "0.1.0",
-			},
-		}
-		_, err = config.K8sClients.G8sClient().ApplicationV1alpha1().Apps(namespace).Create(ctx, appCR, metav1.CreateOptions{})
-		if err != nil {
-			t.Fatalf("expected %#v got %#v", nil, err)
-		}
-
-		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating %#q app cr", key.TestAppReleaseName()))
-	}
-
-	{
 		config.Logger.LogCtx(ctx, "level", "debug", "message", "creating chart-operator app CR")
 
 		tag, err := appcatalog.GetLatestVersion(ctx, key.DefaultCatalogStorageURL(), "chart-operator", "")
@@ -226,6 +190,42 @@ func TestAppWithKubeconfig(t *testing.T) {
 		}
 
 		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("waited for release %#q deployed", chartOperatorName))
+	}
+
+	{
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating %#q app cr", key.TestAppReleaseName()))
+
+		appCR := &v1alpha1.App{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      key.TestAppReleaseName(),
+				Namespace: namespace,
+				Labels: map[string]string{
+					label.AppOperatorVersion: project.Version(),
+				},
+			},
+			Spec: v1alpha1.AppSpec{
+				Catalog: key.DefaultCatalogName(),
+				KubeConfig: v1alpha1.AppSpecKubeConfig{
+					Context: v1alpha1.AppSpecKubeConfigContext{
+						Name: clusterName,
+					},
+					InCluster: false,
+					Secret: v1alpha1.AppSpecKubeConfigSecret{
+						Name:      kubeConfigName,
+						Namespace: namespace,
+					},
+				},
+				Name:      key.TestAppReleaseName(),
+				Namespace: namespace,
+				Version:   "0.1.0",
+			},
+		}
+		_, err = config.K8sClients.G8sClient().ApplicationV1alpha1().Apps(namespace).Create(ctx, appCR, metav1.CreateOptions{})
+		if err != nil {
+			t.Fatalf("expected %#v got %#v", nil, err)
+		}
+
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating %#q app cr", key.TestAppReleaseName()))
 	}
 
 	{
