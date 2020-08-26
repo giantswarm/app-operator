@@ -122,16 +122,6 @@ func (r Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			}
 
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleted release %#q", cr.Name))
-		case helmclient.StatusPendingUpgrade:
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("release %#q stuck in pending-upgrade", cr.Name))
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("rollback release %#q", cr.Name))
-
-			err = cc.Clients.Helm.Rollback(ctx, key.Namespace(cr), cr.Name, 0, helmclient.RollbackOptions{})
-			if err != nil {
-				return microerror.Mask(err)
-			}
-
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("rollbacked release %#q", cr.Name))
 		}
 	}
 
