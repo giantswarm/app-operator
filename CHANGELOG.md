@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Added
+
+- Add monitoring label
+
 ## [2.1.1] - 2020-08-26
 
 ### Changed
