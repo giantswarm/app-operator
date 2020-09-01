@@ -23,6 +23,7 @@ import (
 	"github.com/giantswarm/app-operator/v2/service/controller/app/resource/secret"
 	"github.com/giantswarm/app-operator/v2/service/controller/app/resource/status"
 	"github.com/giantswarm/app-operator/v2/service/controller/app/resource/tcnamespace"
+	"github.com/giantswarm/app-operator/v2/service/controller/app/resource/validation"
 	"github.com/giantswarm/app-operator/v2/service/controller/app/values"
 )
 
@@ -246,6 +247,19 @@ func newAppResources(config appResourcesConfig) ([]resource.Interface, error) {
 		}
 	}
 
+	var validationResource resource.Interface
+	{
+		c := validation.Config{
+			K8sClient: config.K8sClient.K8sClient(),
+			Logger:    config.Logger,
+		}
+
+		validationResource, err = validation.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	resources := []resource.Interface{
 		// Following resources manage controller context information.
 		appNamespaceResource,
@@ -253,6 +267,7 @@ func newAppResources(config appResourcesConfig) ([]resource.Interface, error) {
 		clientsResource,
 
 		// Following resources bootstrap chart-operator in tenant clusters.
+		validationResource,
 		tcNamespaceResource,
 		chartCRDResource,
 		chartOperatorResource,
