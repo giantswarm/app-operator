@@ -14,6 +14,10 @@ import (
 	"github.com/giantswarm/app-operator/v2/service/controller/app/key"
 )
 
+const (
+	namespaceNotFoundReason = "namespace is not specified"
+)
+
 func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	cr, err := key.ToCustomResource(obj)
 	if err != nil {
@@ -31,31 +35,21 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return nil
 	}
 
-	if cc.Status.ClusterStatus.IsUnavailable {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster is unavailable")
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
-		return nil
-	}
-
 	if key.AppConfigMapName(cr) != "" {
-		_, err := r.k8sClient.CoreV1().ConfigMaps(key.AppConfigMapNamespace(cr)).Get(ctx, key.AppConfigMapName(cr), metav1.GetOptions{})
-		if apierrors.IsNotFound(err) {
-			r.logger.LogCtx(ctx, "level", "warning", "message", "dependent configMaps are not found")
-			addStatusToContext(cc, err.Error(), status.ConfigmapMergeFailedStatus)
+		ns := key.AppConfigMapNamespace(cr)
+		if ns == "" {
+			r.logger.LogCtx(ctx, "level", "warning", "message", "dependent configMaps namespace not found")
+			addStatusToContext(cc, namespaceNotFoundReason, status.ResourceNotFoundStatus)
 
 			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 			resourcecanceledcontext.SetCanceled(ctx)
 			return nil
-		} else if err != nil {
-			return microerror.Mask(err)
 		}
-	}
 
-	if key.AppConfigMapName(cr) != "" {
-		_, err := r.k8sClient.CoreV1().ConfigMaps(key.AppConfigMapNamespace(cr)).Get(ctx, key.AppConfigMapName(cr), metav1.GetOptions{})
+		_, err := r.k8sClient.CoreV1().ConfigMaps(ns).Get(ctx, key.AppConfigMapName(cr), metav1.GetOptions{})
 		if apierrors.IsNotFound(err) {
 			r.logger.LogCtx(ctx, "level", "warning", "message", "dependent configMaps are not found")
-			addStatusToContext(cc, err.Error(), status.ConfigmapMergeFailedStatus)
+			addStatusToContext(cc, err.Error(), status.ResourceNotFoundStatus)
 
 			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 			resourcecanceledcontext.SetCanceled(ctx)
@@ -66,7 +60,17 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	}
 
 	if key.AppSecretName(cr) != "" {
-		_, err := r.k8sClient.CoreV1().Secrets(key.AppSecretNamespace(cr)).Get(ctx, key.AppSecretName(cr), metav1.GetOptions{})
+		ns := key.AppSecretNamespace(cr)
+		if ns == "" {
+			r.logger.LogCtx(ctx, "level", "warning", "message", "dependent secrets namespace not found")
+			addStatusToContext(cc, namespaceNotFoundReason, status.ResourceNotFoundStatus)
+
+			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+			resourcecanceledcontext.SetCanceled(ctx)
+			return nil
+		}
+
+		_, err := r.k8sClient.CoreV1().Secrets(ns).Get(ctx, key.AppSecretName(cr), metav1.GetOptions{})
 		if apierrors.IsNotFound(err) {
 			r.logger.LogCtx(ctx, "level", "warning", "message", "dependent secrets are not found")
 			addStatusToContext(cc, err.Error(), status.ResourceNotFoundStatus)
@@ -80,7 +84,17 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	}
 
 	if key.UserConfigMapName(cr) != "" {
-		_, err := r.k8sClient.CoreV1().ConfigMaps(key.UserConfigMapNamespace(cr)).Get(ctx, key.UserConfigMapName(cr), metav1.GetOptions{})
+		ns := key.UserSecretNamespace(cr)
+		if ns == "" {
+			r.logger.LogCtx(ctx, "level", "warning", "message", "dependent configmap namespace not found")
+			addStatusToContext(cc, namespaceNotFoundReason, status.ResourceNotFoundStatus)
+
+			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+			resourcecanceledcontext.SetCanceled(ctx)
+			return nil
+		}
+
+		_, err := r.k8sClient.CoreV1().ConfigMaps(ns).Get(ctx, key.UserConfigMapName(cr), metav1.GetOptions{})
 		if apierrors.IsNotFound(err) {
 			r.logger.LogCtx(ctx, "level", "warning", "message", "dependent configMaps are not found")
 			addStatusToContext(cc, err.Error(), status.ResourceNotFoundStatus)
@@ -94,6 +108,16 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	}
 
 	if key.UserSecretName(cr) != "" {
+		ns := key.UserSecretNamespace(cr)
+		if ns == "" {
+			r.logger.LogCtx(ctx, "level", "warning", "message", "dependent secret namespace not found")
+			addStatusToContext(cc, namespaceNotFoundReason, status.ResourceNotFoundStatus)
+
+			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+			resourcecanceledcontext.SetCanceled(ctx)
+			return nil
+		}
+
 		_, err := r.k8sClient.CoreV1().Secrets(key.UserSecretNamespace(cr)).Get(ctx, key.UserConfigMapName(cr), metav1.GetOptions{})
 		if apierrors.IsNotFound(err) {
 			r.logger.LogCtx(ctx, "level", "warning", "message", "dependent secrets are not found")
