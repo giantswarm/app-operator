@@ -1,10 +1,11 @@
 package validation
 
 import (
-	"github.com/giantswarm/app-operator/v2/service/controller/app/controllercontext"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"k8s.io/client-go/kubernetes"
+
+	"github.com/giantswarm/app-operator/v2/service/controller/app/controllercontext"
 )
 
 const (
