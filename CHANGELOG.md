@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Fixed
+
+- Update the status when failed to merge configMaps/secrets on the initial reconciliation.
+
 ### Added
 
 - Add monitoring label
