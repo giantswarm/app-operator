@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Fixed
+
+- Update the status when failing to merge configMaps or secrets on the initial reconciliation.
+
 ## [1.0.9] - 2020-07-23
 
 - Disable app, appcatalog CRDs creation.
