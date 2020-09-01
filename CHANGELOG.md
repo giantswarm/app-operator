@@ -9,7 +9,7 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ### Fixed
 
-- Update the status when failed to merge configMaps/secrets on the initial reconciliation.
+- Update the status when failing to merge configMaps or secrets on the initial reconciliation.
 
 ### Added
 
