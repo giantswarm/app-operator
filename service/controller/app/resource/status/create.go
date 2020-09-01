@@ -38,6 +38,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	}
 
 	var desiredStatus v1alpha1.AppStatus
+
 	if cc.Status.ChartStatus.Status != "" {
 		desiredStatus = v1alpha1.AppStatus{
 			Release: v1alpha1.AppStatusRelease{
