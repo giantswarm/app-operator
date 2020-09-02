@@ -49,6 +49,7 @@ func (r Resource) Name() string {
 // used to set the CR status in the status resource.
 func addStatusToContext(cc *controllercontext.Context, reason, status string) {
 	cc.Status = controllercontext.Status{
+		ClusterStatus: cc.Status.ClusterStatus,
 		ChartStatus: controllercontext.ChartStatus{
 			Reason: reason,
 			Status: status,

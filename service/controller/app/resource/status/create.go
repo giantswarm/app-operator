@@ -31,12 +31,6 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return nil
 	}
 
-	if cc.Status.ClusterStatus.IsUnavailable {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster is unavailable")
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
-		return nil
-	}
-
 	var desiredStatus v1alpha1.AppStatus
 
 	if cc.Status.ChartStatus.Status != "" {
@@ -47,6 +41,12 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			},
 		}
 	} else {
+		if cc.Status.ClusterStatus.IsUnavailable {
+			r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster is unavailable")
+			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+			return nil
+		}
+
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding status for chart %#q in namespace %#q", cr.Name, r.chartNamespace))
 
 		chart, err := cc.Clients.K8s.G8sClient().ApplicationV1alpha1().Charts(r.chartNamespace).Get(ctx, cr.Name, metav1.GetOptions{})
