@@ -15,7 +15,7 @@ import (
 )
 
 const (
-	namespaceNotFoundReason = "namespace is not specified"
+	namespaceNotFoundReasonTemplate = "namespace is not specified for %s %#q"
 )
 
 func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
@@ -39,6 +39,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		ns := key.AppConfigMapNamespace(cr)
 		if ns == "" {
 			r.logger.LogCtx(ctx, "level", "warning", "message", "dependent configMaps namespace not found")
+			namespaceNotFoundReason := fmt.Sprintf(namespaceNotFoundReasonTemplate, "configmap", key.AppConfigMapName(cr))
 			addStatusToContext(cc, namespaceNotFoundReason, status.ResourceNotFoundStatus)
 
 			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
@@ -63,6 +64,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		ns := key.AppSecretNamespace(cr)
 		if ns == "" {
 			r.logger.LogCtx(ctx, "level", "warning", "message", "dependent secrets namespace not found")
+			namespaceNotFoundReason := fmt.Sprintf(namespaceNotFoundReasonTemplate, "secret", key.AppConfigMapName(cr))
 			addStatusToContext(cc, namespaceNotFoundReason, status.ResourceNotFoundStatus)
 
 			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
@@ -87,6 +89,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		ns := key.UserSecretNamespace(cr)
 		if ns == "" {
 			r.logger.LogCtx(ctx, "level", "warning", "message", "dependent configmap namespace not found")
+			namespaceNotFoundReason := fmt.Sprintf(namespaceNotFoundReasonTemplate, "configmap", key.UserSecretName(cr))
 			addStatusToContext(cc, namespaceNotFoundReason, status.ResourceNotFoundStatus)
 
 			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
@@ -111,6 +114,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		ns := key.UserSecretNamespace(cr)
 		if ns == "" {
 			r.logger.LogCtx(ctx, "level", "warning", "message", "dependent secret namespace not found")
+			namespaceNotFoundReason := fmt.Sprintf(namespaceNotFoundReasonTemplate, "secret", key.UserSecretName(cr))
 			addStatusToContext(cc, namespaceNotFoundReason, status.ResourceNotFoundStatus)
 
 			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
