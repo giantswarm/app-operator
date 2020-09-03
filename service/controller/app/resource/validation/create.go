@@ -23,7 +23,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	if IsValidationError(err) {
 		r.logger.LogCtx(ctx, "level", "warning", "message", fmt.Sprintf("validation error %s", err.Error()))
 
-		err = r.updateAppStatus(ctx, cr)
+		err = r.updateAppStatus(ctx, cr, err.Error())
 		if err != nil {
 			return microerror.Mask(err)
 		}
@@ -37,7 +37,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	return nil
 }
 
-func (r *Resource) updateAppStatus(ctx context.Context, cr v1alpha1.App) error {
+func (r *Resource) updateAppStatus(ctx context.Context, cr v1alpha1.App, reason string) error {
 	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("setting status for app %#q in namespace %#q", cr.Name, cr.Namespace))
 
 	// Get app CR again to ensure the resource version is correct.
@@ -48,7 +48,7 @@ func (r *Resource) updateAppStatus(ctx context.Context, cr v1alpha1.App) error {
 
 	currentCR.Status = v1alpha1.AppStatus{
 		Release: v1alpha1.AppStatusRelease{
-			Reason: err.Error(),
+			Reason: reason,
 			Status: status.ResourceNotFoundStatus,
 		},
 	}
