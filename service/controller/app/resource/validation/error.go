@@ -21,3 +21,12 @@ var notFoundError = &microerror.Error{
 func IsNotFound(err error) bool {
 	return microerror.Cause(err) == notFoundError
 }
+
+var validationError = &microerror.Error{
+	Kind: "validationError",
+}
+
+// IsValidationError asserts validationError.
+func IsValidationError(err error) bool {
+	return microerror.Cause(err) == validationError
+}

@@ -4,18 +4,13 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/giantswarm/apiextensions/v2/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/microerror"
-	"github.com/giantswarm/operatorkit/v2/pkg/controller/context/resourcecanceledcontext"
-	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	"github.com/giantswarm/operatorkit/v2/pkg/controller/context/reconciliationcanceledcontext"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/giantswarm/app-operator/v2/pkg/status"
-	"github.com/giantswarm/app-operator/v2/service/controller/app/controllercontext"
 	"github.com/giantswarm/app-operator/v2/service/controller/app/key"
-)
-
-const (
-	namespaceNotFoundReasonTemplate = "namespace is not specified for %s %#q"
 )
 
 func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
@@ -24,130 +19,46 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
-	cc, err := controllercontext.FromContext(ctx)
+	err = r.validateApp(ctx, cr)
+	if IsValidationError(err) {
+		r.logger.LogCtx(ctx, "level", "warning", "message", fmt.Sprintf("validation error %s", err.Error()))
+
+		err = r.updateAppStatus(ctx, cr)
+		if err != nil {
+			return microerror.Mask(err)
+		}
+
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation")
+		reconciliationcanceledcontext.SetCanceled(ctx)
+		return nil
+	} else if err != nil {
+		return microerror.Mask(err)
+	}
+	return nil
+}
+
+func (r *Resource) updateAppStatus(ctx context.Context, cr v1alpha1.App) error {
+	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("setting status for app %#q in namespace %#q", cr.Name, cr.Namespace))
+
+	// Get app CR again to ensure the resource version is correct.
+	currentCR, err := r.g8sClient.ApplicationV1alpha1().Apps(cr.Namespace).Get(ctx, cr.Name, metav1.GetOptions{})
 	if err != nil {
 		return microerror.Mask(err)
 	}
 
-	if cc.Status.ClusterStatus.IsDeleting {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("namespace %#q is being deleted, no need to reconcile resource", cr.Namespace))
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
-		return nil
+	currentCR.Status = v1alpha1.AppStatus{
+		Release: v1alpha1.AppStatusRelease{
+			Reason: err.Error(),
+			Status: status.ResourceNotFoundStatus,
+		},
 	}
 
-	if key.AppConfigMapName(cr) != "" {
-		ns := key.AppConfigMapNamespace(cr)
-		if ns == "" {
-			r.logger.LogCtx(ctx, "level", "warning", "message", "dependent configMaps namespace not found")
-			namespaceNotFoundReason := fmt.Sprintf(namespaceNotFoundReasonTemplate, "configmap", key.AppConfigMapName(cr))
-			addStatusToContext(cc, namespaceNotFoundReason, status.ResourceNotFoundStatus)
-
-			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
-			resourcecanceledcontext.SetCanceled(ctx)
-			return nil
-		}
-
-		_, err := r.k8sClient.CoreV1().ConfigMaps(ns).Get(ctx, key.AppConfigMapName(cr), metav1.GetOptions{})
-		if apierrors.IsNotFound(err) {
-			r.logger.LogCtx(ctx, "level", "warning", "message", "dependent configMaps are not found")
-			addStatusToContext(cc, err.Error(), status.ResourceNotFoundStatus)
-
-			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
-			resourcecanceledcontext.SetCanceled(ctx)
-			return nil
-		} else if err != nil {
-			return microerror.Mask(err)
-		}
+	_, err = r.g8sClient.ApplicationV1alpha1().Apps(cr.Namespace).UpdateStatus(ctx, currentCR, metav1.UpdateOptions{})
+	if err != nil {
+		return microerror.Mask(err)
 	}
 
-	if key.AppSecretName(cr) != "" {
-		ns := key.AppSecretNamespace(cr)
-		if ns == "" {
-			r.logger.LogCtx(ctx, "level", "warning", "message", "dependent secrets namespace not found")
-			namespaceNotFoundReason := fmt.Sprintf(namespaceNotFoundReasonTemplate, "secret", key.AppConfigMapName(cr))
-			addStatusToContext(cc, namespaceNotFoundReason, status.ResourceNotFoundStatus)
-
-			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
-			resourcecanceledcontext.SetCanceled(ctx)
-			return nil
-		}
-
-		_, err := r.k8sClient.CoreV1().Secrets(ns).Get(ctx, key.AppSecretName(cr), metav1.GetOptions{})
-		if apierrors.IsNotFound(err) {
-			r.logger.LogCtx(ctx, "level", "warning", "message", "dependent secrets are not found")
-			addStatusToContext(cc, err.Error(), status.ResourceNotFoundStatus)
-
-			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
-			resourcecanceledcontext.SetCanceled(ctx)
-			return nil
-		} else if err != nil {
-			return microerror.Mask(err)
-		}
-	}
-
-	if key.UserConfigMapName(cr) != "" {
-		ns := key.UserSecretNamespace(cr)
-		if ns == "" {
-			r.logger.LogCtx(ctx, "level", "warning", "message", "dependent configmap namespace not found")
-			namespaceNotFoundReason := fmt.Sprintf(namespaceNotFoundReasonTemplate, "configmap", key.UserSecretName(cr))
-			addStatusToContext(cc, namespaceNotFoundReason, status.ResourceNotFoundStatus)
-
-			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
-			resourcecanceledcontext.SetCanceled(ctx)
-			return nil
-		}
-
-		_, err := r.k8sClient.CoreV1().ConfigMaps(ns).Get(ctx, key.UserConfigMapName(cr), metav1.GetOptions{})
-		if apierrors.IsNotFound(err) {
-			r.logger.LogCtx(ctx, "level", "warning", "message", "dependent configMaps are not found")
-			addStatusToContext(cc, err.Error(), status.ResourceNotFoundStatus)
-
-			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
-			resourcecanceledcontext.SetCanceled(ctx)
-			return nil
-		} else if err != nil {
-			return microerror.Mask(err)
-		}
-	}
-
-	if key.UserSecretName(cr) != "" {
-		ns := key.UserSecretNamespace(cr)
-		if ns == "" {
-			r.logger.LogCtx(ctx, "level", "warning", "message", "dependent secret namespace not found")
-			namespaceNotFoundReason := fmt.Sprintf(namespaceNotFoundReasonTemplate, "secret", key.UserSecretName(cr))
-			addStatusToContext(cc, namespaceNotFoundReason, status.ResourceNotFoundStatus)
-
-			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
-			resourcecanceledcontext.SetCanceled(ctx)
-			return nil
-		}
-
-		_, err := r.k8sClient.CoreV1().Secrets(key.UserSecretNamespace(cr)).Get(ctx, key.UserConfigMapName(cr), metav1.GetOptions{})
-		if apierrors.IsNotFound(err) {
-			r.logger.LogCtx(ctx, "level", "warning", "message", "dependent secrets are not found")
-			addStatusToContext(cc, err.Error(), status.ResourceNotFoundStatus)
-
-			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
-			resourcecanceledcontext.SetCanceled(ctx)
-			return nil
-		} else if err != nil {
-			return microerror.Mask(err)
-		}
-	}
-
-	if !key.InCluster(cr) {
-		_, err := r.k8sClient.CoreV1().Secrets(key.KubecConfigSecretNamespace(cr)).Get(ctx, key.KubecConfigSecretName(cr), metav1.GetOptions{})
-		if apierrors.IsNotFound(err) {
-			r.logger.LogCtx(ctx, "level", "warning", "message", "dependent kubeconfig secrets are not found")
-			addStatusToContext(cc, err.Error(), status.ResourceNotFoundStatus)
-
-			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
-			resourcecanceledcontext.SetCanceled(ctx)
-			return nil
-		} else if err != nil {
-			return microerror.Mask(err)
-		}
-	}
+	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("status set for app %#q in namespace %#q", cr.Name, cr.Namespace))
 
 	return nil
 }
