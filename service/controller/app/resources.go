@@ -262,13 +262,15 @@ func newAppResources(config appResourcesConfig) ([]resource.Interface, error) {
 	}
 
 	resources := []resource.Interface{
+		// validationResource checks CRs for validation errors and sets the CR status.
+		validationResource,
+
 		// Following resources manage controller context information.
 		appNamespaceResource,
 		appcatalogResource,
 		clientsResource,
 
 		// Following resources bootstrap chart-operator in tenant clusters.
-		validationResource,
 		tcNamespaceResource,
 		chartCRDResource,
 		chartOperatorResource,
