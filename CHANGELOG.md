@@ -14,6 +14,8 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 ### Added
 
 - Add monitoring label
+- Add validation resource that checks if references to other resources exist in
+app CRs. A message is added to the app CR status for the user.
 
 ## [2.1.1] - 2020-08-26
 
