@@ -245,7 +245,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	}
 
 	resources := []resource.Interface{
-		// Following resource checks app CRs for validation errors.
+		// validationResource checks CRs for validation errors and sets the CR status.
 		validationResource,
 
 		// Following resources manage controller context information.
