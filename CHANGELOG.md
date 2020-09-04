@@ -7,6 +7,26 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Fixed
+
+- Update the status when failing to merge configMaps or secrets on the initial reconciliation.
+
+### Added
+
+- Add monitoring label
+- Add validation resource that checks if references to other resources exist in
+app CRs. A message is added to the app CR status for the user.
+
+## [2.1.1] - 2020-08-26
+
+### Changed
+
+- Delete chart-operator release if it stuck in `pending-install` status.
+
+### Removed
+
+- Removed a collector from the operator.
+
 ## [2.1.0] - 2020-08-18
 
 ### Added
@@ -131,7 +151,8 @@ from Helm 2 to Helm 3.
 
 - Flattening operator release structure.
 
-[Unreleased]: https://github.com/giantswarm/app-operator/compare/v2.1.0...HEAD
+[Unreleased]: https://github.com/giantswarm/app-operator/compare/v2.1.1...HEAD
+[2.1.1]: https://github.com/giantswarm/app-operator/compare/v2.1.0...v2.1.1
 [2.1.0]: https://github.com/giantswarm/app-operator/compare/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/giantswarm/app-operator/compare/v1.1.11...v2.0.0
 [1.1.11]: https://github.com/giantswarm/app-operator/compare/v1.1.10...v1.1.11
