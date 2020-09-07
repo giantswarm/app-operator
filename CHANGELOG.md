@@ -7,6 +7,11 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Added
+
+- Add validation resource that checks if references to other resources exist in
+app CRs. A message is added to the app CR status for the user.
+
 ### Fixed
 
 - Update the status when failing to merge configMaps or secrets on the initial reconciliation.

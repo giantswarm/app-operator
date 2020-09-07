@@ -24,6 +24,7 @@ import (
 	"github.com/giantswarm/app-operator/service/controller/app/resource/status"
 	"github.com/giantswarm/app-operator/service/controller/app/resource/tcnamespace"
 	"github.com/giantswarm/app-operator/service/controller/app/resource/tiller"
+	"github.com/giantswarm/app-operator/service/controller/app/resource/validation"
 	"github.com/giantswarm/app-operator/service/controller/app/values"
 )
 
@@ -229,7 +230,24 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 	}
 
+	var validationResource resource.Interface
+	{
+		c := validation.Config{
+			G8sClient: config.K8sClient.G8sClient(),
+			K8sClient: config.K8sClient.K8sClient(),
+			Logger:    config.Logger,
+		}
+
+		validationResource, err = validation.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	resources := []resource.Interface{
+		// validationResource checks CRs for validation errors and sets the CR status.
+		validationResource,
+
 		// Following resources manage controller context information.
 		appNamespaceResource,
 		appcatalogResource,
