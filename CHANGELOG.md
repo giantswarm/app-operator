@@ -7,6 +7,8 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+## [1.1.0] - 2020-09-07
+
 ### Added
 
 - Add validation resource that checks if references to other resources exist in
