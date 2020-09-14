@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Changed
+
+- Put resourceVersion on the desired chart status. 
+
 ### Added
 
 - Add monitoring label
