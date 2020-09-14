@@ -121,6 +121,7 @@ func newAppResources(config appResourcesConfig) ([]resource.Interface, error) {
 	{
 		c := chart.Config{
 			G8sClient: config.K8sClient.G8sClient(),
+			K8sClient: config.K8sClient.K8sClient(),
 			Logger:    config.Logger,
 
 			ChartNamespace: config.ChartNamespace,
