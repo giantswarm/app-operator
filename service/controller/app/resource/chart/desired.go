@@ -39,7 +39,11 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		return chartCR, nil
 	}
 
-	config := generateConfig(cr, cc.AppCatalog, r.chartNamespace)
+	config, err := r.generateConfig(ctx, cr, cc.AppCatalog, r.chartNamespace)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
 	tarballURL, err := appcatalog.NewTarballURL(key.AppCatalogStorageURL(cc.AppCatalog), key.AppName(cr), key.Version(cr))
 	if err != nil {
 		r.logger.LogCtx(ctx, "level", "error", "message", fmt.Sprintf("failed to generated tarball"), "stack", fmt.Sprintf("%#v", err))
@@ -85,28 +89,42 @@ func generateAnnotations(input map[string]string) map[string]string {
 	return annotations
 }
 
-func generateConfig(cr v1alpha1.App, appCatalog v1alpha1.AppCatalog, chartNamespace string) v1alpha1.ChartSpecConfig {
+func (r *Resource) generateConfig(ctx context.Context, cr v1alpha1.App, appCatalog v1alpha1.AppCatalog, chartNamespace string) (v1alpha1.ChartSpecConfig, error) {
 	config := v1alpha1.ChartSpecConfig{}
 
 	if hasConfigMap(cr, appCatalog) {
+		configMapName := key.ChartConfigMapName(cr)
+		cm, err := r.k8sClient.CoreV1().ConfigMaps(chartNamespace).Get(ctx, configMapName, metav1.GetOptions{})
+		if err != nil {
+			return v1alpha1.ChartSpecConfig{}, microerror.Mask(err)
+		}
+
 		configMap := v1alpha1.ChartSpecConfigConfigMap{
-			Name:      key.ChartConfigMapName(cr),
-			Namespace: chartNamespace,
+			Name:            configMapName,
+			Namespace:       chartNamespace,
+			ResourceVersion: cm.GetResourceVersion(),
 		}
 
 		config.ConfigMap = configMap
 	}
 
 	if hasSecret(cr, appCatalog) {
-		secret := v1alpha1.ChartSpecConfigSecret{
-			Name:      key.ChartSecretName(cr),
-			Namespace: chartNamespace,
+		secretName := key.ChartSecretName(cr)
+		secret, err := r.k8sClient.CoreV1().Secrets(chartNamespace).Get(ctx, secretName, metav1.GetOptions{})
+		if err != nil {
+			return v1alpha1.ChartSpecConfig{}, microerror.Mask(err)
 		}
 
-		config.Secret = secret
+		secretConfig := v1alpha1.ChartSpecConfigSecret{
+			Name:            secretName,
+			Namespace:       chartNamespace,
+			ResourceVersion: secret.GetResourceVersion(),
+		}
+
+		config.Secret = secretConfig
 	}
 
-	return config
+	return config, nil
 }
 
 func hasConfigMap(cr v1alpha1.App, appCatalog v1alpha1.AppCatalog) bool {
