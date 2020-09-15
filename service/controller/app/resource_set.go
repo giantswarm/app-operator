@@ -120,8 +120,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	var chartResource resource.Interface
 	{
 		c := chart.Config{
-			G8sClient: config.K8sClient.G8sClient(),
-			Logger:    config.Logger,
+			Logger: config.Logger,
 
 			ChartNamespace: config.ChartNamespace,
 		}
