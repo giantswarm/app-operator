@@ -10,6 +10,7 @@ import (
 	"github.com/giantswarm/appcatalog"
 	"github.com/giantswarm/microerror"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/kubernetes"
 
 	"github.com/giantswarm/app-operator/v2/pkg/annotation"
 	"github.com/giantswarm/app-operator/v2/pkg/project"
@@ -39,7 +40,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		return chartCR, nil
 	}
 
-	config, err := r.generateConfig(ctx, cr, cc.AppCatalog, r.chartNamespace)
+	config, err := generateConfig(ctx, cc.Clients.K8s.K8sClient(), cr, cc.AppCatalog, r.chartNamespace)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
@@ -89,12 +90,12 @@ func generateAnnotations(input map[string]string) map[string]string {
 	return annotations
 }
 
-func (r *Resource) generateConfig(ctx context.Context, cr v1alpha1.App, appCatalog v1alpha1.AppCatalog, chartNamespace string) (v1alpha1.ChartSpecConfig, error) {
+func generateConfig(ctx context.Context, k8sClient kubernetes.Interface, cr v1alpha1.App, appCatalog v1alpha1.AppCatalog, chartNamespace string) (v1alpha1.ChartSpecConfig, error) {
 	config := v1alpha1.ChartSpecConfig{}
 
 	if hasConfigMap(cr, appCatalog) {
 		configMapName := key.ChartConfigMapName(cr)
-		cm, err := r.k8sClient.CoreV1().ConfigMaps(chartNamespace).Get(ctx, configMapName, metav1.GetOptions{})
+		cm, err := k8sClient.CoreV1().ConfigMaps(chartNamespace).Get(ctx, configMapName, metav1.GetOptions{})
 		if err != nil {
 			return v1alpha1.ChartSpecConfig{}, microerror.Mask(err)
 		}
@@ -110,7 +111,7 @@ func (r *Resource) generateConfig(ctx context.Context, cr v1alpha1.App, appCatal
 
 	if hasSecret(cr, appCatalog) {
 		secretName := key.ChartSecretName(cr)
-		secret, err := r.k8sClient.CoreV1().Secrets(chartNamespace).Get(ctx, secretName, metav1.GetOptions{})
+		secret, err := k8sClient.CoreV1().Secrets(chartNamespace).Get(ctx, secretName, metav1.GetOptions{})
 		if err != nil {
 			return v1alpha1.ChartSpecConfig{}, microerror.Mask(err)
 		}

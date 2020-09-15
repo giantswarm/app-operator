@@ -7,6 +7,7 @@ import (
 
 	"github.com/giantswarm/apiextensions/v2/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/apiextensions/v2/pkg/clientset/versioned/fake"
+	"github.com/giantswarm/k8sclient/v4/pkg/k8sclienttest"
 	"github.com/giantswarm/micrologger/microloggertest"
 	"github.com/google/go-cmp/cmp"
 	corev1 "k8s.io/api/core/v1"
@@ -264,9 +265,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 			}
 
 			c := Config{
-				K8sClient: clientgofake.NewSimpleClientset(objs...),
-				G8sClient: fake.NewSimpleClientset(),
-				Logger:    microloggertest.New(),
+				Logger: microloggertest.New(),
 
 				ChartNamespace: "giantswarm",
 			}
@@ -277,7 +276,16 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 
 			var ctx context.Context
 			{
+				config := k8sclienttest.ClientsConfig{
+					G8sClient: fake.NewSimpleClientset(),
+					K8sClient: clientgofake.NewSimpleClientset(objs...),
+				}
+				client := k8sclienttest.NewClients(config)
+
 				c := controllercontext.Context{
+					Clients: controllercontext.Clients{
+						K8s: client,
+					},
 					AppCatalog: tc.appCatalog,
 				}
 				ctx = controllercontext.NewContext(context.Background(), c)
@@ -574,19 +582,9 @@ func Test_generateConfig(t *testing.T) {
 				objs = append(objs, tc.secret)
 			}
 
-			c := Config{
-				G8sClient: fake.NewSimpleClientset(),
-				K8sClient: clientgofake.NewSimpleClientset(objs...),
-				Logger:    microloggertest.New(),
+			client := clientgofake.NewSimpleClientset(objs...)
 
-				ChartNamespace: "giantswarm",
-			}
-			r, err := New(c)
-			if err != nil {
-				t.Fatalf("error == %#v, want nil", err)
-			}
-
-			result, err := r.generateConfig(context.Background(), tc.cr, tc.appCatalog, "giantswarm")
+			result, err := generateConfig(context.Background(), client, tc.cr, tc.appCatalog, "giantswarm")
 			if err != nil {
 				t.Fatalf("error == %#v, want nil", err)
 			}
