@@ -3,6 +3,7 @@ package chart
 import (
 	"context"
 	"fmt"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"strings"
 
 	"github.com/giantswarm/apiextensions/v2/pkg/apis/application/v1alpha1"
@@ -96,33 +97,37 @@ func generateConfig(ctx context.Context, k8sClient kubernetes.Interface, cr v1al
 	if hasConfigMap(cr, appCatalog) {
 		configMapName := key.ChartConfigMapName(cr)
 		cm, err := k8sClient.CoreV1().ConfigMaps(chartNamespace).Get(ctx, configMapName, metav1.GetOptions{})
-		if err != nil {
+		if apierrors.IsNotFound(err) {
+			// no-op
+		} else if err != nil {
 			return v1alpha1.ChartSpecConfig{}, microerror.Mask(err)
-		}
+		} else {
+			configMap := v1alpha1.ChartSpecConfigConfigMap{
+				Name:            configMapName,
+				Namespace:       chartNamespace,
+				ResourceVersion: cm.GetResourceVersion(),
+			}
 
-		configMap := v1alpha1.ChartSpecConfigConfigMap{
-			Name:            configMapName,
-			Namespace:       chartNamespace,
-			ResourceVersion: cm.GetResourceVersion(),
+			config.ConfigMap = configMap
 		}
-
-		config.ConfigMap = configMap
 	}
 
 	if hasSecret(cr, appCatalog) {
 		secretName := key.ChartSecretName(cr)
 		secret, err := k8sClient.CoreV1().Secrets(chartNamespace).Get(ctx, secretName, metav1.GetOptions{})
-		if err != nil {
+		if apierrors.IsNotFound(err) {
+			// no-op
+		} else if err != nil {
 			return v1alpha1.ChartSpecConfig{}, microerror.Mask(err)
-		}
+		} else {
+			secretConfig := v1alpha1.ChartSpecConfigSecret{
+				Name:            secretName,
+				Namespace:       chartNamespace,
+				ResourceVersion: secret.GetResourceVersion(),
+			}
 
-		secretConfig := v1alpha1.ChartSpecConfigSecret{
-			Name:            secretName,
-			Namespace:       chartNamespace,
-			ResourceVersion: secret.GetResourceVersion(),
+			config.Secret = secretConfig
 		}
-
-		config.Secret = secretConfig
 	}
 
 	return config, nil
