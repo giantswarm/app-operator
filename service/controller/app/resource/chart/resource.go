@@ -5,9 +5,10 @@ import (
 	"strings"
 
 	"github.com/giantswarm/apiextensions/v2/pkg/apis/application/v1alpha1"
-	"github.com/giantswarm/app-operator/v2/pkg/annotation"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
+
+	"github.com/giantswarm/app-operator/v2/pkg/annotation"
 )
 
 const (
