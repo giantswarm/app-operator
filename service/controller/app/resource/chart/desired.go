@@ -8,7 +8,9 @@ import (
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/appcatalog"
 	"github.com/giantswarm/microerror"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/kubernetes"
 
 	"github.com/giantswarm/app-operator/pkg/annotation"
 	"github.com/giantswarm/app-operator/pkg/label"
@@ -39,7 +41,11 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		return chartCR, nil
 	}
 
-	config := generateConfig(cr, cc.AppCatalog, r.chartNamespace)
+	config, err := generateConfig(cc.Clients.K8s, cr, cc.AppCatalog, r.chartNamespace)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
 	tarballURL, err := appcatalog.NewTarballURL(key.AppCatalogStorageURL(cc.AppCatalog), key.AppName(cr), key.Version(cr))
 	if err != nil {
 		r.logger.LogCtx(ctx, "level", "error", "message", fmt.Sprintf("failed to generated tarball"), "stack", fmt.Sprintf("%#v", err))
@@ -85,28 +91,46 @@ func generateAnnotations(input map[string]string) map[string]string {
 	return annotations
 }
 
-func generateConfig(cr v1alpha1.App, appCatalog v1alpha1.AppCatalog, chartNamespace string) v1alpha1.ChartSpecConfig {
+func generateConfig(k8sClient kubernetes.Interface, cr v1alpha1.App, appCatalog v1alpha1.AppCatalog, chartNamespace string) (v1alpha1.ChartSpecConfig, error) {
 	config := v1alpha1.ChartSpecConfig{}
 
 	if hasConfigMap(cr, appCatalog) {
-		configMap := v1alpha1.ChartSpecConfigConfigMap{
-			Name:      key.ChartConfigMapName(cr),
-			Namespace: chartNamespace,
-		}
+		configMapName := key.ChartConfigMapName(cr)
+		cm, err := k8sClient.CoreV1().ConfigMaps(chartNamespace).Get(configMapName, metav1.GetOptions{})
+		if apierrors.IsNotFound(err) {
+			// no-op
+		} else if err != nil {
+			return v1alpha1.ChartSpecConfig{}, microerror.Mask(err)
+		} else {
+			configMap := v1alpha1.ChartSpecConfigConfigMap{
+				Name:            configMapName,
+				Namespace:       chartNamespace,
+				ResourceVersion: cm.GetResourceVersion(),
+			}
 
-		config.ConfigMap = configMap
+			config.ConfigMap = configMap
+		}
 	}
 
 	if hasSecret(cr, appCatalog) {
-		secret := v1alpha1.ChartSpecConfigSecret{
-			Name:      key.ChartSecretName(cr),
-			Namespace: chartNamespace,
-		}
+		secretName := key.ChartSecretName(cr)
+		secret, err := k8sClient.CoreV1().Secrets(chartNamespace).Get(secretName, metav1.GetOptions{})
+		if apierrors.IsNotFound(err) {
+			// no-op
+		} else if err != nil {
+			return v1alpha1.ChartSpecConfig{}, microerror.Mask(err)
+		} else {
+			secretConfig := v1alpha1.ChartSpecConfigSecret{
+				Name:            secretName,
+				Namespace:       chartNamespace,
+				ResourceVersion: secret.GetResourceVersion(),
+			}
 
-		config.Secret = secret
+			config.Secret = secretConfig
+		}
 	}
 
-	return config
+	return config, nil
 }
 
 func hasConfigMap(cr v1alpha1.App, appCatalog v1alpha1.AppCatalog) bool {
