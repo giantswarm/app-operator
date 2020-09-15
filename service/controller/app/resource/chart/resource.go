@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	"github.com/giantswarm/apiextensions/v2/pkg/apis/application/v1alpha1"
-	"github.com/giantswarm/apiextensions/v2/pkg/clientset/versioned"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 
@@ -24,8 +23,7 @@ const (
 // Config represents the configuration used to create a new chart resource.
 type Config struct {
 	// Dependencies.
-	G8sClient versioned.Interface
-	Logger    micrologger.Logger
+	Logger micrologger.Logger
 
 	// Settings.
 	ChartNamespace string
@@ -34,8 +32,7 @@ type Config struct {
 // Resource implements the chart resource.
 type Resource struct {
 	// Dependencies.
-	g8sClient versioned.Interface
-	logger    micrologger.Logger
+	logger micrologger.Logger
 
 	// Settings.
 	chartNamespace string
@@ -43,9 +40,6 @@ type Resource struct {
 
 // New creates a new configured chart resource.
 func New(config Config) (*Resource, error) {
-	if config.G8sClient == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.G8sClient must not be empty", config)
-	}
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
@@ -55,8 +49,7 @@ func New(config Config) (*Resource, error) {
 	}
 
 	r := &Resource{
-		g8sClient: config.G8sClient,
-		logger:    config.Logger,
+		logger: config.Logger,
 
 		chartNamespace: config.ChartNamespace,
 	}
