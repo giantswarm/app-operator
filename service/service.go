@@ -5,7 +5,6 @@ import (
 	"sync"
 
 	applicationv1alpha1 "github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
-	"github.com/giantswarm/exporterkit/collector"
 	"github.com/giantswarm/k8sclient"
 	"github.com/giantswarm/k8sclient/k8srestconfig"
 	"github.com/giantswarm/microendpoint/service/version"
@@ -38,7 +37,6 @@ type Service struct {
 	appController        *app.App
 	appCatalogController *appcatalog.AppCatalog
 	bootOnce             sync.Once
-	operatorCollector    *collector.Set
 }
 
 // New creates a new service with given configuration.
