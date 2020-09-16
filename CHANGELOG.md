@@ -11,6 +11,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 - Add resource version for chart configmaps and secrets to the chart CR to reduce latency of update events.
 
+### Removed
+
+- Remove collector as metrics are now handled by app-exporter.
+
 ## [1.0.10] - 2020-09-07
 
 ### Added
