@@ -7,6 +7,8 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+## [1.0.11] - 2020-09-17
+
 ### Added
 
 - Add resource version for chart configmaps and secrets to the chart CR to reduce latency of update events.
@@ -71,7 +73,9 @@ app CRs. A message is added to the app CR status for the user.
 
 - Flattening operator release structure.
 
-[Unreleased]: https://github.com/giantswarm/app-operator/compare/v1.0.9...HEAD
+[Unreleased]: https://github.com/giantswarm/app-operator/compare/v1.0.11...HEAD
+[1.0.11]: https://github.com/giantswarm/app-operator/compare/v1.0.10...v1.0.11
+[1.0.10]: https://github.com/giantswarm/app-operator/compare/v1.0.9...v1.0.10
 [1.0.9]: https://github.com/giantswarm/app-operator/compare/v1.0.8...v1.0.9
 [v1.0.8]: https://github.com/giantswarm/app-operator/compare/v1.0.7...v1.0.8
 [v1.0.7]: https://github.com/giantswarm/app-operator/compare/v1.0.6...v1.0.7
