@@ -10,6 +10,11 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 ### Added
 
 - Add resource version for chart configmaps and secrets to the chart CR to reduce latency of update events.
+
+## [2.2.0] - 2020-09-07
+
+### Added
+
 - Add monitoring label
 - Add validation resource that checks if references to other resources exist in
 app CRs. A message is added to the app CR status for the user.
