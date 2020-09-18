@@ -7,6 +7,8 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+## [2.3.0] - 2020-09-17
+
 ### Added
 
 - Add resource version for chart configmaps and secrets to the chart CR to reduce latency of update events.
@@ -158,7 +160,9 @@ from Helm 2 to Helm 3.
 
 - Flattening operator release structure.
 
-[Unreleased]: https://github.com/giantswarm/app-operator/compare/v2.1.1...HEAD
+[Unreleased]: https://github.com/giantswarm/app-operator/compare/v2.3.0...HEAD
+[2.3.0]: https://github.com/giantswarm/app-operator/compare/v2.2.0...v2.3.0
+[2.2.0]: https://github.com/giantswarm/app-operator/compare/v2.1.1...v2.2.0
 [2.1.1]: https://github.com/giantswarm/app-operator/compare/v2.1.0...v2.1.1
 [2.1.0]: https://github.com/giantswarm/app-operator/compare/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/giantswarm/app-operator/compare/v1.1.11...v2.0.0
