@@ -3,6 +3,7 @@ module github.com/giantswarm/app-operator
 go 1.13
 
 require (
+	github.com/ghodss/yaml v1.0.1-0.20190212211648-25d852aebe32
 	github.com/giantswarm/apiextensions v0.4.8
 	github.com/giantswarm/appcatalog v0.2.5
 	github.com/giantswarm/backoff v0.2.0
