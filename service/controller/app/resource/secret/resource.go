@@ -1,6 +1,7 @@
 package secret
 
 import (
+	"github.com/ghodss/yaml"
 	"reflect"
 
 	"github.com/giantswarm/microerror"
@@ -86,7 +87,24 @@ func equals(a, b *corev1.Secret) bool {
 	if !reflect.DeepEqual(a.Annotations, b.Annotations) {
 		return false
 	}
-	if !reflect.DeepEqual(a.Data, b.Data) {
+
+	var source, dest map[string]interface{}
+	{
+		source = make(map[string]interface{})
+		dest = make(map[string]interface{})
+
+		err := yaml.Unmarshal(a.Data["values"], &source)
+		if err != nil {
+			return false
+		}
+
+		err = yaml.Unmarshal(b.Data["values"], &dest)
+		if err != nil {
+			return false
+		}
+	}
+
+	if !reflect.DeepEqual(source, dest) {
 		return false
 	}
 	if !reflect.DeepEqual(a.Labels, b.Labels) {
