@@ -1,9 +1,9 @@
 package secret
 
 import (
-	"github.com/ghodss/yaml"
 	"reflect"
 
+	"github.com/ghodss/yaml"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	corev1 "k8s.io/api/core/v1"
