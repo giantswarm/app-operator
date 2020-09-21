@@ -7,6 +7,14 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Fixed
+
+- Fix YAML comparison for chart configmaps and secrets.
+
+### Security
+
+- Updated Helm to v3.3.3.
+
 ## [2.3.0] - 2020-09-17
 
 ### Added
