@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Fixed
+
+- Fix YAML comparison for chart configmaps and secrets.
+
 ## [1.0.11] - 2020-09-17
 
 ### Added
