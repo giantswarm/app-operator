@@ -7,6 +7,8 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+## [1.0.12] - 2020-09-22
+
 ### Fixed
 
 - Fix YAML comparison for chart configmaps and secrets.
@@ -77,7 +79,8 @@ app CRs. A message is added to the app CR status for the user.
 
 - Flattening operator release structure.
 
-[Unreleased]: https://github.com/giantswarm/app-operator/compare/v1.0.11...HEAD
+[Unreleased]: https://github.com/giantswarm/app-operator/compare/v1.0.12...HEAD
+[1.0.12]: https://github.com/giantswarm/app-operator/compare/v1.0.11...v1.0.12
 [1.0.11]: https://github.com/giantswarm/app-operator/compare/v1.0.10...v1.0.11
 [1.0.10]: https://github.com/giantswarm/app-operator/compare/v1.0.9...v1.0.10
 [1.0.9]: https://github.com/giantswarm/app-operator/compare/v1.0.8...v1.0.9
