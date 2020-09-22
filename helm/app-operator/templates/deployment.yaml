@@ -18,7 +18,7 @@ spec:
       labels:
         {{- include "labels.selector" . | nindent 8 }}
       annotations:
-        releaseRevision: {{ .Release.Revision | quote }}
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
     spec:
       volumes:
       - name: {{ include "name" . }}-configmap
