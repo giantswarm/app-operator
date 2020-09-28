@@ -11,6 +11,8 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 - Updated Helm to v3.3.4.
 - Updated Kubernetes dependencies to v1.18.9.
+- Update deployment annotation to use checksum instead of helm revision to
+reduce how often pods are rolled.
 
 ## [2.3.1] - 2020-09-22
 
