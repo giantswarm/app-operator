@@ -259,9 +259,6 @@ github.com/giantswarm/errors v0.2.3 h1:gE1dDSD0RNwYUah5hG6oUQh0unPyZ74tVwR1/PW3Z
 github.com/giantswarm/errors v0.2.3/go.mod h1:Oj1LIWs9Uoj6JGtK5HxTb50iZuqe9f60LDI0nLXA5vU=
 github.com/giantswarm/exporterkit v0.2.0 h1:+HTGl4fmT/1OkTox8HbV3JXeavmsZv94+2CDW8cSrq0=
 github.com/giantswarm/exporterkit v0.2.0/go.mod h1:b4fuHVjsvZgznC9OEPfn0y5zvN8SnEKTiI5zTTfck94=
-github.com/giantswarm/helmclient v1.0.6 h1:Pbb4sjKzpqPEuH4hgrZvWrakNPFk8SJS14XIR5hZ6kc=
-github.com/giantswarm/helmclient/v2 v2.1.3 h1:zbiJwH+lyQHA8Fq9yqHmxGhr3dnloJtGps0zSZjd9iM=
-github.com/giantswarm/helmclient/v2 v2.1.3/go.mod h1:ODmkCAJwfoTURd1inZO8D6QbOhPtQEqQ+WKwAFdSHI4=
 github.com/giantswarm/helmclient/v2 v2.1.4 h1:DaU8Z0hFDLeOpSjSnGiNcGcptkcPR8V+HtbwbH2xWuQ=
 github.com/giantswarm/helmclient/v2 v2.1.4/go.mod h1:egqSLa/FlfQFeEQjmGHM2216G5Iy7gXTPia0tkrQB+0=
 github.com/giantswarm/k8sclient/v4 v4.0.0 h1:K18A0FomGjxTMElcGrjO3uLkYobUtcNh8e8PhTgFr2w=
@@ -805,7 +802,6 @@ github.com/sony/gobreaker v0.4.1/go.mod h1:ZKptC7FHNvhBz7dN2LGjPVBz2sZJmc0/PkyDJ
 github.com/spaolacci/murmur3 v0.0.0-20180118202830-f09979ecbc72/go.mod h1:JwIasOWyU6f++ZhiEuf87xNszmSA2myDM2Kzu9HwQUA=
 github.com/spf13/afero v1.1.2/go.mod h1:j4pytiNVoe2o6bmDsKpLACNPDBIoEAkihy7loJ1B0CQ=
 github.com/spf13/afero v1.2.2/go.mod h1:9ZxEEn6pIJ8Rxe320qSDBk6AsU0r9pR7Q4OcevTdifk=
-github.com/spf13/afero v1.3.4/go.mod h1:Ai8FlHk4v/PARR026UzYexafAt9roJ7LcLMAmO6Z93I=
 github.com/spf13/afero v1.4.0 h1:jsLTaI1zwYO3vjrzHalkVcIHXTNmdQFepW4OI8H3+x8=
 github.com/spf13/afero v1.4.0/go.mod h1:Ai8FlHk4v/PARR026UzYexafAt9roJ7LcLMAmO6Z93I=
 github.com/spf13/cast v1.3.0/go.mod h1:Qx5cxh0v+4UWYiBimWS+eyWzqEqokIECu5etghLkUJE=
