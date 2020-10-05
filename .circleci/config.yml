@@ -66,3 +66,11 @@ workflows:
           requires:
             - go-build
             - push-app-operator-to-control-plane-app-catalog
+
+      - architect/integration-test:
+          context: architect
+          name: appcatalogentry-integration-test
+          test-dir: "integration/test/appcatalog/appcatalogentry"
+          requires:
+            - go-build
+            - push-app-operator-to-control-plane-app-catalog
