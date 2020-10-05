@@ -6,13 +6,10 @@ import (
 	"context"
 	"fmt"
 	"testing"
-	"time"
 
 	"github.com/giantswarm/apiextensions/v2/pkg/apis/application/v1alpha1"
-	"github.com/giantswarm/apiextensions/v2/pkg/crd"
 	"github.com/giantswarm/apiextensions/v2/pkg/label"
 	"github.com/giantswarm/appcatalog"
-	"github.com/giantswarm/backoff"
 	"github.com/giantswarm/helmclient/v2/pkg/helmclient"
 	"github.com/spf13/afero"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -74,7 +71,6 @@ func TestAppLifecycle(t *testing.T) {
 		}
 		values := map[string]interface{}{
 			"clusterDNSIP": "10.96.0.10",
-			"e2e":          "true",
 		}
 		err = config.HelmClient.InstallReleaseFromTarball(ctx, tarballPath, key.Namespace(), values, opts)
 		if err != nil {
@@ -82,18 +78,6 @@ func TestAppLifecycle(t *testing.T) {
 		}
 
 		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("installed chart operator"))
-	}
-
-	{
-		crdName := "Chart"
-		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("ensuring %#q CRD exists", crdName))
-
-		err := config.K8sClients.CRDClient().EnsureCreated(ctx, crd.LoadV1("application.giantswarm.io", crdName), backoff.NewMaxRetries(7, 1*time.Second))
-		if err != nil {
-			t.Fatalf("expected %#v got %#v", nil, err)
-		}
-
-		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("ensured %#q CRD exists", crdName))
 	}
 
 	{

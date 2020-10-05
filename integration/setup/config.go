@@ -20,7 +20,6 @@ const (
 
 type Config struct {
 	HelmClient helmclient.Interface
-	K8s        *k8sclient.Setup
 	K8sClients k8sclient.Interface
 	KubeConfig *kubeconfig.KubeConfig
 	Release    *release.Release
@@ -51,19 +50,6 @@ func NewConfig() (Config, error) {
 		}
 
 		cpK8sClients, err = k8sclient.NewClients(c)
-		if err != nil {
-			return Config{}, microerror.Mask(err)
-		}
-	}
-
-	var k8sSetup *k8sclient.Setup
-	{
-		c := k8sclient.SetupConfig{
-			Clients: cpK8sClients,
-			Logger:  logger,
-		}
-
-		k8sSetup, err = k8sclient.NewSetup(c)
 		if err != nil {
 			return Config{}, microerror.Mask(err)
 		}
@@ -112,7 +98,6 @@ func NewConfig() (Config, error) {
 
 	c := Config{
 		HelmClient: helmClient,
-		K8s:        k8sSetup,
 		K8sClients: cpK8sClients,
 		KubeConfig: kubeConfig,
 		Logger:     logger,

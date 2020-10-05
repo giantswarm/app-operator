@@ -7,11 +7,8 @@ import (
 	"fmt"
 	"os"
 	"testing"
-	"time"
 
-	"github.com/giantswarm/apiextensions/v2/pkg/crd"
 	"github.com/giantswarm/appcatalog"
-	"github.com/giantswarm/backoff"
 	"github.com/giantswarm/helmclient/v2/pkg/helmclient"
 	"github.com/giantswarm/microerror"
 	"github.com/spf13/afero"
@@ -48,33 +45,6 @@ func Setup(m *testing.M, config Config) {
 
 func installResources(ctx context.Context, config Config) error {
 	var err error
-
-	{
-		err = config.K8s.EnsureNamespaceCreated(ctx, namespace)
-		if err != nil {
-			return microerror.Mask(err)
-		}
-	}
-
-	// Create AppCatalog and App CRDs. The Chart CRD is created by the operator
-	// for the kubeconfig test that bootstraps chart-operator.
-	crds := []string{
-		"AppCatalog",
-		"App",
-	}
-
-	{
-		for _, crdName := range crds {
-			config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("ensuring %#q CRD exists", crdName))
-
-			err := config.K8sClients.CRDClient().EnsureCreated(ctx, crd.LoadV1("application.giantswarm.io", crdName), backoff.NewMaxRetries(7, 1*time.Second))
-			if err != nil {
-				return microerror.Mask(err)
-			}
-
-			config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("ensured %#q CRD exists", crdName))
-		}
-	}
 
 	var operatorTarballPath string
 	{
