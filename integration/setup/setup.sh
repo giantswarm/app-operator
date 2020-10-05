@@ -1,4 +1,4 @@
 #!/bin/bash
 
 go get github.com/giantswarm/apptestctl@operator-flag
-apptestctl bootstrap --kubeconfig="$(kind get kubeconfig)"
+apptestctl bootstrap --install-operators=false --kubeconfig="$(kind get kubeconfig)"
