@@ -34,7 +34,8 @@ func NewAppCatalog(config Config) (*AppCatalog, error) {
 	var resources []resource.Interface
 	{
 		c := appCatalogResourcesConfig{
-			Logger: config.Logger,
+			K8sClient: config.K8sClient,
+			Logger:    config.Logger,
 		}
 
 		resources, err = newAppCatalogResources(c)
