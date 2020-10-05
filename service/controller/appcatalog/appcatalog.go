@@ -33,11 +33,7 @@ func NewAppCatalog(config Config) (*AppCatalog, error) {
 
 	var resources []resource.Interface
 	{
-		c := appCatalogResourcesConfig{
-			K8sClient: config.K8sClient,
-			Logger:    config.Logger,
-		}
-
+		c := appCatalogResourcesConfig(config)
 		resources, err = newAppCatalogResources(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
