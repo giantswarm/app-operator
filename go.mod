@@ -5,11 +5,11 @@ go 1.14
 require (
 	github.com/Masterminds/semver/v3 v3.1.0
 	github.com/ghodss/yaml v1.0.0
-	github.com/giantswarm/apiextensions/v2 v2.5.1
+	github.com/giantswarm/apiextensions/v2 v2.6.0
 	github.com/giantswarm/appcatalog v0.2.7
 	github.com/giantswarm/backoff v0.2.0
 	github.com/giantswarm/errors v0.2.3
-	github.com/giantswarm/helmclient/v2 v2.1.3
+	github.com/giantswarm/helmclient/v2 v2.1.4
 	github.com/giantswarm/k8sclient/v4 v4.0.0
 	github.com/giantswarm/kubeconfig/v2 v2.0.0
 	github.com/giantswarm/microendpoint v0.2.0
