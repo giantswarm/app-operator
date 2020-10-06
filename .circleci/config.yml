@@ -47,7 +47,6 @@ workflows:
           chart: "app-operator"
           requires:
             - push-app-operator-to-quay
-            - push-app-operator-to-aliyun
           filters:
             tags:
               only: /^v.*/
