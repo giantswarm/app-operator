@@ -19,7 +19,7 @@ require (
 	github.com/giantswarm/operatorkit/v2 v2.0.1
 	github.com/giantswarm/versionbundle v0.2.0
 	github.com/google/go-cmp v0.5.2
-	github.com/spf13/afero v1.4.0
+	github.com/spf13/afero v1.4.1
 	github.com/spf13/viper v1.7.1
 	k8s.io/api v0.18.9
 	k8s.io/apimachinery v0.18.9
