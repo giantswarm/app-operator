@@ -37,7 +37,7 @@ func (c *AppValue) buildCache(ctx context.Context) error {
 		}
 
 		c.logger.Log("debug", "watch channel had been closed, reopening...")
-		c.apps = sync.Map{}
+		c.configMapToApps = sync.Map{}
 	}
 
 }
@@ -73,7 +73,7 @@ func (c *AppValue) addCache(ctx context.Context, cr v1alpha1.App, eventType watc
 				continue
 			}
 
-			v, ok := c.apps.Load(configMap)
+			v, ok := c.configMapToApps.Load(configMap)
 			if ok {
 				storedIndex, ok := v.(map[index]bool)
 				if !ok {
@@ -81,18 +81,18 @@ func (c *AppValue) addCache(ctx context.Context, cr v1alpha1.App, eventType watc
 				}
 
 				storedIndex[appIndex] = true
-				c.apps.Store(configMap, storedIndex)
+				c.configMapToApps.Store(configMap, storedIndex)
 			} else {
 				m := map[index]bool{
 					appIndex: true,
 				}
-				c.apps.Store(configMap, m)
+				c.configMapToApps.Store(configMap, m)
 			}
 		}
 
 	case watch.Deleted:
 		for _, configMap := range configMaps {
-			v, ok := c.apps.Load(configMap)
+			v, ok := c.configMapToApps.Load(configMap)
 			if ok {
 				storedIndex, ok := v.(map[index]bool)
 				if !ok {
@@ -107,9 +107,9 @@ func (c *AppValue) addCache(ctx context.Context, cr v1alpha1.App, eventType watc
 						continue
 					}
 
-					c.apps.Delete(configMap)
+					c.configMapToApps.Delete(configMap)
 				} else {
-					c.apps.Store(configMap, storedIndex)
+					c.configMapToApps.Store(configMap, storedIndex)
 				}
 			}
 		}

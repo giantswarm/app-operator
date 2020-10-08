@@ -18,7 +18,7 @@ type AppValue struct {
 	k8sClient k8sclient.Interface
 	logger    micrologger.Logger
 
-	apps sync.Map
+	configMapToApps sync.Map
 }
 
 func NewAppValue(config AppValueConfig) (*AppValue, error) {
@@ -33,13 +33,17 @@ func NewAppValue(config AppValueConfig) (*AppValue, error) {
 		k8sClient: config.K8sClient,
 		logger:    config.Logger,
 
-		apps: sync.Map{},
+		configMapToApps: sync.Map{},
 	}
 
 	return c, nil
 }
 
 func (c *AppValue) Boot(ctx context.Context) {
+	// Watching configmap's changes.
+	go c.watch(ctx)
+
+	// Building a cache of configmaps and link each app to configmaps.
 	err := c.buildCache(ctx)
 	if err != nil {
 		panic(err)
