@@ -111,10 +111,7 @@ func (c *AppValue) addCache(ctx context.Context, cr v1alpha1.App, eventType watc
 				} else {
 					c.apps.Store(configMap, storedIndex)
 				}
-			} else {
-				c.logger.Log("not okay")
 			}
-
 		}
 
 	default:
