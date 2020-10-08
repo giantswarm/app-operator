@@ -13,7 +13,7 @@ import (
 	"github.com/giantswarm/app-operator/v2/pkg/annotation"
 )
 
-func (c *AppValue) watch(ctx context.Context) error {
+func (c *AppValue) watch(ctx context.Context) {
 	var lastResourceVersion string
 	{
 		lo := metav1.ListOptions{
@@ -60,10 +60,10 @@ func (c *AppValue) watch(ctx context.Context) error {
 			if v, ok := c.configMapToApps.Load(configMapIndex); ok {
 				storedIndex, ok := v.(map[index]bool)
 				if !ok {
-					return microerror.Maskf(wrongTypeError, "expected '%T', got '%T'", map[index]bool{}, v)
+					panic(fmt.Sprintf("expected '%T', got '%T'", map[index]bool{}, v))
 				}
 
-				for app, _ := range storedIndex {
+				for app := range storedIndex {
 					c.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("triggering %#q app updating in namespace %#q", app.Name, app.Namespace))
 
 					err := c.addAnnotation(ctx, app, cm.GetResourceVersion())
