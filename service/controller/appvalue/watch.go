@@ -85,7 +85,6 @@ func (c *AppValue) watch(ctx context.Context) error {
 
 		c.logger.Log("debug", "watch channel had been closed, reopening...")
 	}
-	return nil
 }
 
 // toConfigMap converts the input into a ConfigMap.
