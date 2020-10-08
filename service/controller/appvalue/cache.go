@@ -118,7 +118,7 @@ func (c *AppValue) addCache(ctx context.Context, cr v1alpha1.App, eventType watc
 func (c *AppValue) addLabel(ctx context.Context, cm index) error {
 	watchUpdate := replaceToEscape(fmt.Sprintf("%s/%s", annotation.AppOperatorPrefix, annotation.WatchUpdate))
 
-	currentCM, err := c.k8sClient.G8sClient().ApplicationV1alpha1().Charts(cm.Namespace).Get(ctx, cm.Name, metav1.GetOptions{})
+	currentCM, err := c.k8sClient.K8sClient().CoreV1().ConfigMaps(cm.Namespace).Get(ctx, cm.Name, metav1.GetOptions{})
 	if err != nil {
 		return microerror.Mask(err)
 	}
