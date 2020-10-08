@@ -9,7 +9,6 @@ import (
 
 	"github.com/giantswarm/apiextensions/v2/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/microerror"
-	"k8s.io/apimachinery/pkg/apis/meta/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/watch"
@@ -20,7 +19,7 @@ import (
 
 func (c *AppValue) buildCache(ctx context.Context) error {
 	for {
-		res, err := c.k8sClient.G8sClient().ApplicationV1alpha1().Apps("").Watch(ctx, v1.ListOptions{})
+		res, err := c.k8sClient.G8sClient().ApplicationV1alpha1().Apps("").Watch(ctx, metav1.ListOptions{})
 		if err != nil {
 			panic(err)
 		}
