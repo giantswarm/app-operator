@@ -15,7 +15,8 @@ import (
 
 func (c *AppValue) watch(ctx context.Context) {
 	var lastResourceVersion string
-	{
+
+	for {
 		lo := metav1.ListOptions{
 			LabelSelector: fmt.Sprintf("%s/%s", annotation.AppOperatorPrefix, annotation.WatchUpdate),
 		}
@@ -31,12 +32,10 @@ func (c *AppValue) watch(ctx context.Context) {
 				lastResourceVersion = cm.ResourceVersion
 			}
 		}
-	}
 
-	c.logger.Log("debug", fmt.Sprintf("starting ResourceVersion is %s", lastResourceVersion))
+		c.logger.Log("debug", fmt.Sprintf("starting ResourceVersion is %s", lastResourceVersion))
 
-	for {
-		lo := metav1.ListOptions{
+		lo = metav1.ListOptions{
 			LabelSelector:   fmt.Sprintf("%s/%s", annotation.AppOperatorPrefix, annotation.WatchUpdate),
 			ResourceVersion: lastResourceVersion,
 		}
