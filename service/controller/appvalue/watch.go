@@ -1,0 +1,140 @@
+package appvalue
+
+import (
+	"context"
+	"encoding/json"
+	"fmt"
+
+	"github.com/giantswarm/microerror"
+	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
+
+	"github.com/giantswarm/app-operator/v2/pkg/annotation"
+)
+
+func (c *AppValue) watch(ctx context.Context) error {
+	var lastResourceVersion string
+	{
+		lo := metav1.ListOptions{
+			LabelSelector: fmt.Sprintf("%s/%s", annotation.AppOperatorPrefix, annotation.WatchUpdate),
+		}
+
+		// Found the highest resourceVersion in cofigMaps CRs
+		cms, err := c.k8sClient.K8sClient().CoreV1().ConfigMaps("").List(ctx, lo)
+		if err != nil {
+			panic(err)
+		}
+
+		for _, cm := range cms.Items {
+			if lastResourceVersion < cm.ResourceVersion {
+				lastResourceVersion = cm.ResourceVersion
+			}
+		}
+	}
+
+	c.logger.Log("debug", fmt.Sprintf("starting ResourceVersion is %s", lastResourceVersion))
+
+	for {
+		lo := metav1.ListOptions{
+			LabelSelector:   fmt.Sprintf("%s/%s", annotation.AppOperatorPrefix, annotation.WatchUpdate),
+			ResourceVersion: lastResourceVersion,
+		}
+
+		res, err := c.k8sClient.K8sClient().CoreV1().ConfigMaps("").Watch(ctx, lo)
+		if err != nil {
+			panic(err)
+		}
+
+		for r := range res.ResultChan() {
+			cm, err := toConfigMap(r.Object)
+			if err != nil {
+				panic(err)
+			}
+
+			configMapIndex := index{
+				Name:      cm.GetName(),
+				Namespace: cm.GetNamespace(),
+			}
+
+			if v, ok := c.configMapToApps.Load(configMapIndex); ok {
+				storedIndex, ok := v.(map[index]bool)
+				if !ok {
+					return microerror.Maskf(wrongTypeError, "expected '%T', got '%T'", map[index]bool{}, v)
+				}
+
+				for app, _ := range storedIndex {
+					c.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("triggering %#q app updating in namespace %#q", app.Name, app.Namespace))
+
+					err := c.addAnnotation(ctx, app, cm.GetResourceVersion())
+					if err != nil {
+						c.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("failed to add an annotation into app %#q in namespace %#q", app.Name, app.Namespace), "stack", fmt.Sprintf("%#v", err))
+						continue
+					}
+
+					c.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("triggered %#q app updating in namespace %#q", app.Name, app.Namespace))
+				}
+			} else {
+				c.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("cache missed configMap %#q in namespace %#q", configMapIndex.Name, configMapIndex.Namespace))
+			}
+
+			if err != nil {
+				c.logger.Log("level", "info", "message", "failed to reconcile a configMap resource", "stack", fmt.Sprintf("%#v", err))
+			}
+		}
+
+		c.logger.Log("debug", "watch channel had been closed, reopening...")
+	}
+	return nil
+}
+
+// toConfigMap converts the input into a ConfigMap.
+func toConfigMap(v interface{}) (*corev1.ConfigMap, error) {
+	if v == nil {
+		return &corev1.ConfigMap{}, nil
+	}
+
+	configMap, ok := v.(*corev1.ConfigMap)
+	if !ok {
+		return nil, microerror.Maskf(wrongTypeError, "expected '%T', got '%T'", &corev1.ConfigMap{}, v)
+	}
+
+	return configMap, nil
+}
+
+func (c *AppValue) addAnnotation(ctx context.Context, app index, latestResourceVersion string) error {
+	versionAnnotation := fmt.Sprintf("%s/%s", annotation.AppOperatorPrefix, annotation.LatestConfigMapVersion)
+
+	currentApp, err := c.k8sClient.G8sClient().ApplicationV1alpha1().Apps(app.Namespace).Get(ctx, app.Name, metav1.GetOptions{})
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
+	patches := []patch{}
+
+	if len(currentApp.GetAnnotations()) == 0 {
+		patches = append(patches, patch{
+			Op:    "add",
+			Path:  "/metadata/annotations",
+			Value: map[string]string{},
+		})
+	}
+
+	patches = append(patches, patch{
+		Op:    "add",
+		Path:  fmt.Sprintf("/metadata/annotations/%s", replaceToEscape(versionAnnotation)),
+		Value: latestResourceVersion,
+	})
+
+	bytes, err := json.Marshal(patches)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
+	_, err = c.k8sClient.G8sClient().ApplicationV1alpha1().Apps(app.Namespace).Patch(ctx, app.Name, types.JSONPatchType, bytes, metav1.PatchOptions{})
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
+	return nil
+}
