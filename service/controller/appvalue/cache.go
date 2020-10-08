@@ -128,19 +128,28 @@ func (c *AppValue) addLabel(ctx context.Context, cm index) error {
 		return nil
 	}
 
-	patches := []patch{
-		{
+	patches := []patch{}
+
+	if len(currentCM.GetLabels()) == 0 {
+		patches = append(patches, patch{
 			Op:    "add",
-			Path:  fmt.Sprintf("/metadata/annotations/%s", watchUpdate),
-			Value: true,
-		},
+			Path:  "/metadata/labels",
+			Value: map[string]string{},
+		})
 	}
+
+	patches = append(patches, patch{
+		Op:    "add",
+		Path:  fmt.Sprintf("/metadata/labels/%s", watchUpdate),
+		Value: "true",
+	})
+
 	bytes, err := json.Marshal(patches)
 	if err != nil {
 		return microerror.Mask(err)
 	}
 
-	_, err = c.k8sClient.G8sClient().ApplicationV1alpha1().Charts(cm.Namespace).Patch(ctx, cm.Name, types.JSONPatchType, bytes, metav1.PatchOptions{})
+	_, err = c.k8sClient.K8sClient().CoreV1().ConfigMaps(cm.Namespace).Patch(ctx, cm.Name, types.JSONPatchType, bytes, metav1.PatchOptions{})
 	if err != nil {
 		return microerror.Mask(err)
 	}
