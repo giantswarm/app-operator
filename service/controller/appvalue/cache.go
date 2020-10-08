@@ -106,7 +106,7 @@ func (c *AppValue) addCache(ctx context.Context, cr v1alpha1.App, eventType watc
 						c.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("failed to remove a label into configmap %#q in namespace %#q", configMap.Name, configMap.Namespace), "stack", fmt.Sprintf("%#v", err))
 						continue
 					}
-          
+
 					c.configMapToApps.Delete(configMap)
 				} else {
 					c.configMapToApps.Store(configMap, storedIndex)
