@@ -101,6 +101,12 @@ func (c *AppValue) addCache(ctx context.Context, cr v1alpha1.App, eventType watc
 
 				delete(storedIndex, appIndex)
 				if len(storedIndex) == 0 {
+					err := c.removeLabel(ctx, configMap)
+					if err != nil {
+						c.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("failed to remove a label into configmap %#q in namespace %#q", configMap.Name, configMap.Namespace), "stack", fmt.Sprintf("%#v", err))
+						continue
+					}
+
 					c.apps.Delete(configMap)
 				} else {
 					c.apps.Store(configMap, storedIndex)
@@ -116,7 +122,7 @@ func (c *AppValue) addCache(ctx context.Context, cr v1alpha1.App, eventType watc
 }
 
 func (c *AppValue) addLabel(ctx context.Context, cm index) error {
-	watchUpdate := replaceToEscape(fmt.Sprintf("%s/%s", annotation.AppOperatorPrefix, annotation.WatchUpdate))
+	watchUpdate := fmt.Sprintf("%s/%s", annotation.AppOperatorPrefix, annotation.WatchUpdate)
 
 	currentCM, err := c.k8sClient.K8sClient().CoreV1().ConfigMaps(cm.Namespace).Get(ctx, cm.Name, metav1.GetOptions{})
 	if err != nil {
@@ -140,7 +146,7 @@ func (c *AppValue) addLabel(ctx context.Context, cm index) error {
 
 	patches = append(patches, patch{
 		Op:    "add",
-		Path:  fmt.Sprintf("/metadata/labels/%s", watchUpdate),
+		Path:  fmt.Sprintf("/metadata/labels/%s", replaceToEscape(watchUpdate)),
 		Value: "true",
 	})
 
@@ -153,6 +159,39 @@ func (c *AppValue) addLabel(ctx context.Context, cm index) error {
 	if err != nil {
 		return microerror.Mask(err)
 	}
+	return nil
+}
+
+func (c *AppValue) removeLabel(ctx context.Context, cm index) error {
+	watchUpdate := fmt.Sprintf("%s/%s", annotation.AppOperatorPrefix, annotation.WatchUpdate)
+
+	currentCM, err := c.k8sClient.K8sClient().CoreV1().ConfigMaps(cm.Namespace).Get(ctx, cm.Name, metav1.GetOptions{})
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
+	if _, ok := currentCM.GetLabels()[watchUpdate]; !ok {
+		// no-op
+		return nil
+	}
+
+	patches := []patch{
+		{
+			Op:   "remove",
+			Path: fmt.Sprintf("/metadata/labels/%s", replaceToEscape(watchUpdate)),
+		},
+	}
+
+	bytes, err := json.Marshal(patches)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
+	_, err = c.k8sClient.K8sClient().CoreV1().ConfigMaps(cm.Namespace).Patch(ctx, cm.Name, types.JSONPatchType, bytes, metav1.PatchOptions{})
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
 	return nil
 }
 
