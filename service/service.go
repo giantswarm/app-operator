@@ -19,6 +19,7 @@ import (
 	"github.com/giantswarm/app-operator/v2/pkg/project"
 	"github.com/giantswarm/app-operator/v2/service/controller/app"
 	"github.com/giantswarm/app-operator/v2/service/controller/appcatalog"
+	"github.com/giantswarm/app-operator/v2/service/controller/appvalue"
 )
 
 // Config represents the configuration used to create a new service.
@@ -36,6 +37,7 @@ type Service struct {
 	// Internals
 	appController        *app.App
 	appCatalogController *appcatalog.AppCatalog
+	appValueController   *appvalue.AppValue
 	bootOnce             sync.Once
 }
 
@@ -124,6 +126,20 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
+	var appValueController *appvalue.AppValue
+	{
+
+		c := appvalue.AppValueConfig{
+			K8sClient: k8sClient,
+			Logger:    config.Logger,
+		}
+
+		appValueController, err = appvalue.NewAppValue(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var versionService *version.Service
 	{
 		versionConfig := version.Config{
@@ -146,6 +162,7 @@ func New(config Config) (*Service, error) {
 
 		appController:        appController,
 		appCatalogController: appCatalogController,
+		appValueController:   appValueController,
 		bootOnce:             sync.Once{},
 	}
 
@@ -158,5 +175,6 @@ func (s *Service) Boot(ctx context.Context) {
 		// Start the controllers.
 		go s.appCatalogController.Boot(ctx)
 		go s.appController.Boot(ctx)
+		go s.appValueController.Boot(ctx)
 	})
 }
