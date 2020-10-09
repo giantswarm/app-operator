@@ -8,13 +8,13 @@ import (
 	"sync"
 
 	"github.com/giantswarm/apiextensions/v2/pkg/apis/application/v1alpha1"
+	"github.com/giantswarm/apiextensions/v2/pkg/label"
 	"github.com/giantswarm/microerror"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/watch"
 
-	"github.com/giantswarm/apiextensions/v2/pkg/label"
 	applabel "github.com/giantswarm/app-operator/v2/pkg/label"
 	"github.com/giantswarm/app-operator/v2/service/controller/app/key"
 )
