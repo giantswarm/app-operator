@@ -8,18 +8,24 @@ import (
 	"sync"
 
 	"github.com/giantswarm/apiextensions/v2/pkg/apis/application/v1alpha1"
+	"github.com/giantswarm/apiextensions/v2/pkg/label"
 	"github.com/giantswarm/microerror"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/watch"
 
-	"github.com/giantswarm/app-operator/v2/pkg/annotation"
+	applabel "github.com/giantswarm/app-operator/v2/pkg/label"
 	"github.com/giantswarm/app-operator/v2/service/controller/app/key"
 )
 
 func (c *AppValue) buildCache(ctx context.Context) error {
 	for {
-		res, err := c.k8sClient.G8sClient().ApplicationV1alpha1().Apps("").Watch(ctx, metav1.ListOptions{})
+		lo := metav1.ListOptions{
+			LabelSelector: c.selector.String(),
+		}
+
+		res, err := c.k8sClient.G8sClient().ApplicationV1alpha1().Apps("").Watch(ctx, lo)
 		if err != nil {
 			panic(err)
 		}
@@ -135,14 +141,12 @@ func (c *AppValue) addCache(ctx context.Context, cr v1alpha1.App, eventType watc
 }
 
 func (c *AppValue) addLabel(ctx context.Context, cm index) error {
-	watchUpdate := fmt.Sprintf("%s/%s", annotation.AppOperatorPrefix, annotation.WatchUpdate)
-
 	currentCM, err := c.k8sClient.K8sClient().CoreV1().ConfigMaps(cm.Namespace).Get(ctx, cm.Name, metav1.GetOptions{})
 	if err != nil {
 		return microerror.Mask(err)
 	}
 
-	if _, ok := currentCM.GetLabels()[watchUpdate]; ok {
+	if c.selector.Matches(labels.Set(currentCM.Labels)) {
 		// no-op
 		return nil
 	}
@@ -159,8 +163,8 @@ func (c *AppValue) addLabel(ctx context.Context, cm index) error {
 
 	patches = append(patches, patch{
 		Op:    "add",
-		Path:  fmt.Sprintf("/metadata/labels/%s", replaceToEscape(watchUpdate)),
-		Value: "true",
+		Path:  fmt.Sprintf("/metadata/labels/%s", replaceToEscape(label.AppOperatorVersion)),
+		Value: applabel.GetProjectVersion(c.unique),
 	})
 
 	bytes, err := json.Marshal(patches)
@@ -176,14 +180,12 @@ func (c *AppValue) addLabel(ctx context.Context, cm index) error {
 }
 
 func (c *AppValue) removeLabel(ctx context.Context, cm index) error {
-	watchUpdate := fmt.Sprintf("%s/%s", annotation.AppOperatorPrefix, annotation.WatchUpdate)
-
 	currentCM, err := c.k8sClient.K8sClient().CoreV1().ConfigMaps(cm.Namespace).Get(ctx, cm.Name, metav1.GetOptions{})
 	if err != nil {
 		return microerror.Mask(err)
 	}
 
-	if _, ok := currentCM.GetLabels()[watchUpdate]; !ok {
+	if !c.selector.Matches(labels.Set(currentCM.Labels)) {
 		// no-op
 		return nil
 	}
@@ -191,7 +193,7 @@ func (c *AppValue) removeLabel(ctx context.Context, cm index) error {
 	patches := []patch{
 		{
 			Op:   "remove",
-			Path: fmt.Sprintf("/metadata/labels/%s", replaceToEscape(watchUpdate)),
+			Path: fmt.Sprintf("/metadata/labels/%s", replaceToEscape(label.AppOperatorVersion)),
 		},
 	}
 

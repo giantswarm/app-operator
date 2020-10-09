@@ -132,6 +132,8 @@ func New(config Config) (*Service, error) {
 		c := appvalue.AppValueConfig{
 			K8sClient: k8sClient,
 			Logger:    config.Logger,
+
+			UniqueApp: config.Viper.GetBool(config.Flag.Service.App.Unique),
 		}
 
 		appValueController, err = appvalue.NewAppValue(c)
