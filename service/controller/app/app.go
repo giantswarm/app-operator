@@ -13,9 +13,9 @@ import (
 	"github.com/spf13/afero"
 	"k8s.io/apimachinery/pkg/runtime"
 
+	"github.com/giantswarm/app-operator/v2/pkg/label"
 	"github.com/giantswarm/app-operator/v2/pkg/project"
 	"github.com/giantswarm/app-operator/v2/service/controller/app/controllercontext"
-	"github.com/giantswarm/app-operator/v2/service/controller/app/key"
 )
 
 type Config struct {
@@ -90,7 +90,7 @@ func NewApp(config Config) (*App, error) {
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
 			Resources: resources,
-			Selector:  key.AppVersionSelector(config.UniqueApp),
+			Selector:  label.AppVersionSelector(config.UniqueApp),
 			NewRuntimeObjectFunc: func() runtime.Object {
 				return new(v1alpha1.App)
 			},

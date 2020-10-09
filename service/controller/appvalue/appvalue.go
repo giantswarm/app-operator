@@ -7,11 +7,16 @@ import (
 	"github.com/giantswarm/k8sclient/v4/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
+	"k8s.io/apimachinery/pkg/labels"
+
+	"github.com/giantswarm/app-operator/v2/pkg/label"
 )
 
 type AppValueConfig struct {
 	K8sClient k8sclient.Interface
 	Logger    micrologger.Logger
+
+	UniqueApp bool
 }
 
 type AppValue struct {
@@ -19,6 +24,8 @@ type AppValue struct {
 	logger    micrologger.Logger
 
 	configMapToApps sync.Map
+	selector        labels.Selector
+	unique          bool
 }
 
 func NewAppValue(config AppValueConfig) (*AppValue, error) {
@@ -34,6 +41,8 @@ func NewAppValue(config AppValueConfig) (*AppValue, error) {
 		logger:    config.Logger,
 
 		configMapToApps: sync.Map{},
+		selector:        label.AppVersionSelector(config.UniqueApp),
+		unique:          config.UniqueApp,
 	}
 
 	return c, nil

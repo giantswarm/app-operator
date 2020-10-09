@@ -18,7 +18,7 @@ func (c *AppValue) watch(ctx context.Context) {
 
 	for {
 		lo := metav1.ListOptions{
-			LabelSelector: fmt.Sprintf("%s/%s", annotation.AppOperatorPrefix, annotation.WatchUpdate),
+			LabelSelector: c.selector.String(),
 		}
 
 		// Found the highest resourceVersion in cofigMaps CRs
@@ -36,7 +36,7 @@ func (c *AppValue) watch(ctx context.Context) {
 		c.logger.Log("debug", fmt.Sprintf("starting ResourceVersion is %s", lastResourceVersion))
 
 		lo = metav1.ListOptions{
-			LabelSelector:   fmt.Sprintf("%s/%s", annotation.AppOperatorPrefix, annotation.WatchUpdate),
+			LabelSelector:   c.selector.String(),
 			ResourceVersion: lastResourceVersion,
 		}
 
