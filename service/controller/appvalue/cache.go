@@ -49,6 +49,19 @@ func (c *AppValue) addCache(ctx context.Context, cr v1alpha1.App, eventType watc
 	}
 
 	configMaps := []index{}
+
+	appCatalog, err := c.k8sClient.G8sClient().ApplicationV1alpha1().AppCatalogs().Get(ctx, key.CatalogName(cr), metav1.GetOptions{})
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
+	if key.AppCatalogConfigMapName(*appCatalog) != "" {
+		configMaps = append(configMaps, index{
+			Name:      key.AppCatalogConfigMapName(*appCatalog),
+			Namespace: key.AppCatalogConfigMapNamespace(*appCatalog),
+		})
+	}
+
 	if key.AppConfigMapName(cr) != "" {
 		configMaps = append(configMaps, index{
 			Name:      key.AppConfigMapName(cr),
