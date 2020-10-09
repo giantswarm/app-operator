@@ -12,9 +12,7 @@ import (
 )
 
 func AppVersionSelector(unique bool) labels.Selector {
-	var version string
-
-	version = GetProjectVersion(unique)
+	version := GetProjectVersion(unique)
 	s := fmt.Sprintf("%s=%s", label.AppOperatorVersion, version)
 
 	selector, err := labels.Parse(s)
