@@ -20,10 +20,6 @@ const (
 	// the expiration date for this cordon rule.
 	CordonUntil = "cordon-until"
 
-	// WatchUpdate is the name of the annotation that indicates
-	// these resources are watching by appValue controller.
-	WatchUpdate = "watch-update"
-
 	// LatestConfigMapVersion is the highest resource version among the configmaps
 	// app CRs depends on.
 	LatestConfigMapVersion = "latest-resource-version"
