@@ -49,12 +49,12 @@ func (c *AppValue) buildCache(ctx context.Context) error {
 }
 
 func (c *AppValue) addCache(ctx context.Context, cr v1alpha1.App, eventType watch.EventType) error {
-	appIndex := index{
+	app := appIndex{
 		Name:      cr.GetName(),
 		Namespace: cr.GetNamespace(),
 	}
 
-	configMaps := []index{}
+	configMaps := []configMapIndex{}
 
 	appCatalog, err := c.k8sClient.G8sClient().ApplicationV1alpha1().AppCatalogs().Get(ctx, key.CatalogName(cr), metav1.GetOptions{})
 	if err != nil {
@@ -62,21 +62,21 @@ func (c *AppValue) addCache(ctx context.Context, cr v1alpha1.App, eventType watc
 	}
 
 	if key.AppCatalogConfigMapName(*appCatalog) != "" {
-		configMaps = append(configMaps, index{
+		configMaps = append(configMaps, configMapIndex{
 			Name:      key.AppCatalogConfigMapName(*appCatalog),
 			Namespace: key.AppCatalogConfigMapNamespace(*appCatalog),
 		})
 	}
 
 	if key.AppConfigMapName(cr) != "" {
-		configMaps = append(configMaps, index{
+		configMaps = append(configMaps, configMapIndex{
 			Name:      key.AppConfigMapName(cr),
 			Namespace: key.AppConfigMapNamespace(cr),
 		})
 	}
 
 	if key.UserConfigMapName(cr) != "" {
-		configMaps = append(configMaps, index{
+		configMaps = append(configMaps, configMapIndex{
 			Name:      key.UserConfigMapName(cr),
 			Namespace: key.UserConfigMapNamespace(cr),
 		})
@@ -94,16 +94,16 @@ func (c *AppValue) addCache(ctx context.Context, cr v1alpha1.App, eventType watc
 
 			v, ok := c.configMapToApps.Load(configMap)
 			if ok {
-				storedIndex, ok := v.(map[index]bool)
+				storedAppIndex, ok := v.(map[appIndex]bool)
 				if !ok {
-					return microerror.Maskf(wrongTypeError, "expected '%T', got '%T'", []index{}, v)
+					return microerror.Maskf(wrongTypeError, "expected '%T', got '%T'", []appIndex{}, v)
 				}
 
-				storedIndex[appIndex] = true
-				c.configMapToApps.Store(configMap, storedIndex)
+				storedAppIndex[app] = true
+				c.configMapToApps.Store(configMap, storedAppIndex)
 			} else {
-				m := map[index]bool{
-					appIndex: true,
+				m := map[appIndex]bool{
+					app: true,
 				}
 				c.configMapToApps.Store(configMap, m)
 			}
@@ -113,12 +113,12 @@ func (c *AppValue) addCache(ctx context.Context, cr v1alpha1.App, eventType watc
 		for _, configMap := range configMaps {
 			v, ok := c.configMapToApps.Load(configMap)
 			if ok {
-				storedIndex, ok := v.(map[index]bool)
+				storedIndex, ok := v.(map[appIndex]bool)
 				if !ok {
-					return microerror.Maskf(wrongTypeError, "expected '%T', got '%T'", []index{}, v)
+					return microerror.Maskf(wrongTypeError, "expected '%T', got '%T'", []appIndex{}, v)
 				}
 
-				delete(storedIndex, appIndex)
+				delete(storedIndex, app)
 				if len(storedIndex) == 0 {
 					err := c.removeLabel(ctx, configMap)
 					if err != nil {
@@ -140,7 +140,7 @@ func (c *AppValue) addCache(ctx context.Context, cr v1alpha1.App, eventType watc
 	return nil
 }
 
-func (c *AppValue) addLabel(ctx context.Context, cm index) error {
+func (c *AppValue) addLabel(ctx context.Context, cm configMapIndex) error {
 	currentCM, err := c.k8sClient.K8sClient().CoreV1().ConfigMaps(cm.Namespace).Get(ctx, cm.Name, metav1.GetOptions{})
 	if err != nil {
 		return microerror.Mask(err)
@@ -179,7 +179,7 @@ func (c *AppValue) addLabel(ctx context.Context, cm index) error {
 	return nil
 }
 
-func (c *AppValue) removeLabel(ctx context.Context, cm index) error {
+func (c *AppValue) removeLabel(ctx context.Context, cm configMapIndex) error {
 	currentCM, err := c.k8sClient.K8sClient().CoreV1().ConfigMaps(cm.Namespace).Get(ctx, cm.Name, metav1.GetOptions{})
 	if err != nil {
 		return microerror.Mask(err)

@@ -1,6 +1,11 @@
 package appvalue
 
-type index struct {
+type appIndex struct {
+	Name      string `json:"name"`
+	Namespace string `json:"namespace"`
+}
+
+type configMapIndex struct {
 	Name      string `json:"name"`
 	Namespace string `json:"namespace"`
 }

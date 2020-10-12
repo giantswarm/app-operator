@@ -51,15 +51,15 @@ func (c *AppValue) watch(ctx context.Context) {
 				panic(err)
 			}
 
-			configMapIndex := index{
+			configMap := configMapIndex{
 				Name:      cm.GetName(),
 				Namespace: cm.GetNamespace(),
 			}
 
-			if v, ok := c.configMapToApps.Load(configMapIndex); ok {
-				storedIndex, ok := v.(map[index]bool)
+			if v, ok := c.configMapToApps.Load(configMap); ok {
+				storedIndex, ok := v.(map[appIndex]bool)
 				if !ok {
-					panic(fmt.Sprintf("expected '%T', got '%T'", map[index]bool{}, v))
+					panic(fmt.Sprintf("expected '%T', got '%T'", map[appIndex]bool{}, v))
 				}
 
 				for app := range storedIndex {
@@ -74,7 +74,7 @@ func (c *AppValue) watch(ctx context.Context) {
 					c.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("triggered %#q app updating in namespace %#q", app.Name, app.Namespace))
 				}
 			} else {
-				c.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("cache missed configMap %#q in namespace %#q", configMapIndex.Name, configMapIndex.Namespace))
+				c.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("cache missed configMap %#q in namespace %#q", configMap.Name, configMap.Namespace))
 			}
 
 			if err != nil {
@@ -100,7 +100,7 @@ func toConfigMap(v interface{}) (*corev1.ConfigMap, error) {
 	return configMap, nil
 }
 
-func (c *AppValue) addAnnotation(ctx context.Context, app index, latestResourceVersion string) error {
+func (c *AppValue) addAnnotation(ctx context.Context, app appIndex, latestResourceVersion string) error {
 	versionAnnotation := fmt.Sprintf("%s/%s", annotation.AppOperatorPrefix, annotation.LatestConfigMapVersion)
 
 	currentApp, err := c.k8sClient.G8sClient().ApplicationV1alpha1().Apps(app.Namespace).Get(ctx, app.Name, metav1.GetOptions{})
