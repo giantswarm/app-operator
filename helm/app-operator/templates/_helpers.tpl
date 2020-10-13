@@ -19,7 +19,7 @@ Common labels
 {{- define "labels.common" -}}
 app: {{ include "name" . | quote }}
 {{ include "labels.selector" . }}
-app.giantswarm.io/branch: {{ .Values.project.branch | replace "#" "-" | replace "/" "-" | trunc 63 | trimSuffix "-" | quote }}
+app.giantswarm.io/branch: {{ .Values.project.branch | replace "#" "-" | replace "/" "-" | replace "." "-" | trunc 63 | trimSuffix "-" | quote }}
 app.giantswarm.io/commit: {{ .Values.project.commit | quote }}
 app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
 app.kubernetes.io/version: {{ include "resource.app.version" . | quote }}
