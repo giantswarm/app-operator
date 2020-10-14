@@ -15,6 +15,8 @@ import (
 type Config struct {
 	K8sClient k8sclient.Interface
 	Logger    micrologger.Logger
+
+	UniqueApp bool
 }
 
 type AppCatalog struct {
@@ -33,10 +35,7 @@ func NewAppCatalog(config Config) (*AppCatalog, error) {
 
 	var resources []resource.Interface
 	{
-		c := appCatalogResourcesConfig{
-			Logger: config.Logger,
-		}
-
+		c := appCatalogResourcesConfig(config)
 		resources, err = newAppCatalogResources(c)
 		if err != nil {
 			return nil, microerror.Mask(err)

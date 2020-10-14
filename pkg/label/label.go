@@ -6,7 +6,13 @@ const (
 	// App label is used to identify Kubernetes resources.
 	App = "app"
 
+	AppKubernetesName = "app.kubernetes.io/name"
+
 	// AppKubernetesVersion label is used to identify the version of Kubernetes
 	// resources.
 	AppKubernetesVersion = "app.kubernetes.io/version"
+
+	CatalogName       = "application.giantswarm.io/catalog"
+	CatalogType       = "application.giantswarm.io/catalog-type"
+	CatalogVisibility = "application.giantswarm.io/catalog-visibility"
 )
