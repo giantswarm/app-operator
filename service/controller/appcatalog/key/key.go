@@ -28,7 +28,7 @@ func CatalogVisibility(customResource v1alpha1.AppCatalog) string {
 
 // VersionLabel returns the label value to determine if the custom resource is
 // supported by this version of the operatorkit resource.
-func VersionLabel(customResource v1alpha1.App) string {
+func VersionLabel(customResource v1alpha1.AppCatalog) string {
 	if val, ok := customResource.ObjectMeta.Labels[label.AppOperatorVersion]; ok {
 		return val
 	} else {
