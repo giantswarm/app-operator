@@ -1,13 +1,14 @@
 package appcatalog
 
 import (
-	"github.com/giantswarm/app-operator/v2/service/controller/appcatalog/resource/appcatalogentry"
 	"github.com/giantswarm/k8sclient/v4/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/v2/pkg/resource"
 	"github.com/giantswarm/operatorkit/v2/pkg/resource/wrapper/metricsresource"
 	"github.com/giantswarm/operatorkit/v2/pkg/resource/wrapper/retryresource"
+
+	"github.com/giantswarm/app-operator/v2/service/controller/appcatalog/resource/appcatalogentry"
 )
 
 type appCatalogResourcesConfig struct {
