@@ -30,10 +30,22 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
-	if key.CatalogVisibility(cr) != publicVisibilityType {
+	// Skip creating appcatalogentry CRs if the catalog is not public.
+	if key.CatalogVisibility(cr) != publicVisibilityType && key.CatalogType(cr) != communityCatalogType {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("not creating CRs for catalog %#q with visibility %#q", cr.Name, key.CatalogVisibility(cr)))
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 		return nil
+	}
+	// Skip creating appcatalogentry CRs if this is a community catalog.
+	if key.CatalogType(cr) == communityCatalogType {
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("not creating CRs for catalog %#q with type %#q", cr.Name, communityCatalogType))
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		return nil
+	}
+
+	currentEntryCRs, err := r.getCurrentEntryCRs(ctx, cr)
+	if err != nil {
+		return microerror.Mask(err)
 	}
 
 	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("getting index.yaml for %#q appcatalog from %#q", cr.Name, appkey.AppCatalogStorageURL(cr)))
@@ -50,29 +62,51 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
-	currentEntryCRs, err := r.getCurrentEntryCRs(ctx, cr)
+	for name, desiredEntryCR := range desiredEntryCRs {
+		currentEntryCR, ok := currentEntryCRs[name]
+		if ok {
+			if !equals(currentEntryCR, desiredEntryCR) {
+				err := r.updateAppCatalogEntry(ctx, desiredEntryCR)
+				if err != nil {
+					return microerror.Mask(err)
+				}
+			}
+		} else {
+			err := r.createAppCatalogEntry(ctx, desiredEntryCR)
+			if err != nil {
+				return microerror.Mask(err)
+			}
+		}
+	}
+
+	return nil
+}
+
+func (r *Resource) createAppCatalogEntry(ctx context.Context, entryCR *v1alpha1.AppCatalogEntry) error {
+	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating appcatalogentry CR %#q in namespace %#q", entryCR.Name, entryCR.Namespace))
+
+	_, err := r.k8sClient.G8sClient().ApplicationV1alpha1().AppCatalogEntries(entryCR.Namespace).Create(ctx, entryCR, metav1.CreateOptions{})
+	if apierrors.IsAlreadyExists(err) {
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("already created appcatalogentry CR %#q in namespace %#q", entryCR.Name, entryCR.Namespace))
+		return nil
+	} else if err != nil {
+		return microerror.Mask(err)
+	}
+
+	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("created appcatalogentry CR %#q in namespace %#q", entryCR.Name, entryCR.Namespace))
+
+	return nil
+}
+
+func (r *Resource) updateAppCatalogEntry(ctx context.Context, entryCR *v1alpha1.AppCatalogEntry) error {
+	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating appcatalogentry CR %#q in namespace %#q", entryCR.Name, entryCR.Namespace))
+
+	_, err := r.k8sClient.G8sClient().ApplicationV1alpha1().AppCatalogEntries(entryCR.Namespace).Update(ctx, entryCR, metav1.UpdateOptions{})
 	if err != nil {
 		return microerror.Mask(err)
 	}
 
-	for name, entry := range desiredEntryCRs {
-		_, ok := currentEntryCRs[name]
-		if ok {
-			continue
-		}
-
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating appcatalogentry CR %#q in namespace %#q", name, entry.Namespace))
-
-		_, err = r.k8sClient.G8sClient().ApplicationV1alpha1().AppCatalogEntries(entry.Namespace).Create(ctx, entry, metav1.CreateOptions{})
-		if apierrors.IsAlreadyExists(err) {
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("already created appcatalogentry CR %#q in namespace %#q", name, entry.Namespace))
-			continue
-		} else if err != nil {
-			return microerror.Mask(err)
-		}
-
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("created appcatalogentry CR %#q in namespace %#q", name, entry.Namespace))
-	}
+	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updated appcatalogentry CR %#q in namespace %#q", entryCR.Name, entryCR.Namespace))
 
 	return nil
 }

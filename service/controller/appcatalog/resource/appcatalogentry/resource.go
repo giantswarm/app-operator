@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"reflect"
 	"time"
 
 	"github.com/giantswarm/apiextensions/v2/pkg/apis/application/v1alpha1"
@@ -23,6 +24,7 @@ const (
 	Name = "appcatalogentry"
 
 	apiVersion           = "application.giantswarm.io/v1alpha1"
+	communityCatalogType = "community"
 	kindAppCatalog       = "AppCatalog"
 	kindAppCatalogEntry  = "AppCatalogEntry"
 	publicVisibilityType = "public"
@@ -109,6 +111,20 @@ func getIndex(storageURL string) (index, error) {
 	}
 
 	return i, nil
+}
+
+func equals(current, desired *v1alpha1.AppCatalogEntry) bool {
+	if current.Name != desired.Name {
+		return false
+	}
+	if !reflect.DeepEqual(current.Spec, desired.Spec) {
+		return false
+	}
+	if !reflect.DeepEqual(current.Labels, desired.Labels) {
+		return false
+	}
+
+	return true
 }
 
 func parseTime(created string) (*metav1.Time, error) {
