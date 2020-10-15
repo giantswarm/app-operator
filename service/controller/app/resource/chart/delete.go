@@ -2,29 +2,58 @@ package chart
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/v2/pkg/resource/crud"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
 
 	"github.com/giantswarm/app-operator/v2/service/controller/app/controllercontext"
+	"github.com/giantswarm/app-operator/v2/service/controller/app/key"
 )
 
 func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange interface{}) error {
+	cr, err := key.ToCustomResource(obj)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+	cc, err := controllercontext.FromContext(ctx)
+	if err != nil {
+		return microerror.Mask(err)
+	}
 	chart, err := toChart(deleteChange)
 	if err != nil {
 		return microerror.Mask(err)
 	}
 
-	if chart != nil && chart.Name != "" {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleting Chart CR %#q in namespace %#q", chart.Name, chart.Namespace))
+	if key.AppName(cr) == key.ChartOperatorAppName {
+		// helm release `chart-operator` is already deleted by app-operator at this point.
+		// So app-operator should remove finalizers in the chart-operator chart CR manually.
+		patch := []patch{
+			{
+				Op:   "remove",
+				Path: "/metadata/finalizers",
+			},
+		}
 
-		cc, err := controllercontext.FromContext(ctx)
+		bytes, err := json.Marshal(patch)
 		if err != nil {
 			return microerror.Mask(err)
 		}
+
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleting finalizers on Chart CR %#q in namespace %#q", chart.Name, chart.Namespace))
+		_, err = cc.Clients.K8s.G8sClient().ApplicationV1alpha1().Charts(chart.Namespace).Patch(ctx, chart.Name, types.JSONPatchType, bytes, metav1.PatchOptions{})
+		if err != nil {
+			return microerror.Mask(err)
+		}
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleted finalizers on Chart CR %#q in namespace %#q", chart.Name, chart.Namespace))
+	}
+
+	if chart != nil && chart.Name != "" {
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleting Chart CR %#q in namespace %#q", chart.Name, chart.Namespace))
 
 		err = cc.Clients.K8s.G8sClient().ApplicationV1alpha1().Charts(chart.Namespace).Delete(ctx, chart.Name, metav1.DeleteOptions{})
 		if apierrors.IsNotFound(err) {
