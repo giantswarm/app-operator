@@ -30,8 +30,8 @@ func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange inte
 	}
 
 	if key.AppName(cr) == key.ChartOperatorAppName {
-		// helm release `chart-operator` is already deleted by app-operator at this point.
-		// So app-operator should remove finalizers in the chart-operator chart CR manually.
+		// `chart-operator` helm release is already deleted by the `chartoperator` resource at this point.
+		// So app-operator needs to remove finalizers so the chart-operator chart CR is deleted.
 		patch := []patch{
 			{
 				Op:   "remove",
