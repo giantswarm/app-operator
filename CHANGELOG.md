@@ -9,7 +9,7 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ### Added
 
-- Pruning chart-operator helm release from app-operator side.
+- Delete chart-operator helm release and chart CR so it can be re-installed.
 
 ## [2.3.2] - 2020-09-29
 
