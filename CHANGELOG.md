@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Added
+
+- Pruning chart-operator helm release from app-operator side.
+
 ## [2.3.2] - 2020-09-29
 
 ### Fixed
