@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/giantswarm/helmclient"
 	"time"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
@@ -258,5 +259,21 @@ func (r *Resource) checkDeploymentReady(ctx context.Context, k8sClient kubernete
 	}
 
 	// Deployment is ready.
+	return nil
+}
+
+func (r Resource) uninstallChartOperator(ctx context.Context, cr v1alpha1.App) error {
+	cc, err := controllercontext.FromContext(ctx)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
+	err = cc.Clients.Helm.DeleteRelease(ctx, cr.Name, helm.DeletePurge(true))
+	if helmclient.IsReleaseNotFound(err) {
+		// no-op
+	} else if err != nil {
+		return microerror.Mask(err)
+	}
+
 	return nil
 }
