@@ -268,12 +268,16 @@ func (r Resource) uninstallChartOperator(ctx context.Context, cr v1alpha1.App) e
 		return microerror.Mask(err)
 	}
 
+	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleting release %#q", cr.Name))
+
 	err = cc.Clients.Helm.DeleteRelease(ctx, cr.Name, helm.DeletePurge(true))
 	if helmclient.IsReleaseNotFound(err) {
 		// no-op
 	} else if err != nil {
 		return microerror.Mask(err)
 	}
+
+	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleted release %#q", cr.Name))
 
 	return nil
 }
