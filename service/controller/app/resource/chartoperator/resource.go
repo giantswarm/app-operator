@@ -179,3 +179,19 @@ func (r Resource) updateChartOperator(ctx context.Context, cr v1alpha1.App) erro
 
 	return nil
 }
+
+func (r Resource) uninstallChartOperator(ctx context.Context, cr v1alpha1.App) error {
+	cc, err := controllercontext.FromContext(ctx)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
+	err = cc.Clients.Helm.DeleteRelease(ctx, key.Namespace(cr), cr.Name)
+	if helmclient.IsReleaseNotFound(err) {
+		// no-op
+	} else if err != nil {
+		return microerror.Mask(err)
+	}
+
+	return nil
+}
