@@ -6,7 +6,7 @@ var (
 	name        = "app-operator"
 	source      = "https://github.com/giantswarm/app-operator"
 	// version in helm2 branch must be 1.0.X. 1.1.0 was the first Helm 3 release.
-	version = "1.0.13"
+	version = "1.0.14"
 )
 
 // AppControlPlaneVersion is always 0.0.0 for control plane app CRs. These CRs
