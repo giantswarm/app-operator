@@ -4,11 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-
 	"github.com/giantswarm/microerror"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/apimachinery/pkg/watch"
 
 	"github.com/giantswarm/app-operator/v2/pkg/annotation"
 )
@@ -46,6 +46,11 @@ func (c *AppValue) watch(ctx context.Context) {
 		}
 
 		for r := range res.ResultChan() {
+			if r.Type == watch.Bookmark || r.Type == watch.Error {
+				// no-op for unsupported events
+				continue
+			}
+
 			cm, err := toConfigMap(r.Object)
 			if err != nil {
 				panic(err)

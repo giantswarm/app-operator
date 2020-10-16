@@ -134,7 +134,7 @@ func (c *AppValue) addCache(ctx context.Context, cr v1alpha1.App, eventType watc
 		}
 
 	default:
-		c.logger.Log("debug", fmt.Sprintf("event %#q for app %#q is not supported", eventType, cr.Name))
+		// no-op for unsupported events
 	}
 
 	return nil
