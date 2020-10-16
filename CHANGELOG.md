@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Added
+
+- Delete chart-operator helm release and chart CR so it can be re-installed.
+
 ## [1.0.12] - 2020-09-22
 
 ### Fixed
