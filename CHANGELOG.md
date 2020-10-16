@@ -7,6 +7,8 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+## [2.3.4] - 2020-10-16
+
 ### Fixed
 
 - Skip deleting chart-operator in case of cluster deletion.
@@ -194,7 +196,8 @@ from Helm 2 to Helm 3.
 
 - Flattening operator release structure.
 
-[Unreleased]: https://github.com/giantswarm/app-operator/compare/v2.3.3...HEAD
+[Unreleased]: https://github.com/giantswarm/app-operator/compare/v2.3.4...HEAD
+[2.3.4]: https://github.com/giantswarm/app-operator/compare/v2.3.3...v2.3.4
 [2.3.3]: https://github.com/giantswarm/app-operator/compare/v2.3.2...v2.3.3
 [2.3.2]: https://github.com/giantswarm/app-operator/compare/v2.3.1...v2.3.2
 [2.3.1]: https://github.com/giantswarm/app-operator/compare/v2.3.0...v2.3.1
