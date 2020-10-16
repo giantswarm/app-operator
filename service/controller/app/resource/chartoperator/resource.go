@@ -10,6 +10,7 @@ import (
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/appcatalog"
 	"github.com/giantswarm/backoff"
+	"github.com/giantswarm/helmclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/spf13/afero"
@@ -258,5 +259,25 @@ func (r *Resource) checkDeploymentReady(ctx context.Context, k8sClient kubernete
 	}
 
 	// Deployment is ready.
+	return nil
+}
+
+func (r Resource) uninstallChartOperator(ctx context.Context, cr v1alpha1.App) error {
+	cc, err := controllercontext.FromContext(ctx)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
+	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleting release %#q", cr.Name))
+
+	err = cc.Clients.Helm.DeleteRelease(ctx, cr.Name, helm.DeletePurge(true))
+	if helmclient.IsReleaseNotFound(err) {
+		// no-op
+	} else if err != nil {
+		return microerror.Mask(err)
+	}
+
+	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleted release %#q", cr.Name))
+
 	return nil
 }
