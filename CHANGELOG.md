@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Fixed
+
+- Skip deleting chart-operator in case of cluster deletion.
+
 ## [2.3.3] - 2020-10-15
 
 ### Added
