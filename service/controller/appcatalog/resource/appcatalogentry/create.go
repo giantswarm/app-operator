@@ -101,7 +101,13 @@ func (r *Resource) createAppCatalogEntry(ctx context.Context, entryCR *v1alpha1.
 func (r *Resource) updateAppCatalogEntry(ctx context.Context, entryCR *v1alpha1.AppCatalogEntry) error {
 	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating appcatalogentry CR %#q in namespace %#q", entryCR.Name, entryCR.Namespace))
 
-	_, err := r.k8sClient.G8sClient().ApplicationV1alpha1().AppCatalogEntries(entryCR.Namespace).Update(ctx, entryCR, metav1.UpdateOptions{})
+	currentCR, err := r.k8sClient.G8sClient().ApplicationV1alpha1().AppCatalogEntries(entryCR.Namespace).Get(ctx, entryCR.Name, metav1.GetOptions{})
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
+	entryCR.ResourceVersion = currentCR.ResourceVersion
+	_, err = r.k8sClient.G8sClient().ApplicationV1alpha1().AppCatalogEntries(entryCR.Namespace).Update(ctx, entryCR, metav1.UpdateOptions{})
 	if err != nil {
 		return microerror.Mask(err)
 	}
