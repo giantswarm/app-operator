@@ -117,10 +117,23 @@ func equals(current, desired *v1alpha1.AppCatalogEntry) bool {
 	if current.Name != desired.Name {
 		return false
 	}
-	if !reflect.DeepEqual(current.Spec, desired.Spec) {
+	if !reflect.DeepEqual(current.Labels, desired.Labels) {
 		return false
 	}
-	if !reflect.DeepEqual(current.Labels, desired.Labels) {
+
+	if current.Spec.DateCreated.Unix() != desired.Spec.DateCreated.Unix() {
+		return false
+	}
+	current.Spec.DateCreated = nil
+	desired.Spec.DateCreated = nil
+
+	if current.Spec.DateUpdated.Unix() != desired.Spec.DateUpdated.Unix() {
+		return false
+	}
+	current.Spec.DateUpdated = nil
+	desired.Spec.DateUpdated = nil
+
+	if !reflect.DeepEqual(current.Spec, desired.Spec) {
 		return false
 	}
 
