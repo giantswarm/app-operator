@@ -81,7 +81,7 @@ func (r *Resource) getCurrentEntryCRs(ctx context.Context, cr v1alpha1.AppCatalo
 	}
 
 	for _, entry := range entries.Items {
-		currentEntryCRs[entry.Name] = &entry
+		currentEntryCRs[entry.Name] = entry.DeepCopy()
 	}
 
 	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("got %d appcatalogentries for appcatalog %#q", len(currentEntryCRs), cr.Name))
