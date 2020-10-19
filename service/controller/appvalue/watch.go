@@ -39,6 +39,7 @@ func (c *AppValue) watch(ctx context.Context) {
 		lo = metav1.ListOptions{
 			LabelSelector:   c.selector.String(),
 			ResourceVersion: lastResourceVersion,
+			Watch:           true,
 		}
 
 		res, err := c.k8sClient.K8sClient().CoreV1().ConfigMaps("").Watch(ctx, lo)
