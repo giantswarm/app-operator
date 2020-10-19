@@ -12,6 +12,7 @@ import (
 	"k8s.io/apimachinery/pkg/watch"
 
 	"github.com/giantswarm/app-operator/v2/pkg/annotation"
+	applabel "github.com/giantswarm/app-operator/v2/pkg/label"
 )
 
 func (c *AppValue) watch(ctx context.Context) {
@@ -19,7 +20,7 @@ func (c *AppValue) watch(ctx context.Context) {
 
 	for {
 		lo := metav1.ListOptions{
-			LabelSelector: c.selector.String(),
+			LabelSelector: applabel.Watching,
 		}
 
 		// Found the highest resourceVersion in cofigMaps CRs

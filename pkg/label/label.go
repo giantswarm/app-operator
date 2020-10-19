@@ -11,6 +11,11 @@ import (
 	"github.com/giantswarm/app-operator/v2/pkg/project"
 )
 
+const (
+	// Watching is the label that put into the configmaps to watch from appValue controller.
+	Watching = "app-operator.giantswarm.io/watching"
+)
+
 func AppVersionSelector(unique bool) labels.Selector {
 	version := GetProjectVersion(unique)
 	s := fmt.Sprintf("%s=%s", label.AppOperatorVersion, version)

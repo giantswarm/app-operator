@@ -8,10 +8,8 @@ import (
 	"sync"
 
 	"github.com/giantswarm/apiextensions/v2/pkg/apis/application/v1alpha1"
-	"github.com/giantswarm/apiextensions/v2/pkg/label"
 	"github.com/giantswarm/microerror"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/watch"
 
@@ -146,7 +144,7 @@ func (c *AppValue) addLabel(ctx context.Context, cm configMapIndex) error {
 		return microerror.Mask(err)
 	}
 
-	if c.selector.Matches(labels.Set(currentCM.Labels)) {
+	if _, ok := currentCM.GetLabels()[applabel.Watching]; ok {
 		// no-op
 		return nil
 	}
@@ -163,8 +161,8 @@ func (c *AppValue) addLabel(ctx context.Context, cm configMapIndex) error {
 
 	patches = append(patches, patch{
 		Op:    "add",
-		Path:  fmt.Sprintf("/metadata/labels/%s", replaceToEscape(label.AppOperatorVersion)),
-		Value: applabel.GetProjectVersion(c.unique),
+		Path:  fmt.Sprintf("/metadata/labels/%s", replaceToEscape(applabel.Watching)),
+		Value: "true",
 	})
 
 	bytes, err := json.Marshal(patches)
@@ -185,7 +183,7 @@ func (c *AppValue) removeLabel(ctx context.Context, cm configMapIndex) error {
 		return microerror.Mask(err)
 	}
 
-	if !c.selector.Matches(labels.Set(currentCM.Labels)) {
+	if _, ok := currentCM.GetLabels()[applabel.Watching]; !ok {
 		// no-op
 		return nil
 	}
@@ -193,7 +191,7 @@ func (c *AppValue) removeLabel(ctx context.Context, cm configMapIndex) error {
 	patches := []patch{
 		{
 			Op:   "remove",
-			Path: fmt.Sprintf("/metadata/labels/%s", replaceToEscape(label.AppOperatorVersion)),
+			Path: fmt.Sprintf("/metadata/labels/%s", replaceToEscape(applabel.Watching)),
 		},
 	}
 
