@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Fixed
+
+- Skip deleting finalizers on chart-operator if not presented.
+
 ## [1.0.14] - 2020-10-16
 
 ### Fixed
