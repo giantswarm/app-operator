@@ -34,7 +34,7 @@ func TestAppCatalogEntry(t *testing.T) {
 
 		appCatalogCR := &v1alpha1.AppCatalog{
 			ObjectMeta: metav1.ObjectMeta{
-				Name: key.DefaultCatalogName(),
+				Name: key.StableCatalogName(),
 				Labels: map[string]string{
 					label.AppOperatorVersion:   project.Version(),
 					pkglabel.CatalogType:       "stable",
@@ -82,10 +82,38 @@ func TestAppCatalogEntry(t *testing.T) {
 	}
 
 	{
-		expectedLabels := map[string]string{}
+		expectedLabels := map[string]string{
+			pkglabel.AppKubernetesName: "prometheus-operator-app",
+			pkglabel.CatalogName:       key.StableCatalogName(),
+			pkglabel.CatalogType:       "stable",
+			label.ManagedBy:            project.Name(),
+		}
 
 		if !reflect.DeepEqual(entryCR.Labels, expectedLabels) {
 			t.Fatalf("want matching labels \n %s", cmp.Diff(entryCR.Labels, expectedLabels))
+		}
+
+		expectedEntrySpec := v1alpha1.AppCatalogEntrySpec{
+			AppName:    "prometheus-operator-app",
+			AppVersion: "0.38.1",
+			Catalog: v1alpha1.AppCatalogEntrySpecCatalog{
+				Name:      key.StableCatalogName(),
+				Namespace: "",
+			},
+			Chart: v1alpha1.AppCatalogEntrySpecCatalog{
+				Home: "https://github.com/giantswarm/prometheus-operator-app",
+				Icon: "https://raw.githubusercontent.com/prometheus/prometheus.github.io/master/assets/prometheus_logo-cb55bb5c346.png",
+			},
+			DateCreated: nil,
+			DateUpdated: nil,
+			Version:     "0.4.0",
+		}
+
+		entryCR.Spec.DateCreated = nil
+		entryCR.Spec.DateUpdate = nil
+
+		if !reflect.DeepEqual(entryCR.Spec, expectedEntrySpec) {
+			t.Fatalf("want matching labels \n %s", cmp.Diff(entryCR.Spec, expectedEntrySpec))
 		}
 	}
 }
