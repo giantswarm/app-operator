@@ -4,16 +4,16 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/giantswarm/app-operator/service/controller/app/controllercontext"
-	"k8s.io/apimachinery/pkg/types"
 	"reflect"
 	"strings"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
+	"k8s.io/apimachinery/pkg/types"
 
 	"github.com/giantswarm/app-operator/pkg/annotation"
+	"github.com/giantswarm/app-operator/service/controller/app/controllercontext"
 )
 
 const (
