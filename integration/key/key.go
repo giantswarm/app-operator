@@ -2,6 +2,10 @@
 
 package key
 
+func AppCatalogEntryName() string {
+	return "giantswarm-prometheus-operator-app-0.4.0"
+}
+
 func ControlPlaneTestCatalogStorageURL() string {
 	return "https://giantswarm.github.io/control-plane-test-catalog"
 }
@@ -16,6 +20,14 @@ func DefaultCatalogStorageURL() string {
 
 func Namespace() string {
 	return "giantswarm"
+}
+
+func StableCatalogName() string {
+	return "giantswarm"
+}
+
+func StableCatalogStorageURL() string {
+	return "https://giantswarm.github.com/giantswarm-catalog"
 }
 
 func TestAppReleaseName() string {
