@@ -133,11 +133,7 @@ func equals(current, desired *v1alpha1.AppCatalogEntry) bool {
 	current.Spec.DateUpdated = nil
 	desired.Spec.DateUpdated = nil
 
-	if !reflect.DeepEqual(current.Spec, desired.Spec) {
-		return false
-	}
-
-	return true
+	return reflect.DeepEqual(current.Spec, desired.Spec)
 }
 
 func parseTime(created string) (*metav1.Time, error) {
