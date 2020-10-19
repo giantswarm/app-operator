@@ -21,3 +21,7 @@ func Namespace() string {
 func TestAppReleaseName() string {
 	return "test-app"
 }
+
+func UniqueAppVersion() string {
+	return "0.0.0"
+}

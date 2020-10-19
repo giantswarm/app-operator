@@ -131,7 +131,7 @@ func TestAppLifecycle(t *testing.T) {
 				Name:      key.TestAppReleaseName(),
 				Namespace: namespace,
 				Labels: map[string]string{
-					label.AppOperatorVersion: project.Version(),
+					label.AppOperatorVersion: key.UniqueAppVersion(),
 				},
 			},
 			Spec: v1alpha1.AppSpec{

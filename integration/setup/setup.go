@@ -117,10 +117,11 @@ func installResources(ctx context.Context, config Config) error {
 				},
 			},
 		}
+		// Release is named app-operator-unique as some functionality is only
+		// implemented for the unique instance.
 		opts := helmclient.InstallOptions{
-			ReleaseName: project.Name(),
+			ReleaseName: fmt.Sprintf("%s-unique", project.Name()),
 		}
-
 		err = config.HelmClient.InstallReleaseFromTarball(ctx,
 			operatorTarballPath,
 			namespace,
