@@ -56,11 +56,12 @@ func installResources(ctx context.Context, config Config) error {
 		}
 	}
 
-	// Create AppCatalog and App CRDs. The Chart CRD is created by the operator
-	// for the kubeconfig test that bootstraps chart-operator.
+	// Create CRDs. The Chart CRD is created by the operator for the kubeconfig
+	// test that bootstraps chart-operator.
 	crds := []string{
-		"AppCatalog",
 		"App",
+		"AppCatalog",
+		"AppCatalogEntry",
 	}
 
 	{
