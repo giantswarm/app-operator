@@ -36,9 +36,12 @@ func (c *AppValue) watch(ctx context.Context) {
 
 		c.logger.Log("debug", fmt.Sprintf("starting ResourceVersion is %s", lastResourceVersion))
 
+		timeout := int64(240)
+
 		lo = metav1.ListOptions{
 			LabelSelector:   c.selector.String(),
 			ResourceVersion: lastResourceVersion,
+			TimeoutSeconds:  &timeout,
 			Watch:           true,
 		}
 
