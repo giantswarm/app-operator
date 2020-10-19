@@ -30,25 +30,10 @@ func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange inte
 	}
 
 	if key.AppName(cr) == key.ChartOperatorAppName {
-		// `chart-operator` helm release is already deleted by the `chartoperator` resource at this point.
-		// So app-operator needs to remove finalizers so the chart-operator chart CR is deleted.
-		patch := []patch{
-			{
-				Op:   "remove",
-				Path: "/metadata/finalizers",
-			},
-		}
-		bytes, err := json.Marshal(patch)
+		err = r.removeFinalizer(ctx, chart)
 		if err != nil {
 			return microerror.Mask(err)
 		}
-
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleting finalizers on Chart CR %#q in namespace %#q", chart.Name, chart.Namespace))
-		_, err = cc.Clients.G8s.ApplicationV1alpha1().Charts(chart.Namespace).Patch(chart.Name, types.JSONPatchType, bytes)
-		if err != nil {
-			return microerror.Mask(err)
-		}
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleted finalizers on Chart CR %#q in namespace %#q", chart.Name, chart.Namespace))
 	}
 
 	if chart != nil && chart.Name != "" {
