@@ -51,12 +51,12 @@ rules:
     - create
     - patch
     - update
-  - apiGroups:
-      - application.giantswarm.io
-    resources:
-      - appcatalogentries
-    verbs:
-      - "*"
+- apiGroups:
+    - application.giantswarm.io
+  resources:
+    - appcatalogentries
+  verbs:
+    - "*"
 - apiGroups:
     - batch
   resources:
