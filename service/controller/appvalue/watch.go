@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-
 	"github.com/giantswarm/microerror"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -15,7 +14,7 @@ import (
 )
 
 func (c *AppValue) watch(ctx context.Context) {
-	var lastResourceVersion string
+	var latestResourceVersion string
 
 	for {
 		lo := metav1.ListOptions{
@@ -29,20 +28,15 @@ func (c *AppValue) watch(ctx context.Context) {
 		}
 
 		for _, cm := range cms.Items {
-			if lastResourceVersion < cm.ResourceVersion {
-				lastResourceVersion = cm.ResourceVersion
+			if latestResourceVersion < cm.ResourceVersion {
+				latestResourceVersion = cm.ResourceVersion
 			}
 		}
 
-		c.logger.Log("debug", fmt.Sprintf("starting ResourceVersion is %s", lastResourceVersion))
-
-		timeout := int64(240)
+		c.logger.Log("debug", fmt.Sprintf("starting ResourceVersion is %s", latestResourceVersion))
 
 		lo = metav1.ListOptions{
-			LabelSelector:   c.selector.String(),
-			ResourceVersion: lastResourceVersion,
-			TimeoutSeconds:  &timeout,
-			Watch:           true,
+			LabelSelector: c.selector.String(),
 		}
 
 		res, err := c.k8sClient.K8sClient().CoreV1().ConfigMaps("").Watch(ctx, lo)
@@ -59,6 +53,11 @@ func (c *AppValue) watch(ctx context.Context) {
 			cm, err := toConfigMap(r.Object)
 			if err != nil {
 				panic(err)
+			}
+
+			if latestResourceVersion > cm.GetResourceVersion() {
+				// no-op for the older events
+				continue
 			}
 
 			configMap := configMapIndex{
