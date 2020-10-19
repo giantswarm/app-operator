@@ -66,29 +66,30 @@ func (c *AppValue) watch(ctx context.Context) {
 				Namespace: cm.GetNamespace(),
 			}
 
-			if v, ok := c.configMapToApps.Load(configMap); ok {
-				storedIndex, ok := v.(map[appIndex]bool)
+			var storedIndex map[appIndex]bool
+			{
+				v, ok := c.configMapToApps.Load(configMap)
+				if !ok {
+					c.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("cache missed configMap %#q in namespace %#q", configMap.Name, configMap.Namespace))
+					continue
+				}
+
+				storedIndex, ok = v.(map[appIndex]bool)
 				if !ok {
 					panic(fmt.Sprintf("expected '%T', got '%T'", map[appIndex]bool{}, v))
 				}
-
-				for app := range storedIndex {
-					c.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("triggering %#q app updating in namespace %#q", app.Name, app.Namespace))
-
-					err := c.addAnnotation(ctx, app, cm.GetResourceVersion())
-					if err != nil {
-						c.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("failed to add an annotation into app %#q in namespace %#q", app.Name, app.Namespace), "stack", fmt.Sprintf("%#v", err))
-						continue
-					}
-
-					c.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("triggered %#q app updating in namespace %#q", app.Name, app.Namespace))
-				}
-			} else {
-				c.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("cache missed configMap %#q in namespace %#q", configMap.Name, configMap.Namespace))
 			}
 
-			if err != nil {
-				c.logger.Log("level", "info", "message", "failed to reconcile a configMap resource", "stack", fmt.Sprintf("%#v", err))
+			for app := range storedIndex {
+				c.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("triggering %#q app updating in namespace %#q", app.Name, app.Namespace))
+
+				err := c.addAnnotation(ctx, app, cm.GetResourceVersion())
+				if err != nil {
+					c.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("failed to add an annotation into app %#q in namespace %#q", app.Name, app.Namespace), "stack", fmt.Sprintf("%#v", err))
+					continue
+				}
+
+				c.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("triggered %#q app updating in namespace %#q", app.Name, app.Namespace))
 			}
 		}
 
