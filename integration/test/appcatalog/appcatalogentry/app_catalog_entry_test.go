@@ -100,7 +100,7 @@ func TestAppCatalogEntry(t *testing.T) {
 				Name:      key.StableCatalogName(),
 				Namespace: "",
 			},
-			Chart: v1alpha1.AppCatalogEntrySpecCatalog{
+			Chart: v1alpha1.AppCatalogEntrySpecChart{
 				Home: "https://github.com/giantswarm/prometheus-operator-app",
 				Icon: "https://raw.githubusercontent.com/prometheus/prometheus.github.io/master/assets/prometheus_logo-cb55bb5c346.png",
 			},
@@ -109,11 +109,12 @@ func TestAppCatalogEntry(t *testing.T) {
 			Version:     "0.4.0",
 		}
 
+		// Clear dates for comparison.
 		entryCR.Spec.DateCreated = nil
-		entryCR.Spec.DateUpdate = nil
+		entryCR.Spec.DateUpdated = nil
 
 		if !reflect.DeepEqual(entryCR.Spec, expectedEntrySpec) {
-			t.Fatalf("want matching labels \n %s", cmp.Diff(entryCR.Spec, expectedEntrySpec))
+			t.Fatalf("want matching spec \n %s", cmp.Diff(entryCR.Spec, expectedEntrySpec))
 		}
 	}
 }
