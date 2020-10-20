@@ -7,6 +7,8 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+## [1.0.15] - 2020-10-20
+
 ### Fixed
 
 - Skip removing finalizer for chart-operator chart CR if its not present.
@@ -95,7 +97,8 @@ app CRs. A message is added to the app CR status for the user.
 
 - Flattening operator release structure.
 
-[Unreleased]: https://github.com/giantswarm/app-operator/compare/v1.0.14...HEAD
+[Unreleased]: https://github.com/giantswarm/app-operator/compare/v1.0.15...HEAD
+[1.0.15]: https://github.com/giantswarm/app-operator/compare/v1.0.14...v1.0.15
 [1.0.14]: https://github.com/giantswarm/app-operator/compare/v1.0.13...v1.0.14
 [1.0.13]: https://github.com/giantswarm/app-operator/compare/v1.0.12...v1.0.13
 [1.0.12]: https://github.com/giantswarm/app-operator/compare/v1.0.11...v1.0.12
