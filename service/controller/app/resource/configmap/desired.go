@@ -14,7 +14,7 @@ import (
 	"github.com/giantswarm/app-operator/v2/pkg/project"
 	"github.com/giantswarm/app-operator/v2/pkg/status"
 	"github.com/giantswarm/app-operator/v2/service/controller/app/controllercontext"
-	"github.com/giantswarm/app-operator/v2/service/controller/app/key"
+	"github.com/giantswarm/app-operator/v2/service/controller/key"
 	"github.com/giantswarm/app-operator/v2/service/controller/app/values"
 )
 
