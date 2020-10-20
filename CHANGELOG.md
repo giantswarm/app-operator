@@ -9,7 +9,7 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ### Fixed
 
-- Skip deleting finalizers on chart-operator if not presented.
+- Skip removing finalizer for chart-operator chart CR if its not present.
 
 ## [1.0.14] - 2020-10-16
 
