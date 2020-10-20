@@ -14,8 +14,8 @@ import (
 	"k8s.io/client-go/kubernetes"
 
 	"github.com/giantswarm/app-operator/v2/service/controller/app/controllercontext"
-	"github.com/giantswarm/app-operator/v2/service/controller/key"
 	"github.com/giantswarm/app-operator/v2/service/controller/app/values"
+	"github.com/giantswarm/app-operator/v2/service/controller/key"
 )
 
 const (
