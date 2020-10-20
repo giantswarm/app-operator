@@ -1,14 +1,19 @@
 package chart
 
 import (
+	"context"
+	"encoding/json"
+	"fmt"
 	"reflect"
 	"strings"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
+	"k8s.io/apimachinery/pkg/types"
 
 	"github.com/giantswarm/app-operator/pkg/annotation"
+	"github.com/giantswarm/app-operator/service/controller/app/controllercontext"
 )
 
 const (
@@ -59,6 +64,42 @@ func New(config Config) (*Resource, error) {
 
 func (r *Resource) Name() string {
 	return Name
+}
+
+func (r *Resource) removeFinalizer(ctx context.Context, chart *v1alpha1.Chart) error {
+	cc, err := controllercontext.FromContext(ctx)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
+	if len(chart.Finalizers) == 0 {
+		// Return early as nothing to do.
+		return nil
+	}
+
+	// `chart-operator` helm release is already deleted by the `chartoperator` resource at this point.
+	// So app-operator needs to remove finalizers so the chart-operator chart CR is deleted.
+	patch := []patch{
+		{
+			Op:   "remove",
+			Path: "/metadata/finalizers",
+		},
+	}
+	bytes, err := json.Marshal(patch)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
+	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleting finalizers on Chart CR %#q in namespace %#q", chart.Name, chart.Namespace))
+
+	_, err = cc.Clients.G8s.ApplicationV1alpha1().Charts(chart.Namespace).Patch(chart.Name, types.JSONPatchType, bytes)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
+	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleted finalizers on Chart CR %#q in namespace %#q", chart.Name, chart.Namespace))
+
+	return nil
 }
 
 // equals asseses the equality of ReleaseStates with regards to distinguishing fields.
