@@ -117,4 +117,36 @@ func TestAppCatalogEntry(t *testing.T) {
 			t.Fatalf("want matching spec \n %s", cmp.Diff(entryCR.Spec, expectedEntrySpec))
 		}
 	}
+
+	{
+		err = config.K8sClients.G8sClient().ApplicationV1alpha1().AppCatalogs().Delete(ctx, key.StableCatalogName(), metav1.DeleteOptions{})
+		if err != nil {
+			t.Fatalf("expected %#v got %#v", nil, err)
+		}
+
+		o := func() error {
+			lo := metav1.ListOptions{
+				LabelSelector: fmt.Sprintf("%s=%s,%s=%s", label.ManagedBy, project.Name(), pkglabel.CatalogName, key.StableCatalogName()),
+			}
+			entryCRs, err := config.K8sClients.G8sClient().ApplicationV1alpha1().AppCatalogEntries(metav1.NamespaceDefault).List(ctx, lo)
+			if err != nil {
+				return microerror.Mask(err)
+			}
+			if len(entryCRs.Items) > 0 {
+				return microerror.Maskf(testError, "expected 0 appcatalogentries got %d", len(entryCRs.Items))
+			}
+
+			return nil
+		}
+
+		n := func(err error, t time.Duration) {
+			config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("appcatalogentry CRs still exist: retrying in %s", t), "stack", fmt.Sprintf("%v", err))
+		}
+
+		b := backoff.NewConstant(5*time.Minute, 15*time.Second)
+		err := backoff.RetryNotify(o, b, n)
+		if err != nil {
+			t.Fatalf("expected %#v got %#v", nil, err)
+		}
+	}
 }
