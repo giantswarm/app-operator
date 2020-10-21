@@ -5,7 +5,7 @@ import (
 
 	"github.com/giantswarm/microerror"
 
-	"github.com/giantswarm/app-operator/v2/service/controller/app/key"
+	"github.com/giantswarm/app-operator/v2/service/controller/key"
 )
 
 // EnsureCreated adds g8s and k8s clients to the controller context based on the

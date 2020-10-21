@@ -14,7 +14,7 @@ import (
 	"k8s.io/apimachinery/pkg/watch"
 
 	applabel "github.com/giantswarm/app-operator/v2/pkg/label"
-	"github.com/giantswarm/app-operator/v2/service/controller/app/key"
+	"github.com/giantswarm/app-operator/v2/service/controller/key"
 )
 
 func (c *AppValue) buildCache(ctx context.Context) error {

@@ -10,7 +10,7 @@ import (
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"github.com/giantswarm/app-operator/v2/service/controller/app/key"
+	"github.com/giantswarm/app-operator/v2/service/controller/key"
 )
 
 // MergeConfigMapData merges the data from the catalog, app and user configmaps
