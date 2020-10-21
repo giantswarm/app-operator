@@ -73,6 +73,26 @@ func AppStatus(customResource v1alpha1.App) v1alpha1.AppStatus {
 	return customResource.Status
 }
 
+func AppVersionSelector(unique bool) labels.Selector {
+	var version string
+
+	version = project.Version()
+	if unique {
+		// When app-operator is deployed as a unique app it only processes
+		// control plane app CRs. These CRs always have the version label
+		// app-operator.giantswarm.io/version: 0.0.0
+		version = project.AppControlPlaneVersion()
+	}
+	s := fmt.Sprintf("%s=%s", label.AppOperatorVersion, version)
+
+	selector, err := labels.Parse(s)
+	if err != nil {
+		panic(fmt.Sprintf("failed to parse selector %#q with error %#q", s, err))
+	}
+
+	return selector
+}
+
 func CatalogName(customResource v1alpha1.App) string {
 	return customResource.Spec.Catalog
 }
@@ -158,26 +178,6 @@ func KubecConfigSecretName(customResource v1alpha1.App) string {
 
 func KubecConfigSecretNamespace(customResource v1alpha1.App) string {
 	return customResource.Spec.KubeConfig.Secret.Namespace
-}
-
-func AppVersionSelector(unique bool) labels.Selector {
-	var version string
-
-	version = project.Version()
-	if unique {
-		// When app-operator is deployed as a unique app it only processes
-		// control plane app CRs. These CRs always have the version label
-		// app-operator.giantswarm.io/version: 0.0.0
-		version = project.AppControlPlaneVersion()
-	}
-	s := fmt.Sprintf("%s=%s", label.AppOperatorVersion, version)
-
-	selector, err := labels.Parse(s)
-	if err != nil {
-		panic(fmt.Sprintf("failed to parse selector %#q with error %#q", s, err))
-	}
-
-	return selector
 }
 
 func Namespace(customResource v1alpha1.App) string {
