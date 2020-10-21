@@ -17,7 +17,7 @@ import (
 
 	"github.com/giantswarm/app-operator/v2/pkg/annotation"
 	"github.com/giantswarm/app-operator/v2/service/controller/app/controllercontext"
-	"github.com/giantswarm/app-operator/v2/service/controller/app/key"
+	"github.com/giantswarm/app-operator/v2/service/controller/key"
 )
 
 // EnsureCreated ensures helm release is migrated from a v2 configmap to a v3 secret.
