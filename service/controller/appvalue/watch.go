@@ -36,7 +36,7 @@ func (c *AppValue) watch(ctx context.Context) {
 			}
 		}
 
-		c.logger.Log("debug", fmt.Sprintf("starting ResourceVersion is %s", highestResourceVersion))
+		c.logger.Log("debug", fmt.Sprintf("starting ResourceVersion is %d", highestResourceVersion))
 
 		lo.ResourceVersion = strconv.FormatUint(highestResourceVersion, 10)
 
