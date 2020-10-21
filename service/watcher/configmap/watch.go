@@ -1,4 +1,4 @@
-package appvalue
+package configmap
 
 import (
 	"context"

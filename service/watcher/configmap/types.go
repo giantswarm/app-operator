@@ -1,4 +1,4 @@
-package appvalue
+package configmap
 
 type appIndex struct {
 	Name      string `json:"name"`
