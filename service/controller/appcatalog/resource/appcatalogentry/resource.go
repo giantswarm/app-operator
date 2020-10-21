@@ -57,7 +57,7 @@ func (r Resource) Name() string {
 }
 
 func (r *Resource) getCurrentEntryCRs(ctx context.Context, cr v1alpha1.AppCatalog) (map[string]*v1alpha1.AppCatalogEntry, error) {
-	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("getting appcatalogentries for appcatalog %#q", cr.Name))
+	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("getting current appcatalogentries for appcatalog %#q", cr.Name))
 
 	currentEntryCRs := map[string]*v1alpha1.AppCatalogEntry{}
 
@@ -73,7 +73,7 @@ func (r *Resource) getCurrentEntryCRs(ctx context.Context, cr v1alpha1.AppCatalo
 		currentEntryCRs[entry.Name] = entry.DeepCopy()
 	}
 
-	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("got %d appcatalogentries for appcatalog %#q", len(currentEntryCRs), cr.Name))
+	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("got %d current appcatalogentries for appcatalog %#q", len(currentEntryCRs), cr.Name))
 
 	return currentEntryCRs, nil
 }
