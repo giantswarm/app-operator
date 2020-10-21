@@ -1,18 +1,23 @@
 package appcatalog
 
 import (
+	"github.com/giantswarm/k8sclient/v4/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/v2/pkg/resource"
 	"github.com/giantswarm/operatorkit/v2/pkg/resource/wrapper/metricsresource"
 	"github.com/giantswarm/operatorkit/v2/pkg/resource/wrapper/retryresource"
 
-	"github.com/giantswarm/app-operator/v2/service/controller/appcatalog/resource/empty"
+	"github.com/giantswarm/app-operator/v2/service/controller/appcatalog/resource/appcatalogentry"
 )
 
 type appCatalogResourcesConfig struct {
 	// Dependencies.
-	Logger micrologger.Logger
+	K8sClient k8sclient.Interface
+	Logger    micrologger.Logger
+
+	// Settings.
+	UniqueApp bool
 }
 
 // NewResourceSet returns a configured AppCatalog controller ResourceSet.
@@ -24,13 +29,23 @@ func newAppCatalogResources(config appCatalogResourcesConfig) ([]resource.Interf
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
 
-	var emptyResource resource.Interface
+	var appCatalogEntryResource resource.Interface
 	{
-		emptyResource = empty.New()
+		c := appcatalogentry.Config{
+			K8sClient: config.K8sClient,
+			Logger:    config.Logger,
+
+			UniqueApp: config.UniqueApp,
+		}
+
+		appCatalogEntryResource, err = appcatalogentry.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
 	}
 
 	resources := []resource.Interface{
-		emptyResource,
+		appCatalogEntryResource,
 	}
 
 	{

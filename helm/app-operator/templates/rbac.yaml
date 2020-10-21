@@ -52,6 +52,12 @@ rules:
     - patch
     - update
 - apiGroups:
+    - application.giantswarm.io
+  resources:
+    - appcatalogentries
+  verbs:
+    - "*"
+- apiGroups:
     - batch
   resources:
     - jobs
