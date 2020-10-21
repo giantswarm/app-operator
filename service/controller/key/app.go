@@ -41,14 +41,10 @@ func AppCatalogSecretNamespace(customResource v1alpha1.AppCatalog) string {
 	return customResource.Spec.Config.Secret.Namespace
 }
 
-// AppConfigMapName returns the name of the configmap that stores app level
-// config for the provided app CR.
 func AppConfigMapName(customResource v1alpha1.App) string {
 	return customResource.Spec.Config.ConfigMap.Name
 }
 
-// AppConfigMapNamespace returns the namespace of the configmap that stores app
-// level config for the provided app CR.
 func AppConfigMapNamespace(customResource v1alpha1.App) string {
 	return customResource.Spec.Config.ConfigMap.Namespace
 }
@@ -57,14 +53,10 @@ func AppName(customResource v1alpha1.App) string {
 	return customResource.Spec.Name
 }
 
-// AppSecretName returns the name of the secret that stores app level
-// secrets for the provided app CR.
 func AppSecretName(customResource v1alpha1.App) string {
 	return customResource.Spec.Config.Secret.Name
 }
 
-// AppSecretNamespace returns the namespace of the secret that stores app
-// level secrets for the provided app CR.
 func AppSecretNamespace(customResource v1alpha1.App) string {
 	return customResource.Spec.Config.Secret.Namespace
 }
@@ -101,14 +93,10 @@ func ChartStatus(customResource v1alpha1.Chart) v1alpha1.ChartStatus {
 	return customResource.Status
 }
 
-// ChartConfigMapName returns the name of the configmap that stores config for
-// the chart CR that is generated for the provided app CR.
 func ChartConfigMapName(customResource v1alpha1.App) string {
 	return fmt.Sprintf("%s-chart-values", customResource.GetName())
 }
 
-// ChartSecretName returns the name of the secret that stores secrets for
-// the chart CR that is generated for the provided app CR.
 func ChartSecretName(customResource v1alpha1.App) string {
 	return fmt.Sprintf("%s-chart-secrets", customResource.GetName())
 }
@@ -129,7 +117,6 @@ func CordonUntil(customResource v1alpha1.App) string {
 	return customResource.GetAnnotations()[fmt.Sprintf("%s/%s", annotation.ChartOperatorPrefix, annotation.CordonUntil)]
 }
 
-// CordonUntilDate sets the date that app CRs should be cordoned until the specific date.
 func CordonUntilDate() string {
 	return time.Now().Add(1 * time.Hour).Format("2006-01-02T15:04:05")
 }
@@ -205,26 +192,18 @@ func ToApp(v interface{}) (v1alpha1.App, error) {
 	return *customResource, nil
 }
 
-// UserConfigMapName returns the name of the configmap that stores user level
-// config for the provided app CR.
 func UserConfigMapName(customResource v1alpha1.App) string {
 	return customResource.Spec.UserConfig.ConfigMap.Name
 }
 
-// UserConfigMapNamespace returns the namespace of the configmap that stores user
-// level config for the provided app CR.
 func UserConfigMapNamespace(customResource v1alpha1.App) string {
 	return customResource.Spec.UserConfig.ConfigMap.Namespace
 }
 
-// UserSecretName returns the name of the secret that stores user level
-// secrets for the provided app CR.
 func UserSecretName(customResource v1alpha1.App) string {
 	return customResource.Spec.UserConfig.Secret.Name
 }
 
-// UserSecretNamespace returns the namespace of the secret that stores user
-// level secrets for the provided app CR.
 func UserSecretNamespace(customResource v1alpha1.App) string {
 	return customResource.Spec.UserConfig.Secret.Namespace
 }
@@ -233,8 +212,6 @@ func Version(customResource v1alpha1.App) string {
 	return customResource.Spec.Version
 }
 
-// VersionLabel returns the label value to determine if the custom resource is
-// supported by this version of the operatorkit resource.
 func VersionLabel(customResource v1alpha1.App) string {
 	if val, ok := customResource.ObjectMeta.Labels[label.AppOperatorVersion]; ok {
 		return val
