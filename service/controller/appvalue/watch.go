@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strconv"
 
 	"github.com/giantswarm/microerror"
 	corev1 "k8s.io/api/core/v1"
@@ -16,8 +17,6 @@ import (
 )
 
 func (c *AppValue) watch(ctx context.Context) {
-	var latestResourceVersion string
-
 	for {
 		lo := metav1.ListOptions{
 			LabelSelector: applabel.Watching,
@@ -29,17 +28,17 @@ func (c *AppValue) watch(ctx context.Context) {
 			panic(err)
 		}
 
+		var highestResourceVersion uint64
 		for _, cm := range cms.Items {
-			if latestResourceVersion < cm.ResourceVersion {
-				latestResourceVersion = cm.ResourceVersion
+			currentResourceVersion := getResourceVersion(cm.GetResourceVersion())
+			if highestResourceVersion < currentResourceVersion {
+				highestResourceVersion = currentResourceVersion
 			}
 		}
 
-		c.logger.Log("debug", fmt.Sprintf("starting ResourceVersion is %s", latestResourceVersion))
+		c.logger.Log("debug", fmt.Sprintf("starting ResourceVersion is %s", highestResourceVersion))
 
-		lo = metav1.ListOptions{
-			LabelSelector: c.selector.String(),
-		}
+		lo.ResourceVersion = strconv.FormatUint(highestResourceVersion, 10)
 
 		res, err := c.k8sClient.K8sClient().CoreV1().ConfigMaps("").Watch(ctx, lo)
 		if err != nil {
@@ -55,11 +54,6 @@ func (c *AppValue) watch(ctx context.Context) {
 			cm, err := toConfigMap(r.Object)
 			if err != nil {
 				panic(err)
-			}
-
-			if latestResourceVersion > cm.GetResourceVersion() {
-				// no-op for the older events
-				continue
 			}
 
 			configMap := configMapIndex{
@@ -147,4 +141,13 @@ func (c *AppValue) addAnnotation(ctx context.Context, app appIndex, latestResour
 	}
 
 	return nil
+}
+
+func getResourceVersion(resourceVersion string) uint64 {
+	r, err := strconv.ParseUint(resourceVersion, 0, 64)
+	if err != nil {
+		panic(err)
+	}
+
+	return r
 }
