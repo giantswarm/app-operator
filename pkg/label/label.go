@@ -9,4 +9,8 @@ const (
 	// AppKubernetesVersion label is used to identify the version of Kubernetes
 	// resources.
 	AppKubernetesVersion = "app.kubernetes.io/version"
+
+	// CatalogName is used to identify resources belonging to a Giant Swarm app
+	// catalog.
+	CatalogName = "application.giantswarm.io/catalog"
 )
