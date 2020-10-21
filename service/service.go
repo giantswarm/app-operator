@@ -37,8 +37,8 @@ type Service struct {
 	// Internals
 	appController        *app.App
 	appCatalogController *appcatalog.AppCatalog
-	appValueController   *configmap.AppValue
 	bootOnce             sync.Once
+	configMapWatcher     *configmap.AppValueWatcher
 }
 
 // New creates a new service with given configuration.
@@ -126,16 +126,16 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
-	var appValueController *configmap.AppValue
+	var appValueController *configmap.AppValueWatcher
 	{
-		c := configmap.AppValueConfig{
+		c := configmap.AppValueWatcherConfig{
 			K8sClient: k8sClient,
 			Logger:    config.Logger,
 
 			UniqueApp: config.Viper.GetBool(config.Flag.Service.App.Unique),
 		}
 
-		appValueController, err = configmap.NewAppValue(c)
+		appValueController, err = configmap.NewAppValueWatcher(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -163,7 +163,7 @@ func New(config Config) (*Service, error) {
 
 		appController:        appController,
 		appCatalogController: appCatalogController,
-		appValueController:   appValueController,
+		configMapWatcher:     appValueController,
 		bootOnce:             sync.Once{},
 	}
 
@@ -176,6 +176,6 @@ func (s *Service) Boot(ctx context.Context) {
 		// Start the controllers.
 		go s.appCatalogController.Boot(ctx)
 		go s.appController.Boot(ctx)
-		go s.appValueController.Boot(ctx)
+		go s.configMapWatcher.Boot(ctx)
 	})
 }

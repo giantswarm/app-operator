@@ -13,22 +13,24 @@ import (
 	"k8s.io/apimachinery/pkg/watch"
 
 	"github.com/giantswarm/app-operator/v2/pkg/annotation"
-	applabel "github.com/giantswarm/app-operator/v2/pkg/label"
+	pkglabel "github.com/giantswarm/app-operator/v2/pkg/label"
 )
 
-func (c *AppValue) watch(ctx context.Context) {
+func (c *AppValueWatcher) watch(ctx context.Context) {
 	for {
 		lo := metav1.ListOptions{
-			LabelSelector: applabel.Watching,
+			LabelSelector: pkglabel.Watching,
 		}
 
-		// Found the highest resourceVersion in cofigMaps CRs
+		// Find the highest resourceVersion for each configmap.
 		cms, err := c.k8sClient.K8sClient().CoreV1().ConfigMaps("").List(ctx, lo)
 		if err != nil {
-			panic(err)
+			c.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("failed to get configmaps with label %#q", pkglabel.Watching), "stack", fmt.Sprintf("%#v", err))
+			continue
 		}
 
 		var highestResourceVersion uint64
+
 		for _, cm := range cms.Items {
 			currentResourceVersion := getResourceVersion(cm.GetResourceVersion())
 			if highestResourceVersion < currentResourceVersion {
@@ -36,7 +38,7 @@ func (c *AppValue) watch(ctx context.Context) {
 			}
 		}
 
-		c.logger.Log("debug", fmt.Sprintf("starting ResourceVersion is %d", highestResourceVersion))
+		c.logger.LogCtx(ctx, "debug", fmt.Sprintf("starting ResourceVersion is %d", highestResourceVersion))
 
 		lo.ResourceVersion = strconv.FormatUint(highestResourceVersion, 10)
 
@@ -76,15 +78,15 @@ func (c *AppValue) watch(ctx context.Context) {
 			}
 
 			for app := range storedIndex {
-				c.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("triggering %#q app updating in namespace %#q", app.Name, app.Namespace))
+				c.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("triggering %#q app update in namespace %#q", app.Name, app.Namespace))
 
 				err := c.addAnnotation(ctx, app, cm.GetResourceVersion())
 				if err != nil {
-					c.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("failed to add an annotation into app %#q in namespace %#q", app.Name, app.Namespace), "stack", fmt.Sprintf("%#v", err))
+					c.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("failed to add annotation to app %#q in namespace %#q", app.Name, app.Namespace), "stack", fmt.Sprintf("%#v", err))
 					continue
 				}
 
-				c.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("triggered %#q app updating in namespace %#q", app.Name, app.Namespace))
+				c.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("triggered %#q app update in namespace %#q", app.Name, app.Namespace))
 			}
 		}
 
@@ -92,21 +94,7 @@ func (c *AppValue) watch(ctx context.Context) {
 	}
 }
 
-// toConfigMap converts the input into a ConfigMap.
-func toConfigMap(v interface{}) (*corev1.ConfigMap, error) {
-	if v == nil {
-		return &corev1.ConfigMap{}, nil
-	}
-
-	configMap, ok := v.(*corev1.ConfigMap)
-	if !ok {
-		return nil, microerror.Maskf(wrongTypeError, "expected '%T', got '%T'", &corev1.ConfigMap{}, v)
-	}
-
-	return configMap, nil
-}
-
-func (c *AppValue) addAnnotation(ctx context.Context, app appIndex, latestResourceVersion string) error {
+func (c *AppValueWatcher) addAnnotation(ctx context.Context, app appIndex, latestResourceVersion string) error {
 	versionAnnotation := fmt.Sprintf("%s/%s", annotation.AppOperatorPrefix, annotation.LatestConfigMapVersion)
 
 	currentApp, err := c.k8sClient.G8sClient().ApplicationV1alpha1().Apps(app.Namespace).Get(ctx, app.Name, metav1.GetOptions{})
@@ -150,4 +138,18 @@ func getResourceVersion(resourceVersion string) uint64 {
 	}
 
 	return r
+}
+
+// toConfigMap converts the input into a ConfigMap.
+func toConfigMap(v interface{}) (*corev1.ConfigMap, error) {
+	if v == nil {
+		return &corev1.ConfigMap{}, nil
+	}
+
+	configMap, ok := v.(*corev1.ConfigMap)
+	if !ok {
+		return nil, microerror.Maskf(wrongTypeError, "expected '%T', got '%T'", &corev1.ConfigMap{}, v)
+	}
+
+	return configMap, nil
 }

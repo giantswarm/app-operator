@@ -13,11 +13,11 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/watch"
 
-	applabel "github.com/giantswarm/app-operator/v2/pkg/label"
+	pkglabel "github.com/giantswarm/app-operator/v2/pkg/label"
 	"github.com/giantswarm/app-operator/v2/service/controller/key"
 )
 
-func (c *AppValue) buildCache(ctx context.Context) error {
+func (c *AppValueWatcher) buildCache(ctx context.Context) error {
 	for {
 		lo := metav1.ListOptions{
 			LabelSelector: c.selector.String(),
@@ -36,17 +36,17 @@ func (c *AppValue) buildCache(ctx context.Context) error {
 
 			err = c.addCache(ctx, cr, r.Type)
 			if err != nil {
-				c.logger.Log("level", "info", "message", "failed to reconcile an app CR", "stack", fmt.Sprintf("%#v", err))
+				c.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("failed to reconcile app CR %#q", cr.Name), "stack", fmt.Sprintf("%#v", err))
 			}
 		}
 
-		c.logger.Log("debug", "watch channel had been closed, reopening...")
+		c.logger.LogCtx(ctx, "debug", "watch channel has been closed, reopening...")
 		c.configMapToApps = sync.Map{}
 	}
 
 }
 
-func (c *AppValue) addCache(ctx context.Context, cr v1alpha1.App, eventType watch.EventType) error {
+func (c *AppValueWatcher) addCache(ctx context.Context, cr v1alpha1.App, eventType watch.EventType) error {
 	app := appIndex{
 		Name:      cr.GetName(),
 		Namespace: cr.GetNamespace(),
@@ -86,7 +86,7 @@ func (c *AppValue) addCache(ctx context.Context, cr v1alpha1.App, eventType watc
 			// First, put the watchUpdate label
 			err := c.addLabel(ctx, configMap)
 			if err != nil {
-				c.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("failed to add a label into configmap %#q in namespace %#q", configMap.Name, configMap.Namespace), "stack", fmt.Sprintf("%#v", err))
+				c.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("failed to add label to configmap %#q in namespace %#q", configMap.Name, configMap.Namespace), "stack", fmt.Sprintf("%#v", err))
 				continue
 			}
 
@@ -120,7 +120,7 @@ func (c *AppValue) addCache(ctx context.Context, cr v1alpha1.App, eventType watc
 				if len(storedIndex) == 0 {
 					err := c.removeLabel(ctx, configMap)
 					if err != nil {
-						c.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("failed to remove a label into configmap %#q in namespace %#q", configMap.Name, configMap.Namespace), "stack", fmt.Sprintf("%#v", err))
+						c.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("failed to remove label from configmap %#q in namespace %#q", configMap.Name, configMap.Namespace), "stack", fmt.Sprintf("%#v", err))
 						continue
 					}
 
@@ -138,13 +138,13 @@ func (c *AppValue) addCache(ctx context.Context, cr v1alpha1.App, eventType watc
 	return nil
 }
 
-func (c *AppValue) addLabel(ctx context.Context, cm configMapIndex) error {
+func (c *AppValueWatcher) addLabel(ctx context.Context, cm configMapIndex) error {
 	currentCM, err := c.k8sClient.K8sClient().CoreV1().ConfigMaps(cm.Namespace).Get(ctx, cm.Name, metav1.GetOptions{})
 	if err != nil {
 		return microerror.Mask(err)
 	}
 
-	if _, ok := currentCM.GetLabels()[applabel.Watching]; ok {
+	if _, ok := currentCM.GetLabels()[pkglabel.Watching]; ok {
 		// no-op
 		return nil
 	}
@@ -161,7 +161,7 @@ func (c *AppValue) addLabel(ctx context.Context, cm configMapIndex) error {
 
 	patches = append(patches, patch{
 		Op:    "add",
-		Path:  fmt.Sprintf("/metadata/labels/%s", replaceToEscape(applabel.Watching)),
+		Path:  fmt.Sprintf("/metadata/labels/%s", replaceToEscape(pkglabel.Watching)),
 		Value: "true",
 	})
 
@@ -177,13 +177,13 @@ func (c *AppValue) addLabel(ctx context.Context, cm configMapIndex) error {
 	return nil
 }
 
-func (c *AppValue) removeLabel(ctx context.Context, cm configMapIndex) error {
+func (c *AppValueWatcher) removeLabel(ctx context.Context, cm configMapIndex) error {
 	currentCM, err := c.k8sClient.K8sClient().CoreV1().ConfigMaps(cm.Namespace).Get(ctx, cm.Name, metav1.GetOptions{})
 	if err != nil {
 		return microerror.Mask(err)
 	}
 
-	if _, ok := currentCM.GetLabels()[applabel.Watching]; !ok {
+	if _, ok := currentCM.GetLabels()[pkglabel.Watching]; !ok {
 		// no-op
 		return nil
 	}
@@ -191,7 +191,7 @@ func (c *AppValue) removeLabel(ctx context.Context, cm configMapIndex) error {
 	patches := []patch{
 		{
 			Op:   "remove",
-			Path: fmt.Sprintf("/metadata/labels/%s", replaceToEscape(applabel.Watching)),
+			Path: fmt.Sprintf("/metadata/labels/%s", replaceToEscape(pkglabel.Watching)),
 		},
 	}
 
