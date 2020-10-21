@@ -22,7 +22,7 @@ import (
 
 // EnsureCreated ensures helm release is migrated from a v2 configmap to a v3 secret.
 func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
-	cr, err := key.ToCustomResource(obj)
+	cr, err := key.ToApp(obj)
 	if err != nil {
 		return microerror.Mask(err)
 	}

@@ -192,9 +192,7 @@ func ReleaseName(customResource v1alpha1.App) string {
 	return customResource.Spec.Name
 }
 
-// ToCustomResource converts value to v1alpha1.App and returns it or error
-// if type does not match.
-func ToCustomResource(v interface{}) (v1alpha1.App, error) {
+func ToApp(v interface{}) (v1alpha1.App, error) {
 	customResource, ok := v.(*v1alpha1.App)
 	if !ok {
 		return v1alpha1.App{}, microerror.Maskf(wrongTypeError, "expected '%T', got '%T'", &v1alpha1.App{}, v)
