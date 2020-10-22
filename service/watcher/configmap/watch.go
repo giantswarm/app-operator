@@ -32,7 +32,11 @@ func (c *AppValueWatcher) watch(ctx context.Context) {
 		var highestResourceVersion uint64
 
 		for _, cm := range cms.Items {
-			currentResourceVersion := getResourceVersion(cm.GetResourceVersion())
+			currentResourceVersion, err := getResourceVersion(cm.GetResourceVersion())
+			if err != nil {
+				c.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("failed to get resourceVersion from configmaps %#q in namespace %#q", cm.GetName(), cm.GetNamespace()), "stack", fmt.Sprintf("%#v", err))
+				continue
+			}
 			if highestResourceVersion < currentResourceVersion {
 				highestResourceVersion = currentResourceVersion
 			}
@@ -44,7 +48,8 @@ func (c *AppValueWatcher) watch(ctx context.Context) {
 
 		res, err := c.k8sClient.K8sClient().CoreV1().ConfigMaps("").Watch(ctx, lo)
 		if err != nil {
-			panic(err)
+			c.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("failed to get configmaps with label %#q", pkglabel.Watching), "stack", fmt.Sprintf("%#v", err))
+			continue
 		}
 
 		for r := range res.ResultChan() {
@@ -55,7 +60,8 @@ func (c *AppValueWatcher) watch(ctx context.Context) {
 
 			cm, err := toConfigMap(r.Object)
 			if err != nil {
-				panic(err)
+				c.logger.LogCtx(ctx, "level", "info", "message", "failed to convert configmap object", "stack", fmt.Sprintf("%#v", err))
+				continue
 			}
 
 			configMap := configMapIndex{
@@ -73,7 +79,8 @@ func (c *AppValueWatcher) watch(ctx context.Context) {
 
 				storedIndex, ok = v.(map[appIndex]bool)
 				if !ok {
-					panic(fmt.Sprintf("expected '%T', got '%T'", map[appIndex]bool{}, v))
+					c.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("expected '%T', got '%T'", map[appIndex]bool{}, v), "stack", fmt.Sprintf("%#v", err))
+					continue
 				}
 			}
 
@@ -131,13 +138,13 @@ func (c *AppValueWatcher) addAnnotation(ctx context.Context, app appIndex, lates
 	return nil
 }
 
-func getResourceVersion(resourceVersion string) uint64 {
+func getResourceVersion(resourceVersion string) (uint64, error) {
 	r, err := strconv.ParseUint(resourceVersion, 0, 64)
 	if err != nil {
-		panic(err)
+		return 0, microerror.Mask(err)
 	}
 
-	return r
+	return r, nil
 }
 
 // toConfigMap converts the input into a ConfigMap.

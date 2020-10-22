@@ -17,7 +17,7 @@ import (
 	"github.com/giantswarm/app-operator/v2/service/controller/key"
 )
 
-func (c *AppValueWatcher) buildCache(ctx context.Context) error {
+func (c *AppValueWatcher) buildCache(ctx context.Context) {
 	for {
 		lo := metav1.ListOptions{
 			LabelSelector: c.selector.String(),
@@ -32,7 +32,8 @@ func (c *AppValueWatcher) buildCache(ctx context.Context) error {
 		for r := range res.ResultChan() {
 			cr, err := key.ToApp(r.Object)
 			if err != nil {
-				panic(err)
+				c.logger.LogCtx(ctx, "level", "info", "message", "failed to convert app object", "stack", fmt.Sprintf("%#v", err))
+				continue
 			}
 
 			err = c.addCache(ctx, cr, r.Type)

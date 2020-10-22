@@ -53,8 +53,5 @@ func (c *AppValueWatcher) Boot(ctx context.Context) {
 	go c.watch(ctx)
 
 	// Build a cache of configmaps and link each app to its configmaps.
-	err := c.buildCache(ctx)
-	if err != nil {
-		panic(err)
-	}
+	go c.buildCache(ctx)
 }
