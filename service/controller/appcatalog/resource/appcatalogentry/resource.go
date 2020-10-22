@@ -5,9 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"reflect"
 	"strings"
-	"time"
 
 	"github.com/giantswarm/apiextensions/v2/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/apiextensions/v2/pkg/label"
@@ -117,37 +115,4 @@ func (r *Resource) getIndex(ctx context.Context, storageURL string) (index, erro
 	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("got index.yaml from %#q", indexURL))
 
 	return i, nil
-}
-
-func equals(current, desired *v1alpha1.AppCatalogEntry) bool {
-	if current.Name != desired.Name {
-		return false
-	}
-	if !reflect.DeepEqual(current.Labels, desired.Labels) {
-		return false
-	}
-
-	if current.Spec.DateCreated.Unix() != desired.Spec.DateCreated.Unix() {
-		return false
-	}
-	current.Spec.DateCreated = nil
-	desired.Spec.DateCreated = nil
-
-	if current.Spec.DateUpdated.Unix() != desired.Spec.DateUpdated.Unix() {
-		return false
-	}
-	current.Spec.DateUpdated = nil
-	desired.Spec.DateUpdated = nil
-
-	return reflect.DeepEqual(current.Spec, desired.Spec)
-}
-
-func parseTime(created string) (*metav1.Time, error) {
-	rawTime, err := time.Parse(time.RFC3339, created)
-	if err != nil {
-		return nil, microerror.Maskf(executionFailedError, "wrong timestamp format %#q", created)
-	}
-	timeVal := metav1.NewTime(rawTime)
-
-	return &timeVal, nil
 }

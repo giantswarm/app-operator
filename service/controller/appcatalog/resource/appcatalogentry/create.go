@@ -185,3 +185,37 @@ func newAppCatalogEntries(ctx context.Context, cr v1alpha1.AppCatalog, index ind
 
 	return entryCRs, nil
 }
+
+func equals(current, desired *v1alpha1.AppCatalogEntry) bool {
+	if current.Name != desired.Name {
+		return false
+	}
+	if !reflect.DeepEqual(current.Labels, desired.Labels) {
+		return false
+	}
+
+	if current.Spec.DateCreated.Unix() != desired.Spec.DateCreated.Unix() {
+		return false
+	}
+	current.Spec.DateCreated = nil
+	desired.Spec.DateCreated = nil
+
+	if current.Spec.DateUpdated.Unix() != desired.Spec.DateUpdated.Unix() {
+		return false
+	}
+	current.Spec.DateUpdated = nil
+	desired.Spec.DateUpdated = nil
+
+	return reflect.DeepEqual(current.Spec, desired.Spec)
+}
+
+
+func parseTime(created string) (*metav1.Time, error) {
+	rawTime, err := time.Parse(time.RFC3339, created)
+	if err != nil {
+		return nil, microerror.Maskf(executionFailedError, "wrong timestamp format %#q", created)
+	}
+	timeVal := metav1.NewTime(rawTime)
+
+	return &timeVal, nil
+}
