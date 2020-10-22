@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"reflect"
+	"strings"
 	"time"
 
 	"github.com/giantswarm/apiextensions/v2/pkg/apis/application/v1alpha1"
@@ -90,7 +91,7 @@ func (r *Resource) getCurrentEntryCRs(ctx context.Context, cr v1alpha1.AppCatalo
 }
 
 func (r *Resource) getIndex(ctx context.Context, storageURL string) (index, error) {
-	indexURL := fmt.Sprintf("%s/index.yaml", storageURL)
+	indexURL := fmt.Sprintf("%s/index.yaml", strings.TrimRight(storageURL, "/"))
 
 	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("getting index.yaml from %#q", indexURL))
 
