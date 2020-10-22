@@ -13,15 +13,15 @@ const (
 	// resources.
 	AppKubernetesVersion = "app.kubernetes.io/version"
 
-	// CatalogName is used to identify resources belonging to a Giant Swarm app
-	// catalog.
+	// CatalogName label is used to identify resources belonging to a Giant Swarm
+	// app catalog.
 	CatalogName = "application.giantswarm.io/catalog"
 
-	// CatalogType is used to identify the type of Giant Swarm app catalog
+	// CatalogType label is used to identify the type of Giant Swarm app catalog
 	// e.g. stable or test.
 	CatalogType = "application.giantswarm.io/catalog-type"
 
-	// CatalogVisibility is used to decide how Giant Swarm app catalogs are
-	// displayed in the UX. e.g. public or internal.
+	// CatalogVisibility label is used to determine how Giant Swarm app catalogs
+	// are displayed in the UX. e.g. public or internal.
 	CatalogVisibility = "application.giantswarm.io/catalog-visibility"
 )

@@ -30,7 +30,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	}
 
 	// Skip creating appcatalogentry CRs if the catalog is not public.
-	if key.CatalogVisibility(cr) != publicVisibilityType && key.CatalogType(cr) != communityCatalogType {
+	if key.CatalogVisibility(cr) != publicVisibilityType {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("not creating CRs for catalog %#q with visibility %#q", cr.Name, key.CatalogVisibility(cr)))
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 		return nil
@@ -157,7 +157,7 @@ func newAppCatalogEntries(ctx context.Context, cr v1alpha1.AppCatalog, index ind
 					AppVersion: entry.AppVersion,
 					Catalog: v1alpha1.AppCatalogEntrySpecCatalog{
 						Name: cr.Name,
-						// Namespace will be empty until appcatalog CR becomes namespace scoped.
+						// Namespace will be empty until appcatalog CRs become namespace scoped.
 						Namespace: "",
 					},
 					Chart: v1alpha1.AppCatalogEntrySpecChart{
