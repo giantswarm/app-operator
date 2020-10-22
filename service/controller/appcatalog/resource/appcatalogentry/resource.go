@@ -18,7 +18,7 @@ import (
 	"sigs.k8s.io/yaml"
 
 	pkglabel "github.com/giantswarm/app-operator/v2/pkg/label"
-	"github.com/giantswarm/app-operator/v2/pkg/project"
+	"github.com/giantswarm/app-operator/v2/service/controller/key"
 )
 
 const (
@@ -74,7 +74,7 @@ func (r *Resource) getCurrentEntryCRs(ctx context.Context, cr v1alpha1.AppCatalo
 	currentEntryCRs := map[string]*v1alpha1.AppCatalogEntry{}
 
 	lo := metav1.ListOptions{
-		LabelSelector: fmt.Sprintf("%s=%s,%s=%s", label.ManagedBy, project.Name(), pkglabel.CatalogName, cr.Name),
+		LabelSelector: fmt.Sprintf("%s=%s,%s=%s", label.ManagedBy, key.AppCatalogEntryManagedBy(), pkglabel.CatalogName, cr.Name),
 	}
 	entries, err := r.k8sClient.G8sClient().ApplicationV1alpha1().AppCatalogEntries(metav1.NamespaceDefault).List(ctx, lo)
 	if err != nil {

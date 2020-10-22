@@ -12,7 +12,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	pkglabel "github.com/giantswarm/app-operator/v2/pkg/label"
-	"github.com/giantswarm/app-operator/v2/pkg/project"
 	"github.com/giantswarm/app-operator/v2/service/controller/key"
 )
 
@@ -150,7 +149,7 @@ func newAppCatalogEntries(ctx context.Context, cr v1alpha1.AppCatalog, index ind
 						pkglabel.AppKubernetesName: entry.Name,
 						pkglabel.CatalogName:       cr.Name,
 						pkglabel.CatalogType:       key.CatalogType(cr),
-						label.ManagedBy:            project.Name(),
+						label.ManagedBy:            key.AppCatalogEntryManagedBy(),
 					},
 					OwnerReferences: []metav1.OwnerReference{
 						{
