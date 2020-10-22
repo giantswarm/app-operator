@@ -213,6 +213,8 @@ func equals(current, desired *v1alpha1.AppCatalogEntry) bool {
 		return false
 	}
 
+	// Using reflect.DeepEqual doesn't work for the 2 date fields due to time
+	// zones. Instead we compare the unix epoch and clear the date fields.
 	if current.Spec.DateCreated.Unix() != desired.Spec.DateCreated.Unix() {
 		return false
 	}
