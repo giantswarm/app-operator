@@ -10,17 +10,17 @@ import (
 func CatalogType(customResource v1alpha1.AppCatalog) string {
 	if val, ok := customResource.ObjectMeta.Labels[label.CatalogType]; ok {
 		return val
-	} else {
-		return ""
 	}
+
+	return ""
 }
 
 func CatalogVisibility(customResource v1alpha1.AppCatalog) string {
 	if val, ok := customResource.ObjectMeta.Labels[label.CatalogVisibility]; ok {
 		return val
-	} else {
-		return ""
 	}
+
+	return ""
 }
 
 func ToAppCatalog(v interface{}) (v1alpha1.AppCatalog, error) {
