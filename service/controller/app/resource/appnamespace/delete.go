@@ -11,7 +11,7 @@ import (
 // EnsureDeleted checks whether the namespace this app CR belongs to
 // is currently being deleted.
 func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
-	cr, err := key.ToCustomResource(obj)
+	cr, err := key.ToApp(obj)
 	if err != nil {
 		return microerror.Mask(err)
 	}

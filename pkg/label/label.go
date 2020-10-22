@@ -12,6 +12,14 @@ import (
 )
 
 const (
+	// AppKubernetesVersion label is used to identify the version of Kubernetes
+	// resources.
+	AppKubernetesVersion = "app.kubernetes.io/version"
+
+	// CatalogName is used to identify resources belonging to a Giant Swarm app
+	// catalog.
+	CatalogName = "application.giantswarm.io/catalog"
+
 	// Watching is the label that put into the configmaps to watch from appValue controller.
 	Watching = "app-operator.giantswarm.io/watching"
 )

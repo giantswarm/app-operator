@@ -460,7 +460,7 @@ func Test_Namespace(t *testing.T) {
 	}
 }
 
-func Test_ToCustomResource(t *testing.T) {
+func Test_ToApp(t *testing.T) {
 	testCases := []struct {
 		name           string
 		input          interface{}
@@ -493,7 +493,7 @@ func Test_ToCustomResource(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			result, err := ToCustomResource(tc.input)
+			result, err := ToApp(tc.input)
 			switch {
 			case err != nil && tc.errorMatcher == nil:
 				t.Fatalf("error == %#v, want nil", err)
