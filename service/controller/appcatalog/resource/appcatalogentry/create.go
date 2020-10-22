@@ -57,6 +57,10 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
+	var created, updated int
+
+	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding out changes to appcatalogentries for catalog %#q", cr.Name))
+
 	for name, desiredEntryCR := range desiredEntryCRs {
 		currentEntryCR, ok := currentEntryCRs[name]
 		if ok {
@@ -65,14 +69,20 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 				if err != nil {
 					return microerror.Mask(err)
 				}
+
+				updated++
 			}
 		} else {
 			err := r.createAppCatalogEntry(ctx, desiredEntryCR)
 			if err != nil {
 				return microerror.Mask(err)
 			}
+
+			created++
 		}
 	}
+
+	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("created %d updated %d appcatalogentries for catalog %#q", created, updated, cr.Name))
 
 	return nil
 }
