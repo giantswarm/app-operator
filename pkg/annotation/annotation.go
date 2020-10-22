@@ -19,4 +19,8 @@ const (
 	// CordonUntil is the name of the annotation that indicates
 	// the expiration date for this cordon rule.
 	CordonUntil = "cordon-until"
+
+	// LatestConfigMapVersion is the highest resource version among the configmaps
+	// app CRs depends on.
+	LatestConfigMapVersion = "latest-configmap-version"
 )
