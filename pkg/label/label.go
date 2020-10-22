@@ -20,7 +20,7 @@ const (
 	// catalog.
 	CatalogName = "application.giantswarm.io/catalog"
 
-	// Watching is the label that put into the configmaps to watch from appValue controller.
+	// Watching is the label added to configmaps watched by the app value controller.
 	Watching = "app-operator.giantswarm.io/watching"
 )
 

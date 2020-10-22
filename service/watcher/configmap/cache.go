@@ -25,7 +25,8 @@ func (c *AppValueWatcher) buildCache(ctx context.Context) error {
 
 		res, err := c.k8sClient.G8sClient().ApplicationV1alpha1().Apps("").Watch(ctx, lo)
 		if err != nil {
-			panic(err)
+			c.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("failed to get apps with label %#q", c.selector.String()), "stack", fmt.Sprintf("%#v", err))
+			continue
 		}
 
 		for r := range res.ResultChan() {
