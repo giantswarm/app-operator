@@ -12,6 +12,9 @@ import (
 )
 
 const (
+	// AppKubernetesName label is used to identify Kubernetes resources.
+	AppKubernetesName = "app.kubernetes.io/name"
+
 	// AppKubernetesVersion label is used to identify the version of Kubernetes
 	// resources.
 	AppKubernetesVersion = "app.kubernetes.io/version"
