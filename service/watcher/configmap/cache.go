@@ -29,7 +29,7 @@ func (c *AppValueWatcher) buildCache(ctx context.Context) error {
 		}
 
 		for r := range res.ResultChan() {
-			cr, err := key.ToCustomResource(r.Object)
+			cr, err := key.ToApp(r.Object)
 			if err != nil {
 				panic(err)
 			}
