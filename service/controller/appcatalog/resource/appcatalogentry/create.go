@@ -3,7 +3,12 @@ package appcatalogentry
 import (
 	"context"
 	"fmt"
+	"reflect"
+	"sort"
+	"strconv"
+	"time"
 
+	"github.com/Masterminds/semver"
 	"github.com/giantswarm/apiextensions/v2/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/apiextensions/v2/pkg/label"
 	"github.com/giantswarm/microerror"
@@ -51,7 +56,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
-	desiredEntryCRs, err := newAppCatalogEntries(ctx, cr, index)
+	desiredEntryCRs, err := r.newAppCatalogEntries(ctx, cr, index)
 	if err != nil {
 		return microerror.Mask(err)
 	}
@@ -121,10 +126,16 @@ func (r *Resource) updateAppCatalogEntry(ctx context.Context, entryCR *v1alpha1.
 	return nil
 }
 
-func newAppCatalogEntries(ctx context.Context, cr v1alpha1.AppCatalog, index index) (map[string]*v1alpha1.AppCatalogEntry, error) {
+func (r *Resource) newAppCatalogEntries(ctx context.Context, cr v1alpha1.AppCatalog, index index) (map[string]*v1alpha1.AppCatalogEntry, error) {
 	entryCRs := map[string]*v1alpha1.AppCatalogEntry{}
 
-	for _, entries := range index.Entries {
+	for name, entries := range index.Entries {
+		latestVersion, err := parseLatestVersion(entries)
+		if err != nil {
+			// Log error but continue generating CRs.
+			r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("failed to parse latest version for %#q in catalog %#q", name, cr.Name), "stack", fmt.Sprintf("%#v", err))
+		}
+
 		for _, entry := range entries {
 			name := fmt.Sprintf("%s-%s-%s", cr.Name, entry.Name, entry.Version)
 
@@ -136,6 +147,13 @@ func newAppCatalogEntries(ctx context.Context, cr v1alpha1.AppCatalog, index ind
 			// Until we add support for metadata files the updated time will be
 			// the same as the created time.
 			updatedTime := createdTime
+
+			var isLatest bool
+
+			// We set the latest label to true for easier filtering.
+			if entry.Version == latestVersion {
+				isLatest = true
+			}
 
 			entryCR := &v1alpha1.AppCatalogEntry{
 				TypeMeta: metav1.TypeMeta{
@@ -149,6 +167,7 @@ func newAppCatalogEntries(ctx context.Context, cr v1alpha1.AppCatalog, index ind
 						pkglabel.AppKubernetesName: entry.Name,
 						pkglabel.CatalogName:       cr.Name,
 						pkglabel.CatalogType:       key.CatalogType(cr),
+						pkglabel.Latest:            strconv.FormatBool(isLatest),
 						label.ManagedBy:            key.AppCatalogEntryManagedBy(),
 					},
 					OwnerReferences: []metav1.OwnerReference{
@@ -209,6 +228,28 @@ func equals(current, desired *v1alpha1.AppCatalogEntry) bool {
 	return reflect.DeepEqual(current.Spec, desired.Spec)
 }
 
+func parseLatestVersion(entries []entry) (string, error) {
+	if len(entries) == 0 {
+		return "", nil
+	}
+
+	versions := make([]*semver.Version, len(entries))
+
+	for i, entry := range entries {
+		v, err := semver.NewVersion(entry.Version)
+		if err != nil {
+			return "", microerror.Mask(err)
+		}
+
+		versions[i] = v
+	}
+
+	// Sort the versions semantically and return the latest.
+	sort.Sort(semver.Collection(versions))
+	latest := versions[len(versions)-1]
+
+	return latest.String(), nil
+}
 
 func parseTime(created string) (*metav1.Time, error) {
 	rawTime, err := time.Parse(time.RFC3339, created)

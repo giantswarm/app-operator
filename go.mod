@@ -3,6 +3,7 @@ module github.com/giantswarm/app-operator/v2
 go 1.14
 
 require (
+	github.com/Masterminds/semver v1.5.0
 	github.com/Masterminds/semver/v3 v3.1.0
 	github.com/ghodss/yaml v1.0.0
 	github.com/giantswarm/apiextensions/v2 v2.6.2

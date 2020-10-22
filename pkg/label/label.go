@@ -31,6 +31,10 @@ const (
 	// are displayed in the UX. e.g. public or internal.
 	CatalogVisibility = "application.giantswarm.io/catalog-visibility"
 
+	// Latest label is added to appcatalogentry CRs to filter for the most
+	// recent release.
+	Latest = "latest"
+
 	// Watching is the label added to configmaps watched by the app value controller.
 	Watching = "app-operator.giantswarm.io/watching"
 )
