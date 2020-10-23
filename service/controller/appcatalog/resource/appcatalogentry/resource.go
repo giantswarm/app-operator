@@ -3,6 +3,9 @@ package appcatalogentry
 import (
 	"context"
 	"fmt"
+	"io/ioutil"
+	"net/http"
+	"strings"
 
 	"github.com/giantswarm/apiextensions/v2/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/apiextensions/v2/pkg/label"
@@ -10,13 +13,20 @@ import (
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"sigs.k8s.io/yaml"
 
 	pkglabel "github.com/giantswarm/app-operator/v2/pkg/label"
-	"github.com/giantswarm/app-operator/v2/pkg/project"
+	"github.com/giantswarm/app-operator/v2/service/controller/key"
 )
 
 const (
 	Name = "appcatalogentry"
+
+	apiVersion           = "application.giantswarm.io/v1alpha1"
+	communityCatalogType = "community"
+	kindAppCatalog       = "AppCatalog"
+	kindAppCatalogEntry  = "AppCatalogEntry"
+	publicVisibilityType = "public"
 )
 
 type Config struct {
@@ -62,7 +72,7 @@ func (r *Resource) getCurrentEntryCRs(ctx context.Context, cr v1alpha1.AppCatalo
 	currentEntryCRs := map[string]*v1alpha1.AppCatalogEntry{}
 
 	lo := metav1.ListOptions{
-		LabelSelector: fmt.Sprintf("%s=%s,%s=%s", label.ManagedBy, project.Name(), pkglabel.CatalogName, cr.Name),
+		LabelSelector: fmt.Sprintf("%s=%s,%s=%s", label.ManagedBy, key.AppCatalogEntryManagedBy(), pkglabel.CatalogName, cr.Name),
 	}
 	entries, err := r.k8sClient.G8sClient().ApplicationV1alpha1().AppCatalogEntries(metav1.NamespaceDefault).List(ctx, lo)
 	if err != nil {
@@ -76,4 +86,33 @@ func (r *Resource) getCurrentEntryCRs(ctx context.Context, cr v1alpha1.AppCatalo
 	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("got %d current appcatalogentries for appcatalog %#q", len(currentEntryCRs), cr.Name))
 
 	return currentEntryCRs, nil
+}
+
+func (r *Resource) getIndex(ctx context.Context, storageURL string) (index, error) {
+	indexURL := fmt.Sprintf("%s/index.yaml", strings.TrimRight(storageURL, "/"))
+
+	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("getting index.yaml from %#q", indexURL))
+
+	// We use https in catalog URLs so we can disable the linter in this case.
+	resp, err := http.Get(indexURL) // #nosec
+	if err != nil {
+		return index{}, microerror.Mask(err)
+	}
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return index{}, microerror.Mask(err)
+	}
+
+	var i index
+
+	err = yaml.Unmarshal(body, &i)
+	if err != nil {
+		return i, microerror.Mask(err)
+	}
+
+	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("got index.yaml from %#q", indexURL))
+
+	return i, nil
 }

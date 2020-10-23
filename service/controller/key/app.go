@@ -135,9 +135,9 @@ func IsAppCordoned(customResource v1alpha1.App) bool {
 
 	if reasonOk && untilOk {
 		return true
-	} else {
-		return false
 	}
+
+	return false
 }
 
 func IsChartCordoned(customResource v1alpha1.Chart) bool {
@@ -146,9 +146,9 @@ func IsChartCordoned(customResource v1alpha1.Chart) bool {
 
 	if reasonOk && untilOk {
 		return true
-	} else {
-		return false
 	}
+
+	return false
 }
 
 func IsDeleted(customResource v1alpha1.App) bool {
@@ -215,7 +215,7 @@ func Version(customResource v1alpha1.App) string {
 func VersionLabel(customResource v1alpha1.App) string {
 	if val, ok := customResource.ObjectMeta.Labels[label.AppOperatorVersion]; ok {
 		return val
-	} else {
-		return ""
 	}
+
+	return ""
 }

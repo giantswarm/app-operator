@@ -3,6 +3,7 @@ module github.com/giantswarm/app-operator/v2
 go 1.14
 
 require (
+	github.com/Masterminds/semver v1.5.0
 	github.com/Masterminds/semver/v3 v3.1.0
 	github.com/ghodss/yaml v1.0.0
 	github.com/giantswarm/apiextensions/v2 v2.6.2
@@ -17,6 +18,7 @@ require (
 	github.com/giantswarm/microkit v0.2.2
 	github.com/giantswarm/micrologger v0.3.3
 	github.com/giantswarm/operatorkit/v2 v2.0.2
+	github.com/giantswarm/to v0.3.0
 	github.com/giantswarm/versionbundle v0.2.0
 	github.com/google/go-cmp v0.5.2
 	github.com/spf13/afero v1.4.1
