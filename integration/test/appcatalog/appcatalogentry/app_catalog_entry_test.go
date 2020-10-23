@@ -24,6 +24,12 @@ import (
 // TestAppCatalogEntry tests appcatalogentry CRs are generated for the
 // giantswarm catalog.
 //
+// Create giantswarm appcatalog CR to trigger creation of appcatalogentry CRs.
+// Get a single CR and check values are correct.
+//
+// Delete giantswarm appcatalog CR to trigger deletion of appcatalogentry CRs.
+// Check all appcatalogentry CRs are deleted.
+//
 func TestAppCatalogEntry(t *testing.T) {
 	ctx := context.Background()
 
