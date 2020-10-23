@@ -19,7 +19,6 @@ import (
 	"github.com/giantswarm/app-operator/v2/integration/env"
 	"github.com/giantswarm/app-operator/v2/integration/key"
 	"github.com/giantswarm/app-operator/v2/integration/templates"
-	"github.com/giantswarm/app-operator/v2/pkg/project"
 )
 
 const (
