@@ -249,7 +249,7 @@ func TestWatchingConfigMap(t *testing.T) {
 			config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("failed to get an annotation; retrying in %d", t), "stack", fmt.Sprintf("%v", err))
 		}
 
-		b := backoff.NewMaxRetries(5, backoff.ShortMaxInterval)
+		b := backoff.NewMaxRetries(15, backoff.ShortMaxInterval)
 		err := backoff.RetryNotify(o, b, n)
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
