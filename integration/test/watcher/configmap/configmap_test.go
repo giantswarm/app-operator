@@ -22,15 +22,19 @@ import (
 
 // TestWatchingConfigMap tests app CRs are updated when wired configmaps are updated
 //
-// Create user configmap, and wired to app CR to trigger labelling on user configmap.
+// - Create user configmap, appcatalog configmap
 //
-// Update user configmap and check the latest resource version is set on the annotation
-// of app CR.
+// - Create app CR and wiring user configmap and appcatalog
 //
-// Update appcatalog configmap and check the latest resource version is set on the anntation
-// of app CR.
+// - Update user configmap and check the latest resource version is set on the annotation
+//   of app CR.
 //
-// Delete app CR and check the watching label is deleted.
+// - Update appcatalog onfigmap and check the latest resource version is set on the annotation
+//   of app CR.
+//
+//
+// - Delete app CR and check the watching label is deleted.
+//
 func TestWatchingConfigMap(t *testing.T) {
 	ctx := context.Background()
 
