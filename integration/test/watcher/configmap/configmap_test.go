@@ -228,7 +228,7 @@ func TestWatchingConfigMap(t *testing.T) {
 	versionAnnotation := fmt.Sprintf("%s/%s", annotation.AppOperatorPrefix, annotation.LatestConfigMapVersion)
 
 	{
-		config.Logger.LogCtx(ctx, "level", "debug", "message", "waiting until app CR annotate by resource version")
+		config.Logger.LogCtx(ctx, "level", "debug", "message", "waiting until app CR annotate by user configmap's resourceVersion")
 
 		o := func() error {
 			cr, err := config.K8sClients.G8sClient().ApplicationV1alpha1().Apps(key.Namespace()).Get(ctx, key.TestAppReleaseName(), metav1.GetOptions{})
@@ -255,7 +255,57 @@ func TestWatchingConfigMap(t *testing.T) {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
 
-		config.Logger.LogCtx(ctx, "level", "debug", "message", "waited until app CR annotate by resource version")
+		config.Logger.LogCtx(ctx, "level", "debug", "message", "waited until app CR annotate by user configmap's resourceVersion")
+	}
+
+	{
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("editing configmap %#q in namespace %#q", key.AppCatalogConfigMapName(), key.Namespace()))
+
+		cm, err := config.K8sClients.K8sClient().CoreV1().ConfigMaps(key.Namespace()).Get(ctx, key.AppCatalogConfigMapName(), metav1.GetOptions{})
+		if err != nil {
+			t.Fatalf("expected %#v got %#v", nil, err)
+		}
+
+		cm.Data["values"] = "test: appcatalogConfigmap"
+		updatedCM, err := config.K8sClients.K8sClient().CoreV1().ConfigMaps(key.Namespace()).Update(ctx, cm, metav1.UpdateOptions{})
+		if err != nil {
+			t.Fatalf("expected %#v got %#v", nil, err)
+		}
+
+		updatedResourceVersion = updatedCM.GetResourceVersion()
+
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("edited configmap %#q in namespace %#q", key.UserConfigMapName(), key.Namespace()))
+	}
+
+	{
+		config.Logger.LogCtx(ctx, "level", "debug", "message", "waiting until app CR annotate by appcatalog configmap's resourceVersion")
+
+		o := func() error {
+			cr, err := config.K8sClients.G8sClient().ApplicationV1alpha1().Apps(key.Namespace()).Get(ctx, key.TestAppReleaseName(), metav1.GetOptions{})
+			if err != nil {
+				return microerror.Mask(err)
+			}
+
+			if v, ok := cr.GetAnnotations()[versionAnnotation]; !ok {
+				return microerror.Maskf(notFoundError, fmt.Sprintf("%#q annotation not found", versionAnnotation))
+			} else if v != updatedResourceVersion {
+				return microerror.Maskf(testError, fmt.Sprintf("expect annotation equal to %#q but %#q", updatedResourceVersion, v))
+			}
+
+			return nil
+		}
+
+		n := func(err error, t time.Duration) {
+			config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("failed to get an annotation; retrying in %d", t), "stack", fmt.Sprintf("%v", err))
+		}
+
+		b := backoff.NewMaxRetries(5, backoff.ShortMaxInterval)
+		err := backoff.RetryNotify(o, b, n)
+		if err != nil {
+			t.Fatalf("expected %#v got %#v", nil, err)
+		}
+
+		config.Logger.LogCtx(ctx, "level", "debug", "message", "waited until app CR annotate by appcatalog configmap's resourceVersion")
 	}
 
 }
