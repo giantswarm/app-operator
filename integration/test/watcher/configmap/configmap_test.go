@@ -308,4 +308,44 @@ func TestWatchingConfigMap(t *testing.T) {
 		config.Logger.LogCtx(ctx, "level", "debug", "message", "waited until app CR annotate by appcatalog configmap's resourceVersion")
 	}
 
+	{
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleting app CR %#q", key.TestAppReleaseName()))
+
+		err = config.K8sClients.G8sClient().ApplicationV1alpha1().Apps(key.Namespace()).Delete(ctx, key.TestAppReleaseName(), metav1.DeleteOptions{})
+		if err != nil {
+			t.Fatalf("expected %#v got %#v", nil, err)
+		}
+
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleted app CR %#q", key.TestAppReleaseName()))
+	}
+
+	{
+		config.Logger.LogCtx(ctx, "level", "debug", "message", "waiting until user configmap label get deleted")
+
+		o := func() error {
+			cm, err := config.K8sClients.K8sClient().CoreV1().ConfigMaps(key.Namespace()).Get(ctx, key.UserConfigMapName(), metav1.GetOptions{})
+			if err != nil {
+				return microerror.Mask(err)
+			}
+
+			if _, ok := cm.GetLabels()[pkglabel.Watching]; ok {
+				return microerror.Maskf(testError, fmt.Sprintf("%#q label still found", pkglabel.Watching))
+			}
+
+			return nil
+		}
+
+		n := func(err error, t time.Duration) {
+			config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("still get label; retrying in %d", t), "stack", fmt.Sprintf("%v", err))
+		}
+
+		b := backoff.NewMaxRetries(5, backoff.ShortMaxInterval)
+		err := backoff.RetryNotify(o, b, n)
+		if err != nil {
+			t.Fatalf("expected %#v got %#v", nil, err)
+		}
+
+		config.Logger.LogCtx(ctx, "level", "debug", "message", "waited until user configmap label get deleted")
+	}
+
 }
