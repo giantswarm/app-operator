@@ -7,6 +7,12 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Added
+
+- Create appcatalogentry CRs for public app catalogs.
+- Watch configmaps referenced in app CRs to reduce latency when applying config
+changes.
+
 ## [2.3.5] - 2020-10-20
 
 ### Fixed
