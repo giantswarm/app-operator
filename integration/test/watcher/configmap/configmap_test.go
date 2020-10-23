@@ -236,7 +236,7 @@ func TestWatchingConfigMap(t *testing.T) {
 				return microerror.Mask(err)
 			}
 
-			if v, ok := cr.GetLabels()[versionAnnotation]; !ok {
+			if v, ok := cr.GetAnnotations()[versionAnnotation]; !ok {
 				return microerror.Maskf(notFoundError, fmt.Sprintf("%#q annotation not found", versionAnnotation))
 			} else if v != updatedResourceVersion {
 				return microerror.Maskf(testError, fmt.Sprintf("expect annotation equal to %#q but %#q", updatedResourceVersion, v))
@@ -249,7 +249,7 @@ func TestWatchingConfigMap(t *testing.T) {
 			config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("failed to get an annotation; retrying in %d", t), "stack", fmt.Sprintf("%v", err))
 		}
 
-		b := backoff.NewMaxRetries(15, backoff.ShortMaxInterval)
+		b := backoff.NewMaxRetries(5, backoff.ShortMaxInterval)
 		err := backoff.RetryNotify(o, b, n)
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
