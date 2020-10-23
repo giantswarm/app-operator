@@ -112,27 +112,6 @@ func TestWatchingConfigMap(t *testing.T) {
 	}
 
 	{
-		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating configmap %#q in namespace %#q", key.UserConfigMapName(), key.Namespace()))
-
-		cm := &corev1.ConfigMap{
-			ObjectMeta: metav1.ObjectMeta{
-				Name:      key.AppCatalogConfigMapName(),
-				Namespace: key.Namespace(),
-			},
-			Data: map[string]string{
-				"values": "",
-			},
-		}
-
-		_, err := config.K8sClients.K8sClient().CoreV1().ConfigMaps(key.Namespace()).Create(ctx, cm, metav1.CreateOptions{})
-		if err != nil {
-			t.Fatalf("expected %#v got %#v", nil, err)
-		}
-
-		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("created configmap %#q in namespace %#q", key.UserConfigMapName(), key.Namespace()))
-	}
-
-	{
 		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating %#q app cr", key.TestAppReleaseName()))
 
 		appCR := &v1alpha1.App{
