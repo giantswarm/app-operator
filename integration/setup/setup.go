@@ -56,11 +56,12 @@ func installResources(ctx context.Context, config Config) error {
 		}
 	}
 
-	// Create AppCatalog and App CRDs. The Chart CRD is created by the operator
+	// Create CRDs. The Chart CRD is created by the operator
 	// for the kubeconfig test that bootstraps chart-operator.
 	crds := []string{
-		"AppCatalog",
 		"App",
+		"AppCatalog",
+		"AppCatalogEntry",
 	}
 
 	{
@@ -117,10 +118,11 @@ func installResources(ctx context.Context, config Config) error {
 				},
 			},
 		}
+		// Release is named app-operator-unique as some functionality is only
+		// implemented for the unique instance.
 		opts := helmclient.InstallOptions{
-			ReleaseName: project.Name(),
+			ReleaseName: fmt.Sprintf("%s-unique", project.Name()),
 		}
-
 		err = config.HelmClient.InstallReleaseFromTarball(ctx,
 			operatorTarballPath,
 			namespace,
