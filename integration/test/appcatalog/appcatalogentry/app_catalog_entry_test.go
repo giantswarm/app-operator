@@ -150,7 +150,7 @@ func TestAppCatalogEntry(t *testing.T) {
 			config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("appcatalogentry CRs still exist: retrying in %s", t), "stack", fmt.Sprintf("%v", err))
 		}
 
-		b := backoff.NewConstant(5*time.Minute, 15*time.Second)
+		b := backoff.NewMaxRetries(10, 15*time.Second)
 		err := backoff.RetryNotify(o, b, n)
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
