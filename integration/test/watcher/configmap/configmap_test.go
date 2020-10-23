@@ -324,7 +324,7 @@ func TestWatchingConfigMap(t *testing.T) {
 	}
 
 	{
-		config.Logger.LogCtx(ctx, "level", "debug", "message", "waiting until user configmap label get deleted")
+		config.Logger.LogCtx(ctx, "level", "debug", "message", "waiting until watching label get deleted")
 
 		o := func() error {
 			cm, err := config.K8sClients.K8sClient().CoreV1().ConfigMaps(key.Namespace()).Get(ctx, key.UserConfigMapName(), metav1.GetOptions{})
@@ -349,7 +349,7 @@ func TestWatchingConfigMap(t *testing.T) {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
 
-		config.Logger.LogCtx(ctx, "level", "debug", "message", "waited until user configmap label get deleted")
+		config.Logger.LogCtx(ctx, "level", "debug", "message", "waited until watching label get deleted")
 	}
 
 }
