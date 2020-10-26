@@ -23,7 +23,7 @@ type AppValueWatcher struct {
 	k8sClient k8sclient.Interface
 	logger    micrologger.Logger
 
-	configMapToApps sync.Map
+	resourcesToApps sync.Map
 	selector        labels.Selector
 	unique          bool
 }
@@ -40,7 +40,7 @@ func NewAppValueWatcher(config AppValueWatcherConfig) (*AppValueWatcher, error) 
 		k8sClient: config.K8sClient,
 		logger:    config.Logger,
 
-		configMapToApps: sync.Map{},
+		resourcesToApps: sync.Map{},
 		selector:        label.AppVersionSelector(config.UniqueApp),
 		unique:          config.UniqueApp,
 	}

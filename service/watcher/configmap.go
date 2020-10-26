@@ -79,14 +79,15 @@ func (c *AppValueWatcher) watch(ctx context.Context) {
 				continue
 			}
 
-			configMap := configMapIndex{
-				Name:      cm.GetName(),
-				Namespace: cm.GetNamespace(),
+			configMap := resourceIndex{
+				ResourceType: configMapType,
+				Name:         cm.GetName(),
+				Namespace:    cm.GetNamespace(),
 			}
 
 			var storedIndex map[appIndex]bool
 			{
-				v, ok := c.configMapToApps.Load(configMap)
+				v, ok := c.resourcesToApps.Load(configMap)
 				if !ok {
 					c.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("cache missed configMap %#q in namespace %#q", configMap.Name, configMap.Namespace))
 					continue
