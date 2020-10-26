@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Fixed
+
+- Use resourceVersion of configmap for comparison instead of listing option.
+
 ## [2.4.0] - 2020-10-23
 
 ### Added
