@@ -52,6 +52,7 @@ func (c *AppValueWatcher) Boot(ctx context.Context) {
 	// Watch for configmap changes.
 	go c.watchConfigMap(ctx)
 
+	// Watch for secret changes.
 	go c.watchSecret(ctx)
 
 	// Build a cache of configmaps and link each app to its configmaps.
