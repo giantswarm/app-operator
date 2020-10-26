@@ -100,6 +100,7 @@ func (c *AppValueWatcher) watchConfigMap(ctx context.Context) {
 				}
 			}
 
+			c.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("listed apps depends on %#q configmap in namespace %#q", cm.Name, cm.Namespace))
 			for app := range storedIndex {
 				c.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("triggering %#q app update in namespace %#q", app.Name, app.Namespace))
 
@@ -111,6 +112,7 @@ func (c *AppValueWatcher) watchConfigMap(ctx context.Context) {
 
 				c.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("triggered %#q app update in namespace %#q", app.Name, app.Namespace))
 			}
+			c.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("listed apps depends on %#q configmap in namespace %#q", cm.Name, cm.Namespace))
 		}
 
 		c.logger.Log("debug", "watch channel had been closed, reopening...")
