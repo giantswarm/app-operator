@@ -152,7 +152,7 @@ func TestWatchingConfigMap(t *testing.T) {
 	}
 
 	{
-		config.Logger.LogCtx(ctx, "level", "debug", "message", "waiting until user configmap being labelled")
+		config.Logger.LogCtx(ctx, "level", "debug", "message", "waiting until user configmap is labelled")
 
 		o := func() error {
 			cm, err := config.K8sClients.K8sClient().CoreV1().ConfigMaps(key.Namespace()).Get(ctx, key.UserConfigMapName(), metav1.GetOptions{})
@@ -177,11 +177,11 @@ func TestWatchingConfigMap(t *testing.T) {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
 
-		config.Logger.LogCtx(ctx, "level", "debug", "message", "waited until user configmap being labelled")
+		config.Logger.LogCtx(ctx, "level", "debug", "message", "waited until user configmap was labelled")
 	}
 
 	{
-		config.Logger.LogCtx(ctx, "level", "debug", "message", "waiting until appcatalog configmap being labelled")
+		config.Logger.LogCtx(ctx, "level", "debug", "message", "waiting until appcatalog configmap is labelled")
 
 		o := func() error {
 			cm, err := config.K8sClients.K8sClient().CoreV1().ConfigMaps(key.Namespace()).Get(ctx, key.AppCatalogConfigMapName(), metav1.GetOptions{})
@@ -206,12 +206,12 @@ func TestWatchingConfigMap(t *testing.T) {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
 
-		config.Logger.LogCtx(ctx, "level", "debug", "message", "waited until appcatalog configmap being labelled")
+		config.Logger.LogCtx(ctx, "level", "debug", "message", "waited until appcatalog configmap was labelled")
 	}
 
 	var updatedResourceVersion string
 	{
-		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("editing configmap %#q in namespace %#q", key.UserConfigMapName(), key.Namespace()))
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating values in configmap %#q in namespace %#q", key.UserConfigMapName(), key.Namespace()))
 
 		cm, err := config.K8sClients.K8sClient().CoreV1().ConfigMaps(key.Namespace()).Get(ctx, key.UserConfigMapName(), metav1.GetOptions{})
 		if err != nil {
@@ -226,13 +226,13 @@ func TestWatchingConfigMap(t *testing.T) {
 
 		updatedResourceVersion = updatedCM.GetResourceVersion()
 
-		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("edited configmap %#q in namespace %#q", key.UserConfigMapName(), key.Namespace()))
+		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updated values in configmap %#q in namespace %#q", key.UserConfigMapName(), key.Namespace()))
 	}
 
 	versionAnnotation := fmt.Sprintf("%s/%s", annotation.AppOperatorPrefix, annotation.LatestConfigMapVersion)
 
 	{
-		config.Logger.LogCtx(ctx, "level", "debug", "message", "waiting until app CR annotate by user configmap's resourceVersion")
+		config.Logger.LogCtx(ctx, "level", "debug", "message", "waiting until app CR is annotated with user configmap's resourceVersion")
 
 		o := func() error {
 			cr, err := config.K8sClients.G8sClient().ApplicationV1alpha1().Apps(key.Namespace()).Get(ctx, key.TestAppReleaseName(), metav1.GetOptions{})
@@ -259,7 +259,7 @@ func TestWatchingConfigMap(t *testing.T) {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
 
-		config.Logger.LogCtx(ctx, "level", "debug", "message", "waited until app CR annotate by user configmap's resourceVersion")
+		config.Logger.LogCtx(ctx, "level", "debug", "message", "waited until app CR is annotated with user configmap's resourceVersion")
 	}
 
 	{
@@ -324,7 +324,7 @@ func TestWatchingConfigMap(t *testing.T) {
 	}
 
 	{
-		config.Logger.LogCtx(ctx, "level", "debug", "message", "waiting until watching label get deleted")
+		config.Logger.LogCtx(ctx, "level", "debug", "message", "waiting until watching label is deleted")
 
 		o := func() error {
 			cm, err := config.K8sClients.K8sClient().CoreV1().ConfigMaps(key.Namespace()).Get(ctx, key.UserConfigMapName(), metav1.GetOptions{})
@@ -340,7 +340,7 @@ func TestWatchingConfigMap(t *testing.T) {
 		}
 
 		n := func(err error, t time.Duration) {
-			config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("still get label; retrying in %d", t), "stack", fmt.Sprintf("%v", err))
+			config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("still getting label; retrying in %d", t), "stack", fmt.Sprintf("%v", err))
 		}
 
 		b := backoff.NewMaxRetries(5, backoff.ShortMaxInterval)
@@ -349,7 +349,7 @@ func TestWatchingConfigMap(t *testing.T) {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
 
-		config.Logger.LogCtx(ctx, "level", "debug", "message", "waited until watching label get deleted")
+		config.Logger.LogCtx(ctx, "level", "debug", "message", "waited until watching label was deleted")
 	}
 
 }
