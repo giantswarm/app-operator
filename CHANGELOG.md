@@ -7,6 +7,12 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Fixed
+
+- Use resourceVersion of configmap for comparison instead of listing option.
+
+## [2.4.0] - 2020-10-23
+
 ### Added
 
 - Create appcatalogentry CRs for public app catalogs.
@@ -208,7 +214,8 @@ from Helm 2 to Helm 3.
 
 - Flattening operator release structure.
 
-[Unreleased]: https://github.com/giantswarm/app-operator/compare/v2.3.5...HEAD
+[Unreleased]: https://github.com/giantswarm/app-operator/compare/v2.4.0...HEAD
+[2.4.0]: https://github.com/giantswarm/app-operator/compare/v2.3.5...v2.4.0
 [2.3.5]: https://github.com/giantswarm/app-operator/compare/v2.3.4...v2.3.5
 [2.3.4]: https://github.com/giantswarm/app-operator/compare/v2.3.3...v2.3.4
 [2.3.3]: https://github.com/giantswarm/app-operator/compare/v2.3.2...v2.3.3

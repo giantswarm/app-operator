@@ -44,8 +44,6 @@ func (c *AppValueWatcher) watch(ctx context.Context) {
 
 		c.logger.LogCtx(ctx, "debug", fmt.Sprintf("starting ResourceVersion is %d", highestResourceVersion))
 
-		lo.ResourceVersion = strconv.FormatUint(highestResourceVersion, 10)
-
 		res, err := c.k8sClient.K8sClient().CoreV1().ConfigMaps("").Watch(ctx, lo)
 		if err != nil {
 			c.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("failed to get configmaps with label %#q", pkglabel.Watching), "stack", fmt.Sprintf("%#v", err))
@@ -53,14 +51,31 @@ func (c *AppValueWatcher) watch(ctx context.Context) {
 		}
 
 		for r := range res.ResultChan() {
-			if r.Type == watch.Bookmark || r.Type == watch.Error {
+			if r.Type == watch.Bookmark {
 				// no-op for unsupported events
+				continue
+			}
+
+			if r.Type == watch.Error {
+				c.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("got error event: %#q", r.Object))
 				continue
 			}
 
 			cm, err := toConfigMap(r.Object)
 			if err != nil {
 				c.logger.LogCtx(ctx, "level", "info", "message", "failed to convert configmap object", "stack", fmt.Sprintf("%#v", err))
+				continue
+			}
+
+			v, err := getResourceVersion(cm.GetResourceVersion())
+			if err != nil {
+				c.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("failed to get resourceVersion from configmaps %#q in namespace %#q", cm.GetName(), cm.GetNamespace()), "stack", fmt.Sprintf("%#v", err))
+				continue
+			}
+
+			if v <= highestResourceVersion {
+				// no-op
+				c.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("no need to reconcile for the older resourceVersion %d", v))
 				continue
 			}
 
