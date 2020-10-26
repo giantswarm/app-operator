@@ -7,6 +7,8 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+## [2.4.1] - 2020-10-26
+
 ### Fixed
 
 - Use resourceVersion of configmap for comparison instead of listing option.
@@ -214,7 +216,8 @@ from Helm 2 to Helm 3.
 
 - Flattening operator release structure.
 
-[Unreleased]: https://github.com/giantswarm/app-operator/compare/v2.4.0...HEAD
+[Unreleased]: https://github.com/giantswarm/app-operator/compare/v2.4.1...HEAD
+[2.4.1]: https://github.com/giantswarm/app-operator/compare/v2.4.0...v2.4.1
 [2.4.0]: https://github.com/giantswarm/app-operator/compare/v2.3.5...v2.4.0
 [2.3.5]: https://github.com/giantswarm/app-operator/compare/v2.3.4...v2.3.5
 [2.3.4]: https://github.com/giantswarm/app-operator/compare/v2.3.3...v2.3.4
