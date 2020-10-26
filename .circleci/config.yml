@@ -74,3 +74,11 @@ workflows:
           requires:
             - go-build
             - push-app-operator-to-control-plane-app-catalog
+
+      - architect/integration-test:
+          context: architect
+          name: watching-configmap-integration-test
+          test-dir: "integration/test/watcher/configmap"
+          requires:
+            - go-build
+            - push-app-operator-to-control-plane-app-catalog

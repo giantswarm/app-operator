@@ -2,6 +2,10 @@
 
 package key
 
+func AppCatalogConfigMapName() string {
+	return "appcatalog-config"
+}
+
 func AppCatalogEntryName() string {
 	return "giantswarm-prometheus-operator-app-0.3.4"
 }
@@ -36,4 +40,8 @@ func TestAppReleaseName() string {
 
 func UniqueAppVersion() string {
 	return "0.0.0"
+}
+
+func UserConfigMapName() string {
+	return "user-config"
 }
