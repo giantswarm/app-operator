@@ -1,4 +1,4 @@
-package configmap
+package watcher
 
 import (
 	"context"
@@ -16,7 +16,7 @@ import (
 	pkglabel "github.com/giantswarm/app-operator/v2/pkg/label"
 )
 
-func (c *AppValueWatcher) watch(ctx context.Context) {
+func (c *AppValueWatcher) watchConfigMap(ctx context.Context) {
 	for {
 		lo := metav1.ListOptions{
 			LabelSelector: pkglabel.Watching,
@@ -103,7 +103,7 @@ func (c *AppValueWatcher) watch(ctx context.Context) {
 			for app := range storedIndex {
 				c.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("triggering %#q app update in namespace %#q", app.Name, app.Namespace))
 
-				err := c.addAnnotation(ctx, app, cm.GetResourceVersion())
+				err := c.addAnnotation(ctx, app, cm.GetResourceVersion(), configMapType)
 				if err != nil {
 					c.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("failed to add annotation to app %#q in namespace %#q", app.Name, app.Namespace), "stack", fmt.Sprintf("%#v", err))
 					continue
@@ -117,8 +117,15 @@ func (c *AppValueWatcher) watch(ctx context.Context) {
 	}
 }
 
-func (c *AppValueWatcher) addAnnotation(ctx context.Context, app appIndex, latestResourceVersion string) error {
-	versionAnnotation := fmt.Sprintf("%s/%s", annotation.AppOperatorPrefix, annotation.LatestConfigMapVersion)
+func (c *AppValueWatcher) addAnnotation(ctx context.Context, app appIndex, latestResourceVersion string, resType resourceType) error {
+	var versionAnnotation string
+	{
+		if resType == configMapType {
+			versionAnnotation = fmt.Sprintf("%s/%s", annotation.AppOperatorPrefix, annotation.LatestConfigMapVersion)
+		} else {
+			versionAnnotation = fmt.Sprintf("%s/%s", annotation.AppOperatorPrefix, annotation.LatestSecretVersion)
+		}
+	}
 
 	currentApp, err := c.k8sClient.G8sClient().ApplicationV1alpha1().Apps(app.Namespace).Get(ctx, app.Name, metav1.GetOptions{})
 	if err != nil {

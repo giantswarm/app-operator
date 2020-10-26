@@ -1,4 +1,4 @@
-package configmap
+package watcher
 
 type resourceType string
 

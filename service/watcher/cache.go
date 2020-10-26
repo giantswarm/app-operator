@@ -1,4 +1,4 @@
-package configmap
+package watcher
 
 import (
 	"context"
@@ -178,7 +178,7 @@ func (c *AppValueWatcher) addLabel(ctx context.Context, resource resourceIndex) 
 
 			currentLabels = currentCM.GetLabels()
 		} else if resource.ResourceType == secretType {
-			currentSecret, err := c.k8sClient.K8sClient().CoreV1().ConfigMaps(resource.Namespace).Get(ctx, resource.Name, metav1.GetOptions{})
+			currentSecret, err := c.k8sClient.K8sClient().CoreV1().Secrets(resource.Namespace).Get(ctx, resource.Name, metav1.GetOptions{})
 			if err != nil {
 				return microerror.Mask(err)
 			}
@@ -241,7 +241,7 @@ func (c *AppValueWatcher) removeLabel(ctx context.Context, resource resourceInde
 
 			currentLabels = currentCM.GetLabels()
 		} else if resource.ResourceType == secretType {
-			currentSecret, err := c.k8sClient.K8sClient().CoreV1().ConfigMaps(resource.Namespace).Get(ctx, resource.Name, metav1.GetOptions{})
+			currentSecret, err := c.k8sClient.K8sClient().CoreV1().Secrets(resource.Namespace).Get(ctx, resource.Name, metav1.GetOptions{})
 			if err != nil {
 				return microerror.Mask(err)
 			}

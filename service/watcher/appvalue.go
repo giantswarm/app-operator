@@ -1,4 +1,4 @@
-package configmap
+package watcher
 
 import (
 	"context"
@@ -50,7 +50,9 @@ func NewAppValueWatcher(config AppValueWatcherConfig) (*AppValueWatcher, error) 
 
 func (c *AppValueWatcher) Boot(ctx context.Context) {
 	// Watch for configmap changes.
-	go c.watch(ctx)
+	go c.watchConfigMap(ctx)
+
+	go c.watchSecret(ctx)
 
 	// Build a cache of configmaps and link each app to its configmaps.
 	go c.buildCache(ctx)
