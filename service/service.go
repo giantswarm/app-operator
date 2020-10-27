@@ -128,7 +128,7 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
-	var appValueController *watcher.AppValueWatcher
+	var appValueWatcher *watcher.AppValueWatcher
 	{
 		c := watcher.AppValueWatcherConfig{
 			K8sClient: k8sClient,
@@ -137,7 +137,7 @@ func New(config Config) (*Service, error) {
 			UniqueApp: config.Viper.GetBool(config.Flag.Service.App.Unique),
 		}
 
-		appValueController, err = watcher.NewAppValueWatcher(c)
+		appValueWatcher, err = watcher.NewAppValueWatcher(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -165,7 +165,7 @@ func New(config Config) (*Service, error) {
 
 		appController:        appController,
 		appCatalogController: appCatalogController,
-		configMapWatcher:     appValueController,
+		configMapWatcher:     appValueWatcher,
 		bootOnce:             sync.Once{},
 	}
 
