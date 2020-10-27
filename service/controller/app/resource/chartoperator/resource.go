@@ -6,6 +6,7 @@ import (
 
 	"github.com/giantswarm/apiextensions/v2/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/apiextensions/v2/pkg/clientset/versioned"
+	"github.com/giantswarm/app/v2/pkg/key"
 	"github.com/giantswarm/appcatalog"
 	"github.com/giantswarm/helmclient/v2/pkg/helmclient"
 	"github.com/giantswarm/microerror"
@@ -15,7 +16,6 @@ import (
 
 	"github.com/giantswarm/app-operator/v2/service/controller/app/controllercontext"
 	"github.com/giantswarm/app-operator/v2/service/controller/app/values"
-	"github.com/giantswarm/app-operator/v2/service/controller/key"
 )
 
 const (

@@ -8,13 +8,12 @@ import (
 	"sync"
 
 	"github.com/giantswarm/apiextensions/v2/pkg/apis/application/v1alpha1"
+	"github.com/giantswarm/app/v2/pkg/key"
+	"github.com/giantswarm/app/v2/pkg/label"
 	"github.com/giantswarm/microerror"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/watch"
-
-	pkglabel "github.com/giantswarm/app-operator/v2/pkg/label"
-	"github.com/giantswarm/app-operator/v2/service/controller/key"
 )
 
 func (c *AppValueWatcher) buildCache(ctx context.Context) {
@@ -146,7 +145,7 @@ func (c *AppValueWatcher) addLabel(ctx context.Context, cm configMapIndex) error
 		return microerror.Mask(err)
 	}
 
-	if _, ok := currentCM.GetLabels()[pkglabel.Watching]; ok {
+	if _, ok := currentCM.GetLabels()[label.Watching]; ok {
 		// no-op
 		return nil
 	}
@@ -163,7 +162,7 @@ func (c *AppValueWatcher) addLabel(ctx context.Context, cm configMapIndex) error
 
 	patches = append(patches, patch{
 		Op:    "add",
-		Path:  fmt.Sprintf("/metadata/labels/%s", replaceToEscape(pkglabel.Watching)),
+		Path:  fmt.Sprintf("/metadata/labels/%s", replaceToEscape(label.Watching)),
 		Value: "true",
 	})
 
@@ -185,7 +184,7 @@ func (c *AppValueWatcher) removeLabel(ctx context.Context, cm configMapIndex) er
 		return microerror.Mask(err)
 	}
 
-	if _, ok := currentCM.GetLabels()[pkglabel.Watching]; !ok {
+	if _, ok := currentCM.GetLabels()[label.Watching]; !ok {
 		// no-op
 		return nil
 	}
@@ -193,7 +192,7 @@ func (c *AppValueWatcher) removeLabel(ctx context.Context, cm configMapIndex) er
 	patches := []patch{
 		{
 			Op:   "remove",
-			Path: fmt.Sprintf("/metadata/labels/%s", replaceToEscape(pkglabel.Watching)),
+			Path: fmt.Sprintf("/metadata/labels/%s", replaceToEscape(label.Watching)),
 		},
 	}
 

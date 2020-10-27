@@ -3,9 +3,8 @@ package appcatalog
 import (
 	"context"
 
+	"github.com/giantswarm/app/v2/pkg/key"
 	"github.com/giantswarm/microerror"
-
-	"github.com/giantswarm/app-operator/v2/service/controller/key"
 )
 
 // EnsureCreated gets the appCatalog CR specified in the provided app CR.

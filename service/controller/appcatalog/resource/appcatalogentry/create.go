@@ -11,13 +11,14 @@ import (
 	"github.com/Masterminds/semver"
 	"github.com/giantswarm/apiextensions/v2/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/apiextensions/v2/pkg/label"
+	"github.com/giantswarm/app/v2/pkg/key"
+	applabel "github.com/giantswarm/app/v2/pkg/label"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/to"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	pkglabel "github.com/giantswarm/app-operator/v2/pkg/label"
-	"github.com/giantswarm/app-operator/v2/service/controller/key"
+	"github.com/giantswarm/app-operator/v2/pkg/project"
 )
 
 // EnsureCreated ensures appcatalogentry CRs are created or updated for this
@@ -164,11 +165,11 @@ func (r *Resource) newAppCatalogEntries(ctx context.Context, cr v1alpha1.AppCata
 					Name:      name,
 					Namespace: metav1.NamespaceDefault,
 					Labels: map[string]string{
-						pkglabel.AppKubernetesName: entry.Name,
-						pkglabel.CatalogName:       cr.Name,
-						pkglabel.CatalogType:       key.CatalogType(cr),
-						pkglabel.Latest:            strconv.FormatBool(isLatest),
-						label.ManagedBy:            key.AppCatalogEntryManagedBy(),
+						applabel.AppKubernetesName: entry.Name,
+						applabel.CatalogName:       cr.Name,
+						applabel.CatalogType:       key.CatalogType(cr),
+						applabel.Latest:            strconv.FormatBool(isLatest),
+						label.ManagedBy:            key.AppCatalogEntryManagedBy(project.Name()),
 					},
 					OwnerReferences: []metav1.OwnerReference{
 						{

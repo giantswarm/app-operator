@@ -3,9 +3,8 @@ package clients
 import (
 	"context"
 
+	"github.com/giantswarm/app/v2/pkg/key"
 	"github.com/giantswarm/microerror"
-
-	"github.com/giantswarm/app-operator/v2/service/controller/key"
 )
 
 // EnsureDeleted adds g8s and k8s clients to the controller context based on the

@@ -11,13 +11,13 @@ import (
 
 	"github.com/giantswarm/apiextensions/v2/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/apiextensions/v2/pkg/label"
+	applabel "github.com/giantswarm/app/v2/pkg/label"
 	"github.com/giantswarm/backoff"
 	"github.com/giantswarm/microerror"
 	"github.com/google/go-cmp/cmp"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/giantswarm/app-operator/v2/integration/key"
-	pkglabel "github.com/giantswarm/app-operator/v2/pkg/label"
 	"github.com/giantswarm/app-operator/v2/pkg/project"
 )
 
@@ -43,8 +43,8 @@ func TestAppCatalogEntry(t *testing.T) {
 				Name: key.StableCatalogName(),
 				Labels: map[string]string{
 					label.AppOperatorVersion:   project.Version(),
-					pkglabel.CatalogType:       "stable",
-					pkglabel.CatalogVisibility: "public",
+					applabel.CatalogType:       "stable",
+					applabel.CatalogVisibility: "public",
 				},
 			},
 			Spec: v1alpha1.AppCatalogSpec{
@@ -89,10 +89,10 @@ func TestAppCatalogEntry(t *testing.T) {
 
 	{
 		expectedLabels := map[string]string{
-			pkglabel.AppKubernetesName: "prometheus-operator-app",
-			pkglabel.CatalogName:       key.StableCatalogName(),
-			pkglabel.CatalogType:       "stable",
-			pkglabel.Latest:            "false",
+			applabel.AppKubernetesName: "prometheus-operator-app",
+			applabel.CatalogName:       key.StableCatalogName(),
+			applabel.CatalogType:       "stable",
+			applabel.Latest:            "false",
 			label.ManagedBy:            "app-operator-unique",
 		}
 
@@ -133,7 +133,7 @@ func TestAppCatalogEntry(t *testing.T) {
 
 		o := func() error {
 			lo := metav1.ListOptions{
-				LabelSelector: fmt.Sprintf("%s=%s,%s=%s", label.ManagedBy, project.Name(), pkglabel.CatalogName, key.StableCatalogName()),
+				LabelSelector: fmt.Sprintf("%s=%s,%s=%s", label.ManagedBy, project.Name(), applabel.CatalogName, key.StableCatalogName()),
 			}
 			entryCRs, err := config.K8sClients.G8sClient().ApplicationV1alpha1().AppCatalogEntries(metav1.NamespaceDefault).List(ctx, lo)
 			if err != nil {

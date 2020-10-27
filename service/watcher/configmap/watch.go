@@ -6,26 +6,25 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/giantswarm/app/v2/pkg/annotation"
+	"github.com/giantswarm/app/v2/pkg/label"
 	"github.com/giantswarm/microerror"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/watch"
-
-	"github.com/giantswarm/app-operator/v2/pkg/annotation"
-	pkglabel "github.com/giantswarm/app-operator/v2/pkg/label"
 )
 
 func (c *AppValueWatcher) watch(ctx context.Context) {
 	for {
 		lo := metav1.ListOptions{
-			LabelSelector: pkglabel.Watching,
+			LabelSelector: label.Watching,
 		}
 
 		// Find the highest resourceVersion for each configmap.
 		cms, err := c.k8sClient.K8sClient().CoreV1().ConfigMaps("").List(ctx, lo)
 		if err != nil {
-			c.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("failed to get configmaps with label %#q", pkglabel.Watching), "stack", fmt.Sprintf("%#v", err))
+			c.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("failed to get configmaps with label %#q", label.Watching), "stack", fmt.Sprintf("%#v", err))
 			continue
 		}
 
@@ -46,7 +45,7 @@ func (c *AppValueWatcher) watch(ctx context.Context) {
 
 		res, err := c.k8sClient.K8sClient().CoreV1().ConfigMaps("").Watch(ctx, lo)
 		if err != nil {
-			c.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("failed to get configmaps with label %#q", pkglabel.Watching), "stack", fmt.Sprintf("%#v", err))
+			c.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("failed to get configmaps with label %#q", label.Watching), "stack", fmt.Sprintf("%#v", err))
 			continue
 		}
 
