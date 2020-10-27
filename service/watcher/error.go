@@ -1,4 +1,4 @@
-package configmap
+package watcher
 
 import "github.com/giantswarm/microerror"
 

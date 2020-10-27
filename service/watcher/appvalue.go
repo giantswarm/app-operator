@@ -1,4 +1,4 @@
-package configmap
+package watcher
 
 import (
 	"context"
@@ -23,7 +23,7 @@ type AppValueWatcher struct {
 	k8sClient k8sclient.Interface
 	logger    micrologger.Logger
 
-	configMapToApps sync.Map
+	resourcesToApps sync.Map
 	selector        labels.Selector
 	unique          bool
 }
@@ -40,7 +40,7 @@ func NewAppValueWatcher(config AppValueWatcherConfig) (*AppValueWatcher, error) 
 		k8sClient: config.K8sClient,
 		logger:    config.Logger,
 
-		configMapToApps: sync.Map{},
+		resourcesToApps: sync.Map{},
 		selector:        label.AppVersionSelector(config.UniqueApp),
 		unique:          config.UniqueApp,
 	}
@@ -50,7 +50,10 @@ func NewAppValueWatcher(config AppValueWatcherConfig) (*AppValueWatcher, error) 
 
 func (c *AppValueWatcher) Boot(ctx context.Context) {
 	// Watch for configmap changes.
-	go c.watch(ctx)
+	go c.watchConfigMap(ctx)
+
+	// Watch for secret changes.
+	go c.watchSecret(ctx)
 
 	// Build a cache of configmaps and link each app to its configmaps.
 	go c.buildCache(ctx)
