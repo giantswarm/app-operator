@@ -7,6 +7,11 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Added
+
+- Watch secrets referenced in app CRs to reduce latency when applying config
+changes.
+
 ## [2.4.1] - 2020-10-26
 
 ### Fixed
