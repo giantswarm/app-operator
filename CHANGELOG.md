@@ -7,6 +7,8 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+## [2.5.0] - 2020-10-27
+
 ### Added
 
 - Watch secrets referenced in app CRs to reduce latency when applying config
@@ -221,7 +223,8 @@ from Helm 2 to Helm 3.
 
 - Flattening operator release structure.
 
-[Unreleased]: https://github.com/giantswarm/app-operator/compare/v2.4.1...HEAD
+[Unreleased]: https://github.com/giantswarm/app-operator/compare/v2.5.0...HEAD
+[2.5.0]: https://github.com/giantswarm/app-operator/compare/v2.4.1...v2.5.0
 [2.4.1]: https://github.com/giantswarm/app-operator/compare/v2.4.0...v2.4.1
 [2.4.0]: https://github.com/giantswarm/app-operator/compare/v2.3.5...v2.4.0
 [2.3.5]: https://github.com/giantswarm/app-operator/compare/v2.3.4...v2.3.5
