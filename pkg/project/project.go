@@ -5,7 +5,7 @@ var (
 	gitSHA      = "n/a"
 	name        = "app-operator"
 	source      = "https://github.com/giantswarm/app-operator"
-	version     = "2.5.0"
+	version     = "2.5.1-dev"
 )
 
 // AppControlPlaneVersion is always 0.0.0 for control plane app CRs. These CRs
