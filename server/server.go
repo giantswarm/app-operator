@@ -5,9 +5,12 @@ import (
 	"net/http"
 	"sync"
 
+	"github.com/giantswarm/k8sclient/v4/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	microserver "github.com/giantswarm/microkit/server"
 	"github.com/giantswarm/micrologger"
+	kithttp "github.com/go-kit/kit/transport/http"
+	"github.com/gorilla/mux"
 	"github.com/spf13/viper"
 
 	"github.com/giantswarm/app-operator/v2/pkg/project"
@@ -17,8 +20,9 @@ import (
 
 // Config represents the configuration used to construct server object.
 type Config struct {
-	Logger  micrologger.Logger
-	Service *service.Service
+	K8sClient k8sclient.Interface
+	Logger    micrologger.Logger
+	Service   *service.Service
 
 	Viper *viper.Viper
 }
@@ -27,6 +31,9 @@ type Config struct {
 func New(config Config) (microserver.Server, error) {
 	var err error
 
+	if config.K8sClient == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
+	}
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
@@ -41,8 +48,9 @@ func New(config Config) (microserver.Server, error) {
 	var endpointCollection *endpoint.Endpoint
 	{
 		c := endpoint.Config{
-			Logger:  config.Logger,
-			Service: config.Service,
+			K8sClient: config.K8sClient,
+			Logger:    config.Logger,
+			Service:   config.Service,
 		}
 
 		endpointCollection, err = endpoint.New(c)
@@ -63,9 +71,11 @@ func New(config Config) (microserver.Server, error) {
 			Viper:       config.Viper,
 			Endpoints: []microserver.Endpoint{
 				endpointCollection.Healthz,
+				endpointCollection.Status,
 				endpointCollection.Version,
 			},
 			ErrorEncoder: errorEncoder,
+			RequestFuncs: newRequestFuncs(),
 		},
 		shutdownOnce: sync.Once{},
 	}
@@ -106,4 +116,19 @@ func errorEncoder(ctx context.Context, err error, w http.ResponseWriter) {
 	rErr.SetCode(microserver.CodeInternalError)
 	rErr.SetMessage(uErr.Error())
 	w.WriteHeader(http.StatusInternalServerError)
+}
+
+func newRequestFuncs() []kithttp.RequestFunc {
+	return []kithttp.RequestFunc{
+		// This request function puts the App Name URL parameter into the request
+		// context, if any.
+		func(ctx context.Context, r *http.Request) context.Context {
+			return context.WithValue(ctx, "app_name", mux.Vars(r)["app_name"])
+		},
+		// This request function puts the App Namespace URL parameter into the request
+		// context, if any.
+		func(ctx context.Context, r *http.Request) context.Context {
+			return context.WithValue(ctx, "app_namespace", mux.Vars(r)["app_namespace"])
+		},
+	}
 }
