@@ -89,11 +89,11 @@ func mainWithError() (err error) {
 		var newService *service.Service
 		{
 			c := service.Config{
-				Logger: newLogger,
-
-				Flag:      f,
-				Viper:     v,
 				K8sClient: k8sClient,
+				Logger:    newLogger,
+
+				Flag:  f,
+				Viper: v,
 			}
 			newService, err = service.New(c)
 			if err != nil {
@@ -107,11 +107,11 @@ func mainWithError() (err error) {
 		var newServer microserver.Server
 		{
 			c := server.Config{
-				Logger:  newLogger,
-				Service: newService,
-
-				Viper:     v,
 				K8sClient: k8sClient,
+				Logger:    newLogger,
+				Service:   newService,
+
+				Viper: v,
 			}
 
 			newServer, err = server.New(c)

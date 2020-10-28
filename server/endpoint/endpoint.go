@@ -15,21 +15,24 @@ import (
 // Config represents the configuration used to construct an endpoint.
 type Config struct {
 	// Dependencies
+	K8sClient  k8sclient.Interface
 	Logger     micrologger.Logger
 	Middleware *middleware.Middleware
 	Service    *service.Service
-	K8sClient  k8sclient.Interface
 }
 
 // Endpoint is the endpoint collection.
 type Endpoint struct {
 	Healthz *healthz.Endpoint
-	Version *version.Endpoint
 	Status  *status.Endpoint
+	Version *version.Endpoint
 }
 
 // New creates a new endpoint with given configuration.
 func New(config Config) (*Endpoint, error) {
+	if config.K8sClient == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
+	}
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
@@ -51,19 +54,6 @@ func New(config Config) (*Endpoint, error) {
 		}
 	}
 
-	var versionEndpoint *version.Endpoint
-	{
-		c := version.Config{
-			Logger:  config.Logger,
-			Service: config.Service.Version,
-		}
-
-		versionEndpoint, err = version.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
 	var statusEndpoint *status.Endpoint
 	{
 		c := status.Config{
@@ -77,10 +67,23 @@ func New(config Config) (*Endpoint, error) {
 		}
 	}
 
+	var versionEndpoint *version.Endpoint
+	{
+		c := version.Config{
+			Logger:  config.Logger,
+			Service: config.Service.Version,
+		}
+
+		versionEndpoint, err = version.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	endpoint := &Endpoint{
 		Healthz: healthzEndpoint,
-		Version: versionEndpoint,
 		Status:  statusEndpoint,
+		Version: versionEndpoint,
 	}
 
 	return endpoint, nil

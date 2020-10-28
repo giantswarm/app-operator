@@ -35,16 +35,16 @@ type Endpoint struct {
 }
 
 func New(config Config) (*Endpoint, error) {
-	if config.Logger == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
-	}
 	if config.K8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
 	}
+	if config.Logger == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
+	}
 
 	e := &Endpoint{
-		logger:    config.Logger,
 		k8sClient: config.K8sClient,
+		logger:    config.Logger,
 	}
 
 	return e, nil
