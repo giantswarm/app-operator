@@ -20,7 +20,9 @@ require (
 	github.com/giantswarm/operatorkit/v2 v2.0.2
 	github.com/giantswarm/to v0.3.0
 	github.com/giantswarm/versionbundle v0.2.0
+	github.com/go-kit/kit v0.10.0
 	github.com/google/go-cmp v0.5.2
+	github.com/gorilla/mux v1.8.0
 	github.com/spf13/afero v1.4.1
 	github.com/spf13/viper v1.7.1
 	k8s.io/api v0.18.9
