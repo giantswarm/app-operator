@@ -20,17 +20,20 @@ import (
 
 // Config represents the configuration used to construct server object.
 type Config struct {
-	Logger  micrologger.Logger
-	Service *service.Service
-
-	Viper     *viper.Viper
 	K8sClient k8sclient.Interface
+	Logger    micrologger.Logger
+	Service   *service.Service
+
+	Viper *viper.Viper
 }
 
 // New creates a new server object with given configuration.
 func New(config Config) (microserver.Server, error) {
 	var err error
 
+	if config.K8sClient == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
+	}
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
@@ -45,9 +48,9 @@ func New(config Config) (microserver.Server, error) {
 	var endpointCollection *endpoint.Endpoint
 	{
 		c := endpoint.Config{
+			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
 			Service:   config.Service,
-			K8sClient: config.K8sClient,
 		}
 
 		endpointCollection, err = endpoint.New(c)

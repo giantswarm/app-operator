@@ -57,8 +57,8 @@ func New(config Config) (*Endpoint, error) {
 	var statusEndpoint *status.Endpoint
 	{
 		c := status.Config{
-			Logger:    config.Logger,
 			K8sClient: config.K8sClient,
+			Logger:    config.Logger,
 		}
 
 		statusEndpoint, err = status.New(c)
