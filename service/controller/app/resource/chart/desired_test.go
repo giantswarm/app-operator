@@ -238,6 +238,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 				ObjectMeta: metav1.ObjectMeta{
 					Annotations: map[string]string{
 						"chart-operator.giantswarm.io/force-helm-upgrade": "true",
+						"chart-operator.giantswarm.io/webhook-url":        "http://webhook/status/default/my-cool-prometheus",
 					},
 					Name:      "my-cool-prometheus",
 					Namespace: "giantswarm",
@@ -268,6 +269,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 				Logger: microloggertest.New(),
 
 				ChartNamespace: "giantswarm",
+				WebhookBaseURL: "http://webhook",
 			}
 			r, err := New(c)
 			if err != nil {

@@ -3,6 +3,7 @@ package chart
 import (
 	"context"
 	"fmt"
+	"net/url"
 	"path"
 	"strings"
 
@@ -74,8 +75,15 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 	annotations := generateAnnotations(cr.GetAnnotations())
 
 	if key.InCluster(cr) {
+		u, err := url.Parse(r.webhookBaseURL)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		u.Path = path.Join(u.Path, "status", cr.Namespace, cr.Name)
+
 		webhookAnnotation := fmt.Sprintf("%s/%s", annotation.ChartOperatorPrefix, annotation.WebhookURL)
-		annotations[webhookAnnotation] = path.Join(r.webhookBaseURL, "status", cr.Namespace, cr.Name)
+		annotations[webhookAnnotation] = u.String()
 	}
 
 	if len(annotations) > 0 {
