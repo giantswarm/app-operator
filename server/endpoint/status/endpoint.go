@@ -21,7 +21,7 @@ const (
 	// Name identifies the endpoint. It is aligned to the package path.
 	Name = "status/updater"
 	// Path is the HTTP request path this endpoint is registered for.
-	Path = "/status/{app_namespace}/{app_name}/"
+	Path = "/status/{app_namespace}/{app_name}"
 )
 
 type Config struct {
