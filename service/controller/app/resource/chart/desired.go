@@ -74,7 +74,8 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 	annotations := generateAnnotations(cr.GetAnnotations())
 
 	if key.InCluster(cr) {
-		annotations[fmt.Sprintf("%s/%s", annotation.ChartOperatorPrefix, annotation.WebhookURL)] = path.Join(r.webhookBaseURL, cr.Namespace, cr.Name)
+		webhookAnnotation := fmt.Sprintf("%s/%s", annotation.ChartOperatorPrefix, annotation.WebhookURL)
+		annotations[webhookAnnotation] = path.Join(r.webhookBaseURL, "status", cr.Namespace, cr.Name)
 	}
 
 	if len(annotations) > 0 {
