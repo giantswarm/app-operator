@@ -16,6 +16,8 @@ data:
     service:
       app:
         unique: {{ include "resource.app.unique" . }}
+      chart:
+        webhookBaseURL: 'http://{{ include "resource.default.name" . }}.{{ include "resource.default.namespace" . }}:{{ .Values.port }}'
       helm:
         http:
           clientTimeout: '{{ .Values.Installation.V1.Helm.HTTP.ClientTimeout }}'
