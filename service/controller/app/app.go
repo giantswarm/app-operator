@@ -27,6 +27,7 @@ type Config struct {
 	HTTPClientTimeout time.Duration
 	ImageRegistry     string
 	UniqueApp         bool
+	WebhookBaseURL    string
 }
 
 type App struct {
@@ -52,6 +53,9 @@ func NewApp(config Config) (*App, error) {
 	if config.ImageRegistry == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ImageRegistry must not be empty", config)
 	}
+	if config.WebhookBaseURL == "" {
+		return nil, microerror.Maskf(invalidConfigError, "%T.WebhookBaseURL not be empty", config)
+	}
 
 	// TODO: Remove usage of deprecated controller context.
 	//
@@ -75,6 +79,7 @@ func NewApp(config Config) (*App, error) {
 			HTTPClientTimeout: config.HTTPClientTimeout,
 			ImageRegistry:     config.ImageRegistry,
 			UniqueApp:         config.UniqueApp,
+			WebhookBaseURL:    config.WebhookBaseURL,
 		}
 
 		resources, err = newAppResources(c)
