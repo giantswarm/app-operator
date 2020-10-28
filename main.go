@@ -3,12 +3,15 @@ package main
 import (
 	"context"
 	"fmt"
-
+	applicationv1alpha1 "github.com/giantswarm/apiextensions/v2/pkg/apis/application/v1alpha1"
+	"github.com/giantswarm/k8sclient/v4/pkg/k8sclient"
+	"github.com/giantswarm/k8sclient/v4/pkg/k8srestconfig"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/microkit/command"
 	microserver "github.com/giantswarm/microkit/server"
 	"github.com/giantswarm/micrologger"
 	"github.com/spf13/viper"
+	"k8s.io/client-go/rest"
 
 	"github.com/giantswarm/app-operator/v2/flag"
 	"github.com/giantswarm/app-operator/v2/pkg/project"
@@ -44,14 +47,52 @@ func mainWithError() (err error) {
 	// Define server factory to create the custom server once all command line
 	// flags are parsed and all microservice configuration is processed.
 	newServerFactory := func(v *viper.Viper) microserver.Server {
+		var restConfig *rest.Config
+		{
+			c := k8srestconfig.Config{
+				Logger: newLogger,
+
+				Address:    v.GetString(f.Service.Kubernetes.Address),
+				InCluster:  v.GetBool(f.Service.Kubernetes.InCluster),
+				KubeConfig: v.GetString(f.Service.Kubernetes.KubeConfig),
+				TLS: k8srestconfig.ConfigTLS{
+					CAFile:  v.GetString(f.Service.Kubernetes.TLS.CAFile),
+					CrtFile: v.GetString(f.Service.Kubernetes.TLS.CrtFile),
+					KeyFile: v.GetString(f.Service.Kubernetes.TLS.KeyFile),
+				},
+			}
+
+			restConfig, err = k8srestconfig.New(c)
+			if err != nil {
+				panic(err)
+			}
+		}
+
+		var k8sClient k8sclient.Interface
+		{
+			c := k8sclient.ClientsConfig{
+				Logger: newLogger,
+				SchemeBuilder: k8sclient.SchemeBuilder{
+					applicationv1alpha1.AddToScheme,
+				},
+
+				RestConfig: restConfig,
+			}
+
+			k8sClient, err = k8sclient.NewClients(c)
+			if err != nil {
+				panic(err)
+			}
+		}
 		// New custom service implements the business logic.
 		var newService *service.Service
 		{
 			c := service.Config{
 				Logger: newLogger,
 
-				Flag:  f,
-				Viper: v,
+				Flag:      f,
+				Viper:     v,
+				K8sClient: k8sClient,
 			}
 			newService, err = service.New(c)
 			if err != nil {
@@ -68,7 +109,8 @@ func mainWithError() (err error) {
 				Logger:  newLogger,
 				Service: newService,
 
-				Viper: v,
+				Viper:     v,
+				K8sClient: k8sClient,
 			}
 
 			newServer, err = server.New(c)
