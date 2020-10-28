@@ -1,11 +1,13 @@
 package endpoint
 
 import (
+	"github.com/giantswarm/k8sclient/v4/pkg/k8sclient"
 	"github.com/giantswarm/microendpoint/endpoint/healthz"
 	"github.com/giantswarm/microendpoint/endpoint/version"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 
+	"github.com/giantswarm/app-operator/v2/server/endpoint/status"
 	"github.com/giantswarm/app-operator/v2/server/middleware"
 	"github.com/giantswarm/app-operator/v2/service"
 )
@@ -16,12 +18,14 @@ type Config struct {
 	Logger     micrologger.Logger
 	Middleware *middleware.Middleware
 	Service    *service.Service
+	K8sClient  k8sclient.Interface
 }
 
 // Endpoint is the endpoint collection.
 type Endpoint struct {
 	Healthz *healthz.Endpoint
 	Version *version.Endpoint
+	Status  *status.Endpoint
 }
 
 // New creates a new endpoint with given configuration.
@@ -60,9 +64,23 @@ func New(config Config) (*Endpoint, error) {
 		}
 	}
 
+	var statusEndpoint *status.Endpoint
+	{
+		c := status.Config{
+			Logger:    config.Logger,
+			K8sClient: config.K8sClient,
+		}
+
+		statusEndpoint, err = status.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	endpoint := &Endpoint{
 		Healthz: healthzEndpoint,
 		Version: versionEndpoint,
+		Status:  statusEndpoint,
 	}
 
 	return endpoint, nil
