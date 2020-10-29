@@ -70,11 +70,13 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		desiredStatus = v1alpha1.AppStatus{
 			AppVersion: chartStatus.AppVersion,
 			Release: v1alpha1.AppStatusRelease{
-				LastDeployed: *chartStatus.Release.LastDeployed,
-				Reason:       chartStatus.Reason,
-				Status:       chartStatus.Release.Status,
+				Reason: chartStatus.Reason,
+				Status: chartStatus.Release.Status,
 			},
 			Version: chartStatus.Version,
+		}
+		if chartStatus.Release.LastDeployed != nil {
+			desiredStatus.Release.LastDeployed = *chartStatus.Release.LastDeployed
 		}
 	}
 
