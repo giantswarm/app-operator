@@ -9,8 +9,8 @@ import (
 	"time"
 
 	"github.com/Masterminds/semver"
-	"github.com/giantswarm/apiextensions/v2/pkg/apis/application/v1alpha1"
-	"github.com/giantswarm/apiextensions/v2/pkg/label"
+	"github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
+	"github.com/giantswarm/apiextensions/v3/pkg/label"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/to"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
