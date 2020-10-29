@@ -83,6 +83,7 @@ func New(config Config) (*Service, error) {
 			HTTPClientTimeout: config.Viper.GetDuration(config.Flag.Service.Helm.HTTP.ClientTimeout),
 			ImageRegistry:     config.Viper.GetString(config.Flag.Service.Image.Registry),
 			UniqueApp:         config.Viper.GetBool(config.Flag.Service.App.Unique),
+			WebhookBaseURL:    config.Viper.GetString(config.Flag.Service.Chart.WebhookBaseURL),
 		}
 
 		appController, err = app.NewApp(c)

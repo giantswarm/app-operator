@@ -27,4 +27,7 @@ const (
 	// LatestSecretVersion is the highest resource version among the secret
 	// app CRs depends on.
 	LatestSecretVersion = "latest-secret-version"
+
+	// WebhookURL is the URL that chart-operator reports chart updates.
+	WebhookURL = "webhook-url"
 )

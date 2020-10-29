@@ -3,6 +3,8 @@ package chart
 import (
 	"context"
 	"fmt"
+	"net/url"
+	"path"
 	"strings"
 
 	"github.com/giantswarm/apiextensions/v2/pkg/apis/application/v1alpha1"
@@ -71,6 +73,19 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 	}
 
 	annotations := generateAnnotations(cr.GetAnnotations())
+
+	if key.InCluster(cr) {
+		u, err := url.Parse(r.webhookBaseURL)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		u.Path = path.Join(u.Path, "status", cr.Namespace, cr.Name)
+
+		webhookAnnotation := fmt.Sprintf("%s/%s", annotation.ChartOperatorPrefix, annotation.WebhookURL)
+		annotations[webhookAnnotation] = u.String()
+	}
+
 	if len(annotations) > 0 {
 		chartCR.Annotations = annotations
 	}

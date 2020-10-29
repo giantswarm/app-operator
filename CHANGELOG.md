@@ -9,6 +9,7 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ### Added
 
+- Adding webhook URL as annotation into chart CRs.
 - Added Status update endpoint.
 
 ## [2.5.0] - 2020-10-27
