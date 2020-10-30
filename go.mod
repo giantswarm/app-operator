@@ -10,7 +10,7 @@ require (
 	github.com/giantswarm/appcatalog v0.2.7
 	github.com/giantswarm/backoff v0.2.0
 	github.com/giantswarm/errors v0.2.3
-	github.com/giantswarm/helmclient/v3 v3.0.1-0.20201029164245-633fd5f64007
+	github.com/giantswarm/helmclient/v3 v3.0.1
 	github.com/giantswarm/k8sclient/v5 v5.0.0
 	github.com/giantswarm/kubeconfig/v3 v3.0.0
 	github.com/giantswarm/microendpoint v0.2.0
