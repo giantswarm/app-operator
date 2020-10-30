@@ -15,7 +15,7 @@ spec:
       - {{ include "resource.default.name" . }}.{{ .Values.Installation.V1.Kubernetes.API.Address }}
       secretName: {{ include "resource.default.name" . }}-ingress
   rules:
-    - host: {{ .Values.Installation.V1.Monitoring.Prometheus.Host }}
+    - host: {{ include "resource.default.name" . }}.{{ .Values.Installation.V1.Kubernetes.API.Address }}
       http:
         paths:
           - path: /
