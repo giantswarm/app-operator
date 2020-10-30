@@ -14,6 +14,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 - Adding webhook URL as annotation into chart CRs.
 - Added Status update endpoint.
 
+### Changed
+
+- Update apiextensions to v3 and replace CAPI with Giant Swarm fork.
+
 ## [2.5.0] - 2020-10-27
 
 ### Added
