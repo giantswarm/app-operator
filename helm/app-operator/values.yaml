@@ -21,6 +21,9 @@ Installation:
     Helm:
       HTTP:
         ClientTimeout: "5s"
+    Kubernetes:
+      API:
+        Address: ""
     Registry:
       Domain: quay.io
 
