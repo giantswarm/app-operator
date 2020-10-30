@@ -1,0 +1,25 @@
+{{- if not (hasSuffix "-unique" .Release.Name) }}
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: {{ include "resource.default.name" . }}
+  namespace: {{ include "resource.default.namespace" . }}
+  labels:
+    {{- include "labels.common" . | nindent 4 }}
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    kubernetes.io/tls-acme: "true"
+spec:
+  tls:
+    - hosts:
+      - {{ include "resource.default.name" . }}.{{ .Values.Installation.V1.Kubernetes.API.Address }}
+      secretName: {{ include "resource.default.name" . }}-ingress
+  rules:
+    - host: {{ include "resource.default.name" . }}.{{ .Values.Installation.V1.Kubernetes.API.Address }}
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: {{ include "resource.default.name" . }}
+              servicePort: {{ .Values.port }}
+{{- end }}
