@@ -6,7 +6,7 @@ require (
 	github.com/Masterminds/semver v1.5.0
 	github.com/Masterminds/semver/v3 v3.1.0
 	github.com/ghodss/yaml v1.0.0
-	github.com/giantswarm/apiextensions/v3 v3.4.0
+	github.com/giantswarm/apiextensions/v3 v3.4.1
 	github.com/giantswarm/appcatalog v0.2.7
 	github.com/giantswarm/backoff v0.2.0
 	github.com/giantswarm/errors v0.2.3
