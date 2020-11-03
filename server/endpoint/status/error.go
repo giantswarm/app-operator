@@ -19,3 +19,12 @@ var invalidConfigError = &microerror.Error{
 func IsInvalidConfig(err error) bool {
 	return microerror.Cause(err) == invalidConfigError
 }
+
+var wrongTokenError = &microerror.Error{
+	Kind: "wrongTokenError",
+}
+
+// IsWrongTokenError asserts wrongTokenError.
+func IsWrongTokenError(err error) bool {
+	return microerror.Cause(err) == wrongTokenError
+}

@@ -13,6 +13,8 @@ import (
 	kitendpoint "github.com/go-kit/kit/endpoint"
 	kithttp "github.com/go-kit/kit/transport/http"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
+	"github.com/giantswarm/app-operator/v2/service/controller/key"
 )
 
 const (
@@ -82,6 +84,19 @@ func (e Endpoint) Endpoint() kitendpoint.Endpoint {
 		var err error
 
 		request := r.(Request)
+
+		cr, err := e.k8sClient.G8sClient().ApplicationV1alpha1().Apps(request.AppNamespace).Get(ctx, request.AppName, metav1.GetOptions{})
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		if !key.InCluster(*cr) {
+			if request.Token == "" {
+				return nil, microerror.Maskf(wrongTokenError, "token empty")
+			} else if cr.GetResourceVersion() != request.Token {
+				return nil, microerror.Maskf(wrongTokenError, "incorrect token %#q ", request.Token)
+			}
+		}
 
 		desiredStatus := v1alpha1.AppStatus{
 			AppVersion: request.AppVersion,
