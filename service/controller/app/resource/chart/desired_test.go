@@ -31,8 +31,9 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 			name: "case 0: flawless flow",
 			obj: &v1alpha1.App{
 				ObjectMeta: metav1.ObjectMeta{
-					Name:      "my-cool-prometheus",
-					Namespace: "default",
+					Name:            "my-cool-prometheus",
+					Namespace:       "default",
+					ResourceVersion: "1234",
 					Labels: map[string]string{
 						"app":                                "prometheus",
 						"app-operator.giantswarm.io/version": "1.0.0",
@@ -95,6 +96,10 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 						"chart-operator.giantswarm.io/version": "1.0.0",
 						"giantswarm.io/managed-by":             "app-operator",
 					},
+					Annotations: map[string]string{
+						"chart-operator.giantswarm.io/webhook-token": "1234",
+						"chart-operator.giantswarm.io/webhook-url":   "http://webhook/status/default/my-cool-prometheus",
+					},
 				},
 				Spec: v1alpha1.ChartSpec{
 					Config: v1alpha1.ChartSpecConfig{
@@ -114,8 +119,9 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 			name: "case 1: generating catalog url failed",
 			obj: &v1alpha1.App{
 				ObjectMeta: metav1.ObjectMeta{
-					Name:      "my-cool-prometheus",
-					Namespace: "default",
+					Name:            "my-cool-prometheus",
+					Namespace:       "default",
+					ResourceVersion: "1234",
 					Labels: map[string]string{
 						"app":                                "prometheus",
 						"app-operator.giantswarm.io/version": "1.0.0",
@@ -177,6 +183,10 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 						"app":                                  "prometheus",
 						"chart-operator.giantswarm.io/version": "1.0.0",
 						"giantswarm.io/managed-by":             "app-operator",
+					},
+					Annotations: map[string]string{
+						"chart-operator.giantswarm.io/webhook-token": "1234",
+						"chart-operator.giantswarm.io/webhook-url":   "http://webhook/status/default/my-cool-prometheus",
 					},
 				},
 				Spec: v1alpha1.ChartSpec{
