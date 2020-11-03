@@ -30,4 +30,7 @@ const (
 
 	// WebhookURL is the URL that chart-operator reports chart updates.
 	WebhookURL = "webhook-url"
+
+	// WebhookToken is the string that chart-operator send together when updating status.
+	WebhookToken = "webhook-token"
 )
