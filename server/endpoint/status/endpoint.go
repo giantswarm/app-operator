@@ -111,7 +111,7 @@ func (e Endpoint) Endpoint() kitendpoint.Endpoint {
 
 		if !key.InCluster(*currentCR) {
 			if request.AuthToken != e.webhookAuthToken {
-				return nil, microerror.Maskf(wrongTokenError, "got wrong auth token %q for %#q app %#q namespace", request.AuthToken, request.AppName, request.AppNamespace)
+				return nil, microerror.Maskf(wrongTokenError, "incorrect auth token for %#q app in %#q namespace", request.AppName, request.AppNamespace)
 			}
 		}
 
