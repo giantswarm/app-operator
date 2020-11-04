@@ -95,6 +95,9 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 						"chart-operator.giantswarm.io/version": "1.0.0",
 						"giantswarm.io/managed-by":             "app-operator",
 					},
+					Annotations: map[string]string{
+						"chart-operator.giantswarm.io/webhook-url": "http://webhook/status/default/my-cool-prometheus",
+					},
 				},
 				Spec: v1alpha1.ChartSpec{
 					Config: v1alpha1.ChartSpecConfig{
@@ -177,6 +180,9 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 						"app":                                  "prometheus",
 						"chart-operator.giantswarm.io/version": "1.0.0",
 						"giantswarm.io/managed-by":             "app-operator",
+					},
+					Annotations: map[string]string{
+						"chart-operator.giantswarm.io/webhook-url": "http://webhook/status/default/my-cool-prometheus",
 					},
 				},
 				Spec: v1alpha1.ChartSpec{
