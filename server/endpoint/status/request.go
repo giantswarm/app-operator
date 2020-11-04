@@ -8,6 +8,7 @@ type Request struct {
 	AppVersion   string  `json:"app_version"`
 	LastDeployed v1.Time `json:"last_deployed"`
 	Reason       string  `json:"reason"`
+	AuthToken    string  `json:"auth_token"`
 	Status       string  `json:"status"`
 	Version      string  `json:"version"`
 }

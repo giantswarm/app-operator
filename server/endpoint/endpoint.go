@@ -19,6 +19,9 @@ type Config struct {
 	Logger     micrologger.Logger
 	Middleware *middleware.Middleware
 	Service    *service.Service
+
+	// Settings
+	WebhookAuthToken string
 }
 
 // Endpoint is the endpoint collection.
@@ -59,6 +62,8 @@ func New(config Config) (*Endpoint, error) {
 		c := status.Config{
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
+
+			WebhookAuthToken: config.WebhookAuthToken,
 		}
 
 		statusEndpoint, err = status.New(c)

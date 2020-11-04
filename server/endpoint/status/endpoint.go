@@ -4,7 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/giantswarm/app-operator/v2/service/controller/key"
 	"net/http"
+	"strings"
 
 	"github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/k8sclient/v5/pkg/k8sclient"
@@ -27,11 +29,15 @@ const (
 type Config struct {
 	K8sClient k8sclient.Interface
 	Logger    micrologger.Logger
+
+	WebhookAuthToken string
 }
 
 type Endpoint struct {
 	k8sClient k8sclient.Interface
 	logger    micrologger.Logger
+
+	webhookAuthToken string
 }
 
 func New(config Config) (*Endpoint, error) {
@@ -45,6 +51,8 @@ func New(config Config) (*Endpoint, error) {
 	e := &Endpoint{
 		k8sClient: config.K8sClient,
 		logger:    config.Logger,
+
+		webhookAuthToken: config.WebhookAuthToken,
 	}
 
 	return e, nil
@@ -64,6 +72,16 @@ func (e Endpoint) Decoder() kithttp.DecodeRequestFunc {
 		name, _ := ctx.Value("app_name").(string)
 		request.AppNamespace = namespace
 		request.AppName = name
+
+		var authToken string
+		{
+			authHeader := r.Header.Get("Authorization")
+			tokens := strings.Fields(authHeader)
+			if len(tokens) == 2 {
+				authToken = tokens[1]
+			}
+		}
+		request.AuthToken = authToken
 
 		return request, nil
 	}
@@ -97,6 +115,12 @@ func (e Endpoint) Endpoint() kitendpoint.Endpoint {
 		currentCR, err := e.k8sClient.G8sClient().ApplicationV1alpha1().Apps(request.AppNamespace).Get(ctx, request.AppName, metav1.GetOptions{})
 		if err != nil {
 			return nil, microerror.Mask(err)
+		}
+
+		if !key.InCluster(*currentCR) {
+			if request.AuthToken != e.webhookAuthToken {
+				return nil, microerror.Maskf(wrongTokenError, "got wrong auth token %q for %#q app %#q namespace", request.AuthToken, request.AppName, request.AppNamespace)
+			}
 		}
 
 		if equals(currentCR.Status, desiredStatus) {
