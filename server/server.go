@@ -24,7 +24,8 @@ type Config struct {
 	Logger    micrologger.Logger
 	Service   *service.Service
 
-	Viper *viper.Viper
+	Viper            *viper.Viper
+	WebhookAuthToken string
 }
 
 // New creates a new server object with given configuration.
@@ -51,6 +52,8 @@ func New(config Config) (microserver.Server, error) {
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
 			Service:   config.Service,
+
+			WebhookAuthToken: config.WebhookAuthToken,
 		}
 
 		endpointCollection, err = endpoint.New(c)

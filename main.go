@@ -111,7 +111,8 @@ func mainWithError() (err error) {
 				Logger:    newLogger,
 				Service:   newService,
 
-				Viper: v,
+				Viper:            v,
+				WebhookAuthToken: v.GetString(f.Service.Chart.WebhookAuthToken),
 			}
 
 			newServer, err = server.New(c)
@@ -147,6 +148,7 @@ func mainWithError() (err error) {
 
 	daemonCommand.PersistentFlags().Bool(f.Service.App.Unique, false, "Whether the operator is deployed as a unique app.")
 	daemonCommand.PersistentFlags().String(f.Service.Chart.Namespace, "giantswarm", "The namespace where chart CRs are located.")
+	daemonCommand.PersistentFlags().String(f.Service.Chart.WebhookAuthToken, "", "The auth token value for requests to the webhook.")
 	daemonCommand.PersistentFlags().String(f.Service.Chart.WebhookBaseURL, "", "The webhook base URL where chart-operator reports chart updates.")
 	daemonCommand.PersistentFlags().String(f.Service.Helm.HTTP.ClientTimeout, "5s", "HTTP timeout for pulling chart tarballs.")
 	daemonCommand.PersistentFlags().String(f.Service.Image.Registry, "quay.io", "The container registry for pulling Tiller images.")

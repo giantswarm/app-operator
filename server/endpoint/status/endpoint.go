@@ -13,6 +13,8 @@ import (
 	kitendpoint "github.com/go-kit/kit/endpoint"
 	kithttp "github.com/go-kit/kit/transport/http"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
+	"github.com/giantswarm/app-operator/v2/service/controller/key"
 )
 
 const (
@@ -27,11 +29,15 @@ const (
 type Config struct {
 	K8sClient k8sclient.Interface
 	Logger    micrologger.Logger
+
+	WebhookAuthToken string
 }
 
 type Endpoint struct {
 	k8sClient k8sclient.Interface
 	logger    micrologger.Logger
+
+	webhookAuthToken string
 }
 
 func New(config Config) (*Endpoint, error) {
@@ -45,6 +51,8 @@ func New(config Config) (*Endpoint, error) {
 	e := &Endpoint{
 		k8sClient: config.K8sClient,
 		logger:    config.Logger,
+
+		webhookAuthToken: config.WebhookAuthToken,
 	}
 
 	return e, nil
@@ -64,6 +72,8 @@ func (e Endpoint) Decoder() kithttp.DecodeRequestFunc {
 		name, _ := ctx.Value("app_name").(string)
 		request.AppNamespace = namespace
 		request.AppName = name
+
+		request.AuthToken = r.Header.Get("Authorization")
 
 		return request, nil
 	}
@@ -97,6 +107,12 @@ func (e Endpoint) Endpoint() kitendpoint.Endpoint {
 		currentCR, err := e.k8sClient.G8sClient().ApplicationV1alpha1().Apps(request.AppNamespace).Get(ctx, request.AppName, metav1.GetOptions{})
 		if err != nil {
 			return nil, microerror.Mask(err)
+		}
+
+		if !key.InCluster(*currentCR) {
+			if request.AuthToken != e.webhookAuthToken {
+				return nil, microerror.Maskf(wrongTokenError, "incorrect auth token for %#q app in %#q namespace", request.AppName, request.AppNamespace)
+			}
 		}
 
 		if equals(currentCR.Status, desiredStatus) {

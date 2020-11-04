@@ -14,6 +14,7 @@ import (
 
 	"github.com/giantswarm/app-operator/v2/service/controller/app/resource/appcatalog"
 	"github.com/giantswarm/app-operator/v2/service/controller/app/resource/appnamespace"
+	"github.com/giantswarm/app-operator/v2/service/controller/app/resource/authtoken"
 	"github.com/giantswarm/app-operator/v2/service/controller/app/resource/chart"
 	"github.com/giantswarm/app-operator/v2/service/controller/app/resource/chartcrd"
 	"github.com/giantswarm/app-operator/v2/service/controller/app/resource/chartoperator"
@@ -38,6 +39,7 @@ type appResourcesConfig struct {
 	HTTPClientTimeout time.Duration
 	ImageRegistry     string
 	UniqueApp         bool
+	WebhookAuthToken  string
 	WebhookBaseURL    string
 }
 
@@ -101,6 +103,20 @@ func newAppResources(config appResourcesConfig) ([]resource.Interface, error) {
 			Logger:    config.Logger,
 		}
 		appNamespaceResource, err = appnamespace.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	var authTokenResource resource.Interface
+	{
+		c := authtoken.Config{
+			K8sClient: config.K8sClient.K8sClient(),
+			Logger:    config.Logger,
+
+			WebhookAuthToken: config.WebhookAuthToken,
+		}
+		authTokenResource, err = authtoken.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -279,6 +295,7 @@ func newAppResources(config appResourcesConfig) ([]resource.Interface, error) {
 		chartCRDResource,
 		chartOperatorResource,
 		releaseMigrationResource,
+		authTokenResource,
 
 		// Following resources process app CRs.
 		configMapResource,
