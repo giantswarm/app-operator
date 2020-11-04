@@ -27,6 +27,7 @@ type Config struct {
 	HTTPClientTimeout time.Duration
 	ImageRegistry     string
 	UniqueApp         bool
+	WebhookAuthToken  string
 	WebhookBaseURL    string
 }
 
@@ -79,6 +80,7 @@ func NewApp(config Config) (*App, error) {
 			HTTPClientTimeout: config.HTTPClientTimeout,
 			ImageRegistry:     config.ImageRegistry,
 			UniqueApp:         config.UniqueApp,
+			WebhookAuthToken:  config.WebhookAuthToken,
 			WebhookBaseURL:    config.WebhookBaseURL,
 		}
 
