@@ -4,9 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/giantswarm/app-operator/v2/service/controller/key"
 	"net/http"
-	"strings"
 
 	"github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/k8sclient/v5/pkg/k8sclient"
@@ -15,6 +13,8 @@ import (
 	kitendpoint "github.com/go-kit/kit/endpoint"
 	kithttp "github.com/go-kit/kit/transport/http"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
+	"github.com/giantswarm/app-operator/v2/service/controller/key"
 )
 
 const (
@@ -73,15 +73,7 @@ func (e Endpoint) Decoder() kithttp.DecodeRequestFunc {
 		request.AppNamespace = namespace
 		request.AppName = name
 
-		var authToken string
-		{
-			authHeader := r.Header.Get("Authorization")
-			tokens := strings.Fields(authHeader)
-			if len(tokens) == 2 {
-				authToken = tokens[1]
-			}
-		}
-		request.AuthToken = authToken
+		request.AuthToken = r.Header.Get("Authorization")
 
 		return request, nil
 	}

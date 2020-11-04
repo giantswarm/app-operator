@@ -1,12 +1,13 @@
 package authtoken
 
 import (
+	"reflect"
+
 	"github.com/ghodss/yaml"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes"
-	"reflect"
 )
 
 const (

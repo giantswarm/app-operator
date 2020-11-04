@@ -111,7 +111,8 @@ func mainWithError() (err error) {
 				Logger:    newLogger,
 				Service:   newService,
 
-				Viper: v,
+				Viper:            v,
+				WebhookAuthToken: v.GetString(f.Service.Chart.WebhookAuthToken),
 			}
 
 			newServer, err = server.New(c)
