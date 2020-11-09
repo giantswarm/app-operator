@@ -17,7 +17,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/giantswarm/app-operator/v2/integration/key"
-	pkglabel "github.com/giantswarm/app-operator/v2/pkg/label"
 	"github.com/giantswarm/app-operator/v2/pkg/project"
 )
 
@@ -43,8 +42,8 @@ func TestAppCatalogEntry(t *testing.T) {
 				Name: key.StableCatalogName(),
 				Labels: map[string]string{
 					label.AppOperatorVersion:   project.Version(),
-					pkglabel.CatalogType:       "stable",
-					pkglabel.CatalogVisibility: "public",
+					label.CatalogType:       "stable",
+					label.CatalogVisibility: "public",
 				},
 			},
 			Spec: v1alpha1.AppCatalogSpec{
