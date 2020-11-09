@@ -17,6 +17,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/giantswarm/app-operator/v2/integration/key"
+	pkglabel "github.com/giantswarm/app-operator/v2/pkg/label"
 	"github.com/giantswarm/app-operator/v2/pkg/project"
 )
 
@@ -88,11 +89,11 @@ func TestAppCatalogEntry(t *testing.T) {
 
 	{
 		expectedLabels := map[string]string{
-			pkglabel.AppKubernetesName: "prometheus-operator-app",
-			pkglabel.CatalogName:       key.StableCatalogName(),
-			pkglabel.CatalogType:       "stable",
-			pkglabel.Latest:            "false",
-			label.ManagedBy:            "app-operator-unique",
+			label.AppKubernetesName: "prometheus-operator-app",
+			label.CatalogName:       key.StableCatalogName(),
+			label.CatalogType:       "stable",
+			pkglabel.Latest:         "false",
+			label.ManagedBy:         "app-operator-unique",
 		}
 
 		if !reflect.DeepEqual(entryCR.Labels, expectedLabels) {
@@ -132,7 +133,7 @@ func TestAppCatalogEntry(t *testing.T) {
 
 		o := func() error {
 			lo := metav1.ListOptions{
-				LabelSelector: fmt.Sprintf("%s=%s,%s=%s", label.ManagedBy, project.Name(), pkglabel.CatalogName, key.StableCatalogName()),
+				LabelSelector: fmt.Sprintf("%s=%s,%s=%s", label.ManagedBy, project.Name(), label.CatalogName, key.StableCatalogName()),
 			}
 			entryCRs, err := config.K8sClients.G8sClient().ApplicationV1alpha1().AppCatalogEntries(metav1.NamespaceDefault).List(ctx, lo)
 			if err != nil {
