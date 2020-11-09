@@ -41,9 +41,9 @@ func TestAppCatalogEntry(t *testing.T) {
 			ObjectMeta: metav1.ObjectMeta{
 				Name: key.StableCatalogName(),
 				Labels: map[string]string{
-					label.AppOperatorVersion:   project.Version(),
-					label.CatalogType:       "stable",
-					label.CatalogVisibility: "public",
+					label.AppOperatorVersion: project.Version(),
+					label.CatalogType:        "stable",
+					label.CatalogVisibility:  "public",
 				},
 			},
 			Spec: v1alpha1.AppCatalogSpec{
