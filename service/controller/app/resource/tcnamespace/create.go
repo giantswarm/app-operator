@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/giantswarm/apiextensions/v3/pkg/label"
+	"github.com/giantswarm/app/v3/pkg/key"
 	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/microerror"
 	corev1 "k8s.io/api/core/v1"
@@ -14,7 +15,6 @@ import (
 
 	"github.com/giantswarm/app-operator/v2/pkg/project"
 	"github.com/giantswarm/app-operator/v2/service/controller/app/controllercontext"
-	"github.com/giantswarm/app-operator/v2/service/controller/key"
 )
 
 func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
