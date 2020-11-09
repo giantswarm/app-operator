@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Added
+
+- Secure the webhook with token value from control plane catalog.
+
 ## [2.6.0] - 2020-10-29
 
 ### Added
