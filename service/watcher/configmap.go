@@ -6,13 +6,13 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/giantswarm/app/v3/pkg/annotation"
 	"github.com/giantswarm/microerror"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/watch"
 
-	"github.com/giantswarm/app-operator/v2/pkg/annotation"
 	pkglabel "github.com/giantswarm/app-operator/v2/pkg/label"
 )
 
