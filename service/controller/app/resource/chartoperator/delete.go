@@ -4,10 +4,10 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/giantswarm/app/v3/pkg/key"
 	"github.com/giantswarm/microerror"
 
 	"github.com/giantswarm/app-operator/v2/service/controller/app/controllercontext"
-	"github.com/giantswarm/app-operator/v2/service/controller/key"
 )
 
 func (r Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {

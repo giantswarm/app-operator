@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/giantswarm/app/v3/pkg/key"
 	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/v4/pkg/controller/context/resourcecanceledcontext"
@@ -11,7 +12,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/giantswarm/app-operator/v2/service/controller/app/controllercontext"
-	"github.com/giantswarm/app-operator/v2/service/controller/key"
 )
 
 func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interface{}, error) {

@@ -11,13 +11,14 @@ import (
 	"github.com/Masterminds/semver"
 	"github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/apiextensions/v3/pkg/label"
+	"github.com/giantswarm/app/v3/pkg/key"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/to"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	pkglabel "github.com/giantswarm/app-operator/v2/pkg/label"
-	"github.com/giantswarm/app-operator/v2/service/controller/key"
+	"github.com/giantswarm/app-operator/v2/pkg/project"
 )
 
 // EnsureCreated ensures appcatalogentry CRs are created or updated for this
@@ -34,13 +35,13 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	}
 
 	// Skip creating appcatalogentry CRs if the catalog is not public.
-	if key.CatalogVisibility(cr) != publicVisibilityType {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("not creating CRs for catalog %#q with visibility %#q", cr.Name, key.CatalogVisibility(cr)))
+	if key.AppCatalogVisibility(cr) != publicVisibilityType {
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("not creating CRs for catalog %#q with visibility %#q", cr.Name, key.AppCatalogVisibility(cr)))
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 		return nil
 	}
 	// Skip creating appcatalogentry CRs if this is a community catalog.
-	if key.CatalogType(cr) == communityCatalogType {
+	if key.AppCatalogType(cr) == communityCatalogType {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("not creating CRs for catalog %#q with type %#q", cr.Name, communityCatalogType))
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 		return nil
@@ -164,11 +165,11 @@ func (r *Resource) newAppCatalogEntries(ctx context.Context, cr v1alpha1.AppCata
 					Name:      name,
 					Namespace: metav1.NamespaceDefault,
 					Labels: map[string]string{
-						pkglabel.AppKubernetesName: entry.Name,
-						pkglabel.CatalogName:       cr.Name,
-						pkglabel.CatalogType:       key.CatalogType(cr),
-						pkglabel.Latest:            strconv.FormatBool(isLatest),
-						label.ManagedBy:            key.AppCatalogEntryManagedBy(),
+						label.AppKubernetesName: entry.Name,
+						label.CatalogName:       cr.Name,
+						label.CatalogType:       key.AppCatalogType(cr),
+						pkglabel.Latest:         strconv.FormatBool(isLatest),
+						label.ManagedBy:         key.AppCatalogEntryManagedBy(project.Name()),
 					},
 					OwnerReferences: []metav1.OwnerReference{
 						{

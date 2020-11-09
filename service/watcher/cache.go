@@ -8,13 +8,13 @@ import (
 	"sync"
 
 	"github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
+	"github.com/giantswarm/app/v3/pkg/key"
 	"github.com/giantswarm/microerror"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/watch"
 
 	pkglabel "github.com/giantswarm/app-operator/v2/pkg/label"
-	"github.com/giantswarm/app-operator/v2/service/controller/key"
 )
 
 func (c *AppValueWatcher) buildCache(ctx context.Context) {

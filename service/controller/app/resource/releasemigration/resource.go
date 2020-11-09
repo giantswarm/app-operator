@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/giantswarm/app/v3/pkg/key"
 	"github.com/giantswarm/appcatalog"
 	"github.com/giantswarm/backoff"
 	"github.com/giantswarm/helmclient/v3/pkg/helmclient"
@@ -13,8 +14,6 @@ import (
 	"github.com/giantswarm/micrologger"
 	"github.com/spf13/afero"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-
-	"github.com/giantswarm/app-operator/v2/service/controller/key"
 )
 
 const (

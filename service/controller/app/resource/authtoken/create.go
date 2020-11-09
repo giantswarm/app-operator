@@ -6,6 +6,7 @@ import (
 
 	"github.com/giantswarm/apiextensions/v3/pkg/annotation"
 	"github.com/giantswarm/apiextensions/v3/pkg/label"
+	"github.com/giantswarm/app/v3/pkg/key"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/v4/pkg/controller/context/resourcecanceledcontext"
 	corev1 "k8s.io/api/core/v1"
@@ -14,7 +15,6 @@ import (
 
 	"github.com/giantswarm/app-operator/v2/pkg/project"
 	"github.com/giantswarm/app-operator/v2/service/controller/app/controllercontext"
-	"github.com/giantswarm/app-operator/v2/service/controller/key"
 )
 
 func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
