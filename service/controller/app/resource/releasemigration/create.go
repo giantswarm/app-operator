@@ -8,6 +8,7 @@ import (
 
 	"github.com/Masterminds/semver/v3"
 	"github.com/giantswarm/apiextensions/v3/pkg/clientset/versioned"
+	"github.com/giantswarm/app/v3/pkg/annotation"
 	"github.com/giantswarm/k8sclient/v5/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/v4/pkg/controller/context/reconciliationcanceledcontext"
@@ -15,7 +16,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 
-	"github.com/giantswarm/app-operator/v2/pkg/annotation"
 	"github.com/giantswarm/app-operator/v2/service/controller/app/controllercontext"
 	"github.com/giantswarm/app-operator/v2/service/controller/key"
 )

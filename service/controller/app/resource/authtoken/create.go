@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/giantswarm/apiextensions/v3/pkg/annotation"
 	"github.com/giantswarm/apiextensions/v3/pkg/label"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/v4/pkg/controller/context/resourcecanceledcontext"
@@ -11,7 +12,6 @@ import (
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"github.com/giantswarm/app-operator/v2/pkg/annotation"
 	"github.com/giantswarm/app-operator/v2/pkg/project"
 	"github.com/giantswarm/app-operator/v2/service/controller/app/controllercontext"
 	"github.com/giantswarm/app-operator/v2/service/controller/key"

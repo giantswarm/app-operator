@@ -9,7 +9,7 @@ import (
 	"github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"github.com/giantswarm/app-operator/v2/pkg/annotation"
+	"github.com/giantswarm/app/v3/pkg/annotation"
 )
 
 func Test_AppConfigMapName(t *testing.T) {
