@@ -6,6 +6,7 @@ import (
 
 	"github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/app/v3/pkg/key"
+	"github.com/giantswarm/app/v3/pkg/validation"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/v4/pkg/controller/context/reconciliationcanceledcontext"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -20,7 +21,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	}
 
 	_, err = r.appValidator.ValidateApp(ctx, cr)
-	if IsValidationError(err) {
+	if validation.IsValidationError(err) {
 		r.logger.LogCtx(ctx, "level", "warning", "message", fmt.Sprintf("validation error %s", err.Error()))
 
 		err = r.updateAppStatus(ctx, cr, err.Error())
