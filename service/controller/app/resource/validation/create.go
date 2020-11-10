@@ -19,7 +19,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
-	err = r.validateApp(ctx, cr)
+	_, err = r.appValidator.ValidateApp(ctx, cr)
 	if IsValidationError(err) {
 		r.logger.LogCtx(ctx, "level", "warning", "message", fmt.Sprintf("validation error %s", err.Error()))
 
@@ -34,6 +34,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	} else if err != nil {
 		return microerror.Mask(err)
 	}
+
 	return nil
 }
 
