@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Added
+
+- Use validation logic from the app library.
+
 ## [2.7.0] - 2020-11-09
 
 ### Added
