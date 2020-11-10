@@ -42,9 +42,9 @@ func TestAppCatalogEntry(t *testing.T) {
 			ObjectMeta: metav1.ObjectMeta{
 				Name: key.StableCatalogName(),
 				Labels: map[string]string{
-					label.AppOperatorVersion:   project.Version(),
-					pkglabel.CatalogType:       "stable",
-					pkglabel.CatalogVisibility: "public",
+					label.AppOperatorVersion: project.Version(),
+					label.CatalogType:        "stable",
+					label.CatalogVisibility:  "public",
 				},
 			},
 			Spec: v1alpha1.AppCatalogSpec{
@@ -89,11 +89,11 @@ func TestAppCatalogEntry(t *testing.T) {
 
 	{
 		expectedLabels := map[string]string{
-			pkglabel.AppKubernetesName: "prometheus-operator-app",
-			pkglabel.CatalogName:       key.StableCatalogName(),
-			pkglabel.CatalogType:       "stable",
-			pkglabel.Latest:            "false",
-			label.ManagedBy:            "app-operator-unique",
+			label.AppKubernetesName: "prometheus-operator-app",
+			label.CatalogName:       key.StableCatalogName(),
+			label.CatalogType:       "stable",
+			pkglabel.Latest:         "false",
+			label.ManagedBy:         "app-operator-unique",
 		}
 
 		if !reflect.DeepEqual(entryCR.Labels, expectedLabels) {
@@ -133,7 +133,7 @@ func TestAppCatalogEntry(t *testing.T) {
 
 		o := func() error {
 			lo := metav1.ListOptions{
-				LabelSelector: fmt.Sprintf("%s=%s,%s=%s", label.ManagedBy, project.Name(), pkglabel.CatalogName, key.StableCatalogName()),
+				LabelSelector: fmt.Sprintf("%s=%s,%s=%s", label.ManagedBy, project.Name(), label.CatalogName, key.StableCatalogName()),
 			}
 			entryCRs, err := config.K8sClients.G8sClient().ApplicationV1alpha1().AppCatalogEntries(metav1.NamespaceDefault).List(ctx, lo)
 			if err != nil {
