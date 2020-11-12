@@ -139,14 +139,14 @@ func (r *Resource) getRestrictions(ctx context.Context, storageURL, name, versio
 		return nil, microerror.Mask(err)
 	}
 
-	restrictions := v1alpha1.AppCatalogEntrySpecRestrictions{}
+	var m metadata
 
-	err = yaml.Unmarshal(body, &restrictions)
+	err = yaml.Unmarshal(body, &m)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
 
 	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("got main.yaml from %#q", mainURL))
 
-	return &restrictions, nil
+	return &m.Restrictions, nil
 }
