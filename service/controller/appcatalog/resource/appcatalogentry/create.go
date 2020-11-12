@@ -223,6 +223,9 @@ func equals(current, desired *v1alpha1.AppCatalogEntry) bool {
 	if !reflect.DeepEqual(current.Labels, desired.Labels) {
 		return false
 	}
+	if !reflect.DeepEqual(*current.Spec.Restrictions, *desired.Spec.Restrictions) {
+		return false
+	}
 
 	// Using reflect.DeepEqual doesn't work for the 2 date fields due to time
 	// zones. Instead we compare the unix epoch and clear the date fields.
