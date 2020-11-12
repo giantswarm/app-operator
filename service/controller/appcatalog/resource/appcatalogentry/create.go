@@ -140,6 +140,12 @@ func (r *Resource) newAppCatalogEntries(ctx context.Context, cr v1alpha1.AppCata
 		for _, entry := range entries {
 			name := fmt.Sprintf("%s-%s-%s", cr.Name, entry.Name, entry.Version)
 
+			restrictions, err := r.getRestrictions(ctx, key.AppCatalogStorageURL(cr), entry.Name, entry.Version)
+			if err != nil {
+				r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("failed to get restrictions metadata for entry %#q in catalog %#q", entry.Name, cr.Name), "stack", fmt.Sprintf("%#v", err))
+				continue
+			}
+
 			createdTime, err := parseTime(entry.Created)
 			if err != nil {
 				return nil, microerror.Mask(err)
@@ -197,6 +203,10 @@ func (r *Resource) newAppCatalogEntries(ctx context.Context, cr v1alpha1.AppCata
 					DateUpdated: updatedTime,
 					Version:     entry.Version,
 				},
+			}
+
+			if restrictions != nil {
+				entryCR.Spec.Restrictions = restrictions
 			}
 
 			entryCRs[name] = entryCR

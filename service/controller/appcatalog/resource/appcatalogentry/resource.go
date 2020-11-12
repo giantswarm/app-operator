@@ -116,3 +116,37 @@ func (r *Resource) getIndex(ctx context.Context, storageURL string) (index, erro
 
 	return i, nil
 }
+
+func (r *Resource) getRestrictions(ctx context.Context, storageURL, name, version string) (*v1alpha1.AppCatalogEntrySpecRestrictions, error) {
+	mainURL := fmt.Sprintf("%s/%s-%s-meta/main.yaml", strings.TrimRight(storageURL, "/"), name, version)
+
+	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("getting main.yaml from %#q", mainURL))
+
+	// We use https in catalog URLs so we can disable the linter in this case.
+	resp, err := http.Get(mainURL) // #nosec
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode == http.StatusNotFound {
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("no main.yaml generated in %#q", mainURL))
+		return nil, nil
+	}
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	restrictions := v1alpha1.AppCatalogEntrySpecRestrictions{}
+
+	err = yaml.Unmarshal(body, &restrictions)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("got main.yaml from %#q", mainURL))
+
+	return &restrictions, nil
+}
