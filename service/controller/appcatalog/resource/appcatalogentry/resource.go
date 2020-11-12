@@ -118,7 +118,7 @@ func (r *Resource) getIndex(ctx context.Context, storageURL string) (index, erro
 }
 
 func (r *Resource) getRestrictions(ctx context.Context, storageURL, name, version string) (*v1alpha1.AppCatalogEntrySpecRestrictions, error) {
-	mainURL := fmt.Sprintf("%s/%s-%s-meta/main.yaml", strings.TrimRight(storageURL, "/"), name, version)
+	mainURL := fmt.Sprintf("%s/%s-%s.tgz-meta/main.yaml", strings.TrimRight(storageURL, "/"), name, version)
 
 	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("getting main.yaml from %#q", mainURL))
 
