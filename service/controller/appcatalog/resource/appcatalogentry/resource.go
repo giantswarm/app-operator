@@ -117,7 +117,7 @@ func (r *Resource) getIndex(ctx context.Context, storageURL string) (index, erro
 	return i, nil
 }
 
-func (r *Resource) getRestrictions(ctx context.Context, storageURL, name, version string) (*v1alpha1.AppCatalogEntrySpecRestrictions, error) {
+func (r *Resource) getMetadata(ctx context.Context, storageURL, name, version string) ([]byte, error) {
 	mainURL := fmt.Sprintf("%s/%s-%s.tgz-meta/main.yaml", strings.TrimRight(storageURL, "/"), name, version)
 
 	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("getting main.yaml from %#q", mainURL))
@@ -139,14 +139,18 @@ func (r *Resource) getRestrictions(ctx context.Context, storageURL, name, versio
 		return nil, microerror.Mask(err)
 	}
 
+	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("got main.yaml from %#q", mainURL))
+
+	return body, nil
+}
+
+func parseRestrictions(rawMetadata []byte) (*v1alpha1.AppCatalogEntrySpecRestrictions, error) {
 	var m metadata
 
-	err = yaml.Unmarshal(body, &m)
+	err := yaml.Unmarshal(rawMetadata, &m)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
-
-	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("got main.yaml from %#q", mainURL))
 
 	return &m.Restrictions, nil
 }
