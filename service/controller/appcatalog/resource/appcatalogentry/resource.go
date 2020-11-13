@@ -130,7 +130,7 @@ func (r *Resource) getMetadata(ctx context.Context, storageURL, name, version st
 	defer resp.Body.Close()
 
 	if resp.StatusCode == http.StatusNotFound {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("no main.yaml generated in %#q", mainURL))
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("no main.yaml generated at %#q", mainURL))
 		return nil, nil
 	}
 
