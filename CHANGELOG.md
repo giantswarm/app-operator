@@ -10,6 +10,7 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 ### Added
 
 - Use validation logic from the app library.
+- Update appcatalogentry CRs if it contains restrictions on metadata.
 
 ## [2.7.0] - 2020-11-09
 
