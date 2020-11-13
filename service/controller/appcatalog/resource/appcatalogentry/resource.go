@@ -13,6 +13,7 @@ import (
 	"github.com/giantswarm/k8sclient/v5/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
+	"github.com/prometheus/client_golang/prometheus"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/yaml"
 
@@ -118,6 +119,11 @@ func (r *Resource) getIndex(ctx context.Context, storageURL string) (index, erro
 }
 
 func (r *Resource) getMetadata(ctx context.Context, storageURL, name, version string) ([]byte, error) {
+	eventName := "pull_metadata_file"
+
+	t := prometheus.NewTimer(histogram.WithLabelValues(eventName))
+	defer t.ObserveDuration()
+
 	mainURL := fmt.Sprintf("%s/%s-%s.tgz-meta/main.yaml", strings.TrimRight(storageURL, "/"), name, version)
 
 	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("getting main.yaml from %#q", mainURL))
