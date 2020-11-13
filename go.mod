@@ -6,7 +6,7 @@ require (
 	github.com/Masterminds/semver v1.5.0
 	github.com/Masterminds/semver/v3 v3.1.0
 	github.com/ghodss/yaml v1.0.0
-	github.com/giantswarm/apiextensions/v3 v3.7.0
+	github.com/giantswarm/apiextensions/v3 v3.8.0
 	github.com/giantswarm/app/v3 v3.1.1
 	github.com/giantswarm/appcatalog v0.2.7
 	github.com/giantswarm/backoff v0.2.0
@@ -24,6 +24,7 @@ require (
 	github.com/go-kit/kit v0.10.0
 	github.com/google/go-cmp v0.5.2
 	github.com/gorilla/mux v1.8.0
+	github.com/prometheus/client_golang v1.8.0
 	github.com/spf13/afero v1.4.1
 	github.com/spf13/viper v1.7.1
 	k8s.io/api v0.18.9

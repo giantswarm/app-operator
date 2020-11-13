@@ -13,6 +13,7 @@ import (
 	"github.com/giantswarm/k8sclient/v5/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
+	"github.com/prometheus/client_golang/prometheus"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/yaml"
 
@@ -115,4 +116,47 @@ func (r *Resource) getIndex(ctx context.Context, storageURL string) (index, erro
 	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("got index.yaml from %#q", indexURL))
 
 	return i, nil
+}
+
+func (r *Resource) getMetadata(ctx context.Context, storageURL, name, version string) ([]byte, error) {
+	eventName := "pull_metadata_file"
+
+	t := prometheus.NewTimer(histogram.WithLabelValues(eventName))
+	defer t.ObserveDuration()
+
+	mainURL := fmt.Sprintf("%s/%s-%s.tgz-meta/main.yaml", strings.TrimRight(storageURL, "/"), name, version)
+
+	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("getting main.yaml from %#q", mainURL))
+
+	// We use https in catalog URLs so we can disable the linter in this case.
+	resp, err := http.Get(mainURL) // #nosec
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode == http.StatusNotFound {
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("no main.yaml generated at %#q", mainURL))
+		return nil, nil
+	}
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("got main.yaml from %#q", mainURL))
+
+	return body, nil
+}
+
+func parseRestrictions(rawMetadata []byte) (*v1alpha1.AppCatalogEntrySpecRestrictions, error) {
+	var m metadata
+
+	err := yaml.Unmarshal(rawMetadata, &m)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	return &m.Restrictions, nil
 }

@@ -140,6 +140,25 @@ func (r *Resource) newAppCatalogEntries(ctx context.Context, cr v1alpha1.AppCata
 		for _, entry := range entries {
 			name := fmt.Sprintf("%s-%s-%s", cr.Name, entry.Name, entry.Version)
 
+			var metadata []byte
+			{
+				metadata, err = r.getMetadata(ctx, key.AppCatalogStorageURL(cr), entry.Name, entry.Version)
+				if err != nil {
+					r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("failed to get metadata for entry %#q in catalog %#q", entry.Name, cr.Name), "stack", fmt.Sprintf("%#v", err))
+					continue
+				}
+			}
+
+			var restrictions *v1alpha1.AppCatalogEntrySpecRestrictions
+			{
+				if metadata != nil {
+					restrictions, err = parseRestrictions(metadata)
+					if err != nil {
+						return nil, microerror.Mask(err)
+					}
+				}
+			}
+
 			createdTime, err := parseTime(entry.Created)
 			if err != nil {
 				return nil, microerror.Mask(err)
@@ -193,9 +212,10 @@ func (r *Resource) newAppCatalogEntries(ctx context.Context, cr v1alpha1.AppCata
 						Home: entry.Home,
 						Icon: entry.Icon,
 					},
-					DateCreated: createdTime,
-					DateUpdated: updatedTime,
-					Version:     entry.Version,
+					DateCreated:  createdTime,
+					DateUpdated:  updatedTime,
+					Restrictions: restrictions,
+					Version:      entry.Version,
 				},
 			}
 
@@ -211,6 +231,9 @@ func equals(current, desired *v1alpha1.AppCatalogEntry) bool {
 		return false
 	}
 	if !reflect.DeepEqual(current.Labels, desired.Labels) {
+		return false
+	}
+	if !reflect.DeepEqual(current.Spec.Restrictions, desired.Spec.Restrictions) {
 		return false
 	}
 
