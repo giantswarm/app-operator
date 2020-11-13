@@ -223,7 +223,7 @@ func equals(current, desired *v1alpha1.AppCatalogEntry) bool {
 	if !reflect.DeepEqual(current.Labels, desired.Labels) {
 		return false
 	}
-	if !reflect.DeepEqual(*current.Spec.Restrictions, *desired.Spec.Restrictions) {
+	if !reflect.DeepEqual(current.Spec.Restrictions, desired.Spec.Restrictions) {
 		return false
 	}
 
