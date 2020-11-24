@@ -253,11 +253,10 @@ github.com/ghodss/yaml v0.0.0-20150909031657-73d445a93680/go.mod h1:4dBDuWmgqj2H
 github.com/ghodss/yaml v1.0.0 h1:wQHKEahhL6wmXdzwWG11gIVCkOv05bNOh+Rxn0yngAk=
 github.com/ghodss/yaml v1.0.0/go.mod h1:4dBDuWmgqj2HViK6kFavaiC9ZROes6MMH2rRYeMEF04=
 github.com/giantswarm/apiextensions/v3 v3.4.0/go.mod h1:MMLkRJta4mbTbrikP9LewADiCL+55LmsagyhdTU7XAY=
-github.com/giantswarm/apiextensions/v3 v3.7.0/go.mod h1:MMLkRJta4mbTbrikP9LewADiCL+55LmsagyhdTU7XAY=
 github.com/giantswarm/apiextensions/v3 v3.8.0 h1:gRqlNE62k49EdXYKBaShH0jkFBoOuGPxIgEnD5SZCx4=
 github.com/giantswarm/apiextensions/v3 v3.8.0/go.mod h1:MMLkRJta4mbTbrikP9LewADiCL+55LmsagyhdTU7XAY=
-github.com/giantswarm/app/v3 v3.1.1 h1:z9AGSftEyFBfhvk8hzecKAbPLMsK3MXBmYqX1SwiBwI=
-github.com/giantswarm/app/v3 v3.1.1/go.mod h1:1P9plfrJ5IzG9sg4nw93a6G1mDSLUHBDL5TLaxlRTHc=
+github.com/giantswarm/app/v3 v3.3.0 h1:Mpwc3+dHZKGTNl3y50F6QjVbiBQrgpZGTZfvax+xZKE=
+github.com/giantswarm/app/v3 v3.3.0/go.mod h1:1+kDyJBXp127yVXTdqfgWfGp50V4LkIq1lSDXBizICk=
 github.com/giantswarm/appcatalog v0.3.0 h1:enpcVE46WGUbLHa7D2BpEtjd9xXH5/DmcVmHLc7Nt38=
 github.com/giantswarm/appcatalog v0.3.0/go.mod h1:cjOuCqi8gWudFY0ogbp4ukSV4Vff6kfInR9VdrX+7yI=
 github.com/giantswarm/backoff v0.2.0 h1:kdfAf83pZ/l8X0KiA2dJ2Wq19nS9hISijVn7ZRdFhfU=
