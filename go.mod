@@ -22,7 +22,7 @@ require (
 	github.com/giantswarm/to v0.3.0
 	github.com/giantswarm/versionbundle v0.2.0
 	github.com/go-kit/kit v0.10.0
-	github.com/google/go-cmp v0.5.2
+	github.com/google/go-cmp v0.5.3
 	github.com/gorilla/mux v1.8.0
 	github.com/prometheus/client_golang v1.8.0
 	github.com/spf13/afero v1.4.1
