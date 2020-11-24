@@ -8,7 +8,7 @@ require (
 	github.com/ghodss/yaml v1.0.0
 	github.com/giantswarm/apiextensions/v3 v3.8.0
 	github.com/giantswarm/app/v3 v3.1.1
-	github.com/giantswarm/appcatalog v0.2.7
+	github.com/giantswarm/appcatalog v0.3.0
 	github.com/giantswarm/backoff v0.2.0
 	github.com/giantswarm/errors v0.2.3
 	github.com/giantswarm/helmclient/v3 v3.0.1
