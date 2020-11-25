@@ -2,7 +2,7 @@
 *.swp
 
 # build result
-app-operator
+/app-operator*
 
 # don't apply earlier restrictions under vendor
 !vendor/**

@@ -3,10 +3,8 @@
 package label
 
 import (
-	"fmt"
-
 	"github.com/giantswarm/apiextensions/v3/pkg/label"
-	"k8s.io/apimachinery/pkg/labels"
+	"github.com/giantswarm/operatorkit/v4/pkg/controller"
 
 	"github.com/giantswarm/app-operator/v2/pkg/project"
 )
@@ -20,19 +18,20 @@ const (
 	Watching = "app-operator.giantswarm.io/watching"
 )
 
-func AppVersionSelector(unique bool) labels.Selector {
-	version := GetProjectVersion(unique)
-	s := fmt.Sprintf("%s=%s", label.AppOperatorVersion, version)
+func AppVersionSelector(unique bool) controller.Selector {
+	return controller.NewSelector(func(labels controller.Labels) bool {
+		if !labels.Has(label.AppOperatorVersion) {
+			return false
+		}
+		if labels.Get(label.AppOperatorVersion) == getProjectVersion(unique) {
+			return true
+		}
 
-	selector, err := labels.Parse(s)
-	if err != nil {
-		panic(fmt.Sprintf("failed to parse selector %#q with error %#q", s, err))
-	}
-
-	return selector
+		return false
+	})
 }
 
-func GetProjectVersion(unique bool) string {
+func getProjectVersion(unique bool) string {
 	if unique {
 		// When app-operator is deployed as a unique app it only processes
 		// control plane app CRs. These CRs always have the version label

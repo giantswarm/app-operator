@@ -37,4 +37,3 @@ a special app version of 0.0.0.
 {{- define "resource.app.version" -}}
 {{- if hasSuffix "-unique" .Release.Name }}0.0.0{{ else }}{{ .Chart.AppVersion }}{{ end }}
 {{- end -}}
-
