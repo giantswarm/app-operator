@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Changed
+
+- Cancel `chart` CR reconciliation is managed configmap or secret are not ready.
+
 ### Added
 
 - Use validation logic from the app library.

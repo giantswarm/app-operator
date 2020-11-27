@@ -13,6 +13,7 @@ import (
 	"github.com/giantswarm/app/v3/pkg/key"
 	"github.com/giantswarm/appcatalog"
 	"github.com/giantswarm/microerror"
+	"github.com/giantswarm/operatorkit/v4/pkg/controller/context/reconciliationcanceledcontext"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
@@ -44,6 +45,11 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 	}
 
 	config, err := generateConfig(ctx, cc.Clients.K8s.K8sClient(), cr, cc.AppCatalog, r.chartNamespace)
+	if IsAppDependencyNotReady(err) {
+		r.logger.LogCtx(ctx, "level", "debug", "message", "configmap and secret for app are not ready")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "cancelling reconciliation")
+		reconciliationcanceledcontext.SetCanceled(ctx)
+	}
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
@@ -107,11 +113,13 @@ func generateAnnotations(input map[string]string) map[string]string {
 func generateConfig(ctx context.Context, k8sClient kubernetes.Interface, cr v1alpha1.App, appCatalog v1alpha1.AppCatalog, chartNamespace string) (v1alpha1.ChartSpecConfig, error) {
 	config := v1alpha1.ChartSpecConfig{}
 
+	_, isManagedConfig := cr.Annotations[configVersionAnnotation]
+
 	if hasConfigMap(cr, appCatalog) {
 		configMapName := key.ChartConfigMapName(cr)
 		cm, err := k8sClient.CoreV1().ConfigMaps(chartNamespace).Get(ctx, configMapName, metav1.GetOptions{})
-		if apierrors.IsNotFound(err) {
-			// no-op
+		if apierrors.IsNotFound(err) && isManagedConfig {
+			return v1alpha1.ChartSpecConfig{}, microerror.Mask(appDependencyNotReadyError)
 		} else if err != nil {
 			return v1alpha1.ChartSpecConfig{}, microerror.Mask(err)
 		} else {
@@ -128,8 +136,8 @@ func generateConfig(ctx context.Context, k8sClient kubernetes.Interface, cr v1al
 	if hasSecret(cr, appCatalog) {
 		secretName := key.ChartSecretName(cr)
 		secret, err := k8sClient.CoreV1().Secrets(chartNamespace).Get(ctx, secretName, metav1.GetOptions{})
-		if apierrors.IsNotFound(err) {
-			// no-op
+		if apierrors.IsNotFound(err) && isManagedConfig {
+			return v1alpha1.ChartSpecConfig{}, microerror.Mask(appDependencyNotReadyError)
 		} else if err != nil {
 			return v1alpha1.ChartSpecConfig{}, microerror.Mask(err)
 		} else {
