@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
+	"github.com/giantswarm/app-operator/v2/pkg/annotation"
 	"github.com/giantswarm/app/v3/pkg/key"
 	"github.com/giantswarm/helmclient/v3/pkg/helmclient"
 	"github.com/giantswarm/microerror"
@@ -18,6 +19,11 @@ func (v *Values) MergeConfigMapData(ctx context.Context, app v1alpha1.App, appCa
 	appConfigMapName := key.AppConfigMapName(app)
 	catalogConfigMapName := key.AppCatalogConfigMapName(appCatalog)
 	userConfigMapName := key.UserConfigMapName(app)
+
+	_, hasManagedConfig := app.Annotations[annotation.AppConfigVersion]
+	if hasManagedConfig && appConfigMapName == "" {
+		return nil, microerror.Mask(appDependencyNotReadyError)
+	}
 
 	if appConfigMapName == "" && catalogConfigMapName == "" && userConfigMapName == "" {
 		// Return early as there is no config.

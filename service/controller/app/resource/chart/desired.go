@@ -115,7 +115,8 @@ func generateConfig(ctx context.Context, k8sClient kubernetes.Interface, cr v1al
 
 	_, hasManagedConfig := cr.Annotations[configVersionAnnotation]
 
-	if hasManagedConfig && (!hasConfigMap(cr, appCatalog) || !hasSecret(cr, appCatalog)) {
+	if hasManagedConfig && !(hasConfigMap(cr, appCatalog) && hasSecret(cr, appCatalog)) {
+		fmt.Printf("has managed config %t and has cm %t and has secret %t\n", hasManagedConfig, hasConfigMap(cr, appCatalog), hasSecret(cr, appCatalog))
 		return v1alpha1.ChartSpecConfig{}, microerror.Mask(appDependencyNotReadyError)
 	}
 
