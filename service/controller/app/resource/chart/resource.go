@@ -24,10 +24,6 @@ const (
 	chartAPIVersion            = "application.giantswarm.io"
 	chartKind                  = "Chart"
 	chartCustomResourceVersion = "1.0.0"
-
-	// annotation key, which identifies configuration version,
-	// provided by configuration controller.
-	configVersionAnnotation = "config.giantswarm.io/version"
 )
 
 // Config represents the configuration used to create a new chart resource.
