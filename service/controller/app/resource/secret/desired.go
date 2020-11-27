@@ -41,6 +41,12 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 	}
 
 	mergedData, err := r.values.MergeSecretData(ctx, cr, cc.AppCatalog)
+	if values.IsAppDependencyNotReady(err) {
+		r.logger.LogCtx(ctx, "level", "debug", "message", "dependent secret is not ready")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "cancelling reconciliation")
+		resourcecanceledcontext.SetCanceled(ctx)
+		return nil, nil
+	}
 	if values.IsNotFound(err) {
 		r.logger.LogCtx(ctx, "level", "warning", "message", "dependent secrets are not found")
 		addStatusToContext(cc, err.Error(), status.SecretMergeFailedStatus)

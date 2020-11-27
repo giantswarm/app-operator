@@ -8,7 +8,6 @@ import (
 	"github.com/giantswarm/apiextensions/v3/pkg/label"
 	"github.com/giantswarm/app/v3/pkg/key"
 	"github.com/giantswarm/microerror"
-	"github.com/giantswarm/operatorkit/controller/context/reconciliationcanceledcontext"
 	"github.com/giantswarm/operatorkit/v4/pkg/controller/context/resourcecanceledcontext"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -43,9 +42,10 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 
 	mergedData, err := r.values.MergeConfigMapData(ctx, cr, cc.AppCatalog)
 	if values.IsAppDependencyNotReady(err) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "app configuration is not ready")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "dependent configMap is not ready")
 		r.logger.LogCtx(ctx, "level", "debug", "message", "cancelling reconciliation")
-		reconciliationcanceledcontext.SetCanceled(ctx)
+		resourcecanceledcontext.SetCanceled(ctx)
+		return nil, nil
 	}
 	if values.IsNotFound(err) {
 		r.logger.LogCtx(ctx, "level", "warning", "message", "dependent configMaps are not found")
