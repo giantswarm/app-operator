@@ -9,7 +9,7 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ### Changed
 
-- Cancel `chart` CR reconciliation is managed configmap or secret are not ready.
+- Cancel `chart` CR reconciliation if managed configmap or secret are not ready.
 
 ### Added
 
