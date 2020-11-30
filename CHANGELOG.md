@@ -9,6 +9,8 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ### Added
 
+- Add printer columns for Version, Last Deployed and Status to chart CRD in
+tenant clusters.
 - Use validation logic from the app library.
 - Include restrictions data from app metadata files in appcatalogentry CRs.
 
