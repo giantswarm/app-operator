@@ -22,7 +22,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 	_, err = r.appValidator.ValidateApp(ctx, cr)
 	if validation.IsAppDependencyNotReady(err) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "dependent configuration is not ready")
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("dependent configuration is not ready: %#q", err))
 		r.logger.LogCtx(ctx, "level", "debug", "message", "cancelling reconciliation")
 		reconciliationcanceledcontext.SetCanceled(ctx)
 		return nil
