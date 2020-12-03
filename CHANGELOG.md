@@ -9,7 +9,7 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ### Changed
 
-- Using Value service from app repository.
+- Using values service from the app library.
 
 ### Added
 
