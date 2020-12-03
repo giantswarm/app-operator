@@ -3,6 +3,7 @@ package app
 import (
 	"time"
 
+	"github.com/giantswarm/app/v3/pkg/values"
 	"github.com/giantswarm/k8sclient/v5/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
@@ -25,7 +26,6 @@ import (
 	"github.com/giantswarm/app-operator/v2/service/controller/app/resource/status"
 	"github.com/giantswarm/app-operator/v2/service/controller/app/resource/tcnamespace"
 	"github.com/giantswarm/app-operator/v2/service/controller/app/resource/validation"
-	"github.com/giantswarm/app-operator/v2/service/controller/app/values"
 )
 
 type appResourcesConfig struct {

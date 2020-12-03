@@ -7,15 +7,16 @@ import (
 	"github.com/giantswarm/apiextensions/v3/pkg/annotation"
 	"github.com/giantswarm/apiextensions/v3/pkg/label"
 	"github.com/giantswarm/app/v3/pkg/key"
+	"github.com/giantswarm/app/v3/pkg/values"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/v4/pkg/controller/context/resourcecanceledcontext"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"sigs.k8s.io/yaml"
 
 	"github.com/giantswarm/app-operator/v2/pkg/project"
 	"github.com/giantswarm/app-operator/v2/pkg/status"
 	"github.com/giantswarm/app-operator/v2/service/controller/app/controllercontext"
-	"github.com/giantswarm/app-operator/v2/service/controller/app/values"
 )
 
 func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interface{}, error) {
@@ -64,8 +65,15 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		return nil, nil
 	}
 
+	bytes, err := yaml.Marshal(mergedData)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
 	secret := &corev1.Secret{
-		Data: mergedData,
+		Data: map[string][]byte{
+			"values": bytes,
+		},
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      key.ChartSecretName(cr),
 			Namespace: r.chartNamespace,
