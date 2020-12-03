@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Changed
+
+- Using Value service from app repository.
+
 ### Added
 
 - Add printer columns for Version, Last Deployed and Status to chart CRD in
