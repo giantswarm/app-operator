@@ -6,8 +6,8 @@ import (
 
 	"github.com/giantswarm/apiextensions/v3/pkg/annotation"
 	"github.com/giantswarm/apiextensions/v3/pkg/label"
-	"github.com/giantswarm/app/v3/pkg/key"
-	"github.com/giantswarm/app/v3/pkg/values"
+	"github.com/giantswarm/app/v4/pkg/key"
+	"github.com/giantswarm/app/v4/pkg/values"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/v4/pkg/controller/context/resourcecanceledcontext"
 	corev1 "k8s.io/api/core/v1"

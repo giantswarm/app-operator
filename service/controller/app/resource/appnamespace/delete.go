@@ -3,7 +3,7 @@ package appnamespace
 import (
 	"context"
 
-	"github.com/giantswarm/app/v3/pkg/key"
+	"github.com/giantswarm/app/v4/pkg/key"
 	"github.com/giantswarm/microerror"
 )
 
