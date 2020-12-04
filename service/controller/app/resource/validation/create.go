@@ -22,8 +22,8 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 	_, err = r.appValidator.ValidateApp(ctx, cr)
 	if validation.IsAppDependencyNotReady(err) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("dependent configuration is not ready: %#q", err))
-		r.logger.LogCtx(ctx, "level", "debug", "message", "cancelling reconciliation")
+		r.logger.Debugf(ctx, "dependent configuration is not ready: %#q", err)
+		r.logger.Debugf(ctx, "cancelling reconciliation")
 		reconciliationcanceledcontext.SetCanceled(ctx)
 		return nil
 	}
@@ -35,7 +35,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			return microerror.Mask(err)
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation")
+		r.logger.Debugf(ctx, "canceling reconciliation")
 		reconciliationcanceledcontext.SetCanceled(ctx)
 		return nil
 	} else if err != nil {
@@ -46,7 +46,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 }
 
 func (r *Resource) updateAppStatus(ctx context.Context, cr v1alpha1.App, reason string) error {
-	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("setting status for app %#q in namespace %#q", cr.Name, cr.Namespace))
+	r.logger.Debugf(ctx, "setting status for app %#q in namespace %#q", cr.Name, cr.Namespace)
 
 	// Get app CR again to ensure the resource version is correct.
 	currentCR, err := r.g8sClient.ApplicationV1alpha1().Apps(cr.Namespace).Get(ctx, cr.Name, metav1.GetOptions{})
@@ -66,7 +66,7 @@ func (r *Resource) updateAppStatus(ctx context.Context, cr v1alpha1.App, reason 
 		return microerror.Mask(err)
 	}
 
-	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("status set for app %#q in namespace %#q", cr.Name, cr.Namespace))
+	r.logger.Debugf(ctx, "status set for app %#q in namespace %#q", cr.Name, cr.Namespace)
 
 	return nil
 }

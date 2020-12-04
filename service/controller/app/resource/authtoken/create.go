@@ -24,20 +24,20 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	}
 
 	if key.InCluster(cr) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("app %#q in %#q uses InCluster kubeconfig no need for webhook auth token", cr.Name, cr.Namespace))
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		r.logger.Debugf(ctx, "app %#q in %#q uses InCluster kubeconfig no need for webhook auth token", cr.Name, cr.Namespace)
+		r.logger.Debugf(ctx, "canceling resource")
 		return nil
 	}
 
 	if key.AppName(cr) != key.ChartOperatorAppName {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("no need to install webhook auth token for %#q", key.AppName(cr)))
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		r.logger.Debugf(ctx, "no need to install webhook auth token for %#q", key.AppName(cr))
+		r.logger.Debugf(ctx, "canceling resource")
 		return nil
 	}
 
 	if key.IsAppCordoned(cr) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("app %#q is cordoned", cr.Name))
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		r.logger.Debugf(ctx, "app %#q is cordoned", cr.Name)
+		r.logger.Debugf(ctx, "canceling resource")
 		resourcecanceledcontext.SetCanceled(ctx)
 		return nil
 	}
@@ -48,8 +48,8 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	}
 
 	if cc.Status.ClusterStatus.IsUnavailable {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster is unavailable")
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		r.logger.Debugf(ctx, "tenant cluster is unavailable")
+		r.logger.Debugf(ctx, "canceling resource")
 		return nil
 	}
 
@@ -69,35 +69,35 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		},
 	}
 
-	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding secret %#q in namespace %#q", authTokenName, namespace))
+	r.logger.Debugf(ctx, "finding secret %#q in namespace %#q", authTokenName, namespace)
 
 	currentSecret, err := cc.Clients.K8s.K8sClient().CoreV1().Secrets(namespace).Get(ctx, authTokenName, metav1.GetOptions{})
 	if apierrors.IsNotFound(err) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating secret %#q in namespace %#q", authTokenName, namespace))
+		r.logger.Debugf(ctx, "creating secret %#q in namespace %#q", authTokenName, namespace)
 
 		_, err := cc.Clients.K8s.K8sClient().CoreV1().Secrets(namespace).Create(ctx, desiredSecret, metav1.CreateOptions{})
 		if err != nil {
 			return microerror.Mask(err)
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("created secret %#q in namespace %#q", authTokenName, namespace))
+		r.logger.Debugf(ctx, "created secret %#q in namespace %#q", authTokenName, namespace)
 
 		return nil
 	} else if err != nil {
 		return microerror.Mask(err)
 	}
 
-	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found secret %#q in namespace %#q", authTokenName, namespace))
+	r.logger.Debugf(ctx, "found secret %#q in namespace %#q", authTokenName, namespace)
 
 	if !equals(desiredSecret, currentSecret) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating secret %#q in namespace %#q", authTokenName, namespace))
+		r.logger.Debugf(ctx, "updating secret %#q in namespace %#q", authTokenName, namespace)
 
 		_, err := cc.Clients.K8s.K8sClient().CoreV1().Secrets(namespace).Update(ctx, desiredSecret, metav1.UpdateOptions{})
 		if err != nil {
 			return microerror.Mask(err)
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updated secret %#q in namespace %#q", authTokenName, namespace))
+		r.logger.Debugf(ctx, "updated secret %#q in namespace %#q", authTokenName, namespace)
 	}
 
 	return nil

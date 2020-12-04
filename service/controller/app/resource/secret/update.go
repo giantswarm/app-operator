@@ -2,7 +2,6 @@ package secret
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/v4/pkg/resource/crud"
@@ -19,7 +18,7 @@ func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange inte
 	}
 
 	if !isEmpty(secret) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating secret %#q in namespace %#q", secret.Name, secret.Namespace))
+		r.logger.Debugf(ctx, "updating secret %#q in namespace %#q", secret.Name, secret.Namespace)
 
 		cc, err := controllercontext.FromContext(ctx)
 		if err != nil {
@@ -31,7 +30,7 @@ func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange inte
 			return microerror.Mask(err)
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updated secret %#q in namespace %#q", secret.Name, secret.Namespace))
+		r.logger.Debugf(ctx, "updated secret %#q in namespace %#q", secret.Name, secret.Namespace)
 	}
 
 	return nil
@@ -72,19 +71,19 @@ func (r *Resource) newUpdateChange(ctx context.Context, currentResource, desired
 		return nil, microerror.Mask(err)
 	}
 
-	r.logger.LogCtx(ctx, "level", "debug", "message", "finding out if the secret has to be updated")
+	r.logger.Debugf(ctx, "finding out if the secret has to be updated")
 
 	updateSecret := &corev1.Secret{}
 	isModified := !isEmpty(currentSecret) && !equals(currentSecret, desiredSecret)
 	if isModified {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "the secret has to be updated")
+		r.logger.Debugf(ctx, "the secret has to be updated")
 
 		updateSecret = desiredSecret.DeepCopy()
 		updateSecret.ObjectMeta.ResourceVersion = currentSecret.ObjectMeta.ResourceVersion
 
 		return updateSecret, nil
 	} else {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "the secret does not have to be updated")
+		r.logger.Debugf(ctx, "the secret does not have to be updated")
 	}
 
 	return updateSecret, nil

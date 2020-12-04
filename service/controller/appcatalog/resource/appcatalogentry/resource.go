@@ -68,7 +68,7 @@ func (r Resource) Name() string {
 }
 
 func (r *Resource) getCurrentEntryCRs(ctx context.Context, cr v1alpha1.AppCatalog) (map[string]*v1alpha1.AppCatalogEntry, error) {
-	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("getting current appcatalogentries for appcatalog %#q", cr.Name))
+	r.logger.Debugf(ctx, "getting current appcatalogentries for appcatalog %#q", cr.Name)
 
 	currentEntryCRs := map[string]*v1alpha1.AppCatalogEntry{}
 
@@ -84,7 +84,7 @@ func (r *Resource) getCurrentEntryCRs(ctx context.Context, cr v1alpha1.AppCatalo
 		currentEntryCRs[entry.Name] = entry.DeepCopy()
 	}
 
-	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("got %d current appcatalogentries for appcatalog %#q", len(currentEntryCRs), cr.Name))
+	r.logger.Debugf(ctx, "got %d current appcatalogentries for appcatalog %#q", len(currentEntryCRs), cr.Name)
 
 	return currentEntryCRs, nil
 }
@@ -92,7 +92,7 @@ func (r *Resource) getCurrentEntryCRs(ctx context.Context, cr v1alpha1.AppCatalo
 func (r *Resource) getIndex(ctx context.Context, storageURL string) (index, error) {
 	indexURL := fmt.Sprintf("%s/index.yaml", strings.TrimRight(storageURL, "/"))
 
-	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("getting index.yaml from %#q", indexURL))
+	r.logger.Debugf(ctx, "getting index.yaml from %#q", indexURL)
 
 	// We use https in catalog URLs so we can disable the linter in this case.
 	resp, err := http.Get(indexURL) // #nosec
@@ -113,7 +113,7 @@ func (r *Resource) getIndex(ctx context.Context, storageURL string) (index, erro
 		return i, microerror.Mask(err)
 	}
 
-	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("got index.yaml from %#q", indexURL))
+	r.logger.Debugf(ctx, "got index.yaml from %#q", indexURL)
 
 	return i, nil
 }
@@ -126,7 +126,7 @@ func (r *Resource) getMetadata(ctx context.Context, storageURL, name, version st
 
 	mainURL := fmt.Sprintf("%s/%s-%s.tgz-meta/main.yaml", strings.TrimRight(storageURL, "/"), name, version)
 
-	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("getting main.yaml from %#q", mainURL))
+	r.logger.Debugf(ctx, "getting main.yaml from %#q", mainURL)
 
 	// We use https in catalog URLs so we can disable the linter in this case.
 	resp, err := http.Get(mainURL) // #nosec
@@ -136,7 +136,7 @@ func (r *Resource) getMetadata(ctx context.Context, storageURL, name, version st
 	defer resp.Body.Close()
 
 	if resp.StatusCode == http.StatusNotFound {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("no main.yaml generated at %#q", mainURL))
+		r.logger.Debugf(ctx, "no main.yaml generated at %#q", mainURL)
 		return nil, nil
 	}
 
@@ -145,7 +145,7 @@ func (r *Resource) getMetadata(ctx context.Context, storageURL, name, version st
 		return nil, microerror.Mask(err)
 	}
 
-	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("got main.yaml from %#q", mainURL))
+	r.logger.Debugf(ctx, "got main.yaml from %#q", mainURL)
 
 	return body, nil
 }

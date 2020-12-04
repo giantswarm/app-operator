@@ -2,7 +2,6 @@ package configmap
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/v4/pkg/resource/crud"
@@ -19,7 +18,7 @@ func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange inte
 	}
 
 	if !isEmpty(configMap) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating configmap %#q in namespace %#q", configMap.Name, configMap.Namespace))
+		r.logger.Debugf(ctx, "updating configmap %#q in namespace %#q", configMap.Name, configMap.Namespace)
 
 		cc, err := controllercontext.FromContext(ctx)
 		if err != nil {
@@ -31,7 +30,7 @@ func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange inte
 			return microerror.Mask(err)
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updated configmap %#q in namespace %#q", configMap.Name, configMap.Namespace))
+		r.logger.Debugf(ctx, "updated configmap %#q in namespace %#q", configMap.Name, configMap.Namespace)
 	}
 
 	return nil
@@ -72,19 +71,19 @@ func (r *Resource) newUpdateChange(ctx context.Context, currentResource, desired
 		return nil, microerror.Mask(err)
 	}
 
-	r.logger.LogCtx(ctx, "level", "debug", "message", "finding out if the configmap has to be updated")
+	r.logger.Debugf(ctx, "finding out if the configmap has to be updated")
 
 	updateConfigMap := &corev1.ConfigMap{}
 	isModified := !isEmpty(currentConfigMap) && !equals(currentConfigMap, desiredConfigMap)
 	if isModified {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "the configmap has to be updated")
+		r.logger.Debugf(ctx, "the configmap has to be updated")
 
 		updateConfigMap = desiredConfigMap.DeepCopy()
 		updateConfigMap.ObjectMeta.ResourceVersion = currentConfigMap.ObjectMeta.ResourceVersion
 
 		return updateConfigMap, nil
 	} else {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "the configmap does not have to be updated")
+		r.logger.Debugf(ctx, "the configmap does not have to be updated")
 	}
 
 	return updateConfigMap, nil

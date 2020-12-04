@@ -2,7 +2,6 @@ package configmap
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/microerror"
@@ -21,7 +20,7 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 	}
 
 	if !isEmpty(configMap) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating configmap %#q in namespace %#q", configMap.Name, configMap.Namespace))
+		r.logger.Debugf(ctx, "creating configmap %#q in namespace %#q", configMap.Name, configMap.Namespace)
 
 		cc, err := controllercontext.FromContext(ctx)
 		if err != nil {
@@ -30,18 +29,18 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 
 		_, err = cc.Clients.K8s.K8sClient().CoreV1().ConfigMaps(configMap.Namespace).Create(ctx, configMap, metav1.CreateOptions{})
 		if apierrors.IsAlreadyExists(err) {
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("already created configmap %#q in namespace %#q", configMap.Name, configMap.Namespace))
+			r.logger.Debugf(ctx, "already created configmap %#q in namespace %#q", configMap.Name, configMap.Namespace)
 		} else if tenant.IsAPINotAvailable(err) {
 			// We should not hammer tenant API if it is not available, the tenant cluster
 			// might be initializing. We will retry on next reconciliation loop.
-			r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster is not available.")
-			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+			r.logger.Debugf(ctx, "tenant cluster is not available.")
+			r.logger.Debugf(ctx, "canceling resource")
 			resourcecanceledcontext.SetCanceled(ctx)
 			return nil
 		} else if err != nil {
 			return microerror.Mask(err)
 		} else {
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("created configmap %#q in namespace %#q", configMap.Name, configMap.Namespace))
+			r.logger.Debugf(ctx, "created configmap %#q in namespace %#q", configMap.Name, configMap.Namespace)
 		}
 	}
 
@@ -58,15 +57,15 @@ func (r *Resource) newCreateChange(ctx context.Context, currentResource, desired
 		return nil, microerror.Mask(err)
 	}
 
-	r.logger.LogCtx(ctx, "level", "debug", "message", "finding out if the configmap has to be created")
+	r.logger.Debugf(ctx, "finding out if the configmap has to be created")
 
 	createConfigMap := &corev1.ConfigMap{}
 
 	if isEmpty(currentConfigMap) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "the configmap needs to be created")
+		r.logger.Debugf(ctx, "the configmap needs to be created")
 		createConfigMap = desiredConfigMap
 	} else {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "the configmap does not need to be created")
+		r.logger.Debugf(ctx, "the configmap does not need to be created")
 	}
 
 	return createConfigMap, nil

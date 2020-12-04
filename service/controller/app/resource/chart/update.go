@@ -2,7 +2,6 @@ package chart
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/microerror"
@@ -19,7 +18,7 @@ func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange inte
 	}
 
 	if chart.Name != "" {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating Chart CR %#q in namespace %#q", chart.Name, chart.Namespace))
+		r.logger.Debugf(ctx, "updating Chart CR %#q in namespace %#q", chart.Name, chart.Namespace)
 
 		cc, err := controllercontext.FromContext(ctx)
 		if err != nil {
@@ -31,7 +30,7 @@ func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange inte
 			return microerror.Mask(err)
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updated Chart CR %#q in namespace %#q", chart.Name, chart.Namespace))
+		r.logger.Debugf(ctx, "updated Chart CR %#q in namespace %#q", chart.Name, chart.Namespace)
 	}
 
 	return nil
@@ -66,19 +65,19 @@ func (r *Resource) newUpdateChange(ctx context.Context, currentResource, desired
 		return nil, microerror.Mask(err)
 	}
 
-	r.logger.LogCtx(ctx, "level", "debug", "message", "finding out if the chart has to be updated")
+	r.logger.Debugf(ctx, "finding out if the chart has to be updated")
 
 	updateChart := &v1alpha1.Chart{}
 	isModified := !isEmpty(currentChart) && !equals(currentChart, desiredChart)
 	if isModified {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "the chart has to be updated")
+		r.logger.Debugf(ctx, "the chart has to be updated")
 
 		updateChart = desiredChart.DeepCopy()
 		updateChart.ObjectMeta.ResourceVersion = currentChart.ObjectMeta.ResourceVersion
 
 		return updateChart, nil
 	} else {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "the chart does not have to be updated")
+		r.logger.Debugf(ctx, "the chart does not have to be updated")
 	}
 
 	return updateChart, nil

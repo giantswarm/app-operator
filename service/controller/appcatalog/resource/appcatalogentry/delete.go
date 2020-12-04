@@ -2,7 +2,6 @@ package appcatalogentry
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/giantswarm/app/v4/pkg/key"
 	"github.com/giantswarm/microerror"
@@ -27,19 +26,19 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
-	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleting %d appcatalogentry CR %#q in namespace %#q", len(entryCRs), cr.Name, cr.Namespace))
+	r.logger.Debugf(ctx, "deleting %d appcatalogentry CR %#q in namespace %#q", len(entryCRs), cr.Name, cr.Namespace)
 
 	for _, entryCR := range entryCRs {
 		err := r.k8sClient.G8sClient().ApplicationV1alpha1().AppCatalogEntries(entryCR.Namespace).Delete(ctx, entryCR.Name, metav1.DeleteOptions{})
 		if apierrors.IsNotFound(err) {
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("already deleted appcatalogentry CR %#q in namespace %#q", entryCR.Name, entryCR.Namespace))
+			r.logger.Debugf(ctx, "already deleted appcatalogentry CR %#q in namespace %#q", entryCR.Name, entryCR.Namespace)
 			continue
 		} else if err != nil {
 			return microerror.Mask(err)
 		}
 	}
 
-	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleted %d appcatalogentry CR %#q in namespace %#q", len(entryCRs), cr.Name, cr.Namespace))
+	r.logger.Debugf(ctx, "deleted %d appcatalogentry CR %#q in namespace %#q", len(entryCRs), cr.Name, cr.Namespace)
 
 	return nil
 }

@@ -4,7 +4,6 @@ package kubeconfig
 
 import (
 	"context"
-	"fmt"
 	"testing"
 
 	"github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
@@ -70,7 +69,7 @@ func TestAppWithKubeconfig(t *testing.T) {
 	}
 
 	{
-		config.Logger.LogCtx(ctx, "level", "debug", "message", "creating kubeconfig secret")
+		config.Logger.Debugf(ctx, "creating kubeconfig secret")
 
 		_, err = config.K8sClients.K8sClient().CoreV1().Secrets(namespace).Create(ctx, &corev1.Secret{
 			ObjectMeta: metav1.ObjectMeta{
@@ -85,11 +84,11 @@ func TestAppWithKubeconfig(t *testing.T) {
 			t.Fatalf("expected nil got %#v", err)
 		}
 
-		config.Logger.LogCtx(ctx, "level", "debug", "message", "created kubeconfig secret")
+		config.Logger.Debugf(ctx, "created kubeconfig secret")
 	}
 
 	{
-		config.Logger.LogCtx(ctx, "level", "debug", "message", "creating catalog configmap")
+		config.Logger.Debugf(ctx, "creating catalog configmap")
 
 		_, err = config.K8sClients.K8sClient().CoreV1().ConfigMaps(namespace).Create(ctx, &corev1.ConfigMap{
 			Data: map[string]string{
@@ -104,11 +103,11 @@ func TestAppWithKubeconfig(t *testing.T) {
 			t.Fatalf("expected nil got %#v", err)
 		}
 
-		config.Logger.LogCtx(ctx, "level", "debug", "message", "created catalog configmap")
+		config.Logger.Debugf(ctx, "created catalog configmap")
 	}
 
 	{
-		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating %#q appcatalog cr", key.DefaultCatalogName()))
+		config.Logger.Debugf(ctx, "creating %#q appcatalog cr", key.DefaultCatalogName())
 
 		appCatalogCR := &v1alpha1.AppCatalog{
 			ObjectMeta: metav1.ObjectMeta{
@@ -137,11 +136,11 @@ func TestAppWithKubeconfig(t *testing.T) {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
 
-		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("created %#q appcatalog cr", key.DefaultCatalogName()))
+		config.Logger.Debugf(ctx, "created %#q appcatalog cr", key.DefaultCatalogName())
 	}
 
 	{
-		config.Logger.LogCtx(ctx, "level", "debug", "message", "creating chart-operator app CR")
+		config.Logger.Debugf(ctx, "creating chart-operator app CR")
 
 		tag, err := appcatalog.GetLatestVersion(ctx, key.DefaultCatalogStorageURL(), "chart-operator", "")
 		if err != nil {
@@ -177,22 +176,22 @@ func TestAppWithKubeconfig(t *testing.T) {
 			t.Fatalf("expected nil got %#v", err)
 		}
 
-		config.Logger.LogCtx(ctx, "level", "debug", "message", "created chart-operator app CR")
+		config.Logger.Debugf(ctx, "created chart-operator app CR")
 	}
 
 	{
-		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("waiting for release %#q deployed", chartOperatorName))
+		config.Logger.Debugf(ctx, "waiting for release %#q deployed", chartOperatorName)
 
 		err = config.Release.WaitForReleaseStatus(ctx, namespace, chartOperatorName, helmclient.StatusDeployed)
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
 
-		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("waited for release %#q deployed", chartOperatorName))
+		config.Logger.Debugf(ctx, "waited for release %#q deployed", chartOperatorName)
 	}
 
 	{
-		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating %#q app cr", key.TestAppReleaseName()))
+		config.Logger.Debugf(ctx, "creating %#q app cr", key.TestAppReleaseName())
 
 		appCR := &v1alpha1.App{
 			ObjectMeta: metav1.ObjectMeta{
@@ -224,17 +223,17 @@ func TestAppWithKubeconfig(t *testing.T) {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
 
-		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating %#q app cr", key.TestAppReleaseName()))
+		config.Logger.Debugf(ctx, "creating %#q app cr", key.TestAppReleaseName())
 	}
 
 	{
-		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("waiting for release %#q deployed", key.TestAppReleaseName()))
+		config.Logger.Debugf(ctx, "waiting for release %#q deployed", key.TestAppReleaseName())
 
 		err = config.Release.WaitForReleaseStatus(ctx, namespace, key.TestAppReleaseName(), helmclient.StatusDeployed)
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
 
-		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("waited for release %#q deployed", key.TestAppReleaseName()))
+		config.Logger.Debugf(ctx, "waited for release %#q deployed", key.TestAppReleaseName())
 	}
 }

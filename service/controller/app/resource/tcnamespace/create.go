@@ -2,7 +2,6 @@ package tcnamespace
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/giantswarm/apiextensions/v3/pkg/label"
@@ -30,20 +29,20 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	// Resource is used to bootstrap chart-operator in tenant clusters.
 	// So for other apps we can skip this step.
 	if key.AppName(cr) != key.ChartOperatorAppName {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("no need to create namespace for %#q", key.AppName(cr)))
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		r.logger.Debugf(ctx, "no need to create namespace for %#q", key.AppName(cr))
+		r.logger.Debugf(ctx, "canceling resource")
 		return nil
 	}
 
 	if key.InCluster(cr) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("app %#q in %#q uses InCluster kubeconfig no need to create namespace", cr.Name, cr.Namespace))
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		r.logger.Debugf(ctx, "app %#q in %#q uses InCluster kubeconfig no need to create namespace", cr.Name, cr.Namespace)
+		r.logger.Debugf(ctx, "canceling resource")
 		return nil
 	}
 
 	if cc.Status.ClusterStatus.IsUnavailable {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster is unavailable")
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		r.logger.Debugf(ctx, "tenant cluster is unavailable")
+		r.logger.Debugf(ctx, "canceling resource")
 		return nil
 	}
 
@@ -58,7 +57,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		},
 	}
 
-	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating namespace %#q in tenant cluster %#q", ns.Name, key.ClusterID(cr)))
+	r.logger.Debugf(ctx, "creating namespace %#q in tenant cluster %#q", ns.Name, key.ClusterID(cr))
 
 	ch := make(chan error)
 
@@ -75,8 +74,8 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		// again in this reconciliation loop.
 		cc.Status.ClusterStatus.IsUnavailable = true
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", "timeout creating namespace")
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		r.logger.Debugf(ctx, "timeout creating namespace")
+		r.logger.Debugf(ctx, "canceling resource")
 		return nil
 	}
 
@@ -87,14 +86,14 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		// again in this reconciliation loop.
 		cc.Status.ClusterStatus.IsUnavailable = true
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster not available")
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		r.logger.Debugf(ctx, "tenant cluster not available")
+		r.logger.Debugf(ctx, "canceling resource")
 		return nil
 	} else if err != nil {
 		return microerror.Mask(err)
 	}
 
-	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("created namespace %#q in tenant cluster %#q", ns.Name, key.ClusterID(cr)))
+	r.logger.Debugf(ctx, "created namespace %#q in tenant cluster %#q", ns.Name, key.ClusterID(cr))
 
 	return nil
 }

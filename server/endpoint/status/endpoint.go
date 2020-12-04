@@ -3,7 +3,6 @@ package status
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
@@ -120,7 +119,7 @@ func (e Endpoint) Endpoint() kitendpoint.Endpoint {
 			return nil, nil
 		}
 
-		e.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("setting status for app %#q in namespace %#q", request.AppName, request.AppNamespace))
+		e.logger.Debugf(ctx, "setting status for app %#q in namespace %#q", request.AppName, request.AppNamespace)
 
 		currentCR.Status = desiredStatus
 
@@ -129,7 +128,7 @@ func (e Endpoint) Endpoint() kitendpoint.Endpoint {
 			return nil, microerror.Mask(err)
 		}
 
-		e.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("status set for app %#q in namespace %#q", request.AppName, request.AppNamespace))
+		e.logger.Debugf(ctx, "status set for app %#q in namespace %#q", request.AppName, request.AppNamespace)
 
 		return nil, nil
 	}

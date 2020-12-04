@@ -109,7 +109,7 @@ func (r *Resource) ensureReleasesMigrated(ctx context.Context, k8sClient k8sclie
 				fs := afero.NewOsFs()
 				err := fs.Remove(tarballPath)
 				if err != nil {
-					r.logger.LogCtx(ctx, "level", "error", "message", fmt.Sprintf("deletion of %#q failed", tarballPath), "stack", fmt.Sprintf("%#v", err))
+					r.logger.Errorf(ctx, err, "deletion of %#q failed", tarballPath)
 				}
 			}()
 
@@ -150,17 +150,17 @@ func (r *Resource) ensureReleasesMigrated(ctx context.Context, k8sClient k8sclie
 			}
 
 			desc := fmt.Sprintf("%d helm v2 releases not migrated", len(releases))
-			r.logger.LogCtx(ctx, "level", "debug", "message", desc)
+			r.logger.Debugf(ctx, desc)
 
 			return microerror.Maskf(executionFailedError, desc)
 		}
-		r.logger.LogCtx(ctx, "level", "debug", "message", "migration completed")
+		r.logger.Debugf(ctx, "migration completed")
 
 		return nil
 	}
 
 	n := func(err error, t time.Duration) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "migration not complete")
+		r.logger.Debugf(ctx, "migration not complete")
 	}
 
 	b := backoff.NewConstant(20*time.Minute, 10*time.Second)

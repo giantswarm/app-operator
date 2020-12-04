@@ -2,7 +2,6 @@ package chartoperator
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/apiextensions/v3/pkg/clientset/versioned"
@@ -105,7 +104,7 @@ func (r Resource) installChartOperator(ctx context.Context, cr v1alpha1.App) err
 		defer func() {
 			err := r.fileSystem.Remove(tarballPath)
 			if err != nil {
-				r.logger.LogCtx(ctx, "level", "error", "message", fmt.Sprintf("deletion of %#q failed", tarballPath), "stack", fmt.Sprintf("%#v", err))
+				r.logger.Errorf(ctx, err, "deletion of %#q failed", tarballPath)
 			}
 		}()
 	}
@@ -157,7 +156,7 @@ func (r Resource) updateChartOperator(ctx context.Context, cr v1alpha1.App) erro
 		defer func() {
 			err := r.fileSystem.Remove(tarballPath)
 			if err != nil {
-				r.logger.LogCtx(ctx, "level", "error", "message", fmt.Sprintf("deletion of %#q failed", tarballPath), "stack", fmt.Sprintf("%#v", err))
+				r.logger.Errorf(ctx, err, "deletion of %#q failed", tarballPath)
 			}
 		}()
 	}
