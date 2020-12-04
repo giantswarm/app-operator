@@ -36,7 +36,7 @@ func TestAppCatalogEntry(t *testing.T) {
 	var err error
 
 	{
-		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating %#q appcatalog cr", key.StableCatalogName()))
+		config.Logger.Debugf(ctx, "creating %#q appcatalog cr", key.StableCatalogName())
 
 		appCatalogCR := &v1alpha1.AppCatalog{
 			ObjectMeta: metav1.ObjectMeta{
@@ -61,7 +61,7 @@ func TestAppCatalogEntry(t *testing.T) {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
 
-		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("created %#q appcatalog cr", key.StableCatalogName()))
+		config.Logger.Debugf(ctx, "created %#q appcatalog cr", key.StableCatalogName())
 	}
 
 	var entryCR *v1alpha1.AppCatalogEntry
@@ -77,7 +77,7 @@ func TestAppCatalogEntry(t *testing.T) {
 		}
 
 		n := func(err error, t time.Duration) {
-			config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("failed to get appcatalogentry CR with name %#q: retrying in %s", key.AppCatalogEntryName(), t), "stack", fmt.Sprintf("%v", err))
+			config.Logger.Errorf(ctx, err, "failed to get appcatalogentry CR with name %#q: retrying in %s", key.AppCatalogEntryName(), t)
 		}
 
 		b := backoff.NewConstant(5*time.Minute, 15*time.Second)
@@ -147,7 +147,7 @@ func TestAppCatalogEntry(t *testing.T) {
 		}
 
 		n := func(err error, t time.Duration) {
-			config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("appcatalogentry CRs still exist: retrying in %s", t), "stack", fmt.Sprintf("%v", err))
+			config.Logger.Errorf(ctx, err, "appcatalogentry CRs still exist: retrying in %s", t)
 		}
 
 		b := backoff.NewMaxRetries(10, 15*time.Second)

@@ -46,14 +46,14 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		r.logger.LogCtx(ctx, "level", "warning", "message", "dependent secrets are not found")
 		addStatusToContext(cc, err.Error(), status.SecretMergeFailedStatus)
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		r.logger.Debugf(ctx, "canceling resource")
 		resourcecanceledcontext.SetCanceled(ctx)
 		return nil, nil
 	} else if values.IsParsingError(err) {
 		r.logger.LogCtx(ctx, "level", "warning", "message", "failed to merging secrets")
 		addStatusToContext(cc, err.Error(), status.SecretMergeFailedStatus)
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		r.logger.Debugf(ctx, "canceling resource")
 		resourcecanceledcontext.SetCanceled(ctx)
 		return nil, nil
 	} else if err != nil {

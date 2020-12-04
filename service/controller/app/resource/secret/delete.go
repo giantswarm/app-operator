@@ -2,7 +2,6 @@ package secret
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/v4/pkg/resource/crud"
@@ -19,7 +18,7 @@ func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange inte
 	}
 
 	if !isEmpty(secret) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleting secret %#q in namespace %#q", secret.Name, secret.Namespace))
+		r.logger.Debugf(ctx, "deleting secret %#q in namespace %#q", secret.Name, secret.Namespace)
 
 		cc, err := controllercontext.FromContext(ctx)
 		if err != nil {
@@ -28,11 +27,11 @@ func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange inte
 
 		err = cc.Clients.K8s.K8sClient().CoreV1().Secrets(secret.Namespace).Delete(ctx, secret.Name, metav1.DeleteOptions{})
 		if apierrors.IsNotFound(err) {
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("already deleted secret %#q in namespace %#q", secret.Name, secret.Namespace))
+			r.logger.Debugf(ctx, "already deleted secret %#q in namespace %#q", secret.Name, secret.Namespace)
 		} else if err != nil {
 			return microerror.Mask(err)
 		} else {
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleted Chart CR %#q in namespace %#q", secret.Name, secret.Namespace))
+			r.logger.Debugf(ctx, "deleted Chart CR %#q in namespace %#q", secret.Name, secret.Namespace)
 		}
 	}
 
@@ -71,14 +70,14 @@ func (r *Resource) newDeleteChangeForUpdate(ctx context.Context, currentState, d
 		return nil, microerror.Mask(err)
 	}
 
-	r.logger.LogCtx(ctx, "level", "debug", "message", "finding out if the secret has to be deleted")
+	r.logger.Debugf(ctx, "finding out if the secret has to be deleted")
 
 	if !isEmpty(currentSecret) && isEmpty(desiredSecret) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "the secret has to be deleted")
+		r.logger.Debugf(ctx, "the secret has to be deleted")
 		return currentSecret, nil
 	}
 
-	r.logger.LogCtx(ctx, "level", "debug", "message", "the secret does not have to be deleted")
+	r.logger.Debugf(ctx, "the secret does not have to be deleted")
 
 	return nil, nil
 }

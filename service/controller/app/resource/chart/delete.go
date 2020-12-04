@@ -2,7 +2,6 @@ package chart
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/giantswarm/app/v4/pkg/key"
 	"github.com/giantswarm/microerror"
@@ -37,15 +36,15 @@ func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange inte
 	}
 
 	if chart != nil && chart.Name != "" {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleting Chart CR %#q in namespace %#q", chart.Name, chart.Namespace))
+		r.logger.Debugf(ctx, "deleting Chart CR %#q in namespace %#q", chart.Name, chart.Namespace)
 
 		err = cc.Clients.K8s.G8sClient().ApplicationV1alpha1().Charts(chart.Namespace).Delete(ctx, chart.Name, metav1.DeleteOptions{})
 		if apierrors.IsNotFound(err) {
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("already deleted Chart CR %#q in namespace %#q", chart.Name, chart.Namespace))
+			r.logger.Debugf(ctx, "already deleted Chart CR %#q in namespace %#q", chart.Name, chart.Namespace)
 		} else if err != nil {
 			return microerror.Mask(err)
 		} else {
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleted Chart CR %#q in namespace %#q", chart.Name, chart.Namespace))
+			r.logger.Debugf(ctx, "deleted Chart CR %#q in namespace %#q", chart.Name, chart.Namespace)
 		}
 	}
 

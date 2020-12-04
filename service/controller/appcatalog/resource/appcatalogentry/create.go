@@ -36,14 +36,14 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 	// Skip creating appcatalogentry CRs if the catalog is not public.
 	if key.AppCatalogVisibility(cr) != publicVisibilityType {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("not creating CRs for catalog %#q with visibility %#q", cr.Name, key.AppCatalogVisibility(cr)))
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		r.logger.Debugf(ctx, "not creating CRs for catalog %#q with visibility %#q", cr.Name, key.AppCatalogVisibility(cr))
+		r.logger.Debugf(ctx, "canceling resource")
 		return nil
 	}
 	// Skip creating appcatalogentry CRs if this is a community catalog.
 	if key.AppCatalogType(cr) == communityCatalogType {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("not creating CRs for catalog %#q with type %#q", cr.Name, communityCatalogType))
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		r.logger.Debugf(ctx, "not creating CRs for catalog %#q with type %#q", cr.Name, communityCatalogType)
+		r.logger.Debugf(ctx, "canceling resource")
 		return nil
 	}
 
@@ -64,7 +64,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 	var created, updated int
 
-	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding out changes to appcatalogentries for catalog %#q", cr.Name))
+	r.logger.Debugf(ctx, "finding out changes to appcatalogentries for catalog %#q", cr.Name)
 
 	for name, desiredEntryCR := range desiredEntryCRs {
 		currentEntryCR, ok := currentEntryCRs[name]
@@ -87,29 +87,29 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		}
 	}
 
-	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("created %d updated %d appcatalogentries for catalog %#q", created, updated, cr.Name))
+	r.logger.Debugf(ctx, "created %d updated %d appcatalogentries for catalog %#q", created, updated, cr.Name)
 
 	return nil
 }
 
 func (r *Resource) createAppCatalogEntry(ctx context.Context, entryCR *v1alpha1.AppCatalogEntry) error {
-	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating appcatalogentry CR %#q in namespace %#q", entryCR.Name, entryCR.Namespace))
+	r.logger.Debugf(ctx, "creating appcatalogentry CR %#q in namespace %#q", entryCR.Name, entryCR.Namespace)
 
 	_, err := r.k8sClient.G8sClient().ApplicationV1alpha1().AppCatalogEntries(entryCR.Namespace).Create(ctx, entryCR, metav1.CreateOptions{})
 	if apierrors.IsAlreadyExists(err) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("already created appcatalogentry CR %#q in namespace %#q", entryCR.Name, entryCR.Namespace))
+		r.logger.Debugf(ctx, "already created appcatalogentry CR %#q in namespace %#q", entryCR.Name, entryCR.Namespace)
 		return nil
 	} else if err != nil {
 		return microerror.Mask(err)
 	}
 
-	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("created appcatalogentry CR %#q in namespace %#q", entryCR.Name, entryCR.Namespace))
+	r.logger.Debugf(ctx, "created appcatalogentry CR %#q in namespace %#q", entryCR.Name, entryCR.Namespace)
 
 	return nil
 }
 
 func (r *Resource) updateAppCatalogEntry(ctx context.Context, entryCR *v1alpha1.AppCatalogEntry) error {
-	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating appcatalogentry CR %#q in namespace %#q", entryCR.Name, entryCR.Namespace))
+	r.logger.Debugf(ctx, "updating appcatalogentry CR %#q in namespace %#q", entryCR.Name, entryCR.Namespace)
 
 	currentCR, err := r.k8sClient.G8sClient().ApplicationV1alpha1().AppCatalogEntries(entryCR.Namespace).Get(ctx, entryCR.Name, metav1.GetOptions{})
 	if err != nil {
@@ -122,7 +122,7 @@ func (r *Resource) updateAppCatalogEntry(ctx context.Context, entryCR *v1alpha1.
 		return microerror.Mask(err)
 	}
 
-	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updated appcatalogentry CR %#q in namespace %#q", entryCR.Name, entryCR.Namespace))
+	r.logger.Debugf(ctx, "updated appcatalogentry CR %#q in namespace %#q", entryCR.Name, entryCR.Namespace)
 
 	return nil
 }

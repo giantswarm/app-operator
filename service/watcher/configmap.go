@@ -89,7 +89,7 @@ func (c *AppValueWatcher) watchConfigMap(ctx context.Context) {
 			{
 				v, ok := c.resourcesToApps.Load(configMap)
 				if !ok {
-					c.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("cache missed configMap %#q in namespace %#q", configMap.Name, configMap.Namespace))
+					c.logger.Debugf(ctx, "cache missed configMap %#q in namespace %#q", configMap.Name, configMap.Namespace)
 					continue
 				}
 
@@ -100,9 +100,9 @@ func (c *AppValueWatcher) watchConfigMap(ctx context.Context) {
 				}
 			}
 
-			c.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("listed apps depends on %#q configmap in namespace %#q", cm.Name, cm.Namespace))
+			c.logger.Debugf(ctx, "listed apps depends on %#q configmap in namespace %#q", cm.Name, cm.Namespace)
 			for app := range storedIndex {
-				c.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("triggering %#q app update in namespace %#q", app.Name, app.Namespace))
+				c.logger.Debugf(ctx, "triggering %#q app update in namespace %#q", app.Name, app.Namespace)
 
 				err := c.addAnnotation(ctx, app, cm.GetResourceVersion(), configMapType)
 				if err != nil {
@@ -110,9 +110,9 @@ func (c *AppValueWatcher) watchConfigMap(ctx context.Context) {
 					continue
 				}
 
-				c.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("triggered %#q app update in namespace %#q", app.Name, app.Namespace))
+				c.logger.Debugf(ctx, "triggered %#q app update in namespace %#q", app.Name, app.Namespace)
 			}
-			c.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("listed apps depends on %#q configmap in namespace %#q", cm.Name, cm.Namespace))
+			c.logger.Debugf(ctx, "listed apps depends on %#q configmap in namespace %#q", cm.Name, cm.Namespace)
 		}
 
 		c.logger.Log("debug", "watch channel had been closed, reopening...")

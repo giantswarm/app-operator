@@ -2,7 +2,6 @@ package appcatalog
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/apiextensions/v3/pkg/clientset/versioned"
@@ -65,7 +64,7 @@ func (r *Resource) getCatalogForApp(ctx context.Context, customResource v1alpha1
 
 	catalogName := key.CatalogName(customResource)
 
-	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("looking for appCatalog %#q", catalogName))
+	r.logger.Debugf(ctx, "looking for appCatalog %#q", catalogName)
 
 	appCatalog, err := r.g8sClient.ApplicationV1alpha1().AppCatalogs().Get(ctx, catalogName, metav1.GetOptions{})
 	if apierrors.IsNotFound(err) {
@@ -74,7 +73,7 @@ func (r *Resource) getCatalogForApp(ctx context.Context, customResource v1alpha1
 		return microerror.Mask(err)
 	}
 
-	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found appCatalog %#q", catalogName))
+	r.logger.Debugf(ctx, "found appCatalog %#q", catalogName)
 	cc.AppCatalog = *appCatalog
 
 	return nil

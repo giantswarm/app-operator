@@ -109,8 +109,8 @@ func (r *Resource) addClientsToContext(ctx context.Context, cr v1alpha1.App) err
 		// again in this reconciliation loop.
 		cc.Status.ClusterStatus.IsUnavailable = true
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", "kubeconfig secret not found")
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		r.logger.Debugf(ctx, "kubeconfig secret not found")
+		r.logger.Debugf(ctx, "canceling resource")
 		return nil
 
 	} else if err != nil {
@@ -130,8 +130,8 @@ func (r *Resource) addClientsToContext(ctx context.Context, cr v1alpha1.App) err
 			// again in this reconciliation loop.
 			cc.Status.ClusterStatus.IsUnavailable = true
 
-			r.logger.LogCtx(ctx, "level", "debug", "message", "tenant API not available yet")
-			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+			r.logger.Debugf(ctx, "tenant API not available yet")
+			r.logger.Debugf(ctx, "canceling resource")
 			return nil
 
 		} else if err != nil {
