@@ -109,7 +109,7 @@ func (r *Resource) ensureReleasesMigrated(ctx context.Context, k8sClient k8sclie
 				fs := afero.NewOsFs()
 				err := fs.Remove(tarballPath)
 				if err != nil {
-					r.logger.LogCtx(ctx, "level", "error", "message", fmt.Sprintf("deletion of %#q failed", tarballPath), "stack", fmt.Sprintf("%#v", err))
+					r.logger.Errorf(ctx, err, "deletion of %#q failed", tarballPath)
 				}
 			}()
 

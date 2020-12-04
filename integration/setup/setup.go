@@ -28,13 +28,13 @@ func Setup(m *testing.M, config Config) {
 
 	err = installResources(ctx, config)
 	if err != nil {
-		config.Logger.LogCtx(ctx, "level", "error", "message", "failed to install app-operator dependent resources", "stack", fmt.Sprintf("%#v", err))
+		config.Logger.Errorf(ctx, err, "failed to install app-operator dependent resources")
 		v = 1
 	}
 
 	if v == 0 {
 		if err != nil {
-			config.Logger.LogCtx(ctx, "level", "error", "message", "failed to create operator resources", "stack", fmt.Sprintf("%#v", err))
+			config.Logger.Errorf(ctx, err, "failed to create operator resources")
 			v = 1
 		}
 	}
@@ -103,7 +103,7 @@ func installResources(ctx context.Context, config Config) error {
 			fs := afero.NewOsFs()
 			err := fs.Remove(operatorTarballPath)
 			if err != nil {
-				config.Logger.LogCtx(ctx, "level", "error", "message", fmt.Sprintf("deletion of %#q failed", operatorTarballPath), "stack", fmt.Sprintf("%#v", err))
+				config.Logger.Errorf(ctx, err, "deletion of %#q failed", operatorTarballPath)
 			}
 		}()
 
