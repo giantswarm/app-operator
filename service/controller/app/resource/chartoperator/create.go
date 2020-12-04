@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/giantswarm/app/v3/pkg/key"
+	"github.com/giantswarm/app/v4/pkg/key"
 	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/helmclient/v3/pkg/helmclient"
 	"github.com/giantswarm/microerror"

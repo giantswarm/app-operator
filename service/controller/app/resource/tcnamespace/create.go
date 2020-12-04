@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/giantswarm/apiextensions/v3/pkg/label"
-	"github.com/giantswarm/app/v3/pkg/key"
+	"github.com/giantswarm/app/v4/pkg/key"
 	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/microerror"
 	corev1 "k8s.io/api/core/v1"

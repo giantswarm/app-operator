@@ -4,12 +4,12 @@ import (
 	"reflect"
 
 	"github.com/ghodss/yaml"
+	"github.com/giantswarm/app/v4/pkg/values"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	corev1 "k8s.io/api/core/v1"
 
 	"github.com/giantswarm/app-operator/v2/service/controller/app/controllercontext"
-	"github.com/giantswarm/app-operator/v2/service/controller/app/values"
 )
 
 const (
