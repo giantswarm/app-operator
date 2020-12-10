@@ -1,12 +1,12 @@
 package appcatalog
 
 import (
-	"github.com/giantswarm/apiextensions/v2/pkg/apis/application/v1alpha1"
-	"github.com/giantswarm/k8sclient/v4/pkg/k8sclient"
+	"github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
+	"github.com/giantswarm/k8sclient/v5/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
-	"github.com/giantswarm/operatorkit/v2/pkg/controller"
-	"github.com/giantswarm/operatorkit/v2/pkg/resource"
+	"github.com/giantswarm/operatorkit/v4/pkg/controller"
+	"github.com/giantswarm/operatorkit/v4/pkg/resource"
 	"k8s.io/apimachinery/pkg/runtime"
 
 	"github.com/giantswarm/app-operator/v2/pkg/project"
@@ -15,6 +15,8 @@ import (
 type Config struct {
 	K8sClient k8sclient.Interface
 	Logger    micrologger.Logger
+
+	UniqueApp bool
 }
 
 type AppCatalog struct {
@@ -33,10 +35,7 @@ func NewAppCatalog(config Config) (*AppCatalog, error) {
 
 	var resources []resource.Interface
 	{
-		c := appCatalogResourcesConfig{
-			Logger: config.Logger,
-		}
-
+		c := appCatalogResourcesConfig(config)
 		resources, err = newAppCatalogResources(c)
 		if err != nil {
 			return nil, microerror.Mask(err)

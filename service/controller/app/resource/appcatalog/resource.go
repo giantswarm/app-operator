@@ -2,17 +2,16 @@ package appcatalog
 
 import (
 	"context"
-	"fmt"
 
-	"github.com/giantswarm/apiextensions/v2/pkg/apis/application/v1alpha1"
-	"github.com/giantswarm/apiextensions/v2/pkg/clientset/versioned"
+	"github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
+	"github.com/giantswarm/apiextensions/v3/pkg/clientset/versioned"
+	"github.com/giantswarm/app/v4/pkg/key"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/giantswarm/app-operator/v2/service/controller/app/controllercontext"
-	"github.com/giantswarm/app-operator/v2/service/controller/app/key"
 )
 
 const (
@@ -65,7 +64,7 @@ func (r *Resource) getCatalogForApp(ctx context.Context, customResource v1alpha1
 
 	catalogName := key.CatalogName(customResource)
 
-	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("looking for appCatalog %#q", catalogName))
+	r.logger.Debugf(ctx, "looking for appCatalog %#q", catalogName)
 
 	appCatalog, err := r.g8sClient.ApplicationV1alpha1().AppCatalogs().Get(ctx, catalogName, metav1.GetOptions{})
 	if apierrors.IsNotFound(err) {
@@ -74,7 +73,7 @@ func (r *Resource) getCatalogForApp(ctx context.Context, customResource v1alpha1
 		return microerror.Mask(err)
 	}
 
-	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found appCatalog %#q", catalogName))
+	r.logger.Debugf(ctx, "found appCatalog %#q", catalogName)
 	cc.AppCatalog = *appCatalog
 
 	return nil

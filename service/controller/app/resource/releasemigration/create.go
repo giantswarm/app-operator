@@ -7,22 +7,22 @@ import (
 	"strings"
 
 	"github.com/Masterminds/semver/v3"
-	"github.com/giantswarm/apiextensions/v2/pkg/clientset/versioned"
-	"github.com/giantswarm/k8sclient/v4/pkg/k8sclient"
+	"github.com/giantswarm/apiextensions/v3/pkg/clientset/versioned"
+	"github.com/giantswarm/app/v4/pkg/annotation"
+	"github.com/giantswarm/app/v4/pkg/key"
+	"github.com/giantswarm/k8sclient/v5/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
-	"github.com/giantswarm/operatorkit/v2/pkg/controller/context/reconciliationcanceledcontext"
+	"github.com/giantswarm/operatorkit/v4/pkg/controller/context/reconciliationcanceledcontext"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 
-	"github.com/giantswarm/app-operator/v2/pkg/annotation"
 	"github.com/giantswarm/app-operator/v2/service/controller/app/controllercontext"
-	"github.com/giantswarm/app-operator/v2/service/controller/app/key"
 )
 
 // EnsureCreated ensures helm release is migrated from a v2 configmap to a v3 secret.
 func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
-	cr, err := key.ToCustomResource(obj)
+	cr, err := key.ToApp(obj)
 	if err != nil {
 		return microerror.Mask(err)
 	}
@@ -33,27 +33,27 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	}
 
 	if cc.Status.ClusterStatus.IsUnavailable {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster is unavailable")
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		r.logger.Debugf(ctx, "tenant cluster is unavailable")
+		r.logger.Debugf(ctx, "canceling resource")
 		return nil
 	}
 
 	// Resource is used to migrating Helm 2 release into Helm 3 in case of chart-operator app reconciliation.
 	// So for other apps we can skip this step.
 	if key.AppName(cr) != key.ChartOperatorAppName {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("no need to migrate release for %#q", key.AppName(cr)))
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		r.logger.Debugf(ctx, "no need to migrate release for %#q", key.AppName(cr))
+		r.logger.Debugf(ctx, "canceling resource")
 		return nil
 	}
 
 	if key.Version(cr) != cr.Status.Version {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("app %#q is not reconciled to the latest desired status yet", key.AppName(cr)))
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		r.logger.Debugf(ctx, "app %#q is not reconciled to the latest desired status yet", key.AppName(cr))
+		r.logger.Debugf(ctx, "canceling resource")
 		return nil
 	}
 
 	if cr.Status.AppVersion == "" {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("app %#q is not installed yet", key.AppName(cr)))
+		r.logger.Debugf(ctx, "app %#q is not installed yet", key.AppName(cr))
 	}
 
 	v, err := semver.NewVersion(cr.Status.AppVersion)
@@ -62,15 +62,15 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	}
 
 	if v.Major() < 1 {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("app %#q with appVersion %#q is using Helm 2. we don't need to trigger Helm 3 migration.", key.AppName(cr), cr.Status.AppVersion))
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		r.logger.Debugf(ctx, "app %#q with appVersion %#q is using Helm 2. we don't need to trigger Helm 3 migration.", key.AppName(cr), cr.Status.AppVersion)
+		r.logger.Debugf(ctx, "canceling resource")
 		return nil
 	}
 
 	deploy, err := cc.Clients.K8s.K8sClient().AppsV1().Deployments(key.Namespace(cr)).Get(ctx, cr.Name, metav1.GetOptions{})
 	if apierrors.IsNotFound(err) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("app %#q has no deployement object yet", key.AppName(cr)))
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		r.logger.Debugf(ctx, "app %#q has no deployement object yet", key.AppName(cr))
+		r.logger.Debugf(ctx, "canceling resource")
 		return nil
 	} else if err != nil {
 		return microerror.Mask(err)
@@ -86,14 +86,14 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	}
 
 	if v.Major() < 1 {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("app %#q with appVersion %#q is using Helm 2. we don't need to trigger Helm 3 migration.", key.AppName(cr), cr.Status.AppVersion))
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		r.logger.Debugf(ctx, "app %#q with appVersion %#q is using Helm 2. we don't need to trigger Helm 3 migration.", key.AppName(cr), cr.Status.AppVersion)
+		r.logger.Debugf(ctx, "canceling resource")
 		return nil
 	}
 
 	if deploy.Status.ReadyReplicas == 0 {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("app %#q is not deployed yet", key.AppName(cr)))
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		r.logger.Debugf(ctx, "app %#q is not deployed yet", key.AppName(cr))
+		r.logger.Debugf(ctx, "canceling resource")
 		return nil
 	}
 
@@ -119,7 +119,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	// If Helm v2 release configmap had not been deleted and Helm v3 release secret is there,
 	// It means helm release migration is in progress.
 	if hasConfigMap && hasSecret {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("release %#q helmV3 migration in progress", key.ReleaseName(cr)))
+		r.logger.Debugf(ctx, "release %#q helmV3 migration in progress", key.ReleaseName(cr))
 
 		found, err := findMigrationApp(ctx, cc.Clients.Helm, tillerNamespace)
 		if err != nil {
@@ -127,15 +127,15 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		}
 
 		if !found {
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("release %#q had been purged during migration, reinstalling...", migrationApp))
+			r.logger.Debugf(ctx, "release %#q had been purged during migration, reinstalling...", migrationApp)
 			err = r.ensureReleasesMigrated(ctx, cc.Clients.K8s, cc.Clients.Helm, tillerNamespace)
 			if err != nil {
 				return microerror.Mask(err)
 			}
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("installed %#q", migrationApp))
+			r.logger.Debugf(ctx, "installed %#q", migrationApp)
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation")
+		r.logger.Debugf(ctx, "canceling reconciliation")
 		reconciliationcanceledcontext.SetCanceled(ctx)
 		return nil
 	}
@@ -143,8 +143,8 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	// If Helm v2 release configmap had not been deleted and Helm v3 release secret was not created,
 	// It means helm v3 release migration is not started.
 	if hasConfigMap && !hasSecret {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("release %#q helmV3 migration not started", key.ReleaseName(cr)))
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("installing %#q", migrationApp))
+		r.logger.Debugf(ctx, "release %#q helmV3 migration not started", key.ReleaseName(cr))
+		r.logger.Debugf(ctx, "installing %#q", migrationApp)
 
 		// cordon all charts except chart-operator
 		err := r.cordonChart(ctx, cc.Clients.K8s.G8sClient())
@@ -155,15 +155,15 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		// install helm-2to3-migration app
 		err = r.ensureReleasesMigrated(ctx, cc.Clients.K8s, cc.Clients.Helm, tillerNamespace)
 		if IsReleaseAlreadyExists(err) {
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("release %#q already exists", migrationApp))
-			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation")
+			r.logger.Debugf(ctx, "release %#q already exists", migrationApp)
+			r.logger.Debugf(ctx, "canceling reconciliation")
 			reconciliationcanceledcontext.SetCanceled(ctx)
 			return nil
 		} else if err != nil {
 			return microerror.Mask(err)
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("installed %#q", migrationApp))
+		r.logger.Debugf(ctx, "installed %#q", migrationApp)
 		return nil
 	}
 
@@ -180,7 +180,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		}
 	}
 
-	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("no pending migration for release %#q", key.ReleaseName(cr)))
+	r.logger.Debugf(ctx, "no pending migration for release %#q", key.ReleaseName(cr))
 
 	return nil
 }
@@ -195,7 +195,7 @@ func (r *Resource) cordonChart(ctx context.Context, g8sClient versioned.Interfac
 		return microerror.Mask(err)
 	}
 
-	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("cordoning %d charts", len(charts.Items)))
+	r.logger.Debugf(ctx, "cordoning %d charts", len(charts.Items))
 
 	cordonReason := replaceToEscape(fmt.Sprintf("%s/%s", annotation.ChartOperatorPrefix, annotation.CordonReason))
 	cordonUntil := replaceToEscape(fmt.Sprintf("%s/%s", annotation.ChartOperatorPrefix, annotation.CordonUntil))
@@ -234,7 +234,7 @@ func (r *Resource) cordonChart(ctx context.Context, g8sClient versioned.Interfac
 			return microerror.Mask(err)
 		}
 	}
-	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("cordoned %d charts", len(charts.Items)))
+	r.logger.Debugf(ctx, "cordoned %d charts", len(charts.Items))
 
 	return nil
 }
@@ -248,7 +248,7 @@ func (r *Resource) uncordonChart(ctx context.Context, g8sClient versioned.Interf
 	if err != nil {
 		return microerror.Mask(err)
 	}
-	r.logger.LogCtx(ctx, "level", "debug", "message", "uncordoning cordoned charts")
+	r.logger.Debugf(ctx, "uncordoning cordoned charts")
 
 	cordonReason := replaceToEscape(fmt.Sprintf("%s/%s", annotation.ChartOperatorPrefix, annotation.CordonReason))
 	cordonUntil := replaceToEscape(fmt.Sprintf("%s/%s", annotation.ChartOperatorPrefix, annotation.CordonUntil))
@@ -279,7 +279,7 @@ func (r *Resource) uncordonChart(ctx context.Context, g8sClient versioned.Interf
 		}
 		i++
 	}
-	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("uncordoned %d charts", i))
+	r.logger.Debugf(ctx, "uncordoned %d charts", i)
 
 	return nil
 }

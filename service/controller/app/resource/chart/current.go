@@ -2,21 +2,20 @@ package chart
 
 import (
 	"context"
-	"fmt"
 
+	"github.com/giantswarm/app/v4/pkg/key"
 	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/microerror"
-	"github.com/giantswarm/operatorkit/v2/pkg/controller/context/resourcecanceledcontext"
+	"github.com/giantswarm/operatorkit/v4/pkg/controller/context/resourcecanceledcontext"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/giantswarm/app-operator/v2/pkg/status"
 	"github.com/giantswarm/app-operator/v2/service/controller/app/controllercontext"
-	"github.com/giantswarm/app-operator/v2/service/controller/app/key"
 )
 
 func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interface{}, error) {
-	cr, err := key.ToCustomResource(obj)
+	cr, err := key.ToApp(obj)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
@@ -29,51 +28,51 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 	}
 
 	if status.FailedStatus[cc.Status.ChartStatus.Status] {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("chart %#q failed to merge configMaps/secrets, no need to reconcile resource", cr.Name))
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		r.logger.Debugf(ctx, "chart %#q failed to merge configMaps/secrets, no need to reconcile resource", cr.Name)
+		r.logger.Debugf(ctx, "canceling resource")
 		resourcecanceledcontext.SetCanceled(ctx)
 		return nil, nil
 	}
 
 	if cc.Status.ClusterStatus.IsDeleting {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("namespace %#q is being deleted, no need to reconcile resource", cr.Namespace))
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		r.logger.Debugf(ctx, "namespace %#q is being deleted, no need to reconcile resource", cr.Namespace)
+		r.logger.Debugf(ctx, "canceling resource")
 		resourcecanceledcontext.SetCanceled(ctx)
 		return nil, nil
 	}
 
 	if cc.Status.ClusterStatus.IsUnavailable {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster is unavailable")
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		r.logger.Debugf(ctx, "tenant cluster is unavailable")
+		r.logger.Debugf(ctx, "canceling resource")
 		resourcecanceledcontext.SetCanceled(ctx)
 		return nil, nil
 	}
 
 	if key.IsAppCordoned(cr) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("app %#q is cordoned", cr.Name))
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		r.logger.Debugf(ctx, "app %#q is cordoned", cr.Name)
+		r.logger.Debugf(ctx, "canceling resource")
 		resourcecanceledcontext.SetCanceled(ctx)
 		return nil, nil
 	}
 
-	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding chart %#q", name))
+	r.logger.Debugf(ctx, "finding chart %#q", name)
 
 	chart, err := cc.Clients.K8s.G8sClient().ApplicationV1alpha1().Charts(r.chartNamespace).Get(ctx, name, metav1.GetOptions{})
 	if apierrors.IsNotFound(err) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("did not find chart %#q in namespace %#q", name, r.chartNamespace))
+		r.logger.Debugf(ctx, "did not find chart %#q in namespace %#q", name, r.chartNamespace)
 		return nil, nil
 	} else if tenant.IsAPINotAvailable(err) {
 		// We should not hammer tenant API if it is not available, the tenant cluster
 		// might be initializing. We will retry on next reconciliation loop.
-		r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster is not available.")
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		r.logger.Debugf(ctx, "tenant cluster is not available.")
+		r.logger.Debugf(ctx, "canceling resource")
 		resourcecanceledcontext.SetCanceled(ctx)
 		return nil, nil
 	} else if err != nil {
 		return nil, microerror.Mask(err)
 	}
 
-	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found chart %#q", name))
+	r.logger.Debugf(ctx, "found chart %#q", name)
 
 	return chart, nil
 }

@@ -4,18 +4,18 @@ import (
 	"context"
 	"time"
 
-	"github.com/giantswarm/apiextensions/v2/pkg/apis/application/v1alpha1"
-	"github.com/giantswarm/k8sclient/v4/pkg/k8sclient"
+	"github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
+	"github.com/giantswarm/k8sclient/v5/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
-	"github.com/giantswarm/operatorkit/v2/pkg/controller"
-	"github.com/giantswarm/operatorkit/v2/pkg/resource"
+	"github.com/giantswarm/operatorkit/v4/pkg/controller"
+	"github.com/giantswarm/operatorkit/v4/pkg/resource"
 	"github.com/spf13/afero"
 	"k8s.io/apimachinery/pkg/runtime"
 
+	"github.com/giantswarm/app-operator/v2/pkg/label"
 	"github.com/giantswarm/app-operator/v2/pkg/project"
 	"github.com/giantswarm/app-operator/v2/service/controller/app/controllercontext"
-	"github.com/giantswarm/app-operator/v2/service/controller/app/key"
 )
 
 type Config struct {
@@ -28,6 +28,8 @@ type Config struct {
 	ImageRegistry     string
 	PauseAnnotation   string
 	UniqueApp         bool
+	WebhookAuthToken  string
+	WebhookBaseURL    string
 }
 
 type App struct {
@@ -53,6 +55,9 @@ func NewApp(config Config) (*App, error) {
 	if config.ImageRegistry == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ImageRegistry must not be empty", config)
 	}
+	if config.WebhookBaseURL == "" {
+		return nil, microerror.Maskf(invalidConfigError, "%T.WebhookBaseURL not be empty", config)
+	}
 
 	// TODO: Remove usage of deprecated controller context.
 	//
@@ -76,6 +81,8 @@ func NewApp(config Config) (*App, error) {
 			HTTPClientTimeout: config.HTTPClientTimeout,
 			ImageRegistry:     config.ImageRegistry,
 			UniqueApp:         config.UniqueApp,
+			WebhookAuthToken:  config.WebhookAuthToken,
+			WebhookBaseURL:    config.WebhookBaseURL,
 		}
 
 		resources, err = newAppResources(c)
@@ -99,7 +106,7 @@ func NewApp(config Config) (*App, error) {
 			Logger:    config.Logger,
 			Pause:     pause,
 			Resources: resources,
-			Selector:  key.AppVersionSelector(config.UniqueApp),
+			Selector:  label.AppVersionSelector(config.UniqueApp),
 			NewRuntimeObjectFunc: func() runtime.Object {
 				return new(v1alpha1.App)
 			},

@@ -3,17 +3,19 @@ package app
 import (
 	"time"
 
-	"github.com/giantswarm/k8sclient/v4/pkg/k8sclient"
+	"github.com/giantswarm/app/v4/pkg/values"
+	"github.com/giantswarm/k8sclient/v5/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
-	"github.com/giantswarm/operatorkit/v2/pkg/resource"
-	"github.com/giantswarm/operatorkit/v2/pkg/resource/crud"
-	"github.com/giantswarm/operatorkit/v2/pkg/resource/wrapper/metricsresource"
-	"github.com/giantswarm/operatorkit/v2/pkg/resource/wrapper/retryresource"
+	"github.com/giantswarm/operatorkit/v4/pkg/resource"
+	"github.com/giantswarm/operatorkit/v4/pkg/resource/crud"
+	"github.com/giantswarm/operatorkit/v4/pkg/resource/wrapper/metricsresource"
+	"github.com/giantswarm/operatorkit/v4/pkg/resource/wrapper/retryresource"
 	"github.com/spf13/afero"
 
 	"github.com/giantswarm/app-operator/v2/service/controller/app/resource/appcatalog"
 	"github.com/giantswarm/app-operator/v2/service/controller/app/resource/appnamespace"
+	"github.com/giantswarm/app-operator/v2/service/controller/app/resource/authtoken"
 	"github.com/giantswarm/app-operator/v2/service/controller/app/resource/chart"
 	"github.com/giantswarm/app-operator/v2/service/controller/app/resource/chartcrd"
 	"github.com/giantswarm/app-operator/v2/service/controller/app/resource/chartoperator"
@@ -24,7 +26,6 @@ import (
 	"github.com/giantswarm/app-operator/v2/service/controller/app/resource/status"
 	"github.com/giantswarm/app-operator/v2/service/controller/app/resource/tcnamespace"
 	"github.com/giantswarm/app-operator/v2/service/controller/app/resource/validation"
-	"github.com/giantswarm/app-operator/v2/service/controller/app/values"
 )
 
 type appResourcesConfig struct {
@@ -38,6 +39,8 @@ type appResourcesConfig struct {
 	HTTPClientTimeout time.Duration
 	ImageRegistry     string
 	UniqueApp         bool
+	WebhookAuthToken  string
+	WebhookBaseURL    string
 }
 
 func newAppResources(config appResourcesConfig) ([]resource.Interface, error) {
@@ -63,6 +66,9 @@ func newAppResources(config appResourcesConfig) ([]resource.Interface, error) {
 	}
 	if config.ImageRegistry == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ImageRegistry must not be empty", config)
+	}
+	if config.WebhookBaseURL == "" {
+		return nil, microerror.Maskf(invalidConfigError, "%T.WebhookBaseURL must not be empty", config)
 	}
 
 	var valuesService *values.Values
@@ -102,6 +108,20 @@ func newAppResources(config appResourcesConfig) ([]resource.Interface, error) {
 		}
 	}
 
+	var authTokenResource resource.Interface
+	{
+		c := authtoken.Config{
+			K8sClient: config.K8sClient.K8sClient(),
+			Logger:    config.Logger,
+
+			WebhookAuthToken: config.WebhookAuthToken,
+		}
+		authTokenResource, err = authtoken.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var chartOperatorResource resource.Interface
 	{
 		c := chartoperator.Config{
@@ -120,10 +140,10 @@ func newAppResources(config appResourcesConfig) ([]resource.Interface, error) {
 	var chartResource resource.Interface
 	{
 		c := chart.Config{
-			G8sClient: config.K8sClient.G8sClient(),
-			Logger:    config.Logger,
+			Logger: config.Logger,
 
 			ChartNamespace: config.ChartNamespace,
+			WebhookBaseURL: config.WebhookBaseURL,
 		}
 
 		ops, err := chart.New(c)
@@ -275,6 +295,7 @@ func newAppResources(config appResourcesConfig) ([]resource.Interface, error) {
 		chartCRDResource,
 		chartOperatorResource,
 		releaseMigrationResource,
+		authTokenResource,
 
 		// Following resources process app CRs.
 		configMapResource,

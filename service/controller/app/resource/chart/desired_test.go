@@ -5,11 +5,15 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/giantswarm/apiextensions/v2/pkg/apis/application/v1alpha1"
-	"github.com/giantswarm/apiextensions/v2/pkg/clientset/versioned/fake"
+	"github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
+	"github.com/giantswarm/apiextensions/v3/pkg/clientset/versioned/fake"
+	"github.com/giantswarm/k8sclient/v5/pkg/k8sclienttest"
 	"github.com/giantswarm/micrologger/microloggertest"
 	"github.com/google/go-cmp/cmp"
+	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime"
+	clientgofake "k8s.io/client-go/kubernetes/fake"
 
 	"github.com/giantswarm/app-operator/v2/service/controller/app/controllercontext"
 )
@@ -19,6 +23,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 		name          string
 		obj           *v1alpha1.App
 		appCatalog    v1alpha1.AppCatalog
+		configMap     *corev1.ConfigMap
 		expectedChart *v1alpha1.Chart
 		error         bool
 	}{
@@ -71,6 +76,12 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					LogoURL: "https://s.giantswarm.io/...",
 				},
 			},
+			configMap: &corev1.ConfigMap{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "my-cool-prometheus-chart-values",
+					Namespace: "giantswarm",
+				},
+			},
 			expectedChart: &v1alpha1.Chart{
 				TypeMeta: metav1.TypeMeta{
 					Kind:       "Chart",
@@ -83,6 +94,9 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 						"app":                                  "prometheus",
 						"chart-operator.giantswarm.io/version": "1.0.0",
 						"giantswarm.io/managed-by":             "app-operator",
+					},
+					Annotations: map[string]string{
+						"chart-operator.giantswarm.io/webhook-url": "http://webhook/status/default/my-cool-prometheus",
 					},
 				},
 				Spec: v1alpha1.ChartSpec{
@@ -148,6 +162,12 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					LogoURL: "https://s.giantswarm.io/...",
 				},
 			},
+			configMap: &corev1.ConfigMap{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "my-cool-prometheus-chart-values",
+					Namespace: "giantswarm",
+				},
+			},
 			expectedChart: &v1alpha1.Chart{
 				TypeMeta: metav1.TypeMeta{
 					Kind:       "Chart",
@@ -160,6 +180,9 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 						"app":                                  "prometheus",
 						"chart-operator.giantswarm.io/version": "1.0.0",
 						"giantswarm.io/managed-by":             "app-operator",
+					},
+					Annotations: map[string]string{
+						"chart-operator.giantswarm.io/webhook-url": "http://webhook/status/default/my-cool-prometheus",
 					},
 				},
 				Spec: v1alpha1.ChartSpec{
@@ -221,6 +244,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 				ObjectMeta: metav1.ObjectMeta{
 					Annotations: map[string]string{
 						"chart-operator.giantswarm.io/force-helm-upgrade": "true",
+						"chart-operator.giantswarm.io/webhook-url":        "http://webhook/status/default/my-cool-prometheus",
 					},
 					Name:      "my-cool-prometheus",
 					Namespace: "giantswarm",
@@ -242,11 +266,16 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
+			objs := make([]runtime.Object, 0)
+			if tc.configMap != nil {
+				objs = append(objs, tc.configMap)
+			}
+
 			c := Config{
-				G8sClient: fake.NewSimpleClientset(),
-				Logger:    microloggertest.New(),
+				Logger: microloggertest.New(),
 
 				ChartNamespace: "giantswarm",
+				WebhookBaseURL: "http://webhook",
 			}
 			r, err := New(c)
 			if err != nil {
@@ -255,7 +284,16 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 
 			var ctx context.Context
 			{
+				config := k8sclienttest.ClientsConfig{
+					G8sClient: fake.NewSimpleClientset(),
+					K8sClient: clientgofake.NewSimpleClientset(objs...),
+				}
+				client := k8sclienttest.NewClients(config)
+
 				c := controllercontext.Context{
+					Clients: controllercontext.Clients{
+						K8s: client,
+					},
 					AppCatalog: tc.appCatalog,
 				}
 				ctx = controllercontext.NewContext(context.Background(), c)
@@ -296,6 +334,8 @@ func Test_generateConfig(t *testing.T) {
 		name           string
 		cr             v1alpha1.App
 		appCatalog     v1alpha1.AppCatalog
+		secret         *corev1.Secret
+		configMap      *corev1.ConfigMap
 		expectedConfig v1alpha1.ChartSpecConfig
 	}{
 		{
@@ -321,10 +361,18 @@ func Test_generateConfig(t *testing.T) {
 				},
 			},
 			appCatalog: v1alpha1.AppCatalog{},
+			configMap: &corev1.ConfigMap{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:            "test-app-chart-values",
+					Namespace:       "giantswarm",
+					ResourceVersion: "1234",
+				},
+			},
 			expectedConfig: v1alpha1.ChartSpecConfig{
 				ConfigMap: v1alpha1.ChartSpecConfigConfigMap{
-					Name:      "test-app-chart-values",
-					Namespace: "giantswarm",
+					Name:            "test-app-chart-values",
+					Namespace:       "giantswarm",
+					ResourceVersion: "1234",
 				},
 			},
 		},
@@ -345,10 +393,18 @@ func Test_generateConfig(t *testing.T) {
 				},
 			},
 			appCatalog: v1alpha1.AppCatalog{},
+			secret: &corev1.Secret{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:            "test-app-chart-secrets",
+					Namespace:       "giantswarm",
+					ResourceVersion: "4321",
+				},
+			},
 			expectedConfig: v1alpha1.ChartSpecConfig{
 				Secret: v1alpha1.ChartSpecConfigSecret{
-					Name:      "test-app-chart-secrets",
-					Namespace: "giantswarm",
+					Name:            "test-app-chart-secrets",
+					Namespace:       "giantswarm",
+					ResourceVersion: "4321",
 				},
 			},
 		},
@@ -373,14 +429,30 @@ func Test_generateConfig(t *testing.T) {
 				},
 			},
 			appCatalog: v1alpha1.AppCatalog{},
+			configMap: &corev1.ConfigMap{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:            "test-app-chart-values",
+					Namespace:       "giantswarm",
+					ResourceVersion: "1234",
+				},
+			},
+			secret: &corev1.Secret{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:            "test-app-chart-secrets",
+					Namespace:       "giantswarm",
+					ResourceVersion: "4321",
+				},
+			},
 			expectedConfig: v1alpha1.ChartSpecConfig{
 				ConfigMap: v1alpha1.ChartSpecConfigConfigMap{
-					Name:      "test-app-chart-values",
-					Namespace: "giantswarm",
+					Name:            "test-app-chart-values",
+					Namespace:       "giantswarm",
+					ResourceVersion: "1234",
 				},
 				Secret: v1alpha1.ChartSpecConfigSecret{
-					Name:      "test-app-chart-secrets",
-					Namespace: "giantswarm",
+					Name:            "test-app-chart-secrets",
+					Namespace:       "giantswarm",
+					ResourceVersion: "4321",
 				},
 			},
 		},
@@ -404,10 +476,18 @@ func Test_generateConfig(t *testing.T) {
 					},
 				},
 			},
+			configMap: &corev1.ConfigMap{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:            "test-app-chart-values",
+					Namespace:       "giantswarm",
+					ResourceVersion: "1234",
+				},
+			},
 			expectedConfig: v1alpha1.ChartSpecConfig{
 				ConfigMap: v1alpha1.ChartSpecConfigConfigMap{
-					Name:      "test-app-chart-values",
-					Namespace: "giantswarm",
+					Name:            "test-app-chart-values",
+					Namespace:       "giantswarm",
+					ResourceVersion: "1234",
 				},
 			},
 		},
@@ -431,10 +511,18 @@ func Test_generateConfig(t *testing.T) {
 					},
 				},
 			},
+			secret: &corev1.Secret{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:            "test-app-chart-secrets",
+					Namespace:       "giantswarm",
+					ResourceVersion: "4321",
+				},
+			},
 			expectedConfig: v1alpha1.ChartSpecConfig{
 				Secret: v1alpha1.ChartSpecConfigSecret{
-					Name:      "test-app-chart-secrets",
-					Namespace: "giantswarm",
+					Name:            "test-app-chart-secrets",
+					Namespace:       "giantswarm",
+					ResourceVersion: "4321",
 				},
 			},
 		},
@@ -462,14 +550,30 @@ func Test_generateConfig(t *testing.T) {
 					},
 				},
 			},
+			configMap: &corev1.ConfigMap{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:            "test-app-chart-values",
+					Namespace:       "giantswarm",
+					ResourceVersion: "1234",
+				},
+			},
+			secret: &corev1.Secret{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:            "test-app-chart-secrets",
+					Namespace:       "giantswarm",
+					ResourceVersion: "4321",
+				},
+			},
 			expectedConfig: v1alpha1.ChartSpecConfig{
 				ConfigMap: v1alpha1.ChartSpecConfigConfigMap{
-					Name:      "test-app-chart-values",
-					Namespace: "giantswarm",
+					Name:            "test-app-chart-values",
+					Namespace:       "giantswarm",
+					ResourceVersion: "1234",
 				},
 				Secret: v1alpha1.ChartSpecConfigSecret{
-					Name:      "test-app-chart-secrets",
-					Namespace: "giantswarm",
+					Name:            "test-app-chart-secrets",
+					Namespace:       "giantswarm",
+					ResourceVersion: "4321",
 				},
 			},
 		},
@@ -477,7 +581,21 @@ func Test_generateConfig(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			result := generateConfig(tc.cr, tc.appCatalog, "giantswarm")
+			objs := make([]runtime.Object, 0)
+			if tc.configMap != nil {
+				objs = append(objs, tc.configMap)
+			}
+
+			if tc.secret != nil {
+				objs = append(objs, tc.secret)
+			}
+
+			client := clientgofake.NewSimpleClientset(objs...)
+
+			result, err := generateConfig(context.Background(), client, tc.cr, tc.appCatalog, "giantswarm")
+			if err != nil {
+				t.Fatalf("error == %#v, want nil", err)
+			}
 
 			if !reflect.DeepEqual(result, tc.expectedConfig) {
 				t.Fatalf("want matching Config \n %s", cmp.Diff(result, tc.expectedConfig))

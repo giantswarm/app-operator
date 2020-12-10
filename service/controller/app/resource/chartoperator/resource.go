@@ -2,20 +2,19 @@ package chartoperator
 
 import (
 	"context"
-	"fmt"
 
-	"github.com/giantswarm/apiextensions/v2/pkg/apis/application/v1alpha1"
-	"github.com/giantswarm/apiextensions/v2/pkg/clientset/versioned"
+	"github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
+	"github.com/giantswarm/apiextensions/v3/pkg/clientset/versioned"
+	"github.com/giantswarm/app/v4/pkg/key"
+	"github.com/giantswarm/app/v4/pkg/values"
 	"github.com/giantswarm/appcatalog"
-	"github.com/giantswarm/helmclient/v2/pkg/helmclient"
+	"github.com/giantswarm/helmclient/v3/pkg/helmclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/spf13/afero"
 	"k8s.io/client-go/kubernetes"
 
 	"github.com/giantswarm/app-operator/v2/service/controller/app/controllercontext"
-	"github.com/giantswarm/app-operator/v2/service/controller/app/key"
-	"github.com/giantswarm/app-operator/v2/service/controller/app/values"
 )
 
 const (
@@ -105,7 +104,7 @@ func (r Resource) installChartOperator(ctx context.Context, cr v1alpha1.App) err
 		defer func() {
 			err := r.fileSystem.Remove(tarballPath)
 			if err != nil {
-				r.logger.LogCtx(ctx, "level", "error", "message", fmt.Sprintf("deletion of %#q failed", tarballPath), "stack", fmt.Sprintf("%#v", err))
+				r.logger.Errorf(ctx, err, "deletion of %#q failed", tarballPath)
 			}
 		}()
 	}
@@ -157,7 +156,7 @@ func (r Resource) updateChartOperator(ctx context.Context, cr v1alpha1.App) erro
 		defer func() {
 			err := r.fileSystem.Remove(tarballPath)
 			if err != nil {
-				r.logger.LogCtx(ctx, "level", "error", "message", fmt.Sprintf("deletion of %#q failed", tarballPath), "stack", fmt.Sprintf("%#v", err))
+				r.logger.Errorf(ctx, err, "deletion of %#q failed", tarballPath)
 			}
 		}()
 	}
@@ -175,6 +174,22 @@ func (r Resource) updateChartOperator(ctx context.Context, cr v1alpha1.App) erro
 		if err != nil {
 			return microerror.Mask(err)
 		}
+	}
+
+	return nil
+}
+
+func (r Resource) uninstallChartOperator(ctx context.Context, cr v1alpha1.App) error {
+	cc, err := controllercontext.FromContext(ctx)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
+	err = cc.Clients.Helm.DeleteRelease(ctx, key.Namespace(cr), cr.Name)
+	if helmclient.IsReleaseNotFound(err) {
+		// no-op
+	} else if err != nil {
+		return microerror.Mask(err)
 	}
 
 	return nil

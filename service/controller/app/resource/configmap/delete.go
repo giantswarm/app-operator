@@ -2,10 +2,9 @@ package configmap
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/giantswarm/microerror"
-	"github.com/giantswarm/operatorkit/v2/pkg/resource/crud"
+	"github.com/giantswarm/operatorkit/v4/pkg/resource/crud"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
@@ -19,7 +18,7 @@ func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange inte
 	}
 
 	if !isEmpty(configMap) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleting configmap %#q in namespace %#q", configMap.Name, configMap.Namespace))
+		r.logger.Debugf(ctx, "deleting configmap %#q in namespace %#q", configMap.Name, configMap.Namespace)
 
 		cc, err := controllercontext.FromContext(ctx)
 		if err != nil {
@@ -28,11 +27,11 @@ func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange inte
 
 		err = cc.Clients.K8s.K8sClient().CoreV1().ConfigMaps(configMap.Namespace).Delete(ctx, configMap.Name, metav1.DeleteOptions{})
 		if apierrors.IsNotFound(err) {
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("already deleted configmap %#q in namespace %#q", configMap.Name, configMap.Namespace))
+			r.logger.Debugf(ctx, "already deleted configmap %#q in namespace %#q", configMap.Name, configMap.Namespace)
 		} else if err != nil {
 			return microerror.Mask(err)
 		} else {
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleted Chart CR %#q in namespace %#q", configMap.Name, configMap.Namespace))
+			r.logger.Debugf(ctx, "deleted Chart CR %#q in namespace %#q", configMap.Name, configMap.Namespace)
 		}
 	}
 
@@ -71,14 +70,14 @@ func (r *Resource) newDeleteChangeForUpdate(ctx context.Context, currentState, d
 		return nil, microerror.Mask(err)
 	}
 
-	r.logger.LogCtx(ctx, "level", "debug", "message", "finding out if the configmap has to be deleted")
+	r.logger.Debugf(ctx, "finding out if the configmap has to be deleted")
 
 	if !isEmpty(currentConfigMap) && isEmpty(desiredConfigMap) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "the configmap has to be deleted")
+		r.logger.Debugf(ctx, "the configmap has to be deleted")
 		return currentConfigMap, nil
 	}
 
-	r.logger.LogCtx(ctx, "level", "debug", "message", "the configmap does not have to be deleted")
+	r.logger.Debugf(ctx, "the configmap does not have to be deleted")
 
 	return nil, nil
 }

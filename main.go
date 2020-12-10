@@ -4,11 +4,15 @@ import (
 	"context"
 	"fmt"
 
+	applicationv1alpha1 "github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
+	"github.com/giantswarm/k8sclient/v5/pkg/k8sclient"
+	"github.com/giantswarm/k8sclient/v5/pkg/k8srestconfig"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/microkit/command"
 	microserver "github.com/giantswarm/microkit/server"
 	"github.com/giantswarm/micrologger"
 	"github.com/spf13/viper"
+	"k8s.io/client-go/rest"
 
 	"github.com/giantswarm/app-operator/v2/flag"
 	"github.com/giantswarm/app-operator/v2/pkg/project"
@@ -44,11 +48,49 @@ func mainWithError() (err error) {
 	// Define server factory to create the custom server once all command line
 	// flags are parsed and all microservice configuration is processed.
 	newServerFactory := func(v *viper.Viper) microserver.Server {
+		var restConfig *rest.Config
+		{
+			c := k8srestconfig.Config{
+				Logger: newLogger,
+
+				Address:    v.GetString(f.Service.Kubernetes.Address),
+				InCluster:  v.GetBool(f.Service.Kubernetes.InCluster),
+				KubeConfig: v.GetString(f.Service.Kubernetes.KubeConfig),
+				TLS: k8srestconfig.ConfigTLS{
+					CAFile:  v.GetString(f.Service.Kubernetes.TLS.CAFile),
+					CrtFile: v.GetString(f.Service.Kubernetes.TLS.CrtFile),
+					KeyFile: v.GetString(f.Service.Kubernetes.TLS.KeyFile),
+				},
+			}
+
+			restConfig, err = k8srestconfig.New(c)
+			if err != nil {
+				panic(err)
+			}
+		}
+
+		var k8sClient k8sclient.Interface
+		{
+			c := k8sclient.ClientsConfig{
+				Logger: newLogger,
+				SchemeBuilder: k8sclient.SchemeBuilder{
+					applicationv1alpha1.AddToScheme,
+				},
+
+				RestConfig: restConfig,
+			}
+
+			k8sClient, err = k8sclient.NewClients(c)
+			if err != nil {
+				panic(err)
+			}
+		}
 		// New custom service implements the business logic.
 		var newService *service.Service
 		{
 			c := service.Config{
-				Logger: newLogger,
+				K8sClient: k8sClient,
+				Logger:    newLogger,
 
 				Flag:  f,
 				Viper: v,
@@ -65,10 +107,12 @@ func mainWithError() (err error) {
 		var newServer microserver.Server
 		{
 			c := server.Config{
-				Logger:  newLogger,
-				Service: newService,
+				K8sClient: k8sClient,
+				Logger:    newLogger,
+				Service:   newService,
 
-				Viper: v,
+				Viper:            v,
+				WebhookAuthToken: v.GetString(f.Service.Chart.WebhookAuthToken),
 			}
 
 			newServer, err = server.New(c)
@@ -105,6 +149,8 @@ func mainWithError() (err error) {
 	daemonCommand.PersistentFlags().String(f.Service.App.PauseAnnotation, "", "Annotation used to pause App CR reoncilliation.")
 	daemonCommand.PersistentFlags().Bool(f.Service.App.Unique, false, "Whether the operator is deployed as a unique app.")
 	daemonCommand.PersistentFlags().String(f.Service.Chart.Namespace, "giantswarm", "The namespace where chart CRs are located.")
+	daemonCommand.PersistentFlags().String(f.Service.Chart.WebhookAuthToken, "", "The auth token value for requests to the webhook.")
+	daemonCommand.PersistentFlags().String(f.Service.Chart.WebhookBaseURL, "", "The webhook base URL where chart-operator reports chart updates.")
 	daemonCommand.PersistentFlags().String(f.Service.Helm.HTTP.ClientTimeout, "5s", "HTTP timeout for pulling chart tarballs.")
 	daemonCommand.PersistentFlags().String(f.Service.Image.Registry, "quay.io", "The container registry for pulling Tiller images.")
 	daemonCommand.PersistentFlags().String(f.Service.Kubernetes.Address, "", "Address used to connect to Kubernetes. When empty in-cluster config is created.")

@@ -4,22 +4,23 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/giantswarm/apiextensions/v2/pkg/label"
+	"github.com/giantswarm/apiextensions/v3/pkg/annotation"
+	"github.com/giantswarm/apiextensions/v3/pkg/label"
+	"github.com/giantswarm/app/v4/pkg/key"
+	"github.com/giantswarm/app/v4/pkg/values"
 	"github.com/giantswarm/microerror"
-	"github.com/giantswarm/operatorkit/v2/pkg/controller/context/resourcecanceledcontext"
+	"github.com/giantswarm/operatorkit/v4/pkg/controller/context/resourcecanceledcontext"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"sigs.k8s.io/yaml"
 
-	"github.com/giantswarm/app-operator/v2/pkg/annotation"
 	"github.com/giantswarm/app-operator/v2/pkg/project"
 	"github.com/giantswarm/app-operator/v2/pkg/status"
 	"github.com/giantswarm/app-operator/v2/service/controller/app/controllercontext"
-	"github.com/giantswarm/app-operator/v2/service/controller/app/key"
-	"github.com/giantswarm/app-operator/v2/service/controller/app/values"
 )
 
 func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interface{}, error) {
-	cr, err := key.ToCustomResource(obj)
+	cr, err := key.ToApp(obj)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
@@ -45,14 +46,14 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		r.logger.LogCtx(ctx, "level", "warning", "message", "dependent secrets are not found")
 		addStatusToContext(cc, err.Error(), status.SecretMergeFailedStatus)
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		r.logger.Debugf(ctx, "canceling resource")
 		resourcecanceledcontext.SetCanceled(ctx)
 		return nil, nil
 	} else if values.IsParsingError(err) {
 		r.logger.LogCtx(ctx, "level", "warning", "message", "failed to merging secrets")
 		addStatusToContext(cc, err.Error(), status.SecretMergeFailedStatus)
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		r.logger.Debugf(ctx, "canceling resource")
 		resourcecanceledcontext.SetCanceled(ctx)
 		return nil, nil
 	} else if err != nil {
@@ -64,8 +65,15 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		return nil, nil
 	}
 
+	bytes, err := yaml.Marshal(mergedData)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
 	secret := &corev1.Secret{
-		Data: mergedData,
+		Data: map[string][]byte{
+			"values": bytes,
+		},
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      key.ChartSecretName(cr),
 			Namespace: r.chartNamespace,

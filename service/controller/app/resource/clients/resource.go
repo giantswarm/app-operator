@@ -4,11 +4,11 @@ import (
 	"context"
 	"time"
 
-	"github.com/giantswarm/apiextensions/v2/pkg/apis/application/v1alpha1"
+	"github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/errors/tenant"
-	"github.com/giantswarm/helmclient/v2/pkg/helmclient"
-	"github.com/giantswarm/k8sclient/v4/pkg/k8sclient"
-	"github.com/giantswarm/kubeconfig/v2"
+	"github.com/giantswarm/helmclient/v3/pkg/helmclient"
+	"github.com/giantswarm/k8sclient/v5/pkg/k8sclient"
+	"github.com/giantswarm/kubeconfig/v3"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/spf13/afero"
@@ -109,8 +109,8 @@ func (r *Resource) addClientsToContext(ctx context.Context, cr v1alpha1.App) err
 		// again in this reconciliation loop.
 		cc.Status.ClusterStatus.IsUnavailable = true
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", "kubeconfig secret not found")
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		r.logger.Debugf(ctx, "kubeconfig secret not found")
+		r.logger.Debugf(ctx, "canceling resource")
 		return nil
 
 	} else if err != nil {
@@ -130,8 +130,8 @@ func (r *Resource) addClientsToContext(ctx context.Context, cr v1alpha1.App) err
 			// again in this reconciliation loop.
 			cc.Status.ClusterStatus.IsUnavailable = true
 
-			r.logger.LogCtx(ctx, "level", "debug", "message", "tenant API not available yet")
-			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+			r.logger.Debugf(ctx, "tenant API not available yet")
+			r.logger.Debugf(ctx, "canceling resource")
 			return nil
 
 		} else if err != nil {

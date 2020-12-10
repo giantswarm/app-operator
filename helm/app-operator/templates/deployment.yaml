@@ -18,7 +18,7 @@ spec:
       labels:
         {{- include "labels.selector" . | nindent 8 }}
       annotations:
-        releaseRevision: {{ .Release.Revision | quote }}
+        app.giantswarm.io/config-checksum: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum | quote }}
     spec:
       volumes:
       - name: {{ include "name" . }}-configmap

@@ -9,10 +9,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/giantswarm/apiextensions/v2/pkg/crd"
+	"github.com/giantswarm/apiextensions/v3/pkg/crd"
 	"github.com/giantswarm/appcatalog"
 	"github.com/giantswarm/backoff"
-	"github.com/giantswarm/helmclient/v2/pkg/helmclient"
+	"github.com/giantswarm/helmclient/v3/pkg/helmclient"
 	"github.com/giantswarm/microerror"
 	"github.com/spf13/afero"
 
@@ -28,13 +28,13 @@ func Setup(m *testing.M, config Config) {
 
 	err = installResources(ctx, config)
 	if err != nil {
-		config.Logger.LogCtx(ctx, "level", "error", "message", "failed to install app-operator dependent resources", "stack", fmt.Sprintf("%#v", err))
+		config.Logger.Errorf(ctx, err, "failed to install app-operator dependent resources")
 		v = 1
 	}
 
 	if v == 0 {
 		if err != nil {
-			config.Logger.LogCtx(ctx, "level", "error", "message", "failed to create operator resources", "stack", fmt.Sprintf("%#v", err))
+			config.Logger.Errorf(ctx, err, "failed to create operator resources")
 			v = 1
 		}
 	}
@@ -56,45 +56,46 @@ func installResources(ctx context.Context, config Config) error {
 		}
 	}
 
-	// Create AppCatalog and App CRDs. The Chart CRD is created by the operator
+	// Create CRDs. The Chart CRD is created by the operator
 	// for the kubeconfig test that bootstraps chart-operator.
 	crds := []string{
-		"AppCatalog",
 		"App",
+		"AppCatalog",
+		"AppCatalogEntry",
 	}
 
 	{
 		for _, crdName := range crds {
-			config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("ensuring %#q CRD exists", crdName))
+			config.Logger.Debugf(ctx, "ensuring %#q CRD exists", crdName)
 
 			err := config.K8sClients.CRDClient().EnsureCreated(ctx, crd.LoadV1("application.giantswarm.io", crdName), backoff.NewMaxRetries(7, 1*time.Second))
 			if err != nil {
 				return microerror.Mask(err)
 			}
 
-			config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("ensured %#q CRD exists", crdName))
+			config.Logger.Debugf(ctx, "ensured %#q CRD exists", crdName)
 		}
 	}
 
 	var operatorTarballPath string
 	{
-		config.Logger.LogCtx(ctx, "level", "debug", "message", "getting tarball URL")
+		config.Logger.Debugf(ctx, "getting tarball URL")
 
 		operatorTarballURL, err := appcatalog.GetLatestChart(ctx, key.ControlPlaneTestCatalogStorageURL(), project.Name(), project.Version())
 		if err != nil {
 			return microerror.Mask(err)
 		}
 
-		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("tarball URL is %#q", operatorTarballURL))
+		config.Logger.Debugf(ctx, "tarball URL is %#q", operatorTarballURL)
 
-		config.Logger.LogCtx(ctx, "level", "debug", "message", "pulling tarball")
+		config.Logger.Debugf(ctx, "pulling tarball")
 
 		operatorTarballPath, err = config.HelmClient.PullChartTarball(ctx, operatorTarballURL)
 		if err != nil {
 			return microerror.Mask(err)
 		}
 
-		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("tarball path is %#q", operatorTarballPath))
+		config.Logger.Debugf(ctx, "tarball path is %#q", operatorTarballPath)
 	}
 
 	{
@@ -102,11 +103,11 @@ func installResources(ctx context.Context, config Config) error {
 			fs := afero.NewOsFs()
 			err := fs.Remove(operatorTarballPath)
 			if err != nil {
-				config.Logger.LogCtx(ctx, "level", "error", "message", fmt.Sprintf("deletion of %#q failed", operatorTarballPath), "stack", fmt.Sprintf("%#v", err))
+				config.Logger.Errorf(ctx, err, "deletion of %#q failed", operatorTarballPath)
 			}
 		}()
 
-		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("installing %#q", project.Name()))
+		config.Logger.Debugf(ctx, "installing %#q", project.Name())
 
 		appOperatorValues := map[string]interface{}{
 			"Installation": map[string]interface{}{
@@ -122,10 +123,11 @@ func installResources(ctx context.Context, config Config) error {
 				},
 			},
 		}
+		// Release is named app-operator-unique as some functionality is only
+		// implemented for the unique instance.
 		opts := helmclient.InstallOptions{
-			ReleaseName: project.Name(),
+			ReleaseName: fmt.Sprintf("%s-unique", project.Name()),
 		}
-
 		err = config.HelmClient.InstallReleaseFromTarball(ctx,
 			operatorTarballPath,
 			namespace,
@@ -135,7 +137,7 @@ func installResources(ctx context.Context, config Config) error {
 			return microerror.Mask(err)
 		}
 
-		config.Logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("installed %#q", project.Name()))
+		config.Logger.Debugf(ctx, "installed %#q", project.Name())
 	}
 
 	return nil

@@ -5,16 +5,15 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/giantswarm/app/v4/pkg/key"
 	"github.com/giantswarm/appcatalog"
 	"github.com/giantswarm/backoff"
-	"github.com/giantswarm/helmclient/v2/pkg/helmclient"
-	"github.com/giantswarm/k8sclient/v4/pkg/k8sclient"
+	"github.com/giantswarm/helmclient/v3/pkg/helmclient"
+	"github.com/giantswarm/k8sclient/v5/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/spf13/afero"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-
-	"github.com/giantswarm/app-operator/v2/service/controller/app/key"
 )
 
 const (
@@ -110,7 +109,7 @@ func (r *Resource) ensureReleasesMigrated(ctx context.Context, k8sClient k8sclie
 				fs := afero.NewOsFs()
 				err := fs.Remove(tarballPath)
 				if err != nil {
-					r.logger.LogCtx(ctx, "level", "error", "message", fmt.Sprintf("deletion of %#q failed", tarballPath), "stack", fmt.Sprintf("%#v", err))
+					r.logger.Errorf(ctx, err, "deletion of %#q failed", tarballPath)
 				}
 			}()
 
@@ -151,17 +150,17 @@ func (r *Resource) ensureReleasesMigrated(ctx context.Context, k8sClient k8sclie
 			}
 
 			desc := fmt.Sprintf("%d helm v2 releases not migrated", len(releases))
-			r.logger.LogCtx(ctx, "level", "debug", "message", desc)
+			r.logger.Debugf(ctx, desc)
 
 			return microerror.Maskf(executionFailedError, desc)
 		}
-		r.logger.LogCtx(ctx, "level", "debug", "message", "migration completed")
+		r.logger.Debugf(ctx, "migration completed")
 
 		return nil
 	}
 
 	n := func(err error, t time.Duration) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "migration not complete")
+		r.logger.Debugf(ctx, "migration not complete")
 	}
 
 	b := backoff.NewConstant(20*time.Minute, 10*time.Second)

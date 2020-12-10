@@ -2,11 +2,10 @@ package secret
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/microerror"
-	"github.com/giantswarm/operatorkit/v2/pkg/controller/context/resourcecanceledcontext"
+	"github.com/giantswarm/operatorkit/v4/pkg/controller/context/resourcecanceledcontext"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -21,7 +20,7 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 	}
 
 	if !isEmpty(secret) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating secret %#q in namespace %#q", secret.Name, secret.Namespace))
+		r.logger.Debugf(ctx, "creating secret %#q in namespace %#q", secret.Name, secret.Namespace)
 
 		cc, err := controllercontext.FromContext(ctx)
 		if err != nil {
@@ -30,18 +29,18 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 
 		_, err = cc.Clients.K8s.K8sClient().CoreV1().Secrets(secret.Namespace).Create(ctx, secret, metav1.CreateOptions{})
 		if apierrors.IsAlreadyExists(err) {
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("already created secret %#q in namespace %#q", secret.Name, secret.Namespace))
+			r.logger.Debugf(ctx, "already created secret %#q in namespace %#q", secret.Name, secret.Namespace)
 		} else if tenant.IsAPINotAvailable(err) {
 			// We should not hammer tenant API if it is not available, the tenant cluster
 			// might be initializing. We will retry on next reconciliation loop.
-			r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster is not available.")
-			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+			r.logger.Debugf(ctx, "tenant cluster is not available.")
+			r.logger.Debugf(ctx, "canceling resource")
 			resourcecanceledcontext.SetCanceled(ctx)
 			return nil
 		} else if err != nil {
 			return microerror.Mask(err)
 		} else {
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("created secret %#q in namespace %#q", secret.Name, secret.Namespace))
+			r.logger.Debugf(ctx, "created secret %#q in namespace %#q", secret.Name, secret.Namespace)
 		}
 	}
 
@@ -58,15 +57,15 @@ func (r *Resource) newCreateChange(ctx context.Context, currentResource, desired
 		return nil, microerror.Mask(err)
 	}
 
-	r.logger.LogCtx(ctx, "level", "debug", "message", "finding out if the secret has to be created")
+	r.logger.Debugf(ctx, "finding out if the secret has to be created")
 
 	createSecret := &corev1.Secret{}
 
 	if isEmpty(currentSecret) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "the secret needs to be created")
+		r.logger.Debugf(ctx, "the secret needs to be created")
 		createSecret = desiredSecret
 	} else {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "the secret does not need to be created")
+		r.logger.Debugf(ctx, "the secret does not need to be created")
 	}
 
 	return createSecret, nil

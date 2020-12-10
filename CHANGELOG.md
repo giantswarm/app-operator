@@ -7,6 +7,105 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Changed
+
+- Using values service from the app library.
+
+### Added
+
+- Add printer columns for Version, Last Deployed and Status to chart CRD in
+tenant clusters.
+- Use validation logic from the app library.
+- Include restrictions data from app metadata files in appcatalogentry CRs.
+
+## [2.7.0] - 2020-11-09
+
+### Added
+
+- Secure the webhook with token value from control plane catalog.
+
+## [2.6.0] - 2020-10-29
+
+### Added
+
+- Adding webhook URL as annotation into chart CRs.
+- Added Status update endpoint.
+
+### Changed
+
+- Update apiextensions to v3 and replace CAPI with Giant Swarm fork.
+
+## [2.5.0] - 2020-10-27
+
+### Added
+
+- Watch secrets referenced in app CRs to reduce latency when applying config
+changes.
+
+## [2.4.1] - 2020-10-26
+
+### Fixed
+
+- Use resourceVersion of configmap for comparison instead of listing option.
+
+## [2.4.0] - 2020-10-23
+
+### Added
+
+- Create appcatalogentry CRs for public app catalogs.
+- Watch configmaps referenced in app CRs to reduce latency when applying config
+changes.
+
+## [2.3.5] - 2020-10-20
+
+### Fixed
+
+- Skip removing finalizer for chart-operator chart CR if its not present.
+
+## [2.3.4] - 2020-10-16
+
+### Fixed
+
+- Skip deleting chart-operator in case of cluster deletion.
+
+## [2.3.3] - 2020-10-15
+
+### Added
+
+- Delete chart-operator helm release and chart CR so it can be re-installed.
+
+## [2.3.2] - 2020-09-29
+
+### Fixed
+
+- Updated Helm to v3.3.4.
+- Updated Kubernetes dependencies to v1.18.9.
+- Update deployment annotation to use checksum instead of helm revision to
+reduce how often pods are rolled.
+
+## [2.3.1] - 2020-09-22
+
+### Added
+
+- Added event count metrics for delete, install, rollback and update of Helm releases.
+
+### Fixed
+
+- Fix YAML comparison for chart configmaps and secrets.
+- Fix structs merging error in helmclient.
+
+### Security
+
+- Updated Helm to v3.3.3.
+
+## [2.3.0] - 2020-09-17
+
+### Added
+
+- Add resource version for chart configmaps and secrets to the chart CR to reduce latency of update events.
+
+## [2.2.0] - 2020-09-07
+
 ### Added
 
 - Add monitoring label
@@ -153,7 +252,19 @@ from Helm 2 to Helm 3.
 
 - Flattening operator release structure.
 
-[Unreleased]: https://github.com/giantswarm/app-operator/compare/v2.1.1...HEAD
+[Unreleased]: https://github.com/giantswarm/app-operator/compare/v2.7.0...HEAD
+[2.7.0]: https://github.com/giantswarm/app-operator/compare/v2.6.0...v2.7.0
+[2.6.0]: https://github.com/giantswarm/app-operator/compare/v2.5.0...v2.6.0
+[2.5.0]: https://github.com/giantswarm/app-operator/compare/v2.4.1...v2.5.0
+[2.4.1]: https://github.com/giantswarm/app-operator/compare/v2.4.0...v2.4.1
+[2.4.0]: https://github.com/giantswarm/app-operator/compare/v2.3.5...v2.4.0
+[2.3.5]: https://github.com/giantswarm/app-operator/compare/v2.3.4...v2.3.5
+[2.3.4]: https://github.com/giantswarm/app-operator/compare/v2.3.3...v2.3.4
+[2.3.3]: https://github.com/giantswarm/app-operator/compare/v2.3.2...v2.3.3
+[2.3.2]: https://github.com/giantswarm/app-operator/compare/v2.3.1...v2.3.2
+[2.3.1]: https://github.com/giantswarm/app-operator/compare/v2.3.0...v2.3.1
+[2.3.0]: https://github.com/giantswarm/app-operator/compare/v2.2.0...v2.3.0
+[2.2.0]: https://github.com/giantswarm/app-operator/compare/v2.1.1...v2.2.0
 [2.1.1]: https://github.com/giantswarm/app-operator/compare/v2.1.0...v2.1.1
 [2.1.0]: https://github.com/giantswarm/app-operator/compare/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/giantswarm/app-operator/compare/v1.1.11...v2.0.0

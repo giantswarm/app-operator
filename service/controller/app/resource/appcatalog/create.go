@@ -3,14 +3,13 @@ package appcatalog
 import (
 	"context"
 
+	"github.com/giantswarm/app/v4/pkg/key"
 	"github.com/giantswarm/microerror"
-
-	"github.com/giantswarm/app-operator/v2/service/controller/app/key"
 )
 
 // EnsureCreated gets the appCatalog CR specified in the provided app CR.
 func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
-	cr, err := key.ToCustomResource(obj)
+	cr, err := key.ToApp(obj)
 	if err != nil {
 		return microerror.Mask(err)
 	}

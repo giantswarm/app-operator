@@ -2,6 +2,14 @@
 
 package key
 
+func AppCatalogConfigMapName() string {
+	return "appcatalog-config"
+}
+
+func AppCatalogEntryName() string {
+	return "giantswarm-prometheus-operator-app-0.3.4"
+}
+
 func ControlPlaneTestCatalogStorageURL() string {
 	return "https://giantswarm.github.io/control-plane-test-catalog"
 }
@@ -18,6 +26,22 @@ func Namespace() string {
 	return "giantswarm"
 }
 
+func StableCatalogName() string {
+	return "giantswarm"
+}
+
+func StableCatalogStorageURL() string {
+	return "https://giantswarm.github.com/giantswarm-catalog"
+}
+
 func TestAppReleaseName() string {
 	return "test-app"
+}
+
+func UniqueAppVersion() string {
+	return "0.0.0"
+}
+
+func UserConfigMapName() string {
+	return "user-config"
 }
