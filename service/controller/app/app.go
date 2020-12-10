@@ -26,6 +26,7 @@ type Config struct {
 	ChartNamespace    string
 	HTTPClientTimeout time.Duration
 	ImageRegistry     string
+	PauseAnnotation   string
 	UniqueApp         bool
 }
 
@@ -85,10 +86,18 @@ func NewApp(config Config) (*App, error) {
 
 	var appController *controller.Controller
 	{
+		var pause map[string]string
+		if config.PauseAnnotation != "" {
+			pause = map[string]string{
+				config.PauseAnnotation: "true",
+			}
+		}
+
 		c := controller.Config{
 			InitCtx:   initCtxFunc,
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
+			Pause:     pause,
 			Resources: resources,
 			Selector:  key.AppVersionSelector(config.UniqueApp),
 			NewRuntimeObjectFunc: func() runtime.Object {
