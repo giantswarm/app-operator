@@ -16,10 +16,11 @@ data:
     service:
       app:
         unique: {{ include "resource.app.unique" . }}
+        pauseAnnotation: '{{ .Values.Installation.V1.GiantSwarm.AppOperator.PauseAnnotation }}'
       helm:
         http:
           clientTimeout: '{{ .Values.Installation.V1.Helm.HTTP.ClientTimeout }}'
       image:
-        registry: '{{ .Values.Installation.V1.Registry.Domain }}' 
+        registry: '{{ .Values.Installation.V1.Registry.Domain }}'
       kubernetes:
         incluster: true

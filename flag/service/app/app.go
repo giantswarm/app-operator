@@ -1,5 +1,6 @@
 package app
 
 type App struct {
-	Unique string
+	PauseAnnotation string
+	Unique          string
 }
