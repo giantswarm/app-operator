@@ -12,6 +12,7 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 - Add monitoring label
 - Add validation resource that checks if references to other resources exist in
 app CRs. A message is added to the app CR status for the user.
+- Use `Service.App.PauseAnnotation` flag (if supplied) to pause reconciliation of App CRs.
 
 ### Fixed
 
@@ -41,7 +42,7 @@ app CRs. A message is added to the app CR status for the user.
 
 ### Removed
 
-- Don't wait for chart-operator pod since chart CRD is created by the chartcrd resource. 
+- Don't wait for chart-operator pod since chart CRD is created by the chartcrd resource.
 
 ## [2.0.0] - 2020-08-13
 
