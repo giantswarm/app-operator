@@ -1,0 +1,5 @@
+Installation:
+  V1:
+    GiantSwarm:
+      AppOperator:
+        PauseAnnotation: ""
