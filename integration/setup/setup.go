@@ -114,6 +114,11 @@ func installResources(ctx context.Context, config Config) error {
 					"Registry": map[string]interface{}{
 						"Domain": "quay.io",
 					},
+					"GiantSwarm": map[string]interface{}{
+						"AppOperator": map[string]interface{}{
+							"PauseAnnotation": "app-operator.giantswarm.io/paused",
+						},
+					},
 				},
 			},
 		}
