@@ -2,13 +2,14 @@ package clients
 
 import (
 	"context"
+	"github.com/giantswarm/app/v4/pkg/key"
 	"time"
 
 	"github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/errors/tenant"
-	"github.com/giantswarm/helmclient/v3/pkg/helmclient"
+	"github.com/giantswarm/helmclient/v4/pkg/helmclient"
 	"github.com/giantswarm/k8sclient/v5/pkg/k8sclient"
-	"github.com/giantswarm/kubeconfig/v3"
+	"github.com/giantswarm/kubeconfig/v4"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/spf13/afero"
@@ -103,18 +104,28 @@ func (r *Resource) addClientsToContext(ctx context.Context, cr v1alpha1.App) err
 		}
 	}
 
-	restConfig, err := kubeConfig.NewRESTConfigForApp(ctx, cr)
-	if kubeconfig.IsNotFoundError(err) {
-		// Set status so we don't try to connect to the tenant cluster
-		// again in this reconciliation loop.
-		cc.Status.ClusterStatus.IsUnavailable = true
+	var restConfig *rest.Config
+	{
+		if key.InCluster(cr) {
+			restConfig, err = rest.InClusterConfig()
+			if err != nil {
+				return microerror.Mask(err)
+			}
+		} else {
+			restConfig, err = kubeConfig.NewRESTConfigForApp(ctx, key.KubeConfigSecretName(cr), key.KubeConfigSecretNamespace(cr))
+			if kubeconfig.IsNotFoundError(err) {
+				// Set status so we don't try to connect to the tenant cluster
+				// again in this reconciliation loop.
+				cc.Status.ClusterStatus.IsUnavailable = true
 
-		r.logger.Debugf(ctx, "kubeconfig secret not found")
-		r.logger.Debugf(ctx, "canceling resource")
-		return nil
+				r.logger.Debugf(ctx, "kubeconfig secret not found")
+				r.logger.Debugf(ctx, "canceling resource")
+				return nil
 
-	} else if err != nil {
-		return microerror.Mask(err)
+			} else if err != nil {
+				return microerror.Mask(err)
+			}
+		}
 	}
 
 	var k8sClient k8sclient.Interface
@@ -144,9 +155,11 @@ func (r *Resource) addClientsToContext(ctx context.Context, cr v1alpha1.App) err
 	var helmClient helmclient.Interface
 	{
 		c := helmclient.Config{
-			Fs:        fs,
-			K8sClient: k8sClient,
-			Logger:    r.logger,
+			Fs:         fs,
+			K8sClient:  k8sClient.K8sClient(),
+			Logger:     r.logger,
+			RestClient: k8sClient.RESTClient(),
+			RestConfig: k8sClient.RESTConfig(),
 
 			HTTPClientTimeout: r.httpClientTimeout,
 		}
