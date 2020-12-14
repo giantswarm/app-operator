@@ -18,6 +18,10 @@ tenant clusters.
 - Use validation logic from the app library.
 - Include restrictions data from app metadata files in appcatalogentry CRs.
 
+### Fixed
+
+- Reuse clients in clients resource when app CR uses inCluster.
+
 ## [2.7.0] - 2020-11-09
 
 ### Added

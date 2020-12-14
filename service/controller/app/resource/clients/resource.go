@@ -13,7 +13,6 @@ import (
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/spf13/afero"
-	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 
 	"github.com/giantswarm/app-operator/v2/service/controller/app/controllercontext"
@@ -27,27 +26,35 @@ const (
 // Config represents the configuration used to create a new clients resource.
 type Config struct {
 	// Dependencies.
-	K8sClient kubernetes.Interface
-	Logger    micrologger.Logger
+	Fs         afero.Fs
+	HelmClient helmclient.Interface
+	K8sClient  k8sclient.Interface
+	Logger     micrologger.Logger
 
 	// Settings.
 	HTTPClientTimeout time.Duration
-	ImageRegistry     string
 }
 
 // Resource implements the clients resource.
 type Resource struct {
 	// Dependencies.
-	k8sClient kubernetes.Interface
-	logger    micrologger.Logger
+	fs         afero.Fs
+	helmClient helmclient.Interface
+	k8sClient  k8sclient.Interface
+	logger     micrologger.Logger
 
 	// Settings.
 	httpClientTimeout time.Duration
-	imageRegistry     string
 }
 
 // New creates a new configured clients resource.
 func New(config Config) (*Resource, error) {
+	if config.Fs == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.Fs must not be empty", config)
+	}
+	if config.HelmClient == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.HelmClient must not be empty", config)
+	}
 	if config.K8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
 	}
@@ -58,18 +65,16 @@ func New(config Config) (*Resource, error) {
 	if config.HTTPClientTimeout == 0 {
 		return nil, microerror.Maskf(invalidConfigError, "%T.HTTPClientTimeout must not be empty", config)
 	}
-	if config.ImageRegistry == "" {
-		return nil, microerror.Maskf(invalidConfigError, "%T.ImageRegistry must not be empty", config)
-	}
 
 	r := &Resource{
 		// Dependencies.
-		k8sClient: config.K8sClient,
-		logger:    config.Logger,
+		fs:         config.Fs,
+		helmClient: config.HelmClient,
+		k8sClient:  config.K8sClient,
+		logger:     config.Logger,
 
 		// Settings
 		httpClientTimeout: config.HTTPClientTimeout,
-		imageRegistry:     config.ImageRegistry,
 	}
 
 	return r, nil
@@ -91,10 +96,20 @@ func (r *Resource) addClientsToContext(ctx context.Context, cr v1alpha1.App) err
 		return nil
 	}
 
+	// App CR uses inCluster so we can reuse the existing clients.
+	if key.InCluster(cr) {
+		cc.Clients = controllercontext.Clients{
+			K8s:  r.k8sClient,
+			Helm: r.helmClient,
+		}
+
+		return nil
+	}
+
 	var kubeConfig kubeconfig.Interface
 	{
 		c := kubeconfig.Config{
-			K8sClient: r.k8sClient,
+			K8sClient: r.k8sClient.K8sClient(),
 			Logger:    r.logger,
 		}
 
@@ -106,25 +121,18 @@ func (r *Resource) addClientsToContext(ctx context.Context, cr v1alpha1.App) err
 
 	var restConfig *rest.Config
 	{
-		if key.InCluster(cr) {
-			restConfig, err = rest.InClusterConfig()
-			if err != nil {
-				return microerror.Mask(err)
-			}
-		} else {
-			restConfig, err = kubeConfig.NewRESTConfigForApp(ctx, key.KubeConfigSecretName(cr), key.KubeConfigSecretNamespace(cr))
-			if kubeconfig.IsNotFoundError(err) {
-				// Set status so we don't try to connect to the tenant cluster
-				// again in this reconciliation loop.
-				cc.Status.ClusterStatus.IsUnavailable = true
+		restConfig, err = kubeConfig.NewRESTConfigForApp(ctx, key.KubeConfigSecretName(cr), key.KubeConfigSecretNamespace(cr))
+		if kubeconfig.IsNotFoundError(err) {
+			// Set status so we don't try to connect to the tenant cluster
+			// again in this reconciliation loop.
+			cc.Status.ClusterStatus.IsUnavailable = true
 
-				r.logger.Debugf(ctx, "kubeconfig secret not found")
-				r.logger.Debugf(ctx, "canceling resource")
-				return nil
+			r.logger.Debugf(ctx, "kubeconfig secret not found")
+			r.logger.Debugf(ctx, "canceling resource")
+			return nil
 
-			} else if err != nil {
-				return microerror.Mask(err)
-			}
+		} else if err != nil {
+			return microerror.Mask(err)
 		}
 	}
 
@@ -150,12 +158,10 @@ func (r *Resource) addClientsToContext(ctx context.Context, cr v1alpha1.App) err
 		}
 	}
 
-	fs := afero.NewOsFs()
-
 	var helmClient helmclient.Interface
 	{
 		c := helmclient.Config{
-			Fs:         fs,
+			Fs:         r.fs,
 			K8sClient:  k8sClient.K8sClient(),
 			Logger:     r.logger,
 			RestClient: k8sClient.RESTClient(),
