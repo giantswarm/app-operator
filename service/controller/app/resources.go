@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/giantswarm/app/v4/pkg/values"
+	"github.com/giantswarm/helmclient/v4/pkg/helmclient"
 	"github.com/giantswarm/k8sclient/v5/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
@@ -169,14 +170,33 @@ func newAppResources(config appResourcesConfig) ([]resource.Interface, error) {
 		}
 	}
 
+	var helmClient helmclient.Interface
+	{
+		c := helmclient.Config{
+			Fs:         config.FileSystem,
+			K8sClient:  config.K8sClient.K8sClient(),
+			Logger:     config.Logger,
+			RestClient: config.K8sClient.RESTClient(),
+			RestConfig: config.K8sClient.RESTConfig(),
+
+			HTTPClientTimeout: config.HTTPClientTimeout,
+		}
+
+		helmClient, err = helmclient.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var clientsResource resource.Interface
 	{
 		c := clients.Config{
-			K8sClient: config.K8sClient.K8sClient(),
-			Logger:    config.Logger,
+			Fs:         config.FileSystem,
+			HelmClient: helmClient,
+			K8sClient:  config.K8sClient,
+			Logger:     config.Logger,
 
 			HTTPClientTimeout: config.HTTPClientTimeout,
-			ImageRegistry:     config.ImageRegistry,
 		}
 
 		clientsResource, err = clients.New(c)
