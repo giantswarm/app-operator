@@ -13,7 +13,13 @@ import (
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/spf13/afero"
+	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
+	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/rest"
+	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/client/apiutil"
 
 	"github.com/giantswarm/app-operator/v2/service/controller/app/controllercontext"
 )
@@ -99,7 +105,7 @@ func (r *Resource) addClientsToContext(ctx context.Context, cr v1alpha1.App) err
 	// App CR uses inCluster so we can reuse the existing clients.
 	if key.InCluster(cr) {
 		cc.Clients = controllercontext.Clients{
-			K8s:  r.k8sClient,
+			Ctrl: r.k8sClient.CtrlClient(),
 			Helm: r.helmClient,
 		}
 
@@ -136,14 +142,35 @@ func (r *Resource) addClientsToContext(ctx context.Context, cr v1alpha1.App) err
 		}
 	}
 
-	var k8sClient k8sclient.Interface
+	var ctrlClient client.Client
 	{
-		c := k8sclient.ClientsConfig{
-			Logger:     r.logger,
-			RestConfig: rest.CopyConfig(restConfig),
+		var schemeConfig = scheme.Scheme
+
+		// Extend the global client-go scheme which is used by all the tools under
+		// the hood. The scheme is required for the controller-runtime controller to
+		// be able to watch for runtime objects of a certain type.
+		appSchemeBuilder := runtime.SchemeBuilder(schemeBuilder{
+			v1alpha1.AddToScheme,
+			apiextensionsv1.AddToScheme,
+		})
+		err = appSchemeBuilder.AddToScheme(schemeConfig)
+		if err != nil {
+			return microerror.Mask(err)
 		}
 
-		k8sClient, err = k8sclient.NewClients(c)
+		// Configure a dynamic rest mapper to the controller client so it can work
+		// with runtime objects of arbitrary types. Note that this is the default
+		// for controller clients created by controller-runtime managers.
+		// Anticipating a rather uncertain future and more breaking changes to come
+		// we want to separate client and manager. Thus we configure the client here
+		// properly on our own instead of relying on the manager to provide a
+		// client, which might change in the future.
+		mapper, err := apiutil.NewDynamicRESTMapper(rest.CopyConfig(restConfig))
+		if err != nil {
+			return microerror.Mask(err)
+		}
+
+		ctrlClient, err = client.New(rest.CopyConfig(restConfig), client.Options{Scheme: schemeConfig, Mapper: mapper})
 		if tenant.IsAPINotAvailable(err) {
 			// Set status so we don't try to connect to the tenant cluster
 			// again in this reconciliation loop.
@@ -158,14 +185,24 @@ func (r *Resource) addClientsToContext(ctx context.Context, cr v1alpha1.App) err
 		}
 	}
 
+	var k8sClient *kubernetes.Clientset
+	{
+		c := rest.CopyConfig(restConfig)
+
+		k8sClient, err = kubernetes.NewForConfig(c)
+		if err != nil {
+			return microerror.Mask(err)
+		}
+	}
+
 	var helmClient helmclient.Interface
 	{
 		c := helmclient.Config{
 			Fs:         r.fs,
-			K8sClient:  k8sClient.K8sClient(),
+			K8sClient:  k8sClient,
 			Logger:     r.logger,
 			RestClient: k8sClient.RESTClient(),
-			RestConfig: k8sClient.RESTConfig(),
+			RestConfig: restConfig,
 
 			HTTPClientTimeout: r.httpClientTimeout,
 		}
@@ -177,9 +214,12 @@ func (r *Resource) addClientsToContext(ctx context.Context, cr v1alpha1.App) err
 	}
 
 	cc.Clients = controllercontext.Clients{
-		K8s:  k8sClient,
+		Ctrl: ctrlClient,
 		Helm: helmClient,
 	}
 
 	return nil
 }
+
+// schemeBuilder is used to extend the known types of the client-go scheme.
+type schemeBuilder []func(*runtime.Scheme) error

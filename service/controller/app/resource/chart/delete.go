@@ -7,7 +7,6 @@ import (
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/v4/pkg/resource/crud"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/giantswarm/app-operator/v2/service/controller/app/controllercontext"
 )
@@ -38,7 +37,7 @@ func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange inte
 	if chart != nil && chart.Name != "" {
 		r.logger.Debugf(ctx, "deleting Chart CR %#q in namespace %#q", chart.Name, chart.Namespace)
 
-		err = cc.Clients.K8s.G8sClient().ApplicationV1alpha1().Charts(chart.Namespace).Delete(ctx, chart.Name, metav1.DeleteOptions{})
+		err = cc.Clients.Ctrl.Delete(ctx, chart)
 		if apierrors.IsNotFound(err) {
 			r.logger.Debugf(ctx, "already deleted Chart CR %#q in namespace %#q", chart.Name, chart.Namespace)
 		} else if err != nil {

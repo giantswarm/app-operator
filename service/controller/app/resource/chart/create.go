@@ -6,7 +6,6 @@ import (
 	"github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/microerror"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/giantswarm/app-operator/v2/service/controller/app/controllercontext"
 )
@@ -25,7 +24,7 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 			return microerror.Mask(err)
 		}
 
-		_, err = cc.Clients.K8s.G8sClient().ApplicationV1alpha1().Charts(chart.Namespace).Create(ctx, chart, metav1.CreateOptions{})
+		err = cc.Clients.Ctrl.Create(ctx, chart)
 		if apierrors.IsAlreadyExists(err) {
 			r.logger.Debugf(ctx, "already created Chart CR %#q in namespace %#q", chart.Name, chart.Namespace)
 		} else if err != nil {

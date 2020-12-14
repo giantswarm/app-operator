@@ -5,8 +5,8 @@ import (
 
 	"github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/helmclient/v4/pkg/helmclient"
-	"github.com/giantswarm/k8sclient/v5/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 type contextKey string
@@ -20,7 +20,7 @@ type Context struct {
 }
 
 type Clients struct {
-	K8s  k8sclient.Interface
+	Ctrl client.Client
 	Helm helmclient.Interface
 }
 

@@ -10,7 +10,7 @@ import (
 	"github.com/giantswarm/operatorkit/v4/pkg/controller/context/resourcecanceledcontext"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
 
 	"github.com/giantswarm/app-operator/v2/service/controller/app/controllercontext"
 )
@@ -53,10 +53,12 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 
 	ch := make(chan struct{})
 
-	var configmap *corev1.ConfigMap
+	var configmap corev1.ConfigMap
 
 	go func() {
-		configmap, err = cc.Clients.K8s.K8sClient().CoreV1().ConfigMaps(r.chartNamespace).Get(ctx, name, metav1.GetOptions{})
+		err = cc.Clients.Ctrl.Get(ctx,
+			types.NamespacedName{Name: name, Namespace: r.chartNamespace},
+			&configmap)
 		close(ch)
 	}()
 

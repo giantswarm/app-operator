@@ -12,6 +12,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
 
 	"github.com/giantswarm/app-operator/v2/pkg/project"
 	"github.com/giantswarm/app-operator/v2/service/controller/app/controllercontext"
@@ -71,11 +72,15 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 	r.logger.Debugf(ctx, "finding secret %#q in namespace %#q", authTokenName, namespace)
 
-	currentSecret, err := cc.Clients.K8s.K8sClient().CoreV1().Secrets(namespace).Get(ctx, authTokenName, metav1.GetOptions{})
+	var currentSecret corev1.Secret
+
+	err = cc.Clients.Ctrl.Get(ctx,
+		types.NamespacedName{Name: authTokenName, Namespace: namespace},
+		&currentSecret)
 	if apierrors.IsNotFound(err) {
 		r.logger.Debugf(ctx, "creating secret %#q in namespace %#q", authTokenName, namespace)
 
-		_, err := cc.Clients.K8s.K8sClient().CoreV1().Secrets(namespace).Create(ctx, desiredSecret, metav1.CreateOptions{})
+		err = cc.Clients.Ctrl.Create(ctx, desiredSecret)
 		if err != nil {
 			return microerror.Mask(err)
 		}
@@ -89,10 +94,10 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 	r.logger.Debugf(ctx, "found secret %#q in namespace %#q", authTokenName, namespace)
 
-	if !equals(desiredSecret, currentSecret) {
+	if !equals(desiredSecret, &currentSecret) {
 		r.logger.Debugf(ctx, "updating secret %#q in namespace %#q", authTokenName, namespace)
 
-		_, err := cc.Clients.K8s.K8sClient().CoreV1().Secrets(namespace).Update(ctx, desiredSecret, metav1.UpdateOptions{})
+		err = cc.Clients.Ctrl.Update(ctx, desiredSecret)
 		if err != nil {
 			return microerror.Mask(err)
 		}

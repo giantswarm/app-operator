@@ -7,15 +7,15 @@ import (
 	"strings"
 
 	"github.com/Masterminds/semver/v3"
-	"github.com/giantswarm/apiextensions/v3/pkg/clientset/versioned"
 	"github.com/giantswarm/app/v4/pkg/annotation"
 	"github.com/giantswarm/app/v4/pkg/key"
-	"github.com/giantswarm/k8sclient/v5/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/v4/pkg/controller/context/reconciliationcanceledcontext"
+	appsv1 "k8s.io/api/apps/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/giantswarm/app-operator/v2/service/controller/app/controllercontext"
 )
@@ -67,9 +67,13 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return nil
 	}
 
-	deploy, err := cc.Clients.K8s.K8sClient().AppsV1().Deployments(key.Namespace(cr)).Get(ctx, cr.Name, metav1.GetOptions{})
+	var deploy appsv1.Deployment
+
+	err = cc.Clients.Ctrl.Get(ctx,
+		types.NamespacedName{Name: cr.Name, Namespace: key.Namespace(cr)},
+		&deploy)
 	if apierrors.IsNotFound(err) {
-		r.logger.Debugf(ctx, "app %#q has no deployement object yet", key.AppName(cr))
+		r.logger.Debugf(ctx, "app %#q has no deployment object yet", key.AppName(cr))
 		r.logger.Debugf(ctx, "canceling resource")
 		return nil
 	} else if err != nil {
@@ -106,12 +110,12 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		}
 	}
 
-	hasConfigMap, err := r.hasHelmV2ConfigMaps(ctx, cc.Clients.K8s, tillerNamespace)
+	hasConfigMap, err := r.hasHelmV2ConfigMaps(ctx, cc.Clients.Ctrl, tillerNamespace)
 	if err != nil {
 		return microerror.Mask(err)
 	}
 
-	hasSecret, err := r.hasHelmV3Secrets(ctx, cc.Clients.K8s)
+	hasSecret, err := r.hasHelmV3Secrets(ctx, cc.Clients.Ctrl)
 	if err != nil {
 		return microerror.Mask(err)
 	}
@@ -128,7 +132,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 		if !found {
 			r.logger.Debugf(ctx, "release %#q had been purged during migration, reinstalling...", migrationApp)
-			err = r.ensureReleasesMigrated(ctx, cc.Clients.K8s, cc.Clients.Helm, tillerNamespace)
+			err = r.ensureReleasesMigrated(ctx, cc.Clients.Ctrl, cc.Clients.Helm, tillerNamespace)
 			if err != nil {
 				return microerror.Mask(err)
 			}
@@ -147,13 +151,13 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		r.logger.Debugf(ctx, "installing %#q", migrationApp)
 
 		// cordon all charts except chart-operator
-		err := r.cordonChart(ctx, cc.Clients.K8s.G8sClient())
+		err := r.cordonChart(ctx, cc.Clients.Ctrl)
 		if err != nil {
 			return microerror.Mask(err)
 		}
 
 		// install helm-2to3-migration app
-		err = r.ensureReleasesMigrated(ctx, cc.Clients.K8s, cc.Clients.Helm, tillerNamespace)
+		err = r.ensureReleasesMigrated(ctx, cc.Clients.Ctrl, cc.Clients.Helm, tillerNamespace)
 		if IsReleaseAlreadyExists(err) {
 			r.logger.Debugf(ctx, "release %#q already exists", migrationApp)
 			r.logger.Debugf(ctx, "canceling reconciliation")
@@ -170,7 +174,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	// If Helm v2 release configmap had been deleted and Helm v3 release secret was created,
 	// It means helm v3 release migration is finished.
 	if !hasConfigMap && hasSecret {
-		err = r.uncordonChart(ctx, cc.Clients.K8s.G8sClient())
+		err = r.uncordonChart(ctx, cc.Clients.Ctrl)
 		if err != nil {
 			return microerror.Mask(err)
 		}
@@ -185,7 +189,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	return nil
 }
 
-func (r *Resource) cordonChart(ctx context.Context, g8sClient versioned.Interface) error {
+func (r *Resource) cordonChart(ctx context.Context, ctrlClient client.Client) error {
 	lo := metav1.ListOptions{
 		FieldSelector: "metadata.name!=chart-operator-unique",
 		LabelSelector: "app notin (chart-operator)",
@@ -239,7 +243,7 @@ func (r *Resource) cordonChart(ctx context.Context, g8sClient versioned.Interfac
 	return nil
 }
 
-func (r *Resource) uncordonChart(ctx context.Context, g8sClient versioned.Interface) error {
+func (r *Resource) uncordonChart(ctx context.Context, ctrlClient client.Client) error {
 	lo := metav1.ListOptions{
 		FieldSelector: "metadata.name!=chart-operator-unique",
 		LabelSelector: "app notin (chart-operator)",
@@ -284,8 +288,8 @@ func (r *Resource) uncordonChart(ctx context.Context, g8sClient versioned.Interf
 	return nil
 }
 
-func (r *Resource) hasHelmV2ConfigMaps(ctx context.Context, k8sClient k8sclient.Interface, tillerNamespace string) (bool, error) {
-	chartMap, err := getChartMap(ctx, k8sClient, r.chartNamespace)
+func (r *Resource) hasHelmV2ConfigMaps(ctx context.Context, ctrlClient client.Client, tillerNamespace string) (bool, error) {
+	chartMap, err := getChartMap(ctx, ctrlClient, r.chartNamespace)
 	if err != nil {
 		return false, microerror.Mask(err)
 	}
@@ -311,7 +315,7 @@ func (r *Resource) hasHelmV2ConfigMaps(ctx context.Context, k8sClient k8sclient.
 	return count > 0, nil
 }
 
-func (r *Resource) hasHelmV3Secrets(ctx context.Context, k8sClient k8sclient.Interface) (bool, error) {
+func (r *Resource) hasHelmV3Secrets(ctx context.Context, ctrlClient client.Client) (bool, error) {
 	var releaseNamespaces []string
 	{
 		list, err := k8sClient.G8sClient().ApplicationV1alpha1().Charts(r.chartNamespace).List(ctx, metav1.ListOptions{})
@@ -350,7 +354,7 @@ func replaceToEscape(from string) string {
 	return strings.Replace(from, "/", "~1", -1)
 }
 
-func checkMigrationJobStatus(ctx context.Context, k8sClient k8sclient.Interface, releaseNamespace string) (bool, error) {
+func checkMigrationJobStatus(ctx context.Context, ctrlClient client.Client, releaseNamespace string) (bool, error) {
 	job, err := k8sClient.K8sClient().BatchV1().Jobs(releaseNamespace).Get(ctx, migrationApp, metav1.GetOptions{})
 	if err != nil {
 		return false, microerror.Mask(err)
@@ -359,7 +363,7 @@ func checkMigrationJobStatus(ctx context.Context, k8sClient k8sclient.Interface,
 	return job.Status.Succeeded > 0, nil
 }
 
-func getChartMap(ctx context.Context, k8sClient k8sclient.Interface, namespace string) (map[string]bool, error) {
+func getChartMap(ctx context.Context, ctrlClient client.Client, namespace string) (map[string]bool, error) {
 	charts := make(map[string]bool)
 
 	// Get list of chart CRs as not all helm 2 releases will have a chart CR.

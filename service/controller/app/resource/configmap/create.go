@@ -8,7 +8,6 @@ import (
 	"github.com/giantswarm/operatorkit/v4/pkg/controller/context/resourcecanceledcontext"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/giantswarm/app-operator/v2/service/controller/app/controllercontext"
 )
@@ -27,7 +26,7 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 			return microerror.Mask(err)
 		}
 
-		_, err = cc.Clients.K8s.K8sClient().CoreV1().ConfigMaps(configMap.Namespace).Create(ctx, configMap, metav1.CreateOptions{})
+		err = cc.Clients.Ctrl.Create(ctx, configMap)
 		if apierrors.IsAlreadyExists(err) {
 			r.logger.Debugf(ctx, "already created configmap %#q in namespace %#q", configMap.Name, configMap.Namespace)
 		} else if tenant.IsAPINotAvailable(err) {

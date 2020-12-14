@@ -8,8 +8,9 @@ import (
 	"github.com/giantswarm/helmclient/v4/pkg/helmclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/v4/pkg/controller/context/reconciliationcanceledcontext"
+	appsv1 "k8s.io/api/apps/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
 
 	"github.com/giantswarm/app-operator/v2/service/controller/app/controllercontext"
 )
@@ -41,7 +42,11 @@ func (r Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	{
 		r.logger.Debugf(ctx, "finding %#q deployment", cr.Name)
 
-		_, err = cc.Clients.K8s.K8sClient().AppsV1().Deployments(key.Namespace(cr)).Get(ctx, cr.Name, metav1.GetOptions{})
+		var deploy appsv1.Deployment
+
+		err = cc.Clients.Ctrl.Get(ctx,
+			types.NamespacedName{Name: cr.Name, Namespace: key.Namespace(cr)},
+			&deploy)
 		if err == nil {
 			r.logger.Debugf(ctx, "found %#q deployment", cr.Name)
 			r.logger.Debugf(ctx, "canceling resource")

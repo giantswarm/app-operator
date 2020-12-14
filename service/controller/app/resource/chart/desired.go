@@ -13,9 +13,11 @@ import (
 	"github.com/giantswarm/app/v4/pkg/key"
 	"github.com/giantswarm/appcatalog"
 	"github.com/giantswarm/microerror"
+	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/client-go/kubernetes"
+	"k8s.io/apimachinery/pkg/types"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/giantswarm/app-operator/v2/pkg/project"
 	"github.com/giantswarm/app-operator/v2/service/controller/app/controllercontext"
@@ -43,7 +45,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		return chartCR, nil
 	}
 
-	config, err := generateConfig(ctx, cc.Clients.K8s.K8sClient(), cr, cc.AppCatalog, r.chartNamespace)
+	config, err := generateConfig(ctx, cc.Clients.Ctrl, cr, cc.AppCatalog, r.chartNamespace)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
@@ -104,12 +106,18 @@ func generateAnnotations(input map[string]string) map[string]string {
 	return annotations
 }
 
-func generateConfig(ctx context.Context, k8sClient kubernetes.Interface, cr v1alpha1.App, appCatalog v1alpha1.AppCatalog, chartNamespace string) (v1alpha1.ChartSpecConfig, error) {
+func generateConfig(ctx context.Context, ctrlClient client.Client, cr v1alpha1.App, appCatalog v1alpha1.AppCatalog, chartNamespace string) (v1alpha1.ChartSpecConfig, error) {
+	var err error
+
 	config := v1alpha1.ChartSpecConfig{}
 
 	if hasConfigMap(cr, appCatalog) {
+		var cm corev1.ConfigMap
+
 		configMapName := key.ChartConfigMapName(cr)
-		cm, err := k8sClient.CoreV1().ConfigMaps(chartNamespace).Get(ctx, configMapName, metav1.GetOptions{})
+		err = ctrlClient.Get(ctx,
+			types.NamespacedName{Name: configMapName, Namespace: chartNamespace},
+			&cm)
 		if apierrors.IsNotFound(err) {
 			// no-op
 		} else if err != nil {
@@ -126,8 +134,12 @@ func generateConfig(ctx context.Context, k8sClient kubernetes.Interface, cr v1al
 	}
 
 	if hasSecret(cr, appCatalog) {
+		var secret corev1.Secret
+
 		secretName := key.ChartSecretName(cr)
-		secret, err := k8sClient.CoreV1().Secrets(chartNamespace).Get(ctx, secretName, metav1.GetOptions{})
+		err = ctrlClient.Get(ctx,
+			types.NamespacedName{Name: secretName, Namespace: chartNamespace},
+			&secret)
 		if apierrors.IsNotFound(err) {
 			// no-op
 		} else if err != nil {

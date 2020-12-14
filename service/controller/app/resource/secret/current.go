@@ -7,8 +7,9 @@ import (
 	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/v4/pkg/controller/context/resourcecanceledcontext"
+	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
 
 	"github.com/giantswarm/app-operator/v2/service/controller/app/controllercontext"
 )
@@ -49,7 +50,11 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 
 	r.logger.Debugf(ctx, "finding secret %#q in namespace %#q", name, r.chartNamespace)
 
-	secret, err := cc.Clients.K8s.K8sClient().CoreV1().Secrets(r.chartNamespace).Get(ctx, name, metav1.GetOptions{})
+	var secret corev1.Secret
+
+	err = cc.Clients.Ctrl.Get(ctx,
+		types.NamespacedName{Name: name, Namespace: r.chartNamespace},
+		&secret)
 	if apierrors.IsNotFound(err) {
 		// Return early as secret does not exist.
 		r.logger.Debugf(ctx, "did not find secret %#q in namespace %#q", name, r.chartNamespace)
