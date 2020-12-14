@@ -25,7 +25,7 @@ require (
 	github.com/google/go-cmp v0.5.4
 	github.com/gorilla/mux v1.8.0
 	github.com/prometheus/client_golang v1.8.0
-	github.com/spf13/afero v1.4.1
+	github.com/spf13/afero v1.5.1
 	github.com/spf13/viper v1.7.1
 	k8s.io/api v0.18.9
 	k8s.io/apimachinery v0.18.9
