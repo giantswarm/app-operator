@@ -10,6 +10,7 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 ### Changed
 
 - Using values service from the app library.
+- Updated Helm to v3.4.2.
 
 ### Added
 
