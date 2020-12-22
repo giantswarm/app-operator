@@ -75,11 +75,11 @@ func (r *Resource) newUpdateChange(ctx context.Context, currentResource, desired
 	isModified := !isEmpty(currentChart) && !equals(currentChart, desiredChart)
 	if isModified {
 		compareOpt := cmp.FilterPath(func(p cmp.Path) bool {
-			return p.String() == "Labels" || p.String() == "Spec"
+			return p.String() != "Spec" || p.String() != "ObjectMeta.Labels" || p.String() != "ObjectMeta.Annotations"
 		}, cmp.Ignore())
 
 		annotationOpt := cmp.FilterPath(func(p cmp.Path) bool {
-			return p.String() == "Annotations"
+			return p.String() == "ObjectMeta.Annotations"
 		}, cmp.FilterValues(func(current, desired string) bool {
 			return !strings.HasPrefix(current, annotation.ChartOperatorPrefix)
 		}, cmp.Ignore()))
