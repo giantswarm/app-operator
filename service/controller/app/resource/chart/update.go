@@ -2,10 +2,14 @@ package chart
 
 import (
 	"context"
+	"fmt"
+	"strings"
 
 	"github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
+	"github.com/giantswarm/app/v4/pkg/annotation"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/v4/pkg/resource/crud"
+	"github.com/google/go-cmp/cmp"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/giantswarm/app-operator/v2/service/controller/app/controllercontext"
@@ -70,14 +74,24 @@ func (r *Resource) newUpdateChange(ctx context.Context, currentResource, desired
 	updateChart := &v1alpha1.Chart{}
 	isModified := !isEmpty(currentChart) && !equals(currentChart, desiredChart)
 	if isModified {
-		r.logger.Debugf(ctx, "the chart has to be updated")
+		compareOpt := cmp.FilterPath(func(p cmp.Path) bool {
+			return p.String() == "Labels" || p.String() == "Spec"
+		}, cmp.Ignore())
+
+		annotationOpt := cmp.FilterValues(func(p cmp.Path) bool {
+			return p.String() == "Annotations"
+		}, cmp.FilterValues(func(current, desired string) bool {
+			return !strings.HasPrefix(current, annotation.ChartOperatorPrefix)
+		}, cmp.Ignore()))
+
+		if diff := cmp.Diff(currentResource, desiredResource, compareOpt, annotationOpt); diff != "" {
+			fmt.Printf("chart %#q have to be updated, (-current +desired):\n%s", currentChart.Name, diff)
+		}
 
 		updateChart = desiredChart.DeepCopy()
 		updateChart.ObjectMeta.ResourceVersion = currentChart.ObjectMeta.ResourceVersion
 
 		return updateChart, nil
-	} else {
-		r.logger.Debugf(ctx, "the chart does not have to be updated")
 	}
 
 	return updateChart, nil
