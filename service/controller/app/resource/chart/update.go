@@ -78,7 +78,7 @@ func (r *Resource) newUpdateChange(ctx context.Context, currentResource, desired
 			return p.String() == "Labels" || p.String() == "Spec"
 		}, cmp.Ignore())
 
-		annotationOpt := cmp.FilterValues(func(p cmp.Path) bool {
+		annotationOpt := cmp.FilterPath(func(p cmp.Path) bool {
 			return p.String() == "Annotations"
 		}, cmp.FilterValues(func(current, desired string) bool {
 			return !strings.HasPrefix(current, annotation.ChartOperatorPrefix)
