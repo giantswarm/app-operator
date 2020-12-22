@@ -74,8 +74,14 @@ func (r *Resource) newUpdateChange(ctx context.Context, currentResource, desired
 	updateChart := &v1alpha1.Chart{}
 	isModified := !isEmpty(currentChart) && !equals(currentChart, desiredChart)
 	if isModified {
+		idx := map[string]bool{
+			"Spec":                   true,
+			"ObjectMeta.Labels":      true,
+			"ObjectMeta.Annotations": true,
+		}
+
 		compareOpt := cmp.FilterPath(func(p cmp.Path) bool {
-			return p.String() != "Spec" || p.String() != "ObjectMeta.Labels" || p.String() != "ObjectMeta.Annotations"
+			return !idx[p.String()]
 		}, cmp.Ignore())
 
 		annotationOpt := cmp.FilterPath(func(p cmp.Path) bool {
