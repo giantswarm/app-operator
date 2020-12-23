@@ -33,8 +33,10 @@ func Test_Resource_GetUpdateState(t *testing.T) {
 					APIVersion: "application.giantswarm.io",
 				},
 				ObjectMeta: metav1.ObjectMeta{
-					Name:      "my-cool-prometheus",
-					Namespace: "giantswarm",
+					Name:            "my-cool-prometheus",
+					Namespace:       "giantswarm",
+					ResourceVersion: "12345",
+					UID:             "51eeec1d-3716-4006-92b4-e7e99f8ab311",
 					Annotations: map[string]string{
 						"giantswarm.io/sample": "it should be deleted",
 					},
@@ -83,8 +85,9 @@ func Test_Resource_GetUpdateState(t *testing.T) {
 			},
 			expectedChart: &v1alpha1.Chart{
 				ObjectMeta: metav1.ObjectMeta{
-					Name:      "my-cool-prometheus",
-					Namespace: "giantswarm",
+					Name:            "my-cool-prometheus",
+					Namespace:       "giantswarm",
+					ResourceVersion: "12345",
 					Labels: map[string]string{
 						"app":                                  "prometheus",
 						"chart-operator.giantswarm.io/version": "1.0.0",

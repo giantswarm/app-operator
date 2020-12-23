@@ -86,7 +86,7 @@ func (r *Resource) newUpdateChange(ctx context.Context, currentResource, desired
 			return p.String() == "TypeMeta"
 		}, cmp.Ignore())
 
-		if diff := cmp.Diff(currentResource, desiredResource, opt); diff != "" {
+		if diff := cmp.Diff(currentChart, desiredChart, opt); diff != "" {
 			fmt.Printf("chart %#q have to be updated, (-current +desired):\n%s", currentChart.Name, diff)
 		}
 
