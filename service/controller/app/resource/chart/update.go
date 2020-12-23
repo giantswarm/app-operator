@@ -80,7 +80,7 @@ func (r *Resource) newUpdateChange(ctx context.Context, currentResource, desired
 	resourceVersion := currentChart.GetResourceVersion()
 
 	currentChart = copyChart(currentChart)
-	copyAnnotation(currentChart, desiredChart)
+	copyAnnotations(currentChart, desiredChart)
 
 	if !reflect.DeepEqual(currentChart, desiredChart) {
 		if diff := cmp.Diff(currentChart, desiredChart); diff != "" {

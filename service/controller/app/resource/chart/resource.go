@@ -107,6 +107,8 @@ func (r *Resource) removeFinalizer(ctx context.Context, chart *v1alpha1.Chart) e
 	return nil
 }
 
+// copyChart create a new chart object based on the current chart,
+// so later we don't need to show unnecessary differences.
 func copyChart(current *v1alpha1.Chart) *v1alpha1.Chart {
 	newChart := &v1alpha1.Chart{
 		TypeMeta: metav1.TypeMeta{
@@ -125,7 +127,9 @@ func copyChart(current *v1alpha1.Chart) *v1alpha1.Chart {
 	return newChart
 }
 
-func copyAnnotation(current, desired *v1alpha1.Chart) {
+// copyAnnotations copy annotations from current to desired chart,
+// only if the key has a chart-operator.giantswarm.io prefix.
+func copyAnnotations(current, desired *v1alpha1.Chart) {
 	for k, currentValue := range current.Annotations {
 		if !strings.HasPrefix(k, annotation.ChartOperatorPrefix) {
 			continue
