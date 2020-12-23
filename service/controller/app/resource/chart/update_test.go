@@ -38,7 +38,8 @@ func Test_Resource_GetUpdateState(t *testing.T) {
 					ResourceVersion: "12345",
 					UID:             "51eeec1d-3716-4006-92b4-e7e99f8ab311",
 					Annotations: map[string]string{
-						"giantswarm.io/sample": "it should be deleted",
+						"chart-operator.giantswarm.io/values-md5-checksum": "1678b4446ba0392da6681840add3d06a",
+						"giantswarm.io/sample":                             "it should be deleted",
 					},
 					Labels: map[string]string{
 						"giantswarm.io/managed-by": "app-operator",
@@ -94,7 +95,8 @@ func Test_Resource_GetUpdateState(t *testing.T) {
 						"giantswarm.io/managed-by":             "app-operator",
 					},
 					Annotations: map[string]string{
-						"chart-operator.giantswarm.io/webhook-url": "http://webhook/status/default/my-cool-prometheus",
+						"chart-operator.giantswarm.io/values-md5-checksum": "1678b4446ba0392da6681840add3d06a",
+						"chart-operator.giantswarm.io/webhook-url":         "http://webhook/status/default/my-cool-prometheus",
 					},
 				},
 				Spec: v1alpha1.ChartSpec{

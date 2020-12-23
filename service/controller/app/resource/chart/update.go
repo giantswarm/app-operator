@@ -78,7 +78,9 @@ func (r *Resource) newUpdateChange(ctx context.Context, currentResource, desired
 	updateChart := &v1alpha1.Chart{}
 
 	resourceVersion := currentChart.GetResourceVersion()
+
 	currentChart = copyChart(currentChart)
+	copyAnnotation(currentChart, desiredChart)
 
 	if !reflect.DeepEqual(currentChart, desiredChart) {
 		// Ignoring `TypeMeta` among diff

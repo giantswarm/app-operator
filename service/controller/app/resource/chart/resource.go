@@ -3,8 +3,10 @@ package chart
 import (
 	"context"
 	"encoding/json"
+	"strings"
 
 	"github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
+	"github.com/giantswarm/app/v4/pkg/annotation"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -116,6 +118,19 @@ func copyChart(current *v1alpha1.Chart) *v1alpha1.Chart {
 	newChart.Spec = *current.Spec.DeepCopy()
 
 	return newChart
+}
+
+func copyAnnotation(current, desired *v1alpha1.Chart) {
+	for k, currentValue := range current.Annotations {
+		if !strings.HasPrefix(k, annotation.ChartOperatorPrefix) {
+			continue
+		}
+
+		_, ok := desired.Annotations[k]
+		if !ok {
+			desired.Annotations[k] = currentValue
+		}
+	}
 }
 
 // toChart converts the input into a Chart.
