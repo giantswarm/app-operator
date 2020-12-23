@@ -66,7 +66,7 @@ func (r *Resource) newUpdateChange(ctx context.Context, currentResource, desired
 		return nil, microerror.Mask(err)
 	}
 
-	if currentChart == nil {
+	if reflect.DeepEqual(currentChart, &v1alpha1.Chart{}) {
 		return &v1alpha1.App{}, nil
 	}
 
