@@ -107,7 +107,7 @@ func (r *Resource) removeFinalizer(ctx context.Context, chart *v1alpha1.Chart) e
 	return nil
 }
 
-// copyChart create a new chart object based on the current chart,
+// copyChart creates a new chart object based on the current chart,
 // so later we don't need to show unnecessary differences.
 func copyChart(current *v1alpha1.Chart) *v1alpha1.Chart {
 	newChart := &v1alpha1.Chart{
@@ -127,7 +127,7 @@ func copyChart(current *v1alpha1.Chart) *v1alpha1.Chart {
 	return newChart
 }
 
-// copyAnnotations copy annotations from current to desired chart,
+// copyAnnotations copies annotations from the current to desired chart,
 // only if the key has a chart-operator.giantswarm.io prefix.
 func copyAnnotations(current, desired *v1alpha1.Chart) {
 	for k, currentValue := range current.Annotations {

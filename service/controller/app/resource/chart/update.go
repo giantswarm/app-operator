@@ -79,6 +79,8 @@ func (r *Resource) newUpdateChange(ctx context.Context, currentResource, desired
 
 	resourceVersion := currentChart.GetResourceVersion()
 
+	// Copy current chart CR and annotations keeping only the values we need
+	// for comparing them.
 	currentChart = copyChart(currentChart)
 	copyAnnotations(currentChart, desiredChart)
 
