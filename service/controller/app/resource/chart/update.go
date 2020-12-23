@@ -2,10 +2,13 @@ package chart
 
 import (
 	"context"
+	"fmt"
+	"reflect"
 
 	"github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/v4/pkg/resource/crud"
+	"github.com/google/go-cmp/cmp"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/giantswarm/app-operator/v2/service/controller/app/controllercontext"
@@ -17,21 +20,24 @@ func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange inte
 		return microerror.Mask(err)
 	}
 
-	if chart.Name != "" {
-		r.logger.Debugf(ctx, "updating Chart CR %#q in namespace %#q", chart.Name, chart.Namespace)
-
-		cc, err := controllercontext.FromContext(ctx)
-		if err != nil {
-			return microerror.Mask(err)
-		}
-
-		_, err = cc.Clients.K8s.G8sClient().ApplicationV1alpha1().Charts(chart.Namespace).Update(ctx, chart, metav1.UpdateOptions{})
-		if err != nil {
-			return microerror.Mask(err)
-		}
-
-		r.logger.Debugf(ctx, "updated Chart CR %#q in namespace %#q", chart.Name, chart.Namespace)
+	if chart.Name == "" {
+		// no-op
+		return nil
 	}
+
+	r.logger.Debugf(ctx, "updating Chart CR %#q in namespace %#q", chart.Name, chart.Namespace)
+
+	cc, err := controllercontext.FromContext(ctx)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
+	_, err = cc.Clients.K8s.G8sClient().ApplicationV1alpha1().Charts(chart.Namespace).Update(ctx, chart, metav1.UpdateOptions{})
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
+	r.logger.Debugf(ctx, "updated Chart CR %#q in namespace %#q", chart.Name, chart.Namespace)
 
 	return nil
 }
@@ -60,24 +66,33 @@ func (r *Resource) newUpdateChange(ctx context.Context, currentResource, desired
 		return nil, microerror.Mask(err)
 	}
 
+	if reflect.DeepEqual(currentChart, &v1alpha1.Chart{}) {
+		return &v1alpha1.App{}, nil
+	}
+
 	desiredChart, err := toChart(desiredResource)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
 
-	r.logger.Debugf(ctx, "finding out if the chart has to be updated")
-
 	updateChart := &v1alpha1.Chart{}
-	isModified := !isEmpty(currentChart) && !equals(currentChart, desiredChart)
-	if isModified {
-		r.logger.Debugf(ctx, "the chart has to be updated")
+
+	resourceVersion := currentChart.GetResourceVersion()
+
+	// Copy current chart CR and annotations keeping only the values we need
+	// for comparing them.
+	currentChart = copyChart(currentChart)
+	copyAnnotations(currentChart, desiredChart)
+
+	if !reflect.DeepEqual(currentChart, desiredChart) {
+		if diff := cmp.Diff(currentChart, desiredChart); diff != "" {
+			fmt.Printf("chart %#q has to be updated, (-current +desired):\n%s", currentChart.Name, diff)
+		}
 
 		updateChart = desiredChart.DeepCopy()
-		updateChart.ObjectMeta.ResourceVersion = currentChart.ObjectMeta.ResourceVersion
+		updateChart.ObjectMeta.ResourceVersion = resourceVersion
 
 		return updateChart, nil
-	} else {
-		r.logger.Debugf(ctx, "the chart does not have to be updated")
 	}
 
 	return updateChart, nil

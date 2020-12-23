@@ -3,7 +3,6 @@ package chart
 import (
 	"context"
 	"encoding/json"
-	"reflect"
 	"strings"
 
 	"github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
@@ -108,42 +107,39 @@ func (r *Resource) removeFinalizer(ctx context.Context, chart *v1alpha1.Chart) e
 	return nil
 }
 
-// equals asseses the equality of ReleaseStates with regards to distinguishing fields.
-func equals(current, desired *v1alpha1.Chart) bool {
-	if current.Name != desired.Name {
-		return false
-	}
-	if !reflect.DeepEqual(current.Spec, desired.Spec) {
-		return false
-	}
-	if !reflect.DeepEqual(current.Labels, desired.Labels) {
-		return false
+// copyChart creates a new chart object based on the current chart,
+// so later we don't need to show unnecessary differences.
+func copyChart(current *v1alpha1.Chart) *v1alpha1.Chart {
+	newChart := &v1alpha1.Chart{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       chartKind,
+			APIVersion: chartAPIVersion,
+		},
 	}
 
-	for k, desiredValue := range desired.Annotations {
+	newChart.Name = current.Name
+	newChart.Namespace = current.Namespace
+
+	newChart.Annotations = current.Annotations
+	newChart.Labels = current.Labels
+	newChart.Spec = *current.Spec.DeepCopy()
+
+	return newChart
+}
+
+// copyAnnotations copies annotations from the current to desired chart,
+// only if the key has a chart-operator.giantswarm.io prefix.
+func copyAnnotations(current, desired *v1alpha1.Chart) {
+	for k, currentValue := range current.Annotations {
 		if !strings.HasPrefix(k, annotation.ChartOperatorPrefix) {
 			continue
 		}
 
-		currentValue, ok := current.Annotations[k]
+		_, ok := desired.Annotations[k]
 		if !ok {
-			return false
-		}
-		if currentValue != desiredValue {
-			return false
+			desired.Annotations[k] = currentValue
 		}
 	}
-
-	return true
-}
-
-// isEmpty checks if a ReleaseState is empty.
-func isEmpty(c *v1alpha1.Chart) bool {
-	if c == nil {
-		return true
-	}
-
-	return equals(c, &v1alpha1.Chart{})
 }
 
 // toChart converts the input into a Chart.

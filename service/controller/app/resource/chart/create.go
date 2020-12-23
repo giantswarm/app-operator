@@ -2,6 +2,7 @@ package chart
 
 import (
 	"context"
+	"reflect"
 
 	"github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/microerror"
@@ -17,23 +18,26 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 		return microerror.Mask(err)
 	}
 
-	if chart.Name != "" {
-		r.logger.Debugf(ctx, "creating Chart CR %#q in namespace %#q", chart.Name, chart.Namespace)
-
-		cc, err := controllercontext.FromContext(ctx)
-		if err != nil {
-			return microerror.Mask(err)
-		}
-
-		_, err = cc.Clients.K8s.G8sClient().ApplicationV1alpha1().Charts(chart.Namespace).Create(ctx, chart, metav1.CreateOptions{})
-		if apierrors.IsAlreadyExists(err) {
-			r.logger.Debugf(ctx, "already created Chart CR %#q in namespace %#q", chart.Name, chart.Namespace)
-		} else if err != nil {
-			return microerror.Mask(err)
-		}
-
-		r.logger.Debugf(ctx, "created Chart CR %#q in namespace %#q", chart.Name, chart.Namespace)
+	if chart.Name == "" {
+		// no-op
+		return nil
 	}
+
+	r.logger.Debugf(ctx, "creating Chart CR %#q in namespace %#q", chart.Name, chart.Namespace)
+
+	cc, err := controllercontext.FromContext(ctx)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
+	_, err = cc.Clients.K8s.G8sClient().ApplicationV1alpha1().Charts(chart.Namespace).Create(ctx, chart, metav1.CreateOptions{})
+	if apierrors.IsAlreadyExists(err) {
+		r.logger.Debugf(ctx, "already created Chart CR %#q in namespace %#q", chart.Name, chart.Namespace)
+	} else if err != nil {
+		return microerror.Mask(err)
+	}
+
+	r.logger.Debugf(ctx, "created Chart CR %#q in namespace %#q", chart.Name, chart.Namespace)
 
 	return nil
 }
@@ -48,15 +52,11 @@ func (r *Resource) newCreateChange(ctx context.Context, currentResource, desired
 		return nil, microerror.Mask(err)
 	}
 
-	r.logger.Debugf(ctx, "finding out if the %#q chart has to be created", desiredChart.Name)
-
 	createChart := &v1alpha1.Chart{}
 
-	if isEmpty(currentChart) {
+	if reflect.DeepEqual(currentChart, &v1alpha1.Chart{}) {
 		r.logger.Debugf(ctx, "the %#q chart needs to be created", desiredChart.Name)
 		createChart = desiredChart
-	} else {
-		r.logger.Debugf(ctx, "the %#q chart does not need to be created", desiredChart.Name)
 	}
 
 	return createChart, nil
