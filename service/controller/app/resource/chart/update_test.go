@@ -17,7 +17,7 @@ import (
 	"github.com/giantswarm/app-operator/v2/service/controller/app/controllercontext"
 )
 
-func Test_Resource_GetUpdateState(t *testing.T) {
+func Test_Resource_newUpdateChange(t *testing.T) {
 	tests := []struct {
 		name          string
 		currentChart  *v1alpha1.Chart
