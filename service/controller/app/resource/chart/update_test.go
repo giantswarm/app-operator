@@ -59,6 +59,10 @@ func Test_Resource_GetUpdateState(t *testing.T) {
 				},
 			},
 			desiredChart: &v1alpha1.Chart{
+				TypeMeta: metav1.TypeMeta{
+					Kind:       "Chart",
+					APIVersion: "application.giantswarm.io",
+				},
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "my-cool-prometheus",
 					Namespace: "giantswarm",
@@ -85,6 +89,10 @@ func Test_Resource_GetUpdateState(t *testing.T) {
 				},
 			},
 			expectedChart: &v1alpha1.Chart{
+				TypeMeta: metav1.TypeMeta{
+					Kind:       "Chart",
+					APIVersion: "application.giantswarm.io",
+				},
 				ObjectMeta: metav1.ObjectMeta{
 					Name:            "my-cool-prometheus",
 					Namespace:       "giantswarm",
@@ -129,7 +137,8 @@ func Test_Resource_GetUpdateState(t *testing.T) {
 						"giantswarm.io/managed-by":             "app-operator",
 					},
 					Annotations: map[string]string{
-						"chart-operator.giantswarm.io/webhook-url": "http://webhook/status/default/my-cool-prometheus",
+						"chart-operator.giantswarm.io/values-md5-checksum": "1678b4446ba0392da6681840add3d06a",
+						"chart-operator.giantswarm.io/webhook-url":         "http://webhook/status/default/my-cool-prometheus",
 					},
 				},
 				Spec: v1alpha1.ChartSpec{
@@ -146,6 +155,10 @@ func Test_Resource_GetUpdateState(t *testing.T) {
 				},
 			},
 			desiredChart: &v1alpha1.Chart{
+				TypeMeta: metav1.TypeMeta{
+					Kind:       "Chart",
+					APIVersion: "application.giantswarm.io",
+				},
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "my-cool-prometheus",
 					Namespace: "giantswarm",

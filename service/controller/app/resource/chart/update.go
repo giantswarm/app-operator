@@ -83,12 +83,7 @@ func (r *Resource) newUpdateChange(ctx context.Context, currentResource, desired
 	copyAnnotation(currentChart, desiredChart)
 
 	if !reflect.DeepEqual(currentChart, desiredChart) {
-		// Ignoring `TypeMeta` among diff
-		opt := cmp.FilterPath(func(p cmp.Path) bool {
-			return p.String() == "TypeMeta"
-		}, cmp.Ignore())
-
-		if diff := cmp.Diff(currentChart, desiredChart, opt); diff != "" {
+		if diff := cmp.Diff(currentChart, desiredChart); diff != "" {
 			fmt.Printf("chart %#q have to be updated, (-current +desired):\n%s", currentChart.Name, diff)
 		}
 

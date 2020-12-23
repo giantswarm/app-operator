@@ -108,7 +108,12 @@ func (r *Resource) removeFinalizer(ctx context.Context, chart *v1alpha1.Chart) e
 }
 
 func copyChart(current *v1alpha1.Chart) *v1alpha1.Chart {
-	newChart := new(v1alpha1.Chart)
+	newChart := &v1alpha1.Chart{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       chartKind,
+			APIVersion: chartAPIVersion,
+		},
+	}
 
 	newChart.Name = current.Name
 	newChart.Namespace = current.Namespace
