@@ -3,11 +3,8 @@ package chart
 import (
 	"context"
 	"encoding/json"
-	"reflect"
-	"strings"
 
 	"github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
-	"github.com/giantswarm/app/v4/pkg/annotation"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -108,42 +105,17 @@ func (r *Resource) removeFinalizer(ctx context.Context, chart *v1alpha1.Chart) e
 	return nil
 }
 
-// equals asseses the equality of ReleaseStates with regards to distinguishing fields.
-func equals(current, desired *v1alpha1.Chart) bool {
-	if current.Name != desired.Name {
-		return false
-	}
-	if !reflect.DeepEqual(current.Spec, desired.Spec) {
-		return false
-	}
-	if !reflect.DeepEqual(current.Labels, desired.Labels) {
-		return false
-	}
+func copyChart(current *v1alpha1.Chart) *v1alpha1.Chart {
+	newChart := new(v1alpha1.Chart)
 
-	for k, desiredValue := range desired.Annotations {
-		if !strings.HasPrefix(k, annotation.ChartOperatorPrefix) {
-			continue
-		}
+	newChart.Name = current.Name
+	newChart.Namespace = current.Namespace
 
-		currentValue, ok := current.Annotations[k]
-		if !ok {
-			return false
-		}
-		if currentValue != desiredValue {
-			return false
-		}
-	}
+	newChart.Annotations = current.Annotations
+	newChart.Labels = current.Labels
+	newChart.Spec = *current.Spec.DeepCopy()
 
-	return true
-}
-
-// isEmpty checks if a ReleaseState is empty.
-func isEmpty(c *v1alpha1.Chart) bool {
-	if c == nil {
-		return true
-	}
-
-	return equals(c, &v1alpha1.Chart{})
+	return newChart
 }
 
 // toChart converts the input into a Chart.

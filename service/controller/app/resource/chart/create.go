@@ -48,15 +48,11 @@ func (r *Resource) newCreateChange(ctx context.Context, currentResource, desired
 		return nil, microerror.Mask(err)
 	}
 
-	r.logger.Debugf(ctx, "finding out if the %#q chart has to be created", desiredChart.Name)
-
 	createChart := &v1alpha1.Chart{}
 
-	if isEmpty(currentChart) {
+	if currentChart == nil {
 		r.logger.Debugf(ctx, "the %#q chart needs to be created", desiredChart.Name)
 		createChart = desiredChart
-	} else {
-		r.logger.Debugf(ctx, "the %#q chart does not need to be created", desiredChart.Name)
 	}
 
 	return createChart, nil
