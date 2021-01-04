@@ -31,7 +31,7 @@ Installation:
         WebhookAuthToken: ""
 
 operatorkit:
-  removedFinalizersCacheTTL: "15m" 
+  removedFinalizersCacheTTL: "15m"
 
 project:
   branch: "[[ .Branch ]]"
