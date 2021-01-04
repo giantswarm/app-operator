@@ -79,12 +79,13 @@ func New(config Config) (*Service, error) {
 			Logger:    config.Logger,
 			K8sClient: config.K8sClient,
 
-			ChartNamespace:    config.Viper.GetString(config.Flag.Service.Chart.Namespace),
-			HTTPClientTimeout: config.Viper.GetDuration(config.Flag.Service.Helm.HTTP.ClientTimeout),
-			ImageRegistry:     config.Viper.GetString(config.Flag.Service.Image.Registry),
-			UniqueApp:         config.Viper.GetBool(config.Flag.Service.App.Unique),
-			WebhookAuthToken:  config.Viper.GetString(config.Flag.Service.Chart.WebhookAuthToken),
-			WebhookBaseURL:    config.Viper.GetString(config.Flag.Service.Chart.WebhookBaseURL),
+			ChartNamespace:            config.Viper.GetString(config.Flag.Service.Chart.Namespace),
+			HTTPClientTimeout:         config.Viper.GetDuration(config.Flag.Service.Helm.HTTP.ClientTimeout),
+			ImageRegistry:             config.Viper.GetString(config.Flag.Service.Image.Registry),
+			RemovedFinalizersCacheTTL: config.Viper.GetDuration(config.Flag.Service.OperatorKit.RemovedFinalizersCacheTTL),
+			UniqueApp:                 config.Viper.GetBool(config.Flag.Service.App.Unique),
+			WebhookAuthToken:          config.Viper.GetString(config.Flag.Service.Chart.WebhookAuthToken),
+			WebhookBaseURL:            config.Viper.GetString(config.Flag.Service.Chart.WebhookBaseURL),
 		}
 
 		appController, err = app.NewApp(c)

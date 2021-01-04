@@ -30,6 +30,9 @@ Installation:
       AppOperator:
         WebhookAuthToken: ""
 
+operatorkit:
+  removedFinalizersCacheTTL: "15m" 
+
 project:
   branch: "[[ .Branch ]]"
   commit: "[[ .SHA ]]"

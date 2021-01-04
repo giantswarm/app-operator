@@ -23,12 +23,13 @@ type Config struct {
 	K8sClient k8sclient.Interface
 	Logger    micrologger.Logger
 
-	ChartNamespace    string
-	HTTPClientTimeout time.Duration
-	ImageRegistry     string
-	UniqueApp         bool
-	WebhookAuthToken  string
-	WebhookBaseURL    string
+	ChartNamespace            string
+	HTTPClientTimeout         time.Duration
+	ImageRegistry             string
+	RemovedFinalizersCacheTTL time.Duration
+	UniqueApp                 bool
+	WebhookAuthToken          string
+	WebhookBaseURL            string
 }
 
 type App struct {
@@ -53,6 +54,9 @@ func NewApp(config Config) (*App, error) {
 	}
 	if config.ImageRegistry == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ImageRegistry must not be empty", config)
+	}
+	if config.RemovedFinalizersCacheTTL == 0 {
+		return nil, microerror.Maskf(invalidConfigError, "%T.RemovedFinalizersCacheTTL must not be empty", config)
 	}
 	if config.WebhookBaseURL == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.WebhookBaseURL not be empty", config)
@@ -96,7 +100,7 @@ func NewApp(config Config) (*App, error) {
 			InitCtx:                   initCtxFunc,
 			K8sClient:                 config.K8sClient,
 			Logger:                    config.Logger,
-			RemovedFinalizersCacheTTL: 1 * time.Minute,
+			RemovedFinalizersCacheTTL: config.RemovedFinalizersCacheTTL,
 			Resources:                 resources,
 			Selector:                  label.AppVersionSelector(config.UniqueApp),
 			NewRuntimeObjectFunc: func() runtime.Object {
