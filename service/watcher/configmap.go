@@ -13,7 +13,7 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/watch"
 
-	pkglabel "github.com/giantswarm/app-operator/v2/pkg/label"
+	pkglabel "github.com/giantswarm/app-operator/v3/pkg/label"
 )
 
 func (c *AppValueWatcher) watchConfigMap(ctx context.Context) {

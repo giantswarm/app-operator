@@ -16,9 +16,9 @@ import (
 	"github.com/google/go-cmp/cmp"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"github.com/giantswarm/app-operator/v2/integration/key"
-	pkglabel "github.com/giantswarm/app-operator/v2/pkg/label"
-	"github.com/giantswarm/app-operator/v2/pkg/project"
+	"github.com/giantswarm/app-operator/v3/integration/key"
+	pkglabel "github.com/giantswarm/app-operator/v3/pkg/label"
+	"github.com/giantswarm/app-operator/v3/pkg/project"
 )
 
 // TestAppCatalogEntry tests appcatalogentry CRs are generated for the

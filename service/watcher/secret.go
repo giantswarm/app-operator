@@ -9,7 +9,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/watch"
 
-	pkglabel "github.com/giantswarm/app-operator/v2/pkg/label"
+	pkglabel "github.com/giantswarm/app-operator/v3/pkg/label"
 )
 
 func (c *AppValueWatcher) watchSecret(ctx context.Context) {

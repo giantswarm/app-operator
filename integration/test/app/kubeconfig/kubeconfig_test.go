@@ -15,9 +15,9 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/tools/clientcmd/api"
 
-	"github.com/giantswarm/app-operator/v2/integration/env"
-	"github.com/giantswarm/app-operator/v2/integration/key"
-	"github.com/giantswarm/app-operator/v2/integration/templates"
+	"github.com/giantswarm/app-operator/v3/integration/env"
+	"github.com/giantswarm/app-operator/v3/integration/key"
+	"github.com/giantswarm/app-operator/v3/integration/templates"
 )
 
 const (

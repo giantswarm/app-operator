@@ -13,9 +13,9 @@ import (
 	"github.com/spf13/afero"
 	"k8s.io/apimachinery/pkg/runtime"
 
-	"github.com/giantswarm/app-operator/v2/pkg/label"
-	"github.com/giantswarm/app-operator/v2/pkg/project"
-	"github.com/giantswarm/app-operator/v2/service/controller/app/controllercontext"
+	"github.com/giantswarm/app-operator/v3/pkg/label"
+	"github.com/giantswarm/app-operator/v3/pkg/project"
+	"github.com/giantswarm/app-operator/v3/service/controller/app/controllercontext"
 )
 
 type Config struct {

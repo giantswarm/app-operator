@@ -1,4 +1,4 @@
-module github.com/giantswarm/app-operator/v2
+module github.com/giantswarm/app-operator/v3
 
 go 1.15
 

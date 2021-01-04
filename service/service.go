@@ -12,11 +12,11 @@ import (
 	"github.com/spf13/afero"
 	"github.com/spf13/viper"
 
-	"github.com/giantswarm/app-operator/v2/flag"
-	"github.com/giantswarm/app-operator/v2/pkg/project"
-	"github.com/giantswarm/app-operator/v2/service/controller/app"
-	"github.com/giantswarm/app-operator/v2/service/controller/appcatalog"
-	"github.com/giantswarm/app-operator/v2/service/watcher"
+	"github.com/giantswarm/app-operator/v3/flag"
+	"github.com/giantswarm/app-operator/v3/pkg/project"
+	"github.com/giantswarm/app-operator/v3/service/controller/app"
+	"github.com/giantswarm/app-operator/v3/service/controller/appcatalog"
+	"github.com/giantswarm/app-operator/v3/service/watcher"
 )
 
 // Config represents the configuration used to create a new service.
