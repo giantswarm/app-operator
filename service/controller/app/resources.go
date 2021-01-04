@@ -22,6 +22,7 @@ import (
 	"github.com/giantswarm/app-operator/v2/service/controller/app/resource/chartoperator"
 	"github.com/giantswarm/app-operator/v2/service/controller/app/resource/clients"
 	"github.com/giantswarm/app-operator/v2/service/controller/app/resource/configmap"
+	"github.com/giantswarm/app-operator/v2/service/controller/app/resource/pause"
 	"github.com/giantswarm/app-operator/v2/service/controller/app/resource/releasemigration"
 	"github.com/giantswarm/app-operator/v2/service/controller/app/resource/secret"
 	"github.com/giantswarm/app-operator/v2/service/controller/app/resource/status"
@@ -225,6 +226,18 @@ func newAppResources(config appResourcesConfig) ([]resource.Interface, error) {
 		}
 	}
 
+	var pauseResource resource.Interface
+	{
+		c := pause.Config{
+			Logger: config.Logger,
+		}
+
+		pauseResource, err = pause.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var releaseMigrationResource resource.Interface
 	{
 		c := releasemigration.Config{
@@ -302,6 +315,11 @@ func newAppResources(config appResourcesConfig) ([]resource.Interface, error) {
 	}
 
 	resources := []resource.Interface{
+		// pauseResource cancels reconciliation if
+		// "app-operator.giantswarm.io/paused" annotation is set to
+		// "true".
+		pauseResource,
+
 		// validationResource checks CRs for validation errors and sets the CR status.
 		validationResource,
 
