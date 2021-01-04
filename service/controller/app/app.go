@@ -93,11 +93,12 @@ func NewApp(config Config) (*App, error) {
 	var appController *controller.Controller
 	{
 		c := controller.Config{
-			InitCtx:   initCtxFunc,
-			K8sClient: config.K8sClient,
-			Logger:    config.Logger,
-			Resources: resources,
-			Selector:  label.AppVersionSelector(config.UniqueApp),
+			InitCtx:      initCtxFunc,
+			K8sClient:    config.K8sClient,
+			Logger:       config.Logger,
+			ResyncPeriod: 30 * time.Second,
+			Resources:    resources,
+			Selector:     label.AppVersionSelector(config.UniqueApp),
 			NewRuntimeObjectFunc: func() runtime.Object {
 				return new(v1alpha1.App)
 			},
