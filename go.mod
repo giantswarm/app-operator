@@ -6,7 +6,7 @@ require (
 	github.com/Masterminds/semver v1.5.0
 	github.com/Masterminds/semver/v3 v3.1.1
 	github.com/ghodss/yaml v1.0.0
-	github.com/giantswarm/apiextensions/v3 v3.13.1-0.20210104133707-4fe232b93488
+	github.com/giantswarm/apiextensions/v3 v3.14.0
 	github.com/giantswarm/app/v4 v4.0.0
 	github.com/giantswarm/appcatalog v0.3.2
 	github.com/giantswarm/backoff v0.2.0
@@ -18,7 +18,7 @@ require (
 	github.com/giantswarm/microerror v0.3.0
 	github.com/giantswarm/microkit v0.2.2
 	github.com/giantswarm/micrologger v0.5.0
-	github.com/giantswarm/operatorkit/v4 v4.1.1-0.20210105120921-5c069bded9db
+	github.com/giantswarm/operatorkit/v4 v4.0.0
 	github.com/giantswarm/to v0.3.0
 	github.com/giantswarm/versionbundle v0.2.0
 	github.com/go-kit/kit v0.10.0
