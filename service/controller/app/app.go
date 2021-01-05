@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/giantswarm/apiextensions/v3/pkg/annotation"
 	"github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/k8sclient/v5/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
@@ -96,6 +97,9 @@ func NewApp(config Config) (*App, error) {
 			InitCtx:   initCtxFunc,
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
+			Pause: map[string]string{
+				annotation.AppOperatorPaused: "true",
+			},
 			Resources: resources,
 			Selector:  label.AppVersionSelector(config.UniqueApp),
 			NewRuntimeObjectFunc: func() runtime.Object {
