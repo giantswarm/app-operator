@@ -14,10 +14,10 @@ import (
 	"github.com/spf13/viper"
 	"k8s.io/client-go/rest"
 
-	"github.com/giantswarm/app-operator/v2/flag"
-	"github.com/giantswarm/app-operator/v2/pkg/project"
-	"github.com/giantswarm/app-operator/v2/server"
-	"github.com/giantswarm/app-operator/v2/service"
+	"github.com/giantswarm/app-operator/v3/flag"
+	"github.com/giantswarm/app-operator/v3/pkg/project"
+	"github.com/giantswarm/app-operator/v3/server"
+	"github.com/giantswarm/app-operator/v3/service"
 )
 
 var (

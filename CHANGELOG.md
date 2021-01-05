@@ -7,6 +7,11 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Changed
+
+- Enable mutating and validating webhooks in app-admission-controller for
+tenant app CRs.
+
 ### Added
 
 - Make resync period configurable for use in integration tests.

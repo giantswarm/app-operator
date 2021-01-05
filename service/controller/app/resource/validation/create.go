@@ -11,7 +11,7 @@ import (
 	"github.com/giantswarm/operatorkit/v4/pkg/controller/context/reconciliationcanceledcontext"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"github.com/giantswarm/app-operator/v2/pkg/status"
+	"github.com/giantswarm/app-operator/v3/pkg/status"
 )
 
 func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {

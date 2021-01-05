@@ -10,8 +10,8 @@ import (
 	"github.com/giantswarm/micrologger"
 	"github.com/spf13/afero"
 
-	"github.com/giantswarm/app-operator/v2/integration/env"
-	"github.com/giantswarm/app-operator/v2/integration/release"
+	"github.com/giantswarm/app-operator/v3/integration/env"
+	"github.com/giantswarm/app-operator/v3/integration/release"
 )
 
 const (

@@ -13,9 +13,9 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/spf13/viper"
 
-	"github.com/giantswarm/app-operator/v2/pkg/project"
-	"github.com/giantswarm/app-operator/v2/server/endpoint"
-	"github.com/giantswarm/app-operator/v2/service"
+	"github.com/giantswarm/app-operator/v3/pkg/project"
+	"github.com/giantswarm/app-operator/v3/server/endpoint"
+	"github.com/giantswarm/app-operator/v3/service"
 )
 
 // Config represents the configuration used to construct server object.

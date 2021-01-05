@@ -5,7 +5,7 @@ package configmap
 import (
 	"testing"
 
-	"github.com/giantswarm/app-operator/v2/integration/setup"
+	"github.com/giantswarm/app-operator/v3/integration/setup"
 )
 
 var (
