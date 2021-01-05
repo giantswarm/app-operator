@@ -9,8 +9,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ### Added
 
-- Print difference between the current chart and desired chart.
 - Make resync period configurable for use in integration tests.
+- Pause App CR reconciliation when it has
+  `app-operator.giantswarm.io/paused=true` annotation.
+- Print difference between the current chart and desired chart.
 
 ## [2.8.0] - 2020-12-15
 
@@ -152,7 +154,7 @@ app CRs. A message is added to the app CR status for the user.
 
 ### Removed
 
-- Don't wait for chart-operator pod since chart CRD is created by the chartcrd resource. 
+- Don't wait for chart-operator pod since chart CRD is created by the chartcrd resource.
 
 ## [2.0.0] - 2020-08-13
 
