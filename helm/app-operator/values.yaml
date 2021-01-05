@@ -30,6 +30,9 @@ Installation:
       AppOperator:
         WebhookAuthToken: ""
 
+operatorkit:
+  resyncPeriod: "5m"
+
 project:
   branch: "[[ .Branch ]]"
   commit: "[[ .SHA ]]"

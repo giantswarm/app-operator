@@ -82,6 +82,7 @@ func New(config Config) (*Service, error) {
 			ChartNamespace:    config.Viper.GetString(config.Flag.Service.Chart.Namespace),
 			HTTPClientTimeout: config.Viper.GetDuration(config.Flag.Service.Helm.HTTP.ClientTimeout),
 			ImageRegistry:     config.Viper.GetString(config.Flag.Service.Image.Registry),
+			ResyncPeriod:      config.Viper.GetDuration(config.Flag.Service.Operatorkit.ResyncPeriod),
 			UniqueApp:         config.Viper.GetBool(config.Flag.Service.App.Unique),
 			WebhookAuthToken:  config.Viper.GetString(config.Flag.Service.Chart.WebhookAuthToken),
 			WebhookBaseURL:    config.Viper.GetString(config.Flag.Service.Chart.WebhookBaseURL),

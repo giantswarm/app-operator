@@ -15,6 +15,7 @@ tenant app CRs.
 ### Added
 
 - Print difference between the current chart and desired chart.
+- Make resync period configurable for use in integration tests.
 
 ## [2.8.0] - 2020-12-15
 
