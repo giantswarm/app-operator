@@ -27,6 +27,7 @@ type Config struct {
 	ChartNamespace    string
 	HTTPClientTimeout time.Duration
 	ImageRegistry     string
+	ResyncPeriod      time.Duration
 	UniqueApp         bool
 	WebhookAuthToken  string
 	WebhookBaseURL    string
@@ -54,6 +55,9 @@ func NewApp(config Config) (*App, error) {
 	}
 	if config.ImageRegistry == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ImageRegistry must not be empty", config)
+	}
+	if config.ResyncPeriod == 0 {
+		return nil, microerror.Maskf(invalidConfigError, "%T.ResyncPeriod must not be empty", config)
 	}
 	if config.WebhookBaseURL == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.WebhookBaseURL not be empty", config)
@@ -94,9 +98,10 @@ func NewApp(config Config) (*App, error) {
 	var appController *controller.Controller
 	{
 		c := controller.Config{
-			InitCtx:   initCtxFunc,
-			K8sClient: config.K8sClient,
-			Logger:    config.Logger,
+			InitCtx:      initCtxFunc,
+			K8sClient:    config.K8sClient,
+			Logger:       config.Logger,
+			ResyncPeriod: config.ResyncPeriod,
 			Pause: map[string]string{
 				annotation.AppOperatorPaused: "true",
 			},
