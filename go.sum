@@ -293,8 +293,8 @@ github.com/giantswarm/micrologger v0.3.3/go.mod h1:fkzQdDBC6HjJq4nllBDt6XB4t4yeV
 github.com/giantswarm/micrologger v0.3.4/go.mod h1:fkzQdDBC6HjJq4nllBDt6XB4t4yeVyhdHKblFX6QoMQ=
 github.com/giantswarm/micrologger v0.4.0 h1:2EpnX86HKpqUNY8C4qbB2SzniB4bgES8Cd/mYrVyOrI=
 github.com/giantswarm/micrologger v0.4.0/go.mod h1:xsD5laBXORMy/P34IHZMK0y/D1gTkYtASUL4gUm5KN4=
-github.com/giantswarm/operatorkit/v4 v4.0.1-0.20210104131905-63c3d282041c h1:2X7U+mwuP51NJ9rcC5ipqPV3tYqUJwExNs2z2LLib+k=
-github.com/giantswarm/operatorkit/v4 v4.0.1-0.20210104131905-63c3d282041c/go.mod h1:O0F9yfY0qpxOb0oXt2G8Yt4cu3nRQlfwl+wFWdFBb48=
+github.com/giantswarm/operatorkit/v4 v4.1.1-0.20210106092156-5093c2141e28 h1:NDYjBVpfaVSyv+WaptWHyLv69sN/ur6rMARRz+ei7WA=
+github.com/giantswarm/operatorkit/v4 v4.1.1-0.20210106092156-5093c2141e28/go.mod h1:O0F9yfY0qpxOb0oXt2G8Yt4cu3nRQlfwl+wFWdFBb48=
 github.com/giantswarm/to v0.3.0 h1:cEzMYkWLGI3cI8x3a0L3nPCQYJTb/cAaqcIPvxnDmpQ=
 github.com/giantswarm/to v0.3.0/go.mod h1:RTRtw+Dyk6YqoiNBOGLO981BqhibtVwogdaFIMO1y/A=
 github.com/giantswarm/versionbundle v0.2.0 h1:6EP3+9uO/9z1xu7g4pHNUyENxE+Ix1bc5aFpUMPz5Yg=

@@ -18,7 +18,7 @@ require (
 	github.com/giantswarm/microerror v0.3.0
 	github.com/giantswarm/microkit v0.2.2
 	github.com/giantswarm/micrologger v0.4.0
-	github.com/giantswarm/operatorkit/v4 v4.0.1-0.20210104131905-63c3d282041c
+	github.com/giantswarm/operatorkit/v4 v4.1.1-0.20210106092156-5093c2141e28
 	github.com/giantswarm/to v0.3.0
 	github.com/giantswarm/versionbundle v0.2.0
 	github.com/go-kit/kit v0.10.0
