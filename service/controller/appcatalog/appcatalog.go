@@ -8,8 +8,6 @@ import (
 	"github.com/giantswarm/operatorkit/v4/pkg/controller"
 	"github.com/giantswarm/operatorkit/v4/pkg/resource"
 	"k8s.io/apimachinery/pkg/runtime"
-
-	"github.com/giantswarm/app-operator/v3/pkg/project"
 )
 
 type Config struct {
@@ -52,7 +50,7 @@ func NewAppCatalog(config Config) (*AppCatalog, error) {
 				return new(v1alpha1.AppCatalog)
 			},
 
-			Name: project.Name(),
+			Name: "appCatalog",
 		}
 
 		appCatalogController, err = controller.New(c)
