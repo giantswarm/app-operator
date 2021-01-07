@@ -3,7 +3,7 @@ package middleware
 import (
 	"github.com/giantswarm/micrologger"
 
-	"github.com/giantswarm/app-operator/v2/service"
+	"github.com/giantswarm/app-operator/v3/service"
 )
 
 // Config represents the configuration used to construct middleware.

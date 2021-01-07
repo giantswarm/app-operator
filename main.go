@@ -14,10 +14,10 @@ import (
 	"github.com/spf13/viper"
 	"k8s.io/client-go/rest"
 
-	"github.com/giantswarm/app-operator/v2/flag"
-	"github.com/giantswarm/app-operator/v2/pkg/project"
-	"github.com/giantswarm/app-operator/v2/server"
-	"github.com/giantswarm/app-operator/v2/service"
+	"github.com/giantswarm/app-operator/v3/flag"
+	"github.com/giantswarm/app-operator/v3/pkg/project"
+	"github.com/giantswarm/app-operator/v3/server"
+	"github.com/giantswarm/app-operator/v3/service"
 )
 
 var (
@@ -159,6 +159,7 @@ func mainWithError() (err error) {
 	daemonCommand.PersistentFlags().String(f.Service.Kubernetes.TLS.CrtFile, "", "Certificate file path to use to authenticate with Kubernetes.")
 	daemonCommand.PersistentFlags().String(f.Service.Kubernetes.TLS.KeyFile, "", "Key file path to use to authenticate with Kubernetes.")
 	daemonCommand.PersistentFlags().String(f.Service.Kubernetes.Watch.Namespace, "default", "The namespace where appcatalog and app CRs are located.")
+	daemonCommand.PersistentFlags().String(f.Service.Operatorkit.ResyncPeriod, "5m", "Resync period after which a complete resync of all runtime objects is performed.")
 
 	err = newCommand.CobraCommand().Execute()
 	if err != nil {

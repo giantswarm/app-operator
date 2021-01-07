@@ -16,7 +16,7 @@ import (
 	"github.com/spf13/afero"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"github.com/giantswarm/app-operator/v2/integration/key"
+	"github.com/giantswarm/app-operator/v3/integration/key"
 )
 
 const (

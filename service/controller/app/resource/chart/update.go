@@ -11,7 +11,7 @@ import (
 	"github.com/google/go-cmp/cmp"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"github.com/giantswarm/app-operator/v2/service/controller/app/controllercontext"
+	"github.com/giantswarm/app-operator/v3/service/controller/app/controllercontext"
 )
 
 func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange interface{}) error {
@@ -67,7 +67,7 @@ func (r *Resource) newUpdateChange(ctx context.Context, currentResource, desired
 	}
 
 	if reflect.DeepEqual(currentChart, &v1alpha1.Chart{}) {
-		return &v1alpha1.App{}, nil
+		return &v1alpha1.Chart{}, nil
 	}
 
 	desiredChart, err := toChart(desiredResource)

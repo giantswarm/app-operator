@@ -9,7 +9,7 @@ import (
 	"github.com/giantswarm/micrologger"
 	"k8s.io/apimachinery/pkg/labels"
 
-	"github.com/giantswarm/app-operator/v2/pkg/label"
+	"github.com/giantswarm/app-operator/v3/pkg/label"
 )
 
 type AppValueWatcherConfig struct {

@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/giantswarm/apiextensions/v3/pkg/annotation"
 	"github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/k8sclient/v5/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
@@ -13,9 +14,9 @@ import (
 	"github.com/spf13/afero"
 	"k8s.io/apimachinery/pkg/runtime"
 
-	"github.com/giantswarm/app-operator/v2/pkg/label"
-	"github.com/giantswarm/app-operator/v2/pkg/project"
-	"github.com/giantswarm/app-operator/v2/service/controller/app/controllercontext"
+	"github.com/giantswarm/app-operator/v3/pkg/label"
+	"github.com/giantswarm/app-operator/v3/pkg/project"
+	"github.com/giantswarm/app-operator/v3/service/controller/app/controllercontext"
 )
 
 type Config struct {
@@ -26,6 +27,7 @@ type Config struct {
 	ChartNamespace    string
 	HTTPClientTimeout time.Duration
 	ImageRegistry     string
+	ResyncPeriod      time.Duration
 	UniqueApp         bool
 	WebhookAuthToken  string
 	WebhookBaseURL    string
@@ -53,6 +55,9 @@ func NewApp(config Config) (*App, error) {
 	}
 	if config.ImageRegistry == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ImageRegistry must not be empty", config)
+	}
+	if config.ResyncPeriod == 0 {
+		return nil, microerror.Maskf(invalidConfigError, "%T.ResyncPeriod must not be empty", config)
 	}
 	if config.WebhookBaseURL == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.WebhookBaseURL not be empty", config)
@@ -93,9 +98,13 @@ func NewApp(config Config) (*App, error) {
 	var appController *controller.Controller
 	{
 		c := controller.Config{
-			InitCtx:   initCtxFunc,
-			K8sClient: config.K8sClient,
-			Logger:    config.Logger,
+			InitCtx:      initCtxFunc,
+			K8sClient:    config.K8sClient,
+			Logger:       config.Logger,
+			ResyncPeriod: config.ResyncPeriod,
+			Pause: map[string]string{
+				annotation.AppOperatorPaused: "true",
+			},
 			Resources: resources,
 			Selector:  label.AppVersionSelector(config.UniqueApp),
 			NewRuntimeObjectFunc: func() runtime.Object {
