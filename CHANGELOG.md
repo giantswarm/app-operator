@@ -7,6 +7,9 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+- Update app, with changes to configmap and secret validation for App CRs
+  managed by `config-controller`.
+
 ## [3.0.0] - 2021-01-05
 
 ### Changed
