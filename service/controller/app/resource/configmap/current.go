@@ -36,7 +36,7 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 	}
 
 	if cc.Status.ClusterStatus.IsUnavailable {
-		r.logger.Debugf(ctx, "tenant cluster is unavailable")
+		r.logger.Debugf(ctx, "workload cluster is unavailable")
 		r.logger.Debugf(ctx, "canceling resource")
 		resourcecanceledcontext.SetCanceled(ctx)
 		return nil, nil
@@ -79,14 +79,14 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 		r.logger.Debugf(ctx, "did not find configmap %#q in namespace %#q", name, r.chartNamespace)
 		return nil, nil
 	} else if tenant.IsAPINotAvailable(err) {
-		// Set status so we don't try to connect to the tenant cluster
+		// Set status so we don't try to connect to the workload cluster
 		// again in this reconciliation loop.
 		cc.Status.ClusterStatus.IsUnavailable = true
 
 		// We should not hammer tenant API if it is not available. We cancel
 		// the reconciliation because its likely following resources will also
 		// fail.
-		r.logger.Debugf(ctx, "tenant cluster is not available.")
+		r.logger.Debugf(ctx, "workload cluster is not available.")
 		r.logger.Debugf(ctx, "canceling reconciliation")
 		resourcecanceledcontext.SetCanceled(ctx)
 		return nil, nil
