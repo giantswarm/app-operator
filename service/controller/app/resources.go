@@ -310,7 +310,7 @@ func newAppResources(config appResourcesConfig) ([]resource.Interface, error) {
 		appcatalogResource,
 		clientsResource,
 
-		// Following resources bootstrap chart-operator in tenant clusters.
+		// Following resources bootstrap chart-operator in workload clusters.
 		tcNamespaceResource,
 		chartCRDResource,
 		chartOperatorResource,

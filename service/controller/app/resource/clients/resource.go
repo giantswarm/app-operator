@@ -123,7 +123,7 @@ func (r *Resource) addClientsToContext(ctx context.Context, cr v1alpha1.App) err
 	{
 		restConfig, err = kubeConfig.NewRESTConfigForApp(ctx, key.KubeConfigSecretName(cr), key.KubeConfigSecretNamespace(cr))
 		if kubeconfig.IsNotFoundError(err) {
-			// Set status so we don't try to connect to the tenant cluster
+			// Set status so we don't try to connect to the workload cluster
 			// again in this reconciliation loop.
 			cc.Status.ClusterStatus.IsUnavailable = true
 
@@ -145,11 +145,11 @@ func (r *Resource) addClientsToContext(ctx context.Context, cr v1alpha1.App) err
 
 		k8sClient, err = k8sclient.NewClients(c)
 		if tenant.IsAPINotAvailable(err) {
-			// Set status so we don't try to connect to the tenant cluster
+			// Set status so we don't try to connect to the workload cluster
 			// again in this reconciliation loop.
 			cc.Status.ClusterStatus.IsUnavailable = true
 
-			r.logger.Debugf(ctx, "tenant API not available yet")
+			r.logger.Debugf(ctx, "workload API not available yet")
 			r.logger.Debugf(ctx, "canceling resource")
 			return nil
 

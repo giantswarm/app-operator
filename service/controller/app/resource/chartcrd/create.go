@@ -24,7 +24,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
-	// Resource is used to bootstrap chart-operator in tenant clusters.
+	// Resource is used to bootstrap chart-operator in workload clusters.
 	// So for other apps we can skip this step.
 	if key.AppName(cr) != key.ChartOperatorAppName {
 		r.logger.Debugf(ctx, "no need to create namespace for %#q", key.AppName(cr))
@@ -39,12 +39,12 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	}
 
 	if cc.Status.ClusterStatus.IsUnavailable {
-		r.logger.Debugf(ctx, "tenant cluster is unavailable")
+		r.logger.Debugf(ctx, "workload cluster is unavailable")
 		r.logger.Debugf(ctx, "canceling resource")
 		return nil
 	}
 
-	r.logger.Debugf(ctx, "ensuring chart CRD in tenant cluster %#q", key.ClusterID(cr))
+	r.logger.Debugf(ctx, "ensuring chart CRD in workload cluster %#q", key.ClusterID(cr))
 
 	ch := make(chan error)
 
@@ -58,7 +58,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	case <-ch:
 		// Fall through.
 	case <-time.After(10 * time.Second):
-		// Set status so we don't try to connect to the tenant cluster
+		// Set status so we don't try to connect to the workload cluster
 		// again in this reconciliation loop.
 		cc.Status.ClusterStatus.IsUnavailable = true
 
@@ -70,18 +70,18 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	if apierrors.IsAlreadyExists(err) {
 		// fall through
 	} else if tenant.IsAPINotAvailable(err) {
-		// Set status so we don't try to connect to the tenant cluster
-		// again in this reconciliation loop.
+		// Set status so we don't try to connect to the workload cluster
+		// again in this reconciliation loop.workload
 		cc.Status.ClusterStatus.IsUnavailable = true
 
-		r.logger.Debugf(ctx, "tenant cluster not available")
+		r.logger.Debugf(ctx, "workload cluster not available")
 		r.logger.Debugf(ctx, "canceling resource")
 		return nil
 	} else if err != nil {
 		return microerror.Mask(err)
 	}
 
-	r.logger.Debugf(ctx, "ensured chart CRD in tenant cluster %#q", key.ClusterID(cr))
+	r.logger.Debugf(ctx, "ensured chart CRD in workload cluster %#q", key.ClusterID(cr))
 
 	return nil
 }

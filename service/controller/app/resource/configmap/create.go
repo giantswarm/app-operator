@@ -31,9 +31,9 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 		if apierrors.IsAlreadyExists(err) {
 			r.logger.Debugf(ctx, "already created configmap %#q in namespace %#q", configMap.Name, configMap.Namespace)
 		} else if tenant.IsAPINotAvailable(err) {
-			// We should not hammer tenant API if it is not available, the tenant cluster
+			// We should not hammer workload API if it is not available, the workload cluster
 			// might be initializing. We will retry on next reconciliation loop.
-			r.logger.Debugf(ctx, "tenant cluster is not available.")
+			r.logger.Debugf(ctx, "workload cluster is not available.")
 			r.logger.Debugf(ctx, "canceling resource")
 			resourcecanceledcontext.SetCanceled(ctx)
 			return nil

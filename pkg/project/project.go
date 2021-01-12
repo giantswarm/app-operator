@@ -8,24 +8,18 @@ var (
 	version     = "3.0.1-dev"
 )
 
-// AppControlPlaneVersion is always 0.0.0 for control plane app CRs. These CRs
-// are processed by app-operator-unique which always runs the latest version.
-func AppControlPlaneVersion() string {
-	return "0.0.0"
-}
-
-// AppTenantVersion is always 1.0.0 for tenant cluster app CRs using Helm 2.
-// For app CRs using Helm 3 we use project.Version().
-func AppTenantVersion() string {
-	return "1.0.0"
-}
-
 func Description() string {
 	return description
 }
 
 func GitSHA() string {
 	return gitSHA
+}
+
+// ManagementClusterAppVersion is always 0.0.0 for management cluster app CRs. These CRs
+// are processed by app-operator-unique which always runs the latest version.
+func ManagementClusterAppVersion() string {
+	return "0.0.0"
 }
 
 func Name() string {
@@ -38,4 +32,10 @@ func Source() string {
 
 func Version() string {
 	return version
+}
+
+// WorkloadClusterAppVersion is always 1.0.0 for workload cluster app CRs using Helm 2.
+// For app CRs using Helm 3 we use project.Version().
+func WorkloadClusterAppVersion() string {
+	return "1.0.0"
 }

@@ -33,7 +33,7 @@ func (r Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	}
 
 	if cc.Status.ClusterStatus.IsUnavailable {
-		r.logger.Debugf(ctx, "tenant cluster is unavailable")
+		r.logger.Debugf(ctx, "workload cluster is unavailable")
 		r.logger.Debugf(ctx, "canceling resource")
 		return nil
 	}
@@ -61,9 +61,9 @@ func (r Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 		_, err := cc.Clients.Helm.GetReleaseContent(ctx, key.Namespace(cr), cr.Name)
 		if tenant.IsAPINotAvailable(err) {
-			r.logger.Debugf(ctx, "tenant API not available")
+			r.logger.Debugf(ctx, "workload API not available")
 
-			// We should not hammer tenant API if it is not available, the tenant
+			// We should not hammer workload API if it is not available, the workload
 			// cluster might be initializing. We will retry on next reconciliation
 			// loop.
 			r.logger.Debugf(ctx, "canceling reconciliation")

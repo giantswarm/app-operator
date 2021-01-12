@@ -35,9 +35,9 @@ func AppVersionSelector(unique bool) labels.Selector {
 func GetProjectVersion(unique bool) string {
 	if unique {
 		// When app-operator is deployed as a unique app it only processes
-		// control plane app CRs. These CRs always have the version label
+		// management cluster app CRs. These CRs always have the version label
 		// app-operator.giantswarm.io/version: 0.0.0
-		return project.AppControlPlaneVersion()
+		return project.ManagementClusterAppVersion()
 	} else {
 		return project.Version()
 	}
