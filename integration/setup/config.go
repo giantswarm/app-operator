@@ -3,6 +3,7 @@
 package setup
 
 import (
+	"github.com/giantswarm/apptest"
 	"github.com/giantswarm/helmclient/v4/pkg/helmclient"
 	"github.com/giantswarm/k8sclient/v5/pkg/k8sclient"
 	"github.com/giantswarm/kubeconfig/v4"
@@ -14,11 +15,8 @@ import (
 	"github.com/giantswarm/app-operator/v3/integration/release"
 )
 
-const (
-	namespace = "giantswarm"
-)
-
 type Config struct {
+	AppTest    apptest.Interface
 	HelmClient helmclient.Interface
 	K8s        *k8sclient.Setup
 	K8sClients k8sclient.Interface
@@ -40,7 +38,19 @@ func NewConfig() (Config, error) {
 		}
 	}
 
-	fs := afero.NewOsFs()
+	var appTest apptest.Interface
+	{
+		c := apptest.Config{
+			Logger: logger,
+
+			KubeConfigPath: env.KubeConfigPath(),
+		}
+
+		appTest, err = apptest.New(c)
+		if err != nil {
+			return Config{}, microerror.Mask(err)
+		}
+	}
 
 	var cpK8sClients *k8sclient.Clients
 	{
@@ -82,6 +92,8 @@ func NewConfig() (Config, error) {
 		}
 	}
 
+	fs := afero.NewOsFs()
+
 	var helmClient helmclient.Interface
 	{
 		c := helmclient.Config{
@@ -113,6 +125,7 @@ func NewConfig() (Config, error) {
 	}
 
 	c := Config{
+		AppTest:    appTest,
 		HelmClient: helmClient,
 		K8s:        k8sSetup,
 		K8sClients: cpK8sClients,

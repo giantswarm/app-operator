@@ -4,7 +4,6 @@ package setup
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"testing"
 	"time"
@@ -50,7 +49,7 @@ func installResources(ctx context.Context, config Config) error {
 	var err error
 
 	{
-		err = config.K8s.EnsureNamespaceCreated(ctx, namespace)
+		err = config.K8s.EnsureNamespaceCreated(ctx, key.Namespace())
 		if err != nil {
 			return microerror.Mask(err)
 		}
@@ -107,7 +106,7 @@ func installResources(ctx context.Context, config Config) error {
 			}
 		}()
 
-		config.Logger.Debugf(ctx, "installing %#q", project.Name())
+		config.Logger.Debugf(ctx, "installing %#q", key.AppOperatorUniqueName())
 
 		appOperatorValues := map[string]interface{}{
 			"Installation": map[string]interface{}{
@@ -121,18 +120,18 @@ func installResources(ctx context.Context, config Config) error {
 		// Release is named app-operator-unique as some functionality is only
 		// implemented for the unique instance.
 		opts := helmclient.InstallOptions{
-			ReleaseName: fmt.Sprintf("%s-unique", project.Name()),
+			ReleaseName: key.AppOperatorUniqueName(),
 		}
 		err = config.HelmClient.InstallReleaseFromTarball(ctx,
 			operatorTarballPath,
-			namespace,
+			key.Namespace(),
 			appOperatorValues,
 			opts)
 		if err != nil {
 			return microerror.Mask(err)
 		}
 
-		config.Logger.Debugf(ctx, "installed %#q", project.Name())
+		config.Logger.Debugf(ctx, "installed %#q", key.AppOperatorUniqueName())
 	}
 
 	return nil

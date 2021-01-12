@@ -191,11 +191,11 @@ func TestAppWithKubeconfig(t *testing.T) {
 	}
 
 	{
-		config.Logger.Debugf(ctx, "creating %#q app cr", key.TestAppReleaseName())
+		config.Logger.Debugf(ctx, "creating %#q app cr", key.TestAppName())
 
 		appCR := &v1alpha1.App{
 			ObjectMeta: metav1.ObjectMeta{
-				Name:      key.TestAppReleaseName(),
+				Name:      key.TestAppName(),
 				Namespace: namespace,
 				Labels: map[string]string{
 					label.AppOperatorVersion: key.UniqueAppVersion(),
@@ -213,7 +213,7 @@ func TestAppWithKubeconfig(t *testing.T) {
 						Namespace: namespace,
 					},
 				},
-				Name:      key.TestAppReleaseName(),
+				Name:      key.TestAppName(),
 				Namespace: namespace,
 				Version:   "0.1.0",
 			},
@@ -223,17 +223,17 @@ func TestAppWithKubeconfig(t *testing.T) {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
 
-		config.Logger.Debugf(ctx, "creating %#q app cr", key.TestAppReleaseName())
+		config.Logger.Debugf(ctx, "creating %#q app cr", key.TestAppName())
 	}
 
 	{
-		config.Logger.Debugf(ctx, "waiting for release %#q deployed", key.TestAppReleaseName())
+		config.Logger.Debugf(ctx, "waiting for release %#q deployed", key.TestAppName())
 
-		err = config.Release.WaitForReleaseStatus(ctx, namespace, key.TestAppReleaseName(), helmclient.StatusDeployed)
+		err = config.Release.WaitForReleaseStatus(ctx, namespace, key.TestAppName(), helmclient.StatusDeployed)
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
 
-		config.Logger.Debugf(ctx, "waited for release %#q deployed", key.TestAppReleaseName())
+		config.Logger.Debugf(ctx, "waited for release %#q deployed", key.TestAppName())
 	}
 }
