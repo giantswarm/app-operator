@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Added
+
+- Add Vertical Pod Autoscaler support.
+
 ## [3.0.0] - 2021-01-05
 
 ### Changed
