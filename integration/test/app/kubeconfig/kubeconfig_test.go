@@ -8,7 +8,6 @@ import (
 
 	"github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/apiextensions/v3/pkg/label"
-	"github.com/giantswarm/appcatalog"
 	"github.com/giantswarm/helmclient/v4/pkg/helmclient"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -22,10 +21,8 @@ import (
 
 const (
 	catalogConfigMapName = "default-catalog-configmap"
-	chartOperatorName    = "chart-operator"
 	clusterName          = "kind-kind"
 	kubeConfigName       = "kube-config"
-	namespace            = "giantswarm"
 )
 
 // TestAppWithKubeconfig checks app-operator can bootstrap chart-operator
@@ -71,10 +68,10 @@ func TestAppWithKubeconfig(t *testing.T) {
 	{
 		config.Logger.Debugf(ctx, "creating kubeconfig secret")
 
-		_, err = config.K8sClients.K8sClient().CoreV1().Secrets(namespace).Create(ctx, &corev1.Secret{
+		_, err = config.K8sClients.K8sClient().CoreV1().Secrets(key.Namespace()).Create(ctx, &corev1.Secret{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      kubeConfigName,
-				Namespace: namespace,
+				Namespace: key.Namespace(),
 			},
 			Data: map[string][]byte{
 				"kubeConfig": bytes,
@@ -90,13 +87,13 @@ func TestAppWithKubeconfig(t *testing.T) {
 	{
 		config.Logger.Debugf(ctx, "creating catalog configmap")
 
-		_, err = config.K8sClients.K8sClient().CoreV1().ConfigMaps(namespace).Create(ctx, &corev1.ConfigMap{
+		_, err = config.K8sClients.K8sClient().CoreV1().ConfigMaps(key.Namespace()).Create(ctx, &corev1.ConfigMap{
 			Data: map[string]string{
 				"values": templates.ChartOperatorValues,
 			},
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      catalogConfigMapName,
-				Namespace: namespace,
+				Namespace: key.Namespace(),
 			},
 		}, metav1.CreateOptions{})
 		if err != nil {
@@ -120,7 +117,7 @@ func TestAppWithKubeconfig(t *testing.T) {
 				Config: v1alpha1.AppCatalogSpecConfig{
 					ConfigMap: v1alpha1.AppCatalogSpecConfigConfigMap{
 						Name:      catalogConfigMapName,
-						Namespace: namespace,
+						Namespace: key.Namespace(),
 					},
 				},
 				Description: key.DefaultCatalogName(),
@@ -142,15 +139,10 @@ func TestAppWithKubeconfig(t *testing.T) {
 	{
 		config.Logger.Debugf(ctx, "creating chart-operator app CR")
 
-		tag, err := appcatalog.GetLatestVersion(ctx, key.DefaultCatalogStorageURL(), "chart-operator", "")
-		if err != nil {
-			t.Fatalf("expected nil got %#v", err)
-		}
-
-		_, err = config.K8sClients.G8sClient().ApplicationV1alpha1().Apps(namespace).Create(ctx, &v1alpha1.App{
+		_, err = config.K8sClients.G8sClient().ApplicationV1alpha1().Apps(key.Namespace()).Create(ctx, &v1alpha1.App{
 			ObjectMeta: metav1.ObjectMeta{
-				Name:      chartOperatorName,
-				Namespace: namespace,
+				Name:      key.ChartOperatorName(),
+				Namespace: key.Namespace(),
 				Labels: map[string]string{
 					label.AppOperatorVersion: key.UniqueAppVersion(),
 				},
@@ -164,12 +156,12 @@ func TestAppWithKubeconfig(t *testing.T) {
 					InCluster: false,
 					Secret: v1alpha1.AppSpecKubeConfigSecret{
 						Name:      kubeConfigName,
-						Namespace: namespace,
+						Namespace: key.Namespace(),
 					},
 				},
-				Name:      chartOperatorName,
-				Namespace: namespace,
-				Version:   tag,
+				Name:      key.ChartOperatorName(),
+				Namespace: key.Namespace(),
+				Version:   key.ChartOperatorVersion(),
 			},
 		}, metav1.CreateOptions{})
 		if err != nil {
@@ -180,14 +172,14 @@ func TestAppWithKubeconfig(t *testing.T) {
 	}
 
 	{
-		config.Logger.Debugf(ctx, "waiting for release %#q deployed", chartOperatorName)
+		config.Logger.Debugf(ctx, "waiting for release %#q deployed", key.ChartOperatorName())
 
-		err = config.Release.WaitForReleaseStatus(ctx, namespace, chartOperatorName, helmclient.StatusDeployed)
+		err = config.Release.WaitForReleaseStatus(ctx, key.Namespace(), key.ChartOperatorName(), helmclient.StatusDeployed)
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
 
-		config.Logger.Debugf(ctx, "waited for release %#q deployed", chartOperatorName)
+		config.Logger.Debugf(ctx, "waited for release %#q deployed", key.ChartOperatorName())
 	}
 
 	{
@@ -196,7 +188,7 @@ func TestAppWithKubeconfig(t *testing.T) {
 		appCR := &v1alpha1.App{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      key.TestAppName(),
-				Namespace: namespace,
+				Namespace: key.Namespace(),
 				Labels: map[string]string{
 					label.AppOperatorVersion: key.UniqueAppVersion(),
 				},
@@ -210,15 +202,15 @@ func TestAppWithKubeconfig(t *testing.T) {
 					InCluster: false,
 					Secret: v1alpha1.AppSpecKubeConfigSecret{
 						Name:      kubeConfigName,
-						Namespace: namespace,
+						Namespace: key.Namespace(),
 					},
 				},
 				Name:      key.TestAppName(),
-				Namespace: namespace,
+				Namespace: key.Namespace(),
 				Version:   "0.1.0",
 			},
 		}
-		_, err = config.K8sClients.G8sClient().ApplicationV1alpha1().Apps(namespace).Create(ctx, appCR, metav1.CreateOptions{})
+		_, err = config.K8sClients.G8sClient().ApplicationV1alpha1().Apps(key.Namespace()).Create(ctx, appCR, metav1.CreateOptions{})
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
@@ -229,7 +221,7 @@ func TestAppWithKubeconfig(t *testing.T) {
 	{
 		config.Logger.Debugf(ctx, "waiting for release %#q deployed", key.TestAppName())
 
-		err = config.Release.WaitForReleaseStatus(ctx, namespace, key.TestAppName(), helmclient.StatusDeployed)
+		err = config.Release.WaitForReleaseStatus(ctx, key.Namespace(), key.TestAppName(), helmclient.StatusDeployed)
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}

@@ -39,7 +39,7 @@ func TestAppLifecycle(t *testing.T) {
 	var err error
 
 	{
-		config.Logger.Debugf(ctx, "installing chart operator")
+		config.Logger.Debugf(ctx, "installing %#q", key.ChartOperatorUniqueName())
 
 		var tarballPath string
 		{
@@ -63,10 +63,11 @@ func TestAppLifecycle(t *testing.T) {
 		}
 
 		var values map[string]interface{}
-
-		err = yaml.Unmarshal([]byte(templates.ChartOperatorValues), &values)
-		if err != nil {
-			t.Fatalf("expected %#v got %#v", nil, err)
+		{
+			err = yaml.Unmarshal([]byte(templates.ChartOperatorValues), &values)
+			if err != nil {
+				t.Fatalf("expected %#v got %#v", nil, err)
+			}
 		}
 
 		opts := helmclient.InstallOptions{
@@ -77,7 +78,7 @@ func TestAppLifecycle(t *testing.T) {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
 
-		config.Logger.Debugf(ctx, "installed chart operator")
+		config.Logger.Debugf(ctx, "installing %#q", key.ChartOperatorUniqueName())
 	}
 
 	{
@@ -167,7 +168,7 @@ func TestAppLifecycle(t *testing.T) {
 	{
 		config.Logger.Debugf(ctx, "checking status for app CR %#q", key.TestAppName())
 
-		cr, err := config.K8sClients.G8sClient().ApplicationV1alpha1().Apps("giantswarm").Get(ctx, key.TestAppName(), metav1.GetOptions{})
+		cr, err := config.K8sClients.G8sClient().ApplicationV1alpha1().Apps(key.Namespace()).Get(ctx, key.TestAppName(), metav1.GetOptions{})
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
