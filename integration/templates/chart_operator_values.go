@@ -3,12 +3,15 @@
 package templates
 
 // ChartOperatorValues values required by chart-operator-chart.
-const ChartOperatorValues = `
-clusterDNSIP: 10.96.0.10
+const ChartOperatorValues = `clusterDNSIP: 10.96.0.10
 e2e: true
-externalDNSIP: 8.8.8.8
-image:
-  registry: "quay.io"
-tiller:
-  namespace: "giantswarm"
-`
+
+Installation:
+  V1:
+    Helm:
+      HTTP:
+        ClientTimeout: "30s"
+      Kubernetes:
+        WaitTimeout: "180s"
+    Registry:
+      Domain: "quay.io"`

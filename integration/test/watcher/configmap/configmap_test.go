@@ -116,11 +116,11 @@ func TestWatchingConfigMap(t *testing.T) {
 	}
 
 	{
-		config.Logger.Debugf(ctx, "creating %#q app cr", key.TestAppReleaseName())
+		config.Logger.Debugf(ctx, "creating %#q app cr", key.TestAppName())
 
 		appCR := &v1alpha1.App{
 			ObjectMeta: metav1.ObjectMeta{
-				Name:      key.TestAppReleaseName(),
+				Name:      key.TestAppName(),
 				Namespace: key.Namespace(),
 				Labels: map[string]string{
 					label.AppOperatorVersion: key.UniqueAppVersion(),
@@ -131,7 +131,7 @@ func TestWatchingConfigMap(t *testing.T) {
 				KubeConfig: v1alpha1.AppSpecKubeConfig{
 					InCluster: true,
 				},
-				Name:      key.TestAppReleaseName(),
+				Name:      key.TestAppName(),
 				Namespace: key.Namespace(),
 				UserConfig: v1alpha1.AppSpecUserConfig{
 					ConfigMap: v1alpha1.AppSpecUserConfigConfigMap{
@@ -148,7 +148,7 @@ func TestWatchingConfigMap(t *testing.T) {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
 
-		config.Logger.Debugf(ctx, "creating %#q app cr", key.TestAppReleaseName())
+		config.Logger.Debugf(ctx, "creating %#q app cr", key.TestAppName())
 	}
 
 	{
@@ -235,7 +235,7 @@ func TestWatchingConfigMap(t *testing.T) {
 		config.Logger.Debugf(ctx, "waiting until app CR is annotated with user configmap's resourceVersion")
 
 		o := func() error {
-			cr, err := config.K8sClients.G8sClient().ApplicationV1alpha1().Apps(key.Namespace()).Get(ctx, key.TestAppReleaseName(), metav1.GetOptions{})
+			cr, err := config.K8sClients.G8sClient().ApplicationV1alpha1().Apps(key.Namespace()).Get(ctx, key.TestAppName(), metav1.GetOptions{})
 			if err != nil {
 				return microerror.Mask(err)
 			}
@@ -285,7 +285,7 @@ func TestWatchingConfigMap(t *testing.T) {
 		config.Logger.Debugf(ctx, "waiting until app CR annotate by appcatalog configmap's resourceVersion")
 
 		o := func() error {
-			cr, err := config.K8sClients.G8sClient().ApplicationV1alpha1().Apps(key.Namespace()).Get(ctx, key.TestAppReleaseName(), metav1.GetOptions{})
+			cr, err := config.K8sClients.G8sClient().ApplicationV1alpha1().Apps(key.Namespace()).Get(ctx, key.TestAppName(), metav1.GetOptions{})
 			if err != nil {
 				return microerror.Mask(err)
 			}
@@ -313,14 +313,14 @@ func TestWatchingConfigMap(t *testing.T) {
 	}
 
 	{
-		config.Logger.Debugf(ctx, "deleting app CR %#q", key.TestAppReleaseName())
+		config.Logger.Debugf(ctx, "deleting app CR %#q", key.TestAppName())
 
-		err = config.K8sClients.G8sClient().ApplicationV1alpha1().Apps(key.Namespace()).Delete(ctx, key.TestAppReleaseName(), metav1.DeleteOptions{})
+		err = config.K8sClients.G8sClient().ApplicationV1alpha1().Apps(key.Namespace()).Delete(ctx, key.TestAppName(), metav1.DeleteOptions{})
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
 
-		config.Logger.Debugf(ctx, "deleted app CR %#q", key.TestAppReleaseName())
+		config.Logger.Debugf(ctx, "deleted app CR %#q", key.TestAppName())
 	}
 
 	{
