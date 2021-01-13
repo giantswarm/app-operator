@@ -44,6 +44,10 @@ func StableCatalogName() string {
 	return "giantswarm"
 }
 
+func StableCatalogStorageURL() string {
+	return "https://giantswarm.github.io/giantswarm-catalog"
+}
+
 func TestAppName() string {
 	return "test-app"
 }
