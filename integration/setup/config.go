@@ -14,10 +14,6 @@ import (
 	"github.com/giantswarm/app-operator/v3/integration/release"
 )
 
-const (
-	namespace = "giantswarm"
-)
-
 type Config struct {
 	HelmClient helmclient.Interface
 	K8s        *k8sclient.Setup

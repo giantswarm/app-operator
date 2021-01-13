@@ -50,7 +50,7 @@ func installResources(ctx context.Context, config Config) error {
 	var err error
 
 	{
-		err = config.K8s.EnsureNamespaceCreated(ctx, namespace)
+		err = config.K8s.EnsureNamespaceCreated(ctx, key.Namespace())
 		if err != nil {
 			return microerror.Mask(err)
 		}
@@ -125,7 +125,7 @@ func installResources(ctx context.Context, config Config) error {
 		}
 		err = config.HelmClient.InstallReleaseFromTarball(ctx,
 			operatorTarballPath,
-			namespace,
+			key.Namespace(),
 			appOperatorValues,
 			opts)
 		if err != nil {

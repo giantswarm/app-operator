@@ -2,12 +2,26 @@
 
 package key
 
+import "fmt"
+
 func AppCatalogConfigMapName() string {
 	return "appcatalog-config"
 }
 
 func AppCatalogEntryName() string {
 	return "giantswarm-prometheus-operator-app-0.3.4"
+}
+
+func ChartOperatorName() string {
+	return "chart-operator"
+}
+
+func ChartOperatorUniqueName() string {
+	return fmt.Sprintf("%s-unique", ChartOperatorName())
+}
+
+func ChartOperatorVersion() string {
+	return "2.7.0"
 }
 
 func ControlPlaneTestCatalogStorageURL() string {
@@ -19,7 +33,7 @@ func DefaultCatalogName() string {
 }
 
 func DefaultCatalogStorageURL() string {
-	return "https://giantswarm.github.com/default-catalog"
+	return "https://giantswarm.github.io/default-catalog"
 }
 
 func Namespace() string {
@@ -30,11 +44,7 @@ func StableCatalogName() string {
 	return "giantswarm"
 }
 
-func StableCatalogStorageURL() string {
-	return "https://giantswarm.github.com/giantswarm-catalog"
-}
-
-func TestAppReleaseName() string {
+func TestAppName() string {
 	return "test-app"
 }
 
