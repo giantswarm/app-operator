@@ -8,7 +8,6 @@ import (
 
 	"github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/apiextensions/v3/pkg/label"
-	"github.com/giantswarm/appcatalog"
 	"github.com/giantswarm/helmclient/v4/pkg/helmclient"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -140,11 +139,6 @@ func TestAppWithKubeconfig(t *testing.T) {
 	{
 		config.Logger.Debugf(ctx, "creating chart-operator app CR")
 
-		tag, err := appcatalog.GetLatestVersion(ctx, key.DefaultCatalogStorageURL(), "chart-operator", "")
-		if err != nil {
-			t.Fatalf("expected nil got %#v", err)
-		}
-
 		_, err = config.K8sClients.G8sClient().ApplicationV1alpha1().Apps(key.Namespace()).Create(ctx, &v1alpha1.App{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      key.ChartOperatorName(),
@@ -167,7 +161,7 @@ func TestAppWithKubeconfig(t *testing.T) {
 				},
 				Name:      key.ChartOperatorName(),
 				Namespace: key.Namespace(),
-				Version:   tag,
+				Version:   key.ChartOperatorVersion(),
 			},
 		}, metav1.CreateOptions{})
 		if err != nil {
