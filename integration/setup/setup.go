@@ -4,7 +4,6 @@ package setup
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"testing"
 	"time"
@@ -15,8 +14,10 @@ import (
 	"github.com/giantswarm/helmclient/v4/pkg/helmclient"
 	"github.com/giantswarm/microerror"
 	"github.com/spf13/afero"
+	"sigs.k8s.io/yaml"
 
 	"github.com/giantswarm/app-operator/v3/integration/key"
+	"github.com/giantswarm/app-operator/v3/integration/templates"
 	"github.com/giantswarm/app-operator/v3/pkg/project"
 )
 
@@ -98,6 +99,14 @@ func installResources(ctx context.Context, config Config) error {
 		config.Logger.Debugf(ctx, "tarball path is %#q", operatorTarballPath)
 	}
 
+	var values map[string]interface{}
+	{
+		err = yaml.Unmarshal([]byte(templates.AppOperatorValues), &values)
+		if err != nil {
+			return microerror.Mask(err)
+		}
+	}
+
 	{
 		defer func() {
 			fs := afero.NewOsFs()
@@ -107,32 +116,23 @@ func installResources(ctx context.Context, config Config) error {
 			}
 		}()
 
-		config.Logger.Debugf(ctx, "installing %#q", project.Name())
+		config.Logger.Debugf(ctx, "installing %#q", key.AppOperatorUniqueName())
 
-		appOperatorValues := map[string]interface{}{
-			"Installation": map[string]interface{}{
-				"V1": map[string]interface{}{
-					"Registry": map[string]interface{}{
-						"Domain": "quay.io",
-					},
-				},
-			},
-		}
 		// Release is named app-operator-unique as some functionality is only
 		// implemented for the unique instance.
 		opts := helmclient.InstallOptions{
-			ReleaseName: fmt.Sprintf("%s-unique", project.Name()),
+			ReleaseName: key.AppOperatorUniqueName(),
 		}
 		err = config.HelmClient.InstallReleaseFromTarball(ctx,
 			operatorTarballPath,
 			key.Namespace(),
-			appOperatorValues,
+			values,
 			opts)
 		if err != nil {
 			return microerror.Mask(err)
 		}
 
-		config.Logger.Debugf(ctx, "installed %#q", project.Name())
+		config.Logger.Debugf(ctx, "installed %#q", key.AppOperatorUniqueName())
 	}
 
 	return nil

@@ -15,8 +15,10 @@ import (
 	"github.com/giantswarm/helmclient/v4/pkg/helmclient"
 	"github.com/spf13/afero"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"sigs.k8s.io/yaml"
 
 	"github.com/giantswarm/app-operator/v3/integration/key"
+	"github.com/giantswarm/app-operator/v3/integration/templates"
 )
 
 // TestAppLifecycle tests a chart CR can be created, updated and deleted
@@ -37,7 +39,7 @@ func TestAppLifecycle(t *testing.T) {
 	var err error
 
 	{
-		config.Logger.Debugf(ctx, "installing chart operator")
+		config.Logger.Debugf(ctx, "installing %#q", key.ChartOperatorUniqueName())
 
 		var tarballPath string
 		{
@@ -60,19 +62,23 @@ func TestAppLifecycle(t *testing.T) {
 			}()
 		}
 
-		opts := helmclient.InstallOptions{
-			ReleaseName: key.ChartOperatorName(),
+		var values map[string]interface{}
+		{
+			err = yaml.Unmarshal([]byte(templates.ChartOperatorValues), &values)
+			if err != nil {
+				t.Fatalf("expected %#v got %#v", nil, err)
+			}
 		}
-		values := map[string]interface{}{
-			"clusterDNSIP": "10.96.0.10",
-			"e2e":          "true",
+
+		opts := helmclient.InstallOptions{
+			ReleaseName: key.ChartOperatorUniqueName(),
 		}
 		err = config.HelmClient.InstallReleaseFromTarball(ctx, tarballPath, key.Namespace(), values, opts)
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
 
-		config.Logger.Debugf(ctx, "installed chart operator")
+		config.Logger.Debugf(ctx, "installing %#q", key.ChartOperatorUniqueName())
 	}
 
 	{

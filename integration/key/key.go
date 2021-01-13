@@ -2,7 +2,11 @@
 
 package key
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/giantswarm/app-operator/v3/pkg/project"
+)
 
 func AppCatalogConfigMapName() string {
 	return "appcatalog-config"
@@ -10,6 +14,10 @@ func AppCatalogConfigMapName() string {
 
 func AppCatalogEntryName() string {
 	return "giantswarm-prometheus-operator-app-0.3.4"
+}
+
+func AppOperatorUniqueName() string {
+	return fmt.Sprintf("%s-unique", project.Name())
 }
 
 func ChartOperatorName() string {
@@ -21,7 +29,7 @@ func ChartOperatorUniqueName() string {
 }
 
 func ChartOperatorVersion() string {
-	return "2.7.0"
+	return "2.5.1"
 }
 
 func ControlPlaneTestCatalogStorageURL() string {
