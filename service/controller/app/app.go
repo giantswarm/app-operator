@@ -26,6 +26,7 @@ type Config struct {
 	ChartNamespace    string
 	HTTPClientTimeout time.Duration
 	ImageRegistry     string
+	PodNamespace      string
 	ResyncPeriod      time.Duration
 	UniqueApp         bool
 	WebhookAuthToken  string
@@ -55,11 +56,14 @@ func NewApp(config Config) (*App, error) {
 	if config.ImageRegistry == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ImageRegistry must not be empty", config)
 	}
+	if config.PodNamespace == "" {
+		return nil, microerror.Maskf(invalidConfigError, "%T.PodNamespace must not be empty", config)
+	}
 	if config.ResyncPeriod == 0 {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ResyncPeriod must not be empty", config)
 	}
 	if config.WebhookBaseURL == "" {
-		return nil, microerror.Maskf(invalidConfigError, "%T.WebhookBaseURL not be empty", config)
+		return nil, microerror.Maskf(invalidConfigError, "%T.WebhookBaseURL must not be empty", config)
 	}
 
 	// TODO: Remove usage of deprecated controller context.
@@ -105,12 +109,20 @@ func NewApp(config Config) (*App, error) {
 				annotation.AppOperatorPaused: "true",
 			},
 			Resources: resources,
-			Selector:  label.AppVersionSelector(config.UniqueApp),
 			NewRuntimeObjectFunc: func() runtime.Object {
 				return new(v1alpha1.App)
 			},
 
 			Name: "app",
+		}
+
+		if config.UniqueApp {
+			// Watch all namespaces for app CRs with the unique version 0.0.0.
+			c.Namespace = ""
+			c.Selector = label.AppVersionSelector(config.UniqueApp)
+		} else {
+			// Watch all app CRs in the current namespaces.
+			c.Namespace = config.PodNamespace
 		}
 
 		appController, err = controller.New(c)
