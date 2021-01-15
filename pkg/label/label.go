@@ -21,24 +21,18 @@ const (
 )
 
 func AppVersionSelector(unique bool) labels.Selector {
-	version := GetProjectVersion(unique)
-	s := fmt.Sprintf("%s=%s", label.AppOperatorVersion, version)
+	var selector string
 
-	selector, err := labels.Parse(s)
+	if unique {
+		selector = fmt.Sprintf("%s=%s", label.AppOperatorVersion, project.ManagementClusterAppVersion())
+	} else {
+		selector = fmt.Sprintf("%s!=%s", label.AppOperatorVersion, project.ManagementClusterAppVersion())
+	}
+
+	s, err := labels.Parse(selector)
 	if err != nil {
 		panic(fmt.Sprintf("failed to parse selector %#q with error %#q", s, err))
 	}
 
-	return selector
-}
-
-func GetProjectVersion(unique bool) string {
-	if unique {
-		// When app-operator is deployed as a unique app it only processes
-		// management cluster app CRs. These CRs always have the version label
-		// app-operator.giantswarm.io/version: 0.0.0
-		return project.ManagementClusterAppVersion()
-	} else {
-		return project.Version()
-	}
+	return s
 }
