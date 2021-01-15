@@ -22,11 +22,11 @@ import (
 
 // Config represents the configuration used to create a new service.
 type Config struct {
-	Logger micrologger.Logger
-	Flag   *flag.Flag
-
-	Viper     *viper.Viper
+	Logger    micrologger.Logger
 	K8sClient k8sclient.Interface
+
+	Flag  *flag.Flag
+	Viper *viper.Viper
 }
 
 // Service is a type providing implementation of microkit service interface.
@@ -36,20 +36,21 @@ type Service struct {
 	// Internals
 	appController        *app.App
 	appCatalogController *appcatalog.AppCatalog
+	appValueWatcher      *watcher.AppValueWatcher
 	bootOnce             sync.Once
-	configMapWatcher     *watcher.AppValueWatcher
 }
 
 // New creates a new service with given configuration.
 func New(config Config) (*Service, error) {
-	if config.Flag == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.Flag must not be empty", config)
+	if config.Logger == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
 	if config.K8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
 	}
-	if config.Logger == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
+
+	if config.Flag == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.Flag must not be empty", config)
 	}
 	if config.Viper == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Viper must not be empty", config)
@@ -104,7 +105,8 @@ func New(config Config) (*Service, error) {
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
 
-			UniqueApp: config.Viper.GetBool(config.Flag.Service.App.Unique),
+			PodNamespace: podNamespace,
+			UniqueApp:    config.Viper.GetBool(config.Flag.Service.App.Unique),
 		}
 
 		appValueWatcher, err = watcher.NewAppValueWatcher(c)
@@ -135,7 +137,7 @@ func New(config Config) (*Service, error) {
 
 		appController:        appController,
 		appCatalogController: appCatalogController,
-		configMapWatcher:     appValueWatcher,
+		appValueWatcher:      appValueWatcher,
 		bootOnce:             sync.Once{},
 	}
 
@@ -148,6 +150,6 @@ func (s *Service) Boot(ctx context.Context) {
 		// Start the controllers.
 		go s.appCatalogController.Boot(ctx)
 		go s.appController.Boot(ctx)
-		go s.configMapWatcher.Boot(ctx)
+		go s.appValueWatcher.Boot(ctx)
 	})
 }
