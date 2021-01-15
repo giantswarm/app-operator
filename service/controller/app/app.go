@@ -118,7 +118,8 @@ func NewApp(config Config) (*App, error) {
 		}
 
 		if !config.UniqueApp {
-			// Watch all app CRs in the current namespaces.
+			// Only watch app CRs in the current namespace. The label selector
+			// excludes the operator's own app CR which has the unique version.
 			c.Namespace = config.PodNamespace
 		}
 

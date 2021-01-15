@@ -20,12 +20,18 @@ const (
 	Watching = "app-operator.giantswarm.io/watching"
 )
 
+// AppVersionSelector returns the label selector for this instance of
+// app-operator.
 func AppVersionSelector(unique bool) labels.Selector {
 	var selector string
 
 	if unique {
+		// Unique instance watches all namespaces for app CRs with the unique
+		// app version (0.0.0).
 		selector = fmt.Sprintf("%s=%s", label.AppOperatorVersion, project.ManagementClusterAppVersion())
 	} else {
+		// Other instances watch the namespace they are running in but exclude
+		// unique app CRs.
 		selector = fmt.Sprintf("%s!=%s", label.AppOperatorVersion, project.ManagementClusterAppVersion())
 	}
 
