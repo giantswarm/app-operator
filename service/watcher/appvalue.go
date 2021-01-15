@@ -45,8 +45,9 @@ func NewAppValueWatcher(config AppValueWatcherConfig) (*AppValueWatcher, error) 
 	var appNamespace string
 
 	if !config.UniqueApp {
-		// Only watch app CRs in the current namespace. The label selector
-		// excludes the operator's own app CR which has the unique version.
+		// Only populate the cache for app CRs in the current namespace. The
+		// label selector excludes the operator's own app CR which has the
+		// unique version.
 		appNamespace = config.PodNamespace
 	}
 
