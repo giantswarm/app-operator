@@ -101,8 +101,7 @@ func New(config Config) (*Service, error) {
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
 
-			PodNamespace: podNamespace,
-			UniqueApp:    config.Viper.GetBool(config.Flag.Service.App.Unique),
+			UniqueApp: config.Viper.GetBool(config.Flag.Service.App.Unique),
 		}
 
 		appValueWatcher, err = watcher.NewAppValueWatcher(c)
