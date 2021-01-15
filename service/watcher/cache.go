@@ -23,7 +23,7 @@ func (c *AppValueWatcher) buildCache(ctx context.Context) {
 			LabelSelector: c.selector.String(),
 		}
 
-		res, err := c.k8sClient.G8sClient().ApplicationV1alpha1().Apps("").Watch(ctx, lo)
+		res, err := c.k8sClient.G8sClient().ApplicationV1alpha1().Apps(c.appNamespace).Watch(ctx, lo)
 		if err != nil {
 			c.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("failed to get apps with label %#q", c.selector.String()), "stack", fmt.Sprintf("%#v", err))
 			continue

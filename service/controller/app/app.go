@@ -117,11 +117,7 @@ func NewApp(config Config) (*App, error) {
 			Name: "app",
 		}
 
-		if config.UniqueApp {
-			// Watch all namespaces for app CRs with the unique version 0.0.0.
-			c.Namespace = ""
-			c.Selector = label.AppVersionSelector(config.UniqueApp)
-		} else {
+		if !config.UniqueApp {
 			// Watch all app CRs in the current namespaces.
 			c.Namespace = config.PodNamespace
 		}

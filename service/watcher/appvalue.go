@@ -16,13 +16,15 @@ type AppValueWatcherConfig struct {
 	K8sClient k8sclient.Interface
 	Logger    micrologger.Logger
 
-	UniqueApp bool
+	PodNamespace string
+	UniqueApp    bool
 }
 
 type AppValueWatcher struct {
 	k8sClient k8sclient.Interface
 	logger    micrologger.Logger
 
+	appNamespace    string
 	resourcesToApps sync.Map
 	selector        labels.Selector
 	unique          bool
@@ -36,10 +38,23 @@ func NewAppValueWatcher(config AppValueWatcherConfig) (*AppValueWatcher, error) 
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
 
+	if config.PodNamespace == "" {
+		return nil, microerror.Maskf(invalidConfigError, "%T.PodNamespace must not be empty", config)
+	}
+
+	var appNamespace string
+
+	// For non-unique instances we only watch app CRs in the namespace the
+	// operator is running in.
+	if !config.UniqueApp {
+		appNamespace = config.PodNamespace
+	}
+
 	c := &AppValueWatcher{
 		k8sClient: config.K8sClient,
 		logger:    config.Logger,
 
+		appNamespace:    appNamespace,
 		resourcesToApps: sync.Map{},
 		selector:        label.AppVersionSelector(config.UniqueApp),
 		unique:          config.UniqueApp,
