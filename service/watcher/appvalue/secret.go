@@ -1,4 +1,4 @@
-package watcher
+package appvalue
 
 import (
 	"context"
@@ -12,7 +12,7 @@ import (
 	pkglabel "github.com/giantswarm/app-operator/v3/pkg/label"
 )
 
-func (c *AppValueWatcher) watchSecret(ctx context.Context) {
+func (c *AppValue) watchSecret(ctx context.Context) {
 	for {
 		lo := metav1.ListOptions{
 			LabelSelector: pkglabel.Watching,

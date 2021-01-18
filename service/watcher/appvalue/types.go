@@ -1,4 +1,4 @@
-package watcher
+package appvalue
 
 type resourceType string
 

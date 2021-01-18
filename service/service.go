@@ -17,7 +17,7 @@ import (
 	"github.com/giantswarm/app-operator/v3/pkg/project"
 	"github.com/giantswarm/app-operator/v3/service/controller/app"
 	"github.com/giantswarm/app-operator/v3/service/controller/appcatalog"
-	"github.com/giantswarm/app-operator/v3/service/watcher"
+	"github.com/giantswarm/app-operator/v3/service/watcher/appvalue"
 )
 
 // Config represents the configuration used to create a new service.
@@ -36,7 +36,7 @@ type Service struct {
 	// Internals
 	appController        *app.App
 	appCatalogController *appcatalog.AppCatalog
-	appValueWatcher      *watcher.AppValueWatcher
+	appValueWatcher      *appvalue.AppValue
 	bootOnce             sync.Once
 }
 
@@ -99,9 +99,9 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
-	var appValueWatcher *watcher.AppValueWatcher
+	var appValueWatcher *appvalue.AppValue
 	{
-		c := watcher.AppValueWatcherConfig{
+		c := appvalue.AppValueConfig{
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
 
@@ -109,7 +109,7 @@ func New(config Config) (*Service, error) {
 			UniqueApp:    config.Viper.GetBool(config.Flag.Service.App.Unique),
 		}
 
-		appValueWatcher, err = watcher.NewAppValueWatcher(c)
+		appValueWatcher, err = appvalue.NewAppValue(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}

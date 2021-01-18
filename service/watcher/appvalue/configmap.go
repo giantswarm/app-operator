@@ -1,4 +1,4 @@
-package watcher
+package appvalue
 
 import (
 	"context"
@@ -16,7 +16,7 @@ import (
 	pkglabel "github.com/giantswarm/app-operator/v3/pkg/label"
 )
 
-func (c *AppValueWatcher) watchConfigMap(ctx context.Context) {
+func (c *AppValue) watchConfigMap(ctx context.Context) {
 	for {
 		lo := metav1.ListOptions{
 			LabelSelector: pkglabel.Watching,
@@ -119,7 +119,7 @@ func (c *AppValueWatcher) watchConfigMap(ctx context.Context) {
 	}
 }
 
-func (c *AppValueWatcher) addAnnotation(ctx context.Context, app appIndex, latestResourceVersion string, resType resourceType) error {
+func (c *AppValue) addAnnotation(ctx context.Context, app appIndex, latestResourceVersion string, resType resourceType) error {
 	var versionAnnotation string
 	{
 		if resType == configMapType {

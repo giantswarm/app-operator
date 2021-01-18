@@ -1,4 +1,4 @@
-package watcher
+package appvalue
 
 import (
 	"context"
@@ -12,7 +12,7 @@ import (
 	"github.com/giantswarm/app-operator/v3/pkg/label"
 )
 
-type AppValueWatcherConfig struct {
+type AppValueConfig struct {
 	K8sClient k8sclient.Interface
 	Logger    micrologger.Logger
 
@@ -20,7 +20,7 @@ type AppValueWatcherConfig struct {
 	UniqueApp    bool
 }
 
-type AppValueWatcher struct {
+type AppValue struct {
 	k8sClient k8sclient.Interface
 	logger    micrologger.Logger
 
@@ -30,7 +30,7 @@ type AppValueWatcher struct {
 	unique          bool
 }
 
-func NewAppValueWatcher(config AppValueWatcherConfig) (*AppValueWatcher, error) {
+func NewAppValue(config AppValueConfig) (*AppValue, error) {
 	if config.K8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
 	}
@@ -51,7 +51,7 @@ func NewAppValueWatcher(config AppValueWatcherConfig) (*AppValueWatcher, error) 
 		appNamespace = config.PodNamespace
 	}
 
-	c := &AppValueWatcher{
+	c := &AppValue{
 		k8sClient: config.K8sClient,
 		logger:    config.Logger,
 
@@ -64,7 +64,7 @@ func NewAppValueWatcher(config AppValueWatcherConfig) (*AppValueWatcher, error) 
 	return c, nil
 }
 
-func (c *AppValueWatcher) Boot(ctx context.Context) {
+func (c *AppValue) Boot(ctx context.Context) {
 	// Watch for configmap changes.
 	go c.watchConfigMap(ctx)
 
