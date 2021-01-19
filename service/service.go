@@ -18,6 +18,7 @@ import (
 	"github.com/giantswarm/app-operator/v3/service/controller/app"
 	"github.com/giantswarm/app-operator/v3/service/controller/appcatalog"
 	"github.com/giantswarm/app-operator/v3/service/watcher/appvalue"
+	"github.com/giantswarm/app-operator/v3/service/watcher/chartstatus"
 )
 
 // Config represents the configuration used to create a new service.
@@ -37,6 +38,7 @@ type Service struct {
 	appController        *app.App
 	appCatalogController *appcatalog.AppCatalog
 	appValueWatcher      *appvalue.AppValue
+	chartStatusWatcher   *chartstatus.ChartStatus
 	bootOnce             sync.Once
 }
 
@@ -115,6 +117,23 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
+	var chartStatusWatcher *chartstatus.ChartStatus
+	{
+		c := chartstatus.ChartStatusConfig{
+			K8sClient: config.K8sClient,
+			Logger:    config.Logger,
+
+			ChartNamespace: config.Viper.GetString(config.Flag.Service.Chart.Namespace),
+			PodNamespace:   podNamespace,
+			UniqueApp:      config.Viper.GetBool(config.Flag.Service.App.Unique),
+		}
+
+		chartStatusWatcher, err = chartstatus.NewChartStatus(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var versionService *version.Service
 	{
 		versionConfig := version.Config{
@@ -139,6 +158,7 @@ func New(config Config) (*Service, error) {
 		appCatalogController: appCatalogController,
 		appValueWatcher:      appValueWatcher,
 		bootOnce:             sync.Once{},
+		chartStatusWatcher:   chartStatusWatcher,
 	}
 
 	return newService, nil
@@ -150,6 +170,9 @@ func (s *Service) Boot(ctx context.Context) {
 		// Start the controllers.
 		go s.appCatalogController.Boot(ctx)
 		go s.appController.Boot(ctx)
+
+		// Start the watchers.
 		go s.appValueWatcher.Boot(ctx)
+		go s.chartStatusWatcher.Boot(ctx)
 	})
 }

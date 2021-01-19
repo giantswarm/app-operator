@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/giantswarm/apiextensions/v3/pkg/label"
+	"github.com/giantswarm/app/v4/pkg/key"
 	"k8s.io/apimachinery/pkg/labels"
 
 	"github.com/giantswarm/app-operator/v3/pkg/project"
@@ -41,4 +42,21 @@ func AppVersionSelector(unique bool) labels.Selector {
 	}
 
 	return s
+}
+
+// ChartOperatorAppSelector returns the label selector for this instance of
+// app-operator.
+func ChartOperatorAppSelector(unique bool) string {
+	var template string
+
+	if unique {
+		template = "%s=%s,%s=%s"
+	} else {
+		template = "%s!=%s,%s=%s"
+	}
+
+	return fmt.Sprintf(template, label.AppOperatorVersion,
+		project.ManagementClusterAppVersion(),
+		label.AppKubernetesName,
+		key.ChartOperatorAppName)
 }
