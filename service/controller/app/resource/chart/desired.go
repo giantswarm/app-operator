@@ -2,9 +2,6 @@ package chart
 
 import (
 	"context"
-	"fmt"
-	"net/url"
-	"path"
 	"strings"
 
 	"github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
@@ -59,9 +56,10 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 			APIVersion: chartAPIVersion,
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      cr.GetName(),
-			Namespace: r.chartNamespace,
-			Labels:    processLabels(project.Name(), cr.GetLabels()),
+			Annotations: generateAnnotations(cr.GetAnnotations()),
+			Name:        cr.GetName(),
+			Namespace:   r.chartNamespace,
+			Labels:      processLabels(project.Name(), cr.GetLabels()),
 		},
 		Spec: v1alpha1.ChartSpec{
 			Config:     config,
@@ -70,22 +68,6 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 			TarballURL: tarballURL,
 			Version:    key.Version(cr),
 		},
-	}
-
-	annotations := generateAnnotations(cr.GetAnnotations())
-
-	u, err := url.Parse(r.webhookBaseURL)
-	if err != nil {
-		return nil, microerror.Mask(err)
-	}
-
-	u.Path = path.Join(u.Path, "status", cr.Namespace, cr.Name)
-
-	webhookAnnotation := fmt.Sprintf("%s/%s", annotation.ChartOperatorPrefix, annotation.WebhookURL)
-	annotations[webhookAnnotation] = u.String()
-
-	if len(annotations) > 0 {
-		chartCR.Annotations = annotations
 	}
 
 	return chartCR, nil
