@@ -5,10 +5,11 @@ import (
 	"fmt"
 
 	"github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
-	"github.com/giantswarm/app-operator/v3/pkg/label"
 	"github.com/giantswarm/app/v4/pkg/key"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/watch"
+
+	"github.com/giantswarm/app-operator/v3/pkg/label"
 )
 
 func (c *ChartStatus) watchForChartOperatorApp(ctx context.Context) (*v1alpha1.App, error) {
