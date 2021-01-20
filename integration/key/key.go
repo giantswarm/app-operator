@@ -32,6 +32,10 @@ func ChartOperatorVersion() string {
 	return "2.5.1"
 }
 
+func ControlPlaneTestCatalogName() string {
+	return "control-plane-test-catalog"
+}
+
 func ControlPlaneTestCatalogStorageURL() string {
 	return "https://giantswarm.github.io/control-plane-test-catalog"
 }
@@ -66,4 +70,8 @@ func UniqueAppVersion() string {
 
 func UserConfigMapName() string {
 	return "user-config"
+}
+
+func WorkloadClusterNamespace() string {
+	return "workload-test"
 }
