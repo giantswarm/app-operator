@@ -21,31 +21,18 @@ const (
 	Watching = "app-operator.giantswarm.io/watching"
 )
 
-// AppVersionSelector returns the label selector for this instance of
-// app-operator.
 func AppVersionSelector(unique bool) labels.Selector {
-	var selector string
+	version := GetProjectVersion(unique)
+	s := fmt.Sprintf("%s=%s", label.AppOperatorVersion, version)
 
-	if unique {
-		// Unique instance watches all namespaces for app CRs with the unique
-		// app version (0.0.0).
-		selector = fmt.Sprintf("%s=%s", label.AppOperatorVersion, project.ManagementClusterAppVersion())
-	} else {
-		// Other instances watch the namespace they are running in but exclude
-		// unique app CRs.
-		selector = fmt.Sprintf("%s!=%s", label.AppOperatorVersion, project.ManagementClusterAppVersion())
-	}
-
-	s, err := labels.Parse(selector)
+	selector, err := labels.Parse(s)
 	if err != nil {
 		panic(fmt.Sprintf("failed to parse selector %#q with error %#q", s, err))
 	}
 
-	return s
+	return selector
 }
 
-// ChartOperatorAppSelector returns the label selector for this instance of
-// app-operator.
 func ChartOperatorAppSelector(unique bool) string {
 	var template string
 
@@ -59,4 +46,15 @@ func ChartOperatorAppSelector(unique bool) string {
 		project.ManagementClusterAppVersion(),
 		label.AppKubernetesName,
 		key.ChartOperatorAppName)
+}
+
+func GetProjectVersion(unique bool) string {
+	if unique {
+		// When app-operator is deployed as a unique app it only processes
+		// management cluster app CRs. These CRs always have the version label
+		// app-operator.giantswarm.io/version: 0.0.0
+		return project.ManagementClusterAppVersion()
+	} else {
+		return project.Version()
+	}
 }
