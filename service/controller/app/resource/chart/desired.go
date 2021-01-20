@@ -14,6 +14,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 
+	pkgannotation "github.com/giantswarm/app-operator/v3/pkg/annotation"
 	"github.com/giantswarm/app-operator/v3/pkg/project"
 	"github.com/giantswarm/app-operator/v3/service/controller/app/controllercontext"
 )
@@ -56,7 +57,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 			APIVersion: chartAPIVersion,
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			Annotations: generateAnnotations(cr.GetAnnotations()),
+			Annotations: generateAnnotations(cr.GetAnnotations(), cr.Namespace),
 			Name:        cr.GetName(),
 			Namespace:   r.chartNamespace,
 			Labels:      processLabels(project.Name(), cr.GetLabels()),
@@ -73,8 +74,10 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 	return chartCR, nil
 }
 
-func generateAnnotations(input map[string]string) map[string]string {
-	annotations := map[string]string{}
+func generateAnnotations(input map[string]string, appNamespace string) map[string]string {
+	annotations := map[string]string{
+		pkgannotation.AppNamespace: appNamespace,
+	}
 
 	for k, v := range input {
 		// Copy all annotations which has a prefix with chart-operator.giantswarm.io.

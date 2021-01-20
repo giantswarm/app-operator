@@ -6,6 +6,7 @@ import (
 
 	"github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/apiextensions/v3/pkg/clientset/versioned"
+	"github.com/giantswarm/app-operator/v3/pkg/annotation"
 	"github.com/giantswarm/app/v4/pkg/key"
 	"github.com/giantswarm/k8sclient/v5/pkg/k8sclient"
 	"github.com/giantswarm/kubeconfig/v4"
@@ -154,7 +155,13 @@ func (c *ChartStatus) watchChartStatus(ctx context.Context) {
 				continue
 			}
 
-			app, err := c.k8sClient.G8sClient().ApplicationV1alpha1().Apps(chart.Namespace).Get(ctx, chart.Name, metav1.GetOptions{})
+			appNamespace, ok := chart.Annotations[annotation.AppNamespace]
+			if !ok {
+				c.logger.LogCtx(ctx, "level", "info", "message", "failed to get app namespace annotation: %#q", r.Object)
+				continue
+			}
+
+			app, err := c.k8sClient.G8sClient().ApplicationV1alpha1().Apps(appNamespace).Get(ctx, chart.Name, metav1.GetOptions{})
 			if err != nil {
 				c.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("failed to get app %#q in namespace %#q", app.Name, app.Namespace), "stack", fmt.Sprintf("%#v", err))
 				continue
