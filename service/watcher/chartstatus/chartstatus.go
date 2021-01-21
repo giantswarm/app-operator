@@ -5,16 +5,13 @@ import (
 	"fmt"
 
 	"github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
-	"github.com/giantswarm/apiextensions/v3/pkg/clientset/versioned"
 	"github.com/giantswarm/app/v4/pkg/key"
 	"github.com/giantswarm/k8sclient/v5/pkg/k8sclient"
-	"github.com/giantswarm/kubeconfig/v4"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/google/go-cmp/cmp"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/watch"
-	"k8s.io/client-go/rest"
 
 	"github.com/giantswarm/app-operator/v3/pkg/annotation"
 )
@@ -77,62 +74,18 @@ func (c *ChartStatus) Boot(ctx context.Context) {
 	go c.watchChartStatus(ctx)
 }
 
-func (c *ChartStatus) g8sClientForAppCR(ctx context.Context, app v1alpha1.App) (versioned.Interface, error) {
-	// App CR uses inCluster so we can reuse the existing clients.
-	if key.InCluster(app) {
-		return c.k8sClient.G8sClient(), nil
-	}
-
-	var err error
-
-	var kubeConfig kubeconfig.Interface
-	{
-		c := kubeconfig.Config{
-			K8sClient: c.k8sClient.K8sClient(),
-			Logger:    c.logger,
-		}
-
-		kubeConfig, err = kubeconfig.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	var restConfig *rest.Config
-	{
-		restConfig, err = kubeConfig.NewRESTConfigForApp(ctx, key.KubeConfigSecretName(app), key.KubeConfigSecretNamespace(app))
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	var g8sClient versioned.Interface
-	{
-		c := rest.CopyConfig(restConfig)
-
-		g8sClient, err = versioned.NewForConfig(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	return g8sClient, nil
-}
-
 func (c *ChartStatus) watchChartStatus(ctx context.Context) {
 	for {
-		chartOperatorAppCR, err := c.watchForChartOperatorApp(ctx)
+		// We need a valid kubeconfig to connect to the cluster as it may be
+		// remote. We get this from the chart-operator app CR. The connection
+		// to the cluster may sometimes be down so we wait until we can connect.
+		g8sClient, err := c.waitForValidKubeConfig(ctx)
 		if err != nil {
-			c.logger.LogCtx(ctx, "level", "info", "message", "failed to watch for chart-operator app CR", "stack", fmt.Sprintf("%#v", err))
+			c.logger.LogCtx(ctx, "level", "info", "message", "failed to get g8s client", "stack", fmt.Sprintf("%#v", err))
 			continue
 		}
 
-		g8sClient, err := c.g8sClientForAppCR(ctx, *chartOperatorAppCR)
-		if err != nil {
-			c.logger.LogCtx(ctx, "level", "info", "message", "failed to get g8s client for app CR", "stack", fmt.Sprintf("%#v", err))
-			continue
-		}
-
+		// We watch all chart CRs to check for status changes.
 		res, err := g8sClient.ApplicationV1alpha1().Charts(c.chartNamespace).Watch(ctx, metav1.ListOptions{})
 		if err != nil {
 			c.logger.LogCtx(ctx, "level", "info", "message", "failed to watch charts", "stack", fmt.Sprintf("%#v", err))
@@ -150,12 +103,14 @@ func (c *ChartStatus) watchChartStatus(ctx context.Context) {
 				continue
 			}
 
-			chart, err := toChart(r.Object)
+			chart, err := key.ToChart(r.Object)
 			if err != nil {
 				c.logger.LogCtx(ctx, "level", "info", "message", "failed to convert chart object", "stack", fmt.Sprintf("%#v", err))
 				continue
 			}
 
+			// The chart CR is always in the giantswarm namespace so the
+			// chart CR is annotated with the app CR namespace.
 			appNamespace, ok := chart.Annotations[annotation.AppNamespace]
 			if !ok {
 				c.logger.LogCtx(ctx, "level", "info", "message", "failed to get app namespace annotation: %#q", r.Object)
@@ -213,7 +168,7 @@ func equals(a, b v1alpha1.AppStatus) bool {
 }
 
 // toAppStatus converts the chart CR to an app CR status.
-func toAppStatus(chart *v1alpha1.Chart) v1alpha1.AppStatus {
+func toAppStatus(chart v1alpha1.Chart) v1alpha1.AppStatus {
 	appStatus := v1alpha1.AppStatus{
 		AppVersion: chart.Status.AppVersion,
 		Release: v1alpha1.AppStatusRelease{
@@ -227,18 +182,4 @@ func toAppStatus(chart *v1alpha1.Chart) v1alpha1.AppStatus {
 	}
 
 	return appStatus
-}
-
-// toChart converts the input into a Chart.
-func toChart(v interface{}) (*v1alpha1.Chart, error) {
-	if v == nil {
-		return &v1alpha1.Chart{}, nil
-	}
-
-	chart, ok := v.(*v1alpha1.Chart)
-	if !ok {
-		return nil, microerror.Maskf(wrongTypeError, "expected '%T', got '%T'", &v1alpha1.Chart{}, v)
-	}
-
-	return chart, nil
 }

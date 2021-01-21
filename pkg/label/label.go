@@ -34,16 +34,8 @@ func AppVersionSelector(unique bool) labels.Selector {
 }
 
 func ChartOperatorAppSelector(unique bool) string {
-	var template string
-
-	if unique {
-		template = "%s=%s,%s=%s"
-	} else {
-		template = "%s!=%s,%s=%s"
-	}
-
-	return fmt.Sprintf(template, label.AppOperatorVersion,
-		project.ManagementClusterAppVersion(),
+	return fmt.Sprintf("%s=%s,%s=%s", label.AppOperatorVersion,
+		GetProjectVersion(unique),
 		label.AppKubernetesName,
 		key.ChartOperatorAppName)
 }
