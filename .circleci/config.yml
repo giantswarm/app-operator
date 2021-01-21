@@ -77,9 +77,8 @@ workflows:
 
       - architect/integration-test:
           context: architect
-          name: workloadk-cluster-integration-test
+          name: workload-cluster-integration-test
           test-dir: "integration/test/app/workload"
           requires:
             - go-build
             - push-app-operator-to-control-plane-app-catalog
-
