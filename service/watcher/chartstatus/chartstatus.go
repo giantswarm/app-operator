@@ -29,9 +29,9 @@ type ChartStatus struct {
 	k8sClient k8sclient.Interface
 	logger    micrologger.Logger
 
+	appNamespace   string
 	chartNamespace string
 	uniqueApp      bool
-	watchNamespace string
 }
 
 func NewChartStatus(config ChartStatusConfig) (*ChartStatus, error) {
@@ -49,48 +49,47 @@ func NewChartStatus(config ChartStatusConfig) (*ChartStatus, error) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.PodNamespace must not be empty", config)
 	}
 
-	var watchNamespace string
-
-	if !config.UniqueApp {
-		// Only watch app CRs in the current namespace. The label selector
-		// excludes the operator's own app CR which has the unique version.
-		watchNamespace = config.PodNamespace
-	}
-
 	c := &ChartStatus{
 		k8sClient: config.K8sClient,
 		logger:    config.Logger,
 
+		// We get a kubeconfig for the cluster from the chart-operator app CR
+		// which is in the same namespace as this instance of app-operator.
+		appNamespace:   config.PodNamespace,
 		chartNamespace: config.ChartNamespace,
 		uniqueApp:      config.UniqueApp,
-		watchNamespace: watchNamespace,
 	}
 
 	return c, nil
 }
 
 func (c *ChartStatus) Boot(ctx context.Context) {
-	// Watch for chart status changes.
 	go c.watchChartStatus(ctx)
 }
 
+// watchChartStatus watches all chart CRs in the target cluster for status
+// changes. The matching app CR status is updated otherwise there can be a
+// delay of up to 5 minutes until the next resync period.
 func (c *ChartStatus) watchChartStatus(ctx context.Context) {
 	for {
-		// We need a valid kubeconfig to connect to the cluster as it may be
+		// We need an active kubeconfig to connect to the cluster as it may be
 		// remote. We get this from the chart-operator app CR. The connection
-		// to the cluster may sometimes be down so we wait until we can connect.
-		g8sClient, err := c.waitForValidKubeConfig(ctx)
+		// to the cluster may sometimes be down. So we wait with a backoff
+		// until we can connect.
+		g8sClient, err := c.waitForActiveKubeConfig(ctx)
 		if err != nil {
-			c.logger.LogCtx(ctx, "level", "info", "message", "failed to get g8s client", "stack", fmt.Sprintf("%#v", err))
+			c.logger.Errorf(ctx, err, "failed to get active kubeconfig")
 			continue
 		}
 
 		// We watch all chart CRs to check for status changes.
 		res, err := g8sClient.ApplicationV1alpha1().Charts(c.chartNamespace).Watch(ctx, metav1.ListOptions{})
 		if err != nil {
-			c.logger.LogCtx(ctx, "level", "info", "message", "failed to watch charts", "stack", fmt.Sprintf("%#v", err))
+			c.logger.Errorf(ctx, err, "failed to watch charts in %#q namespace", c.chartNamespace)
 			continue
 		}
+
+		c.logger.Debugf(ctx, "watching chart CRs in %#q namespace", c.chartNamespace)
 
 		for r := range res.ResultChan() {
 			if r.Type == watch.Bookmark {
@@ -99,13 +98,13 @@ func (c *ChartStatus) watchChartStatus(ctx context.Context) {
 			}
 
 			if r.Type == watch.Error {
-				c.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("got error event: %#q", r.Object))
+				c.logger.Debugf(ctx, "got error event for chart %#q", r.Object)
 				continue
 			}
 
 			chart, err := key.ToChart(r.Object)
 			if err != nil {
-				c.logger.LogCtx(ctx, "level", "info", "message", "failed to convert chart object", "stack", fmt.Sprintf("%#v", err))
+				c.logger.Errorf(ctx, err, "failed to convert %#q to chart", r.Object)
 				continue
 			}
 
@@ -113,13 +112,13 @@ func (c *ChartStatus) watchChartStatus(ctx context.Context) {
 			// chart CR is annotated with the app CR namespace.
 			appNamespace, ok := chart.Annotations[annotation.AppNamespace]
 			if !ok {
-				c.logger.LogCtx(ctx, "level", "info", "message", "failed to get app namespace annotation: %#q", r.Object)
+				c.logger.Debugf(ctx, "failed to get annotation %#q for chart %#q", annotation.AppNamespace, chart.Name)
 				continue
 			}
 
 			app, err := c.k8sClient.G8sClient().ApplicationV1alpha1().Apps(appNamespace).Get(ctx, chart.Name, metav1.GetOptions{})
 			if err != nil {
-				c.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("failed to get app %#q in namespace %#q", app.Name, app.Namespace), "stack", fmt.Sprintf("%#v", err))
+				c.logger.Errorf(ctx, err, "failed to get app '%s/%s'", app.Namespace, app.Name)
 				continue
 			}
 
@@ -128,14 +127,14 @@ func (c *ChartStatus) watchChartStatus(ctx context.Context) {
 
 			if !equals(currentStatus, desiredStatus) {
 				if diff := cmp.Diff(currentStatus, desiredStatus); diff != "" {
-					fmt.Printf("app %#q has to be updated, (-current +desired):\n%s", app.Name, diff)
+					fmt.Printf("app '%s/%s' has to be updated, (-current +desired):\n%s", app.Namespace, app.Name, diff)
 				}
 
 				app.Status = desiredStatus
 
 				_, err = c.k8sClient.G8sClient().ApplicationV1alpha1().Apps(app.Namespace).UpdateStatus(ctx, app, metav1.UpdateOptions{})
 				if err != nil {
-					c.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("failed to update status for app %#q in namespace %#q", app.Name, app.Namespace), "stack", fmt.Sprintf("%#v", err))
+					c.logger.Errorf(ctx, err, "failed to update status for app '%s/%s'", app.Namespace, app.Name)
 					continue
 				}
 			}
@@ -145,7 +144,7 @@ func (c *ChartStatus) watchChartStatus(ctx context.Context) {
 	}
 }
 
-// equals asseses the equality of AppStatuses with regards to distinguishing
+// equals assesses the equality of AppStatuses with regards to distinguishing
 // fields.
 func equals(a, b v1alpha1.AppStatus) bool {
 	if a.AppVersion != b.AppVersion {
