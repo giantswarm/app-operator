@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/giantswarm/apiextensions/v2/pkg/crd"
+	"github.com/giantswarm/apiextensions/v3/pkg/crd"
 	"github.com/giantswarm/apiextensions/v3/pkg/label"
 	"github.com/giantswarm/apptest"
 	"github.com/giantswarm/backoff"
