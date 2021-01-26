@@ -7,7 +7,17 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Fixed
+
+- Fix finalizer names to include operator name.
+
 ## [3.1.0] - 2021-01-13
+
+### Removed
+
+Remove unused errors from validation package.
+Do not set config-controller.giantswarm.io/version label to "0.0.0" on created App CRs.
+Remove PauseReconciliation option, responsible for setting app-operator.giantswarm.io/paused flag.
 
 ## [3.0.0] - 2021-01-05
 
