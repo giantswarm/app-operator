@@ -39,10 +39,22 @@ func TestAppLifecycle(t *testing.T) {
 	var err error
 
 	{
-		config.Logger.Debugf(ctx, "installing %#q", key.ChartOperatorUniqueName())
+		{
+			crdName := "Chart"
+			config.Logger.Debugf(ctx, "ensuring %#q CRD exists", crdName)
+
+			err := config.K8sClients.CRDClient().EnsureCreated(ctx, crd.LoadV1("application.giantswarm.io", crdName), backoff.NewMaxRetries(7, 1*time.Second))
+			if err != nil {
+				t.Fatalf("expected %#v got %#v", nil, err)
+			}
+
+			config.Logger.Debugf(ctx, "ensured %#q CRD exists", crdName)
+		}
 
 		var tarballPath string
 		{
+			config.Logger.Debugf(ctx, "installing %#q", key.ChartOperatorUniqueName())
+
 			tarballURL, err := appcatalog.GetLatestChart(ctx, key.DefaultCatalogStorageURL(), key.ChartOperatorName(), key.ChartOperatorVersion())
 			if err != nil {
 				t.Fatalf("expected %#v got %#v", nil, err)
@@ -72,25 +84,14 @@ func TestAppLifecycle(t *testing.T) {
 
 		opts := helmclient.InstallOptions{
 			ReleaseName: key.ChartOperatorUniqueName(),
+			Wait:        true,
 		}
 		err = config.HelmClient.InstallReleaseFromTarball(ctx, tarballPath, key.Namespace(), values, opts)
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
 
-		config.Logger.Debugf(ctx, "installing %#q", key.ChartOperatorUniqueName())
-	}
-
-	{
-		crdName := "Chart"
-		config.Logger.Debugf(ctx, "ensuring %#q CRD exists", crdName)
-
-		err := config.K8sClients.CRDClient().EnsureCreated(ctx, crd.LoadV1("application.giantswarm.io", crdName), backoff.NewMaxRetries(7, 1*time.Second))
-		if err != nil {
-			t.Fatalf("expected %#v got %#v", nil, err)
-		}
-
-		config.Logger.Debugf(ctx, "ensured %#q CRD exists", crdName)
+		config.Logger.Debugf(ctx, "installed %#q", key.ChartOperatorUniqueName())
 	}
 
 	{
