@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/giantswarm/apiextensions/v3/pkg/annotation"
@@ -15,6 +16,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 
 	"github.com/giantswarm/app-operator/v3/pkg/label"
+	"github.com/giantswarm/app-operator/v3/pkg/project"
 	"github.com/giantswarm/app-operator/v3/service/controller/app/controllercontext"
 )
 
@@ -110,7 +112,7 @@ func NewApp(config Config) (*App, error) {
 				return new(v1alpha1.App)
 			},
 
-			Name: fmt.Sprintf("%s-app", project.Name())
+			Name: fmt.Sprintf("%s-app", project.Name()),
 		}
 
 		appController, err = controller.New(c)

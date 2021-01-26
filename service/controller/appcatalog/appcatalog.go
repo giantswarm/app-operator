@@ -1,7 +1,10 @@
 package appcatalog
 
 import (
+	"fmt"
+
 	"github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
+	"github.com/giantswarm/app-operator/v3/pkg/project"
 	"github.com/giantswarm/k8sclient/v5/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
@@ -50,7 +53,7 @@ func NewAppCatalog(config Config) (*AppCatalog, error) {
 				return new(v1alpha1.AppCatalog)
 			},
 
-			Name: fmt.Sprintf("%s-appcatalog", project.Name())
+			Name: fmt.Sprintf("%s-appcatalog", project.Name()),
 		}
 
 		appCatalogController, err = controller.New(c)
