@@ -50,7 +50,7 @@ func NewAppCatalog(config Config) (*AppCatalog, error) {
 				return new(v1alpha1.AppCatalog)
 			},
 
-			Name: "appCatalog",
+			Name: fmt.Sprintf("%s-appcatalog", project.Name())
 		}
 
 		appCatalogController, err = controller.New(c)

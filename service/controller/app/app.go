@@ -110,7 +110,7 @@ func NewApp(config Config) (*App, error) {
 				return new(v1alpha1.App)
 			},
 
-			Name: "app",
+			Name: fmt.Sprintf("%s-app", project.Name())
 		}
 
 		appController, err = controller.New(c)
