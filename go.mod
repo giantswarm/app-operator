@@ -35,6 +35,8 @@ require (
 )
 
 replace (
+	// Use v0.8.10 of hcsshim to fix nancy alert.
+	github.com/Microsoft/hcsshim v0.8.7 => github.com/Microsoft/hcsshim v0.8.10
 	// Apply fix for CVE-2020-15114 not yet released in github.com/spf13/viper.
 	github.com/bketelsen/crypt => github.com/bketelsen/crypt v0.0.3
 	// Use moby v20.10.0-beta1 to fix build issue on darwin.
