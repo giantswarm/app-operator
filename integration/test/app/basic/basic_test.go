@@ -100,7 +100,7 @@ func TestAppLifecycle(t *testing.T) {
 				// Install test app.
 				CatalogName:   key.DefaultCatalogName(),
 				Name:          key.TestAppName(),
-				Namespace:     metav1.NamespaceDefault,
+				Namespace:     key.Namespace(),
 				Version:       "0.1.0",
 				WaitForDeploy: true,
 			},
