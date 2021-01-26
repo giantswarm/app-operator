@@ -5,17 +5,11 @@ package basic
 import (
 	"context"
 	"testing"
-	"time"
 
-	"github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
-	"github.com/giantswarm/apiextensions/v3/pkg/crd"
 	"github.com/giantswarm/apiextensions/v3/pkg/label"
-	"github.com/giantswarm/appcatalog"
-	"github.com/giantswarm/backoff"
+	"github.com/giantswarm/apptest"
 	"github.com/giantswarm/helmclient/v4/pkg/helmclient"
-	"github.com/spf13/afero"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"sigs.k8s.io/yaml"
 
 	"github.com/giantswarm/app-operator/v3/integration/key"
 	"github.com/giantswarm/app-operator/v3/integration/templates"
@@ -39,125 +33,27 @@ func TestAppLifecycle(t *testing.T) {
 	var err error
 
 	{
-		config.Logger.Debugf(ctx, "installing %#q", key.ChartOperatorUniqueName())
-
-		var tarballPath string
-		{
-			tarballURL, err := appcatalog.GetLatestChart(ctx, key.DefaultCatalogStorageURL(), key.ChartOperatorName(), key.ChartOperatorVersion())
-			if err != nil {
-				t.Fatalf("expected %#v got %#v", nil, err)
-			}
-
-			tarballPath, err = config.HelmClient.PullChartTarball(ctx, tarballURL)
-			if err != nil {
-				t.Fatalf("expected %#v got %#v", nil, err)
-			}
-
-			defer func() {
-				fs := afero.NewOsFs()
-				err := fs.Remove(tarballPath)
-				if err != nil {
-					t.Fatalf("expected %#v got %#v", nil, err)
-				}
-			}()
-		}
-
-		var values map[string]interface{}
-		{
-			err = yaml.Unmarshal([]byte(templates.ChartOperatorValues), &values)
-			if err != nil {
-				t.Fatalf("expected %#v got %#v", nil, err)
-			}
-		}
-
-		opts := helmclient.InstallOptions{
-			ReleaseName: key.ChartOperatorUniqueName(),
-		}
-		err = config.HelmClient.InstallReleaseFromTarball(ctx, tarballPath, key.Namespace(), values, opts)
-		if err != nil {
-			t.Fatalf("expected %#v got %#v", nil, err)
-		}
-
-		config.Logger.Debugf(ctx, "installing %#q", key.ChartOperatorUniqueName())
-	}
-
-	{
-		crdName := "Chart"
-		config.Logger.Debugf(ctx, "ensuring %#q CRD exists", crdName)
-
-		err := config.K8sClients.CRDClient().EnsureCreated(ctx, crd.LoadV1("application.giantswarm.io", crdName), backoff.NewMaxRetries(7, 1*time.Second))
-		if err != nil {
-			t.Fatalf("expected %#v got %#v", nil, err)
-		}
-
-		config.Logger.Debugf(ctx, "ensured %#q CRD exists", crdName)
-	}
-
-	{
-		config.Logger.Debugf(ctx, "creating %#q appcatalog cr", key.DefaultCatalogName())
-
-		appCatalogCR := &v1alpha1.AppCatalog{
-			ObjectMeta: metav1.ObjectMeta{
-				Name: key.DefaultCatalogName(),
-				Labels: map[string]string{
-					label.AppOperatorVersion: key.UniqueAppVersion(),
-				},
+		apps := []apptest.App{
+			{
+				CatalogName:   key.DefaultCatalogName(),
+				Name:          key.ChartOperatorName(),
+				Namespace:     key.Namespace(),
+				ValuesYAML:    templates.ChartOperatorValues,
+				Version:       key.ChartOperatorVersion(),
+				WaitForDeploy: true,
 			},
-			Spec: v1alpha1.AppCatalogSpec{
-				Description: key.DefaultCatalogName(),
-				Title:       key.DefaultCatalogName(),
-				Storage: v1alpha1.AppCatalogSpecStorage{
-					Type: "helm",
-					URL:  key.DefaultCatalogStorageURL(),
-				},
+			{
+				CatalogName:   key.DefaultCatalogName(),
+				Name:          key.TestAppName(),
+				Namespace:     metav1.NamespaceDefault,
+				Version:       "0.1.0",
+				WaitForDeploy: true,
 			},
 		}
-		_, err = config.K8sClients.G8sClient().ApplicationV1alpha1().AppCatalogs().Create(ctx, appCatalogCR, metav1.CreateOptions{})
+		err = config.AppTest.InstallApps(ctx, apps)
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
-
-		config.Logger.Debugf(ctx, "created %#q appcatalog cr", key.DefaultCatalogName())
-	}
-
-	{
-		config.Logger.Debugf(ctx, "creating %#q app cr", key.TestAppName())
-
-		appCR := &v1alpha1.App{
-			ObjectMeta: metav1.ObjectMeta{
-				Name:      key.TestAppName(),
-				Namespace: key.Namespace(),
-				Labels: map[string]string{
-					label.AppOperatorVersion: key.UniqueAppVersion(),
-				},
-			},
-			Spec: v1alpha1.AppSpec{
-				Catalog: key.DefaultCatalogName(),
-				KubeConfig: v1alpha1.AppSpecKubeConfig{
-					InCluster: true,
-				},
-				Name:      key.TestAppName(),
-				Namespace: key.Namespace(),
-				Version:   "0.1.0",
-			},
-		}
-		_, err = config.K8sClients.G8sClient().ApplicationV1alpha1().Apps(key.Namespace()).Create(ctx, appCR, metav1.CreateOptions{})
-		if err != nil {
-			t.Fatalf("expected %#v got %#v", nil, err)
-		}
-
-		config.Logger.Debugf(ctx, "creating %#q app cr", key.TestAppName())
-	}
-
-	{
-		config.Logger.Debugf(ctx, "waiting for chart CR created")
-
-		err = config.Release.WaitForReleaseStatus(ctx, key.Namespace(), key.TestAppName(), helmclient.StatusDeployed)
-		if err != nil {
-			t.Fatalf("expected %#v got %#v", nil, err)
-		}
-
-		config.Logger.Debugf(ctx, "waited for chart CR created")
 	}
 
 	{
