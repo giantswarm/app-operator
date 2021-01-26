@@ -5,9 +5,12 @@ package basic
 import (
 	"context"
 	"testing"
+	"time"
 
+	"github.com/giantswarm/apiextensions/v2/pkg/crd"
 	"github.com/giantswarm/apiextensions/v3/pkg/label"
 	"github.com/giantswarm/apptest"
+	"github.com/giantswarm/backoff"
 	"github.com/giantswarm/helmclient/v4/pkg/helmclient"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
@@ -31,6 +34,18 @@ import (
 func TestAppLifecycle(t *testing.T) {
 	ctx := context.Background()
 	var err error
+
+	{
+		crdName := "Chart"
+		config.Logger.Debugf(ctx, "ensuring %#q CRD exists", crdName)
+
+		err := config.K8sClients.CRDClient().EnsureCreated(ctx, crd.LoadV1("application.giantswarm.io", crdName), backoff.NewMaxRetries(7, 1*time.Second))
+		if err != nil {
+			t.Fatalf("expected %#v got %#v", nil, err)
+		}
+
+		config.Logger.Debugf(ctx, "ensured %#q CRD exists", crdName)
+	}
 
 	{
 		apps := []apptest.App{
