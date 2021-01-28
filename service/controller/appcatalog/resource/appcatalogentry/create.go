@@ -214,8 +214,7 @@ func (r *Resource) newAppCatalogEntries(ctx context.Context, cr v1alpha1.AppCata
 					},
 					DateCreated: createdTime,
 					DateUpdated: updatedTime,
-					//Restrictions: &m.Restrictions,
-					Version: entry.Version,
+					Version:     entry.Version,
 				},
 			}
 
