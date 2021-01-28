@@ -148,10 +148,13 @@ func (r *Resource) newAppCatalogEntries(ctx context.Context, cr v1alpha1.AppCata
 				}
 			}
 
-			var metadata *metadata
+			m := &metadata{
+				ChartAPIVersion: "v1",
+			}
+
 			{
 				if rawMetadata != nil {
-					metadata, err = parseMetadata(rawMetadata)
+					m, err = parseMetadata(rawMetadata)
 					if err != nil {
 						return nil, microerror.Mask(err)
 					}
@@ -180,7 +183,7 @@ func (r *Resource) newAppCatalogEntries(ctx context.Context, cr v1alpha1.AppCata
 						pkglabel.Latest:         strconv.FormatBool(isLatest),
 						label.ManagedBy:         key.AppCatalogEntryManagedBy(project.Name()),
 					},
-					Annotations: metadata.Annotations,
+					Annotations: m.Annotations,
 					OwnerReferences: []metav1.OwnerReference{
 						{
 							APIVersion:         apiVersion,
@@ -200,13 +203,13 @@ func (r *Resource) newAppCatalogEntries(ctx context.Context, cr v1alpha1.AppCata
 						Namespace: "",
 					},
 					Chart: v1alpha1.AppCatalogEntrySpecChart{
-						APIVersion: metadata.ChartAPIVersion,
+						APIVersion: m.ChartAPIVersion,
 						Home:       entry.Home,
 						Icon:       entry.Icon,
 					},
-					DateCreated:  &metadata.DataCreated,
-					DateUpdated:  &metadata.DataCreated,
-					Restrictions: &metadata.Restrictions,
+					DateCreated:  &m.DataCreated,
+					DateUpdated:  &m.DataCreated,
+					Restrictions: &m.Restrictions,
 					Version:      entry.Version,
 				},
 			}
