@@ -6,7 +6,6 @@ import (
 	"reflect"
 	"sort"
 	"strconv"
-	"time"
 
 	"github.com/Masterminds/semver"
 	"github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
@@ -268,14 +267,4 @@ func parseLatestVersion(entries []entry) (string, error) {
 	latest := versions[len(versions)-1]
 
 	return latest.String(), nil
-}
-
-func parseTime(created string) (*metav1.Time, error) {
-	rawTime, err := time.Parse(time.RFC3339, created)
-	if err != nil {
-		return nil, microerror.Maskf(executionFailedError, "wrong timestamp format %#q", created)
-	}
-	timeVal := metav1.NewTime(rawTime)
-
-	return &timeVal, nil
 }
