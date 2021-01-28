@@ -29,7 +29,7 @@ func ChartOperatorUniqueName() string {
 }
 
 func ChartOperatorVersion() string {
-	return "2.5.1"
+	return "2.7.1"
 }
 
 func ControlPlaneTestCatalogStorageURL() string {
