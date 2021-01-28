@@ -158,11 +158,7 @@ func (r *Resource) newAppCatalogEntries(ctx context.Context, cr v1alpha1.AppCata
 			// the same as the created time.
 			updatedTime := createdTime
 
-			m := &metadata{
-				// chartAPIVersion is default to `v1`
-				ChartAPIVersion: "v1",
-			}
-
+			var m *metadata
 			{
 				if rawMetadata != nil {
 					m, err = parseMetadata(rawMetadata)
@@ -194,7 +190,6 @@ func (r *Resource) newAppCatalogEntries(ctx context.Context, cr v1alpha1.AppCata
 						pkglabel.Latest:         strconv.FormatBool(isLatest),
 						label.ManagedBy:         key.AppCatalogEntryManagedBy(project.Name()),
 					},
-					Annotations: m.Annotations,
 					OwnerReferences: []metav1.OwnerReference{
 						{
 							APIVersion:         apiVersion,
@@ -214,15 +209,25 @@ func (r *Resource) newAppCatalogEntries(ctx context.Context, cr v1alpha1.AppCata
 						Namespace: "",
 					},
 					Chart: v1alpha1.AppCatalogEntrySpecChart{
-						APIVersion: m.ChartAPIVersion,
-						Home:       entry.Home,
-						Icon:       entry.Icon,
+						Home: entry.Home,
+						Icon: entry.Icon,
 					},
-					DateCreated:  createdTime,
-					DateUpdated:  updatedTime,
-					Restrictions: &m.Restrictions,
-					Version:      entry.Version,
+					DateCreated: createdTime,
+					DateUpdated: updatedTime,
+					//Restrictions: &m.Restrictions,
+					Version: entry.Version,
 				},
+			}
+
+			if m != nil {
+				entryCR.Annotations = m.Annotations
+
+				if m.ChartAPIVersion == "" {
+					// chartAPIVersion is default to `v1`
+					m.ChartAPIVersion = "v1"
+				}
+				entryCR.Spec.Chart.APIVersion = m.ChartAPIVersion
+				entryCR.Spec.Restrictions = &m.Restrictions
 			}
 
 			entryCRs[name] = entryCR
