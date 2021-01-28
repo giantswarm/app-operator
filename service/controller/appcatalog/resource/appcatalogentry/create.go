@@ -140,33 +140,24 @@ func (r *Resource) newAppCatalogEntries(ctx context.Context, cr v1alpha1.AppCata
 		for _, entry := range entries {
 			name := fmt.Sprintf("%s-%s-%s", cr.Name, entry.Name, entry.Version)
 
-			var metadata []byte
+			var rawMetadata []byte
 			{
-				metadata, err = r.getMetadata(ctx, key.AppCatalogStorageURL(cr), entry.Name, entry.Version)
+				rawMetadata, err = r.getMetadata(ctx, key.AppCatalogStorageURL(cr), entry.Name, entry.Version)
 				if err != nil {
 					r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("failed to get metadata for entry %#q in catalog %#q", entry.Name, cr.Name), "stack", fmt.Sprintf("%#v", err))
 					continue
 				}
 			}
 
-			var restrictions *v1alpha1.AppCatalogEntrySpecRestrictions
+			var metadata *metadata
 			{
-				if metadata != nil {
-					restrictions, err = parseRestrictions(metadata)
+				if rawMetadata != nil {
+					metadata, err = parseMetadata(rawMetadata)
 					if err != nil {
 						return nil, microerror.Mask(err)
 					}
 				}
 			}
-
-			createdTime, err := parseTime(entry.Created)
-			if err != nil {
-				return nil, microerror.Mask(err)
-			}
-
-			// Until we add support for metadata files the updated time will be
-			// the same as the created time.
-			updatedTime := createdTime
 
 			var isLatest bool
 
@@ -190,6 +181,7 @@ func (r *Resource) newAppCatalogEntries(ctx context.Context, cr v1alpha1.AppCata
 						pkglabel.Latest:         strconv.FormatBool(isLatest),
 						label.ManagedBy:         key.AppCatalogEntryManagedBy(project.Name()),
 					},
+					Annotations: metadata.Annotations,
 					OwnerReferences: []metav1.OwnerReference{
 						{
 							APIVersion:         apiVersion,
@@ -209,12 +201,13 @@ func (r *Resource) newAppCatalogEntries(ctx context.Context, cr v1alpha1.AppCata
 						Namespace: "",
 					},
 					Chart: v1alpha1.AppCatalogEntrySpecChart{
-						Home: entry.Home,
-						Icon: entry.Icon,
+						APIVersion: metadata.ChartAPIVersion,
+						Home:       entry.Home,
+						Icon:       entry.Icon,
 					},
-					DateCreated:  createdTime,
-					DateUpdated:  updatedTime,
-					Restrictions: restrictions,
+					DateCreated:  &metadata.DataCreated,
+					DateUpdated:  &metadata.DataCreated,
+					Restrictions: &metadata.Restrictions,
 					Version:      entry.Version,
 				},
 			}

@@ -150,7 +150,7 @@ func (r *Resource) getMetadata(ctx context.Context, storageURL, name, version st
 	return body, nil
 }
 
-func parseRestrictions(rawMetadata []byte) (*v1alpha1.AppCatalogEntrySpecRestrictions, error) {
+func parseMetadata(rawMetadata []byte) (*metadata, error) {
 	var m metadata
 
 	err := yaml.Unmarshal(rawMetadata, &m)
@@ -158,5 +158,5 @@ func parseRestrictions(rawMetadata []byte) (*v1alpha1.AppCatalogEntrySpecRestric
 		return nil, microerror.Mask(err)
 	}
 
-	return &m.Restrictions, nil
+	return &m, nil
 }
