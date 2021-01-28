@@ -122,6 +122,7 @@ func installResources(ctx context.Context, config Config) error {
 		// implemented for the unique instance.
 		opts := helmclient.InstallOptions{
 			ReleaseName: key.AppOperatorUniqueName(),
+			Wait:        true,
 		}
 		err = config.HelmClient.InstallReleaseFromTarball(ctx,
 			operatorTarballPath,
