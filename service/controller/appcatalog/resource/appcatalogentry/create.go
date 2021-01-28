@@ -6,6 +6,7 @@ import (
 	"reflect"
 	"sort"
 	"strconv"
+	"time"
 
 	"github.com/Masterminds/semver"
 	"github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
@@ -148,7 +149,17 @@ func (r *Resource) newAppCatalogEntries(ctx context.Context, cr v1alpha1.AppCata
 				}
 			}
 
+			createdTime, err := parseTime(entry.Created)
+			if err != nil {
+				return nil, microerror.Mask(err)
+			}
+
+			// Until we add support for metadata files the updated time will be
+			// the same as the created time.
+			updatedTime := createdTime
+
 			m := &metadata{
+				// chartAPIVersion is default to `v1`
 				ChartAPIVersion: "v1",
 			}
 
@@ -207,8 +218,8 @@ func (r *Resource) newAppCatalogEntries(ctx context.Context, cr v1alpha1.AppCata
 						Home:       entry.Home,
 						Icon:       entry.Icon,
 					},
-					DateCreated:  &m.DataCreated,
-					DateUpdated:  &m.DataCreated,
+					DateCreated:  createdTime,
+					DateUpdated:  updatedTime,
 					Restrictions: &m.Restrictions,
 					Version:      entry.Version,
 				},
@@ -270,4 +281,14 @@ func parseLatestVersion(entries []entry) (string, error) {
 	latest := versions[len(versions)-1]
 
 	return latest.String(), nil
+}
+
+func parseTime(created string) (*metav1.Time, error) {
+	rawTime, err := time.Parse(time.RFC3339, created)
+	if err != nil {
+		return nil, microerror.Maskf(executionFailedError, "wrong timestamp format %#q", created)
+	}
+	timeVal := metav1.NewTime(rawTime)
+
+	return &timeVal, nil
 }
