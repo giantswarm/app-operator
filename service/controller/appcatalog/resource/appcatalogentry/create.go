@@ -3,7 +3,6 @@ package appcatalogentry
 import (
 	"context"
 	"fmt"
-	"reflect"
 	"sort"
 	"strconv"
 	"time"
@@ -247,21 +246,16 @@ func equals(current, desired *v1alpha1.AppCatalogEntry) bool {
 	if current.Name != desired.Name {
 		return false
 	}
-	if !reflect.DeepEqual(current.Labels, desired.Labels) {
+	if !cmp.Equal(current.Labels, desired.Labels) {
 		return false
 	}
-	if !reflect.DeepEqual(current.Spec.Restrictions, desired.Spec.Restrictions) {
+
+	if !cmp.Equal(current.Annotations, desired.Annotations) {
 		return false
 	}
 
 	// Using reflect.DeepEqual doesn't work for the 2 date fields due to time
 	// zones. Instead we compare the unix epoch and clear the date fields.
-	//current.Spec.DateCreated = nil
-	//desired.Spec.DateCreated = nil
-
-	//current.Spec.DateUpdated = nil
-	//desired.Spec.DateUpdated = nil
-
 	timeComparer := cmp.Comparer(func(current, desired *metav1.Time) bool {
 		if current != nil && desired != nil {
 			return current.Unix() == desired.Unix()
@@ -271,7 +265,6 @@ func equals(current, desired *v1alpha1.AppCatalogEntry) bool {
 	})
 
 	return cmp.Equal(current.Spec, desired.Spec, timeComparer)
-	//return reflect.DeepEqual(current.Spec, desired.Spec)
 }
 
 func parseLatestVersion(entries []entry) (string, error) {
