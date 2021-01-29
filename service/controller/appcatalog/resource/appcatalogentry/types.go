@@ -21,8 +21,8 @@ type entry struct {
 }
 
 type metadata struct {
-	Annotations     map[string]string                        `json:"annotations"`
-	ChartAPIVersion string                                   `json:"chartApiVersion"`
-	DataCreated     metav1.Time                              `json:"dataCreated"`
-	Restrictions    v1alpha1.AppCatalogEntrySpecRestrictions `json:"restrictions"`
+	Annotations     map[string]string                         `json:"annotations"`
+	ChartAPIVersion string                                    `json:"chartApiVersion"`
+	DataCreated     *metav1.Time                              `json:"dataCreated"`
+	Restrictions    *v1alpha1.AppCatalogEntrySpecRestrictions `json:"restrictions"`
 }

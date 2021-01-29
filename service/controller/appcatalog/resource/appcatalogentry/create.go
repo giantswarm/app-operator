@@ -212,21 +212,27 @@ func (r *Resource) newAppCatalogEntries(ctx context.Context, cr v1alpha1.AppCata
 						Home: entry.Home,
 						Icon: entry.Icon,
 					},
-					DateCreated: createdTime,
-					DateUpdated: updatedTime,
-					Version:     entry.Version,
+					Version: entry.Version,
 				},
 			}
 
 			if m != nil {
 				entryCR.Annotations = m.Annotations
-
-				if m.ChartAPIVersion == "" {
-					// chartAPIVersion is default to `v1`
-					m.ChartAPIVersion = "v1"
-				}
 				entryCR.Spec.Chart.APIVersion = m.ChartAPIVersion
-				entryCR.Spec.Restrictions = &m.Restrictions
+				entryCR.Spec.Restrictions = m.Restrictions
+				entryCR.Spec.DateCreated = m.DataCreated
+				entryCR.Spec.DateUpdated = m.DataCreated
+			}
+
+			if entryCR.Spec.Chart.APIVersion == "" {
+				// chartAPIVersion is default to `v1`
+				entryCR.Spec.Chart.APIVersion = "v1"
+			}
+
+			if entryCR.Spec.DateCreated == nil {
+				// If meta.yaml does not have dateCreated, use the timestamp from app
+				entryCR.Spec.DateCreated = createdTime
+				entryCR.Spec.DateUpdated = updatedTime
 			}
 
 			entryCRs[name] = entryCR
