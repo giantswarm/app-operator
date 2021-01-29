@@ -4,6 +4,7 @@ package setup
 
 import (
 	"context"
+	"github.com/giantswarm/app-operator/v3/integration/env"
 	"os"
 	"testing"
 	"time"
@@ -82,7 +83,7 @@ func installResources(ctx context.Context, config Config) error {
 	{
 		config.Logger.Debugf(ctx, "getting tarball URL")
 
-		operatorTarballURL, err := appcatalog.GetLatestChart(ctx, key.ControlPlaneTestCatalogStorageURL(), project.Name(), project.Version())
+		operatorTarballURL, err := appcatalog.GetLatestChart(ctx, key.ControlPlaneTestCatalogStorageURL(), project.Name(), env.CircleSHA())
 		if err != nil {
 			return microerror.Mask(err)
 		}
