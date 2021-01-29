@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Added
+
+- Include `apiVersion`, `restrictions.compatibleProviders` in appcatalogentry CRs.
+
 ## [3.1.0] - 2021-01-13
 
 ## [3.0.0] - 2021-01-05

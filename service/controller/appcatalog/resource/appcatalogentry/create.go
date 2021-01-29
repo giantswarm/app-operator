@@ -3,7 +3,6 @@ package appcatalogentry
 import (
 	"context"
 	"fmt"
-	"reflect"
 	"sort"
 	"strconv"
 	"time"
@@ -14,6 +13,7 @@ import (
 	"github.com/giantswarm/app/v4/pkg/key"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/to"
+	"github.com/google/go-cmp/cmp"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
@@ -140,22 +140,12 @@ func (r *Resource) newAppCatalogEntries(ctx context.Context, cr v1alpha1.AppCata
 		for _, entry := range entries {
 			name := fmt.Sprintf("%s-%s-%s", cr.Name, entry.Name, entry.Version)
 
-			var metadata []byte
+			var rawMetadata []byte
 			{
-				metadata, err = r.getMetadata(ctx, key.AppCatalogStorageURL(cr), entry.Name, entry.Version)
+				rawMetadata, err = r.getMetadata(ctx, key.AppCatalogStorageURL(cr), entry.Name, entry.Version)
 				if err != nil {
-					r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("failed to get metadata for entry %#q in catalog %#q", entry.Name, cr.Name), "stack", fmt.Sprintf("%#v", err))
+					r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("failed to get appMetadata for entry %#q in catalog %#q", entry.Name, cr.Name), "stack", fmt.Sprintf("%#v", err))
 					continue
-				}
-			}
-
-			var restrictions *v1alpha1.AppCatalogEntrySpecRestrictions
-			{
-				if metadata != nil {
-					restrictions, err = parseRestrictions(metadata)
-					if err != nil {
-						return nil, microerror.Mask(err)
-					}
 				}
 			}
 
@@ -164,9 +154,19 @@ func (r *Resource) newAppCatalogEntries(ctx context.Context, cr v1alpha1.AppCata
 				return nil, microerror.Mask(err)
 			}
 
-			// Until we add support for metadata files the updated time will be
+			// Until we add support for appMetadata files the updated time will be
 			// the same as the created time.
 			updatedTime := createdTime
+
+			var m *appMetadata
+			{
+				if rawMetadata != nil {
+					m, err = parseMetadata(rawMetadata)
+					if err != nil {
+						return nil, microerror.Mask(err)
+					}
+				}
+			}
 
 			var isLatest bool
 
@@ -212,11 +212,27 @@ func (r *Resource) newAppCatalogEntries(ctx context.Context, cr v1alpha1.AppCata
 						Home: entry.Home,
 						Icon: entry.Icon,
 					},
-					DateCreated:  createdTime,
-					DateUpdated:  updatedTime,
-					Restrictions: restrictions,
-					Version:      entry.Version,
+					Version: entry.Version,
 				},
+			}
+
+			if m != nil {
+				entryCR.Annotations = m.Annotations
+				entryCR.Spec.Chart.APIVersion = m.ChartAPIVersion
+				entryCR.Spec.Restrictions = m.Restrictions
+				entryCR.Spec.DateCreated = m.DataCreated
+				entryCR.Spec.DateUpdated = m.DataCreated
+			}
+
+			if entryCR.Spec.Chart.APIVersion == "" {
+				// chartAPIVersion default is `v1`.
+				entryCR.Spec.Chart.APIVersion = "v1"
+			}
+
+			if entryCR.Spec.DateCreated == nil {
+				// If meta.yaml does not have dateCreated, use the timestamp from app.
+				entryCR.Spec.DateCreated = createdTime
+				entryCR.Spec.DateUpdated = updatedTime
 			}
 
 			entryCRs[name] = entryCR
@@ -230,28 +246,25 @@ func equals(current, desired *v1alpha1.AppCatalogEntry) bool {
 	if current.Name != desired.Name {
 		return false
 	}
-	if !reflect.DeepEqual(current.Labels, desired.Labels) {
+	if !cmp.Equal(current.Labels, desired.Labels) {
 		return false
 	}
-	if !reflect.DeepEqual(current.Spec.Restrictions, desired.Spec.Restrictions) {
+
+	if !cmp.Equal(current.Annotations, desired.Annotations) {
 		return false
 	}
 
 	// Using reflect.DeepEqual doesn't work for the 2 date fields due to time
 	// zones. Instead we compare the unix epoch and clear the date fields.
-	if current.Spec.DateCreated.Unix() != desired.Spec.DateCreated.Unix() {
-		return false
-	}
-	current.Spec.DateCreated = nil
-	desired.Spec.DateCreated = nil
+	timeComparer := cmp.Comparer(func(current, desired *metav1.Time) bool {
+		if current != nil && desired != nil {
+			return current.Unix() == desired.Unix()
+		}
 
-	if current.Spec.DateUpdated.Unix() != desired.Spec.DateUpdated.Unix() {
 		return false
-	}
-	current.Spec.DateUpdated = nil
-	desired.Spec.DateUpdated = nil
+	})
 
-	return reflect.DeepEqual(current.Spec, desired.Spec)
+	return cmp.Equal(current.Spec, desired.Spec, timeComparer)
 }
 
 func parseLatestVersion(entries []entry) (string, error) {
