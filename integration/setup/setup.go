@@ -4,7 +4,6 @@ package setup
 
 import (
 	"context"
-	"github.com/giantswarm/app-operator/v3/integration/env"
 	"os"
 	"testing"
 	"time"
@@ -17,6 +16,7 @@ import (
 	"github.com/spf13/afero"
 	"sigs.k8s.io/yaml"
 
+	"github.com/giantswarm/app-operator/v3/integration/env"
 	"github.com/giantswarm/app-operator/v3/integration/key"
 	"github.com/giantswarm/app-operator/v3/integration/templates"
 	"github.com/giantswarm/app-operator/v3/pkg/project"
