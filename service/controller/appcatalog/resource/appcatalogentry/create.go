@@ -144,7 +144,7 @@ func (r *Resource) newAppCatalogEntries(ctx context.Context, cr v1alpha1.AppCata
 			{
 				rawMetadata, err = r.getMetadata(ctx, key.AppCatalogStorageURL(cr), entry.Name, entry.Version)
 				if err != nil {
-					r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("failed to get metadata for entry %#q in catalog %#q", entry.Name, cr.Name), "stack", fmt.Sprintf("%#v", err))
+					r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("failed to get appMetadata for entry %#q in catalog %#q", entry.Name, cr.Name), "stack", fmt.Sprintf("%#v", err))
 					continue
 				}
 			}
@@ -154,11 +154,11 @@ func (r *Resource) newAppCatalogEntries(ctx context.Context, cr v1alpha1.AppCata
 				return nil, microerror.Mask(err)
 			}
 
-			// Until we add support for metadata files the updated time will be
+			// Until we add support for appMetadata files the updated time will be
 			// the same as the created time.
 			updatedTime := createdTime
 
-			var m *metadata
+			var m *appMetadata
 			{
 				if rawMetadata != nil {
 					m, err = parseMetadata(rawMetadata)
@@ -225,12 +225,12 @@ func (r *Resource) newAppCatalogEntries(ctx context.Context, cr v1alpha1.AppCata
 			}
 
 			if entryCR.Spec.Chart.APIVersion == "" {
-				// chartAPIVersion is default to `v1`
+				// chartAPIVersion default is `v1`.
 				entryCR.Spec.Chart.APIVersion = "v1"
 			}
 
 			if entryCR.Spec.DateCreated == nil {
-				// If meta.yaml does not have dateCreated, use the timestamp from app
+				// If meta.yaml does not have dateCreated, use the timestamp from app.
 				entryCR.Spec.DateCreated = createdTime
 				entryCR.Spec.DateUpdated = updatedTime
 			}

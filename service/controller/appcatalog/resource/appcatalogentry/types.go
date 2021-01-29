@@ -20,7 +20,7 @@ type entry struct {
 	Version    string   `json:"version"`
 }
 
-type metadata struct {
+type appMetadata struct {
 	Annotations     map[string]string                         `json:"annotations"`
 	ChartAPIVersion string                                    `json:"chartApiVersion"`
 	DataCreated     *metav1.Time                              `json:"dataCreated"`
