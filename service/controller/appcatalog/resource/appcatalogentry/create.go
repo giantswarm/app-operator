@@ -14,6 +14,7 @@ import (
 	"github.com/giantswarm/app/v4/pkg/key"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/to"
+	"github.com/google/go-cmp/cmp"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
@@ -255,19 +256,22 @@ func equals(current, desired *v1alpha1.AppCatalogEntry) bool {
 
 	// Using reflect.DeepEqual doesn't work for the 2 date fields due to time
 	// zones. Instead we compare the unix epoch and clear the date fields.
-	if current.Spec.DateCreated.Unix() != desired.Spec.DateCreated.Unix() {
-		return false
-	}
-	current.Spec.DateCreated = nil
-	desired.Spec.DateCreated = nil
+	//current.Spec.DateCreated = nil
+	//desired.Spec.DateCreated = nil
 
-	if current.Spec.DateUpdated.Unix() != desired.Spec.DateUpdated.Unix() {
-		return false
-	}
-	current.Spec.DateUpdated = nil
-	desired.Spec.DateUpdated = nil
+	//current.Spec.DateUpdated = nil
+	//desired.Spec.DateUpdated = nil
 
-	return reflect.DeepEqual(current.Spec, desired.Spec)
+	timeComparer := cmp.Comparer(func(current, desired *metav1.Time) bool {
+		if current != nil && desired != nil {
+			return current.Unix() == desired.Unix()
+		}
+
+		return false
+	})
+
+	return cmp.Equal(current.Spec, desired.Spec, timeComparer)
+	//return reflect.DeepEqual(current.Spec, desired.Spec)
 }
 
 func parseLatestVersion(entries []entry) (string, error) {
