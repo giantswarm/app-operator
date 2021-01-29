@@ -108,8 +108,9 @@ func TestAppCatalogEntry(t *testing.T) {
 				Namespace: "",
 			},
 			Chart: v1alpha1.AppCatalogEntrySpecChart{
-				Home: "https://github.com/giantswarm/prometheus-operator-app",
-				Icon: "https://raw.githubusercontent.com/prometheus/prometheus.github.io/master/assets/prometheus_logo-cb55bb5c346.png",
+				APIVersion: "v1",
+				Home:       "https://github.com/giantswarm/prometheus-operator-app",
+				Icon:       "https://raw.githubusercontent.com/prometheus/prometheus.github.io/master/assets/prometheus_logo-cb55bb5c346.png",
 			},
 			DateCreated: nil,
 			DateUpdated: nil,
