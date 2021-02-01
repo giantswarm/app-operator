@@ -160,7 +160,13 @@ func (r *Resource) newAppCatalogEntries(ctx context.Context, cr v1alpha1.AppCata
 			r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("failed to parse latest version for %#q in catalog %#q", name, cr.Name), "stack", fmt.Sprintf("%#v", err))
 		}
 
-		for _, entry := range entries {
+		maxEntries := r.maxEntriesPerApp
+		if len(entries) < maxEntries {
+			maxEntries = len(entries)
+		}
+
+		for i := 0; i < maxEntries; i++ {
+			entry := entries[i]
 			name := fmt.Sprintf("%s-%s-%s", cr.Name, entry.Name, entry.Version)
 
 			var rawMetadata []byte
