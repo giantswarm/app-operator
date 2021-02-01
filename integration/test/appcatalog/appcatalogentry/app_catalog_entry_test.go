@@ -102,7 +102,7 @@ func TestAppCatalogEntry(t *testing.T) {
 
 		expectedEntrySpec := v1alpha1.AppCatalogEntrySpec{
 			AppName:    "prometheus-operator-app",
-			AppVersion: "0.38.1",
+			AppVersion: "0.43.2",
 			Catalog: v1alpha1.AppCatalogEntrySpecCatalog{
 				Name:      key.StableCatalogName(),
 				Namespace: "",
@@ -110,11 +110,11 @@ func TestAppCatalogEntry(t *testing.T) {
 			Chart: v1alpha1.AppCatalogEntrySpecChart{
 				APIVersion: "v1",
 				Home:       "https://github.com/giantswarm/prometheus-operator-app",
-				Icon:       "https://raw.githubusercontent.com/prometheus/prometheus.github.io/master/assets/prometheus_logo-cb55bb5c346.png",
+				Icon:       "https://s.giantswarm.io/app-icons/1/png/prometheus-operator-app-light.png",
 			},
 			DateCreated: nil,
 			DateUpdated: nil,
-			Version:     "0.3.4",
+			Version:     "0.6.0",
 		}
 
 		// Clear dates for comparison.
