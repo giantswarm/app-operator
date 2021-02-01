@@ -65,11 +65,20 @@ func TestAppCatalogEntry(t *testing.T) {
 		config.Logger.Debugf(ctx, "created %#q appcatalog cr", key.StableCatalogName())
 	}
 
-	var entryCR *v1alpha1.AppCatalogEntry
-
+	var latestEntry appcatalog.Entry
 	{
+		latestEntry, err = appcatalog.GetLatestEntry(ctx, "https://giantswarm.github.io/giantswarm-catalog/", "prometheus-operator-app", "")
+		if err != nil {
+			t.Fatalf("expected %#v got %#v", nil, err)
+		}
+	}
+
+	var entryCR *v1alpha1.AppCatalogEntry
+	{
+		appCatalogEntryName := fmt.Sprintf("%s-%s-%s", key.Namespace(), latestEntry.Name, latestEntry.Version)
+
 		o := func() error {
-			entryCR, err = config.K8sClients.G8sClient().ApplicationV1alpha1().AppCatalogEntries(metav1.NamespaceDefault).Get(ctx, key.AppCatalogEntryName(), metav1.GetOptions{})
+			entryCR, err = config.K8sClients.G8sClient().ApplicationV1alpha1().AppCatalogEntries(metav1.NamespaceDefault).Get(ctx, appCatalogEntryName, metav1.GetOptions{})
 			if err != nil {
 				return microerror.Mask(err)
 			}
@@ -78,19 +87,11 @@ func TestAppCatalogEntry(t *testing.T) {
 		}
 
 		n := func(err error, t time.Duration) {
-			config.Logger.Errorf(ctx, err, "failed to get appcatalogentry CR with name %#q: retrying in %s", key.AppCatalogEntryName(), t)
+			config.Logger.Errorf(ctx, err, "failed to get appcatalogentry CR with name %#q: retrying in %s", appCatalogEntryName, t)
 		}
 
 		b := backoff.NewConstant(5*time.Minute, 15*time.Second)
 		err := backoff.RetryNotify(o, b, n)
-		if err != nil {
-			t.Fatalf("expected %#v got %#v", nil, err)
-		}
-	}
-
-	var latestEntry appcatalog.Entry
-	{
-		latestEntry, err = appcatalog.GetLatestEntry(ctx, "https://giantswarm.github.io/giantswarm-catalog/", "prometheus-operator-app", "")
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
