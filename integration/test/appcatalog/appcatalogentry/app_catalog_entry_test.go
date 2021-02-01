@@ -92,7 +92,7 @@ func TestAppCatalogEntry(t *testing.T) {
 			label.AppKubernetesName: "prometheus-operator-app",
 			label.CatalogName:       key.StableCatalogName(),
 			label.CatalogType:       "stable",
-			pkglabel.Latest:         "false",
+			pkglabel.Latest:         "true",
 			label.ManagedBy:         "app-operator-unique",
 		}
 
