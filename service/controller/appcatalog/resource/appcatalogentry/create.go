@@ -62,7 +62,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
-	var created, updated int
+	var created, updated, deleted int
 
 	r.logger.Debugf(ctx, "finding out changes to appcatalogentries for catalog %#q", cr.Name)
 
@@ -87,6 +87,8 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		}
 	}
 
+	// To keep the number of appCatalogEntry CR below a certain level,
+	// controller should delete outgrowing appCatalogEntry CR.
 	for name, currentEntryCR := range currentEntryCRs {
 		_, ok := desiredEntryCRs[name]
 		if !ok {
@@ -94,10 +96,12 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			if err != nil {
 				return microerror.Mask(err)
 			}
+
+			deleted++
 		}
 	}
 
-	r.logger.Debugf(ctx, "created %d updated %d appcatalogentries for catalog %#q", created, updated, cr.Name)
+	r.logger.Debugf(ctx, "created %d updated %d deleted %d appcatalogentries for catalog %#q", created, updated, deleted, cr.Name)
 
 	return nil
 }
