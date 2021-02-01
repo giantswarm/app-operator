@@ -13,7 +13,7 @@ func AppCatalogConfigMapName() string {
 }
 
 func AppCatalogEntryName() string {
-	return "giantswarm-prometheus-operator-app-0.6.0"
+	return "giantswarm-prometheus-operator-app-0.5.2"
 }
 
 func AppOperatorUniqueName() string {
