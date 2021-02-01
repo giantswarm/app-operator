@@ -55,12 +55,12 @@ func TestAppLifecycle(t *testing.T) {
 		{
 			config.Logger.Debugf(ctx, "installing %#q", key.ChartOperatorUniqueName())
 
-			latestEntry, err := appcatalog.GetLatestEntry(key.DefaultCatalogStorageURL(), key.ChartOperatorName(), key.ChartOperatorVersion())
+			tarballURL, err := appcatalog.GetLatestChart(ctx, key.DefaultCatalogStorageURL(), key.ChartOperatorName(), key.ChartOperatorVersion())
 			if err != nil {
 				t.Fatalf("expected %#v got %#v", nil, err)
 			}
 
-			tarballPath, err = config.HelmClient.PullChartTarball(ctx, latestEntry.Urls[0])
+			tarballPath, err = config.HelmClient.PullChartTarball(ctx, tarballURL)
 			if err != nil {
 				t.Fatalf("expected %#v got %#v", nil, err)
 			}
