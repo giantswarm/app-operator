@@ -87,6 +87,16 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		}
 	}
 
+	for name, currentEntryCR := range currentEntryCRs {
+		_, ok := desiredEntryCRs[name]
+		if !ok {
+			err := r.deleteAppCatalogEntry(ctx, currentEntryCR)
+			if err != nil {
+				return microerror.Mask(err)
+			}
+		}
+	}
+
 	r.logger.Debugf(ctx, "created %d updated %d appcatalogentries for catalog %#q", created, updated, cr.Name)
 
 	return nil
@@ -104,6 +114,19 @@ func (r *Resource) createAppCatalogEntry(ctx context.Context, entryCR *v1alpha1.
 	}
 
 	r.logger.Debugf(ctx, "created appcatalogentry CR %#q in namespace %#q", entryCR.Name, entryCR.Namespace)
+
+	return nil
+}
+
+func (r *Resource) deleteAppCatalogEntry(ctx context.Context, entryCR *v1alpha1.AppCatalogEntry) error {
+	r.logger.Debugf(ctx, "deleting appcatalogentry CR %#q in namespace %#q", entryCR.Name, entryCR.Namespace)
+
+	err := r.k8sClient.G8sClient().ApplicationV1alpha1().AppCatalogEntries(entryCR.Namespace).Delete(ctx, entryCR.Name, metav1.DeleteOptions{})
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
+	r.logger.Debugf(ctx, "deleted appcatalogentry CR %#q in namespace %#q", entryCR.Name, entryCR.Namespace)
 
 	return nil
 }
