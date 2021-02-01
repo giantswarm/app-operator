@@ -92,7 +92,7 @@ func TestAppCatalogEntry(t *testing.T) {
 			label.AppKubernetesName: "prometheus-operator-app",
 			label.CatalogName:       key.StableCatalogName(),
 			label.CatalogType:       "stable",
-			pkglabel.Latest:         "true",
+			pkglabel.Latest:         "false",
 			label.ManagedBy:         "app-operator-unique",
 		}
 
@@ -114,7 +114,7 @@ func TestAppCatalogEntry(t *testing.T) {
 			},
 			DateCreated: nil,
 			DateUpdated: nil,
-			Version:     "0.6.0",
+			Version:     "0.5.2",
 		}
 
 		// Clear dates for comparison.
