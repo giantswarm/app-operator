@@ -11,7 +11,6 @@ import (
 
 	"github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/apiextensions/v3/pkg/label"
-	"github.com/giantswarm/appcatalog"
 	"github.com/giantswarm/backoff"
 	"github.com/giantswarm/microerror"
 	"github.com/google/go-cmp/cmp"
@@ -88,20 +87,12 @@ func TestAppCatalogEntry(t *testing.T) {
 		}
 	}
 
-	var latestEntry appcatalog.Entry
-	{
-		latestEntry, err = appcatalog.GetLatestEntry("https://giantswarm.github.io/giantswarm-catalog/", "prometheus-operator-app", "")
-		if err != nil {
-			t.Fatalf("expected %#v got %#v", nil, err)
-		}
-	}
-
 	{
 		expectedLabels := map[string]string{
 			label.AppKubernetesName: "prometheus-operator-app",
 			label.CatalogName:       key.StableCatalogName(),
 			label.CatalogType:       "stable",
-			pkglabel.Latest:         "true",
+			pkglabel.Latest:         "false",
 			label.ManagedBy:         "app-operator-unique",
 		}
 
@@ -110,20 +101,20 @@ func TestAppCatalogEntry(t *testing.T) {
 		}
 
 		expectedEntrySpec := v1alpha1.AppCatalogEntrySpec{
-			AppName:    latestEntry.Name,
-			AppVersion: latestEntry.AppVersion,
+			AppName:    "prometheus-operator-app",
+			AppVersion: "0.43.2",
 			Catalog: v1alpha1.AppCatalogEntrySpecCatalog{
 				Name:      key.StableCatalogName(),
 				Namespace: "",
 			},
 			Chart: v1alpha1.AppCatalogEntrySpecChart{
 				APIVersion: "v1",
-				Home:       latestEntry.Home,
-				Icon:       latestEntry.Icon,
+				Home:       "https://github.com/giantswarm/prometheus-operator-app",
+				Icon:       "https://s.giantswarm.io/app-icons/1/png/prometheus-operator-app-light.png",
 			},
 			DateCreated: nil,
 			DateUpdated: nil,
-			Version:     latestEntry.Version,
+			Version:     "0.5.2",
 		}
 
 		// Clear dates for comparison.
