@@ -95,12 +95,12 @@ func (r *Resource) ensureReleasesMigrated(ctx context.Context, k8sClient k8sclie
 	{
 		var tarballPath string
 		{
-			tarballURL, err := appcatalog.GetLatestChart(ctx, key.DefaultCatalogStorageURL(), "helm-2to3-migration", "")
+			latestEntry, err := appcatalog.GetLatestEntry(key.DefaultCatalogStorageURL(), "helm-2to3-migration", "")
 			if err != nil {
 				return microerror.Mask(err)
 			}
 
-			tarballPath, err = helmClient.PullChartTarball(ctx, tarballURL)
+			tarballPath, err = helmClient.PullChartTarball(ctx, latestEntry.Urls[0])
 			if err != nil {
 				return microerror.Mask(err)
 			}
