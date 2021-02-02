@@ -23,6 +23,7 @@ rules:
     - apps
   verbs:
     - get
+    - update
     - list
     - patch
     - watch
@@ -40,6 +41,7 @@ rules:
     - appcatalogs
   verbs:
     - get
+    - update
     - list
     - patch
     - watch
