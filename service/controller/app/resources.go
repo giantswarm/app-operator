@@ -15,6 +15,7 @@ import (
 	"github.com/spf13/afero"
 
 	"github.com/giantswarm/app-operator/v3/service/controller/app/resource/appcatalog"
+	"github.com/giantswarm/app-operator/v3/service/controller/app/resource/appfinalizer"
 	"github.com/giantswarm/app-operator/v3/service/controller/app/resource/appnamespace"
 	"github.com/giantswarm/app-operator/v3/service/controller/app/resource/authtoken"
 	"github.com/giantswarm/app-operator/v3/service/controller/app/resource/chart"
@@ -92,6 +93,18 @@ func newAppResources(config appResourcesConfig) ([]resource.Interface, error) {
 			Logger:    config.Logger,
 		}
 		appcatalogResource, err = appcatalog.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	var appfinalizerResource resource.Interface
+	{
+		c := appfinalizer.Config{
+			CtrlClient: config.K8sClient.CtrlClient(),
+			Logger:     config.Logger,
+		}
+		appfinalizerResource, err = appfinalizer.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -304,6 +317,9 @@ func newAppResources(config appResourcesConfig) ([]resource.Interface, error) {
 	resources := []resource.Interface{
 		// validationResource checks CRs for validation errors and sets the CR status.
 		validationResource,
+
+		// appfinalizerResource check CRs for it has legacy fianlizer and delete it.
+		appfinalizerResource,
 
 		// Following resources manage controller context information.
 		appNamespaceResource,
