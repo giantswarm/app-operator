@@ -23,10 +23,12 @@ import (
 const (
 	Name = "appcatalogentry"
 
-	apiVersion          = "application.giantswarm.io/v1alpha1"
-	kindAppCatalog      = "AppCatalog"
-	kindAppCatalogEntry = "AppCatalogEntry"
-	maxEntriesPerApp    = 5
+	apiVersion           = "application.giantswarm.io/v1alpha1"
+	communityCatalogType = "community"
+	kindAppCatalog       = "AppCatalog"
+	kindAppCatalogEntry  = "AppCatalogEntry"
+	maxEntriesPerApp     = 5
+	metadataAnnotation   = "application.giantswarm.io/metadata"
 )
 
 type Config struct {
@@ -124,13 +126,13 @@ func (r *Resource) getIndex(ctx context.Context, storageURL string) (index, erro
 	return i, nil
 }
 
-func (r *Resource) getMetadata(ctx context.Context, storageURL, name, version string) ([]byte, error) {
+func (r *Resource) getMetadata(ctx context.Context, mainURL, name, version string) ([]byte, error) {
 	eventName := "pull_metadata_file"
 
 	t := prometheus.NewTimer(histogram.WithLabelValues(eventName))
 	defer t.ObserveDuration()
 
-	mainURL := fmt.Sprintf("%s/%s-%s.tgz-meta/main.yaml", strings.TrimRight(storageURL, "/"), name, version)
+	//mainURL := fmt.Sprintf("%s/%s-%s.tgz-meta/main.yaml", strings.TrimRight(storageURL, "/"), name, version)
 
 	r.logger.Debugf(ctx, "getting main.yaml from %#q", mainURL)
 
