@@ -7,8 +7,6 @@ import (
 	"testing"
 
 	"github.com/giantswarm/apptest"
-	corev1 "k8s.io/api/core/v1"
-	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/tools/clientcmd/api"
@@ -16,7 +14,6 @@ import (
 	"github.com/giantswarm/app-operator/v3/integration/env"
 	"github.com/giantswarm/app-operator/v3/integration/key"
 	"github.com/giantswarm/app-operator/v3/integration/templates"
-	"github.com/giantswarm/app-operator/v3/pkg/project"
 )
 
 const (
@@ -25,8 +22,8 @@ const (
 	kubeConfigName       = "kube-config"
 )
 
-// TestWorkloadClusterBootstrap checks app-operator-unique can bootstrap an
-// app-operator for the workload cluster and that is can install a test app.
+// TestWorkloadCluster checks app-operator can bootstrap chart-operator
+// when a kubeconfig is provided.
 func TestWorkloadCluster(t *testing.T) {
 	ctx := context.Background()
 	var err error
@@ -68,56 +65,25 @@ func TestWorkloadCluster(t *testing.T) {
 	}
 
 	{
-		n := &corev1.Namespace{
-			ObjectMeta: metav1.ObjectMeta{
-				Name: key.WorkloadClusterNamespace(),
-			},
-		}
-		_, err := config.AppTest.K8sClient().CoreV1().Namespaces().Create(ctx, n, metav1.CreateOptions{})
-		if apierrors.IsAlreadyExists(err) {
-			t.Logf("namespace %#q already exists", key.WorkloadClusterNamespace())
-			// fall through
-		} else if err != nil {
-			t.Fatalf("expected nil got %#v", err)
-		}
-	}
-
-	{
 		apps := []apptest.App{
 			{
 				// Bootstrap chart-operator in the giantswarm namespace.
-				AppCRNamespace:     key.Namespace(),
-				AppOperatorVersion: project.ManagementClusterAppVersion(),
-				CatalogName:        key.DefaultCatalogName(),
-				Name:               key.ChartOperatorName(),
-				Namespace:          key.Namespace(),
-				KubeConfig:         kubeConfig,
-				ValuesYAML:         templates.ChartOperatorValues,
-				Version:            key.ChartOperatorVersion(),
-				WaitForDeploy:      true,
+				CatalogName:   key.DefaultCatalogName(),
+				KubeConfig:    kubeConfig,
+				Name:          key.ChartOperatorName(),
+				Namespace:     key.Namespace(),
+				ValuesYAML:    templates.ChartOperatorValues,
+				Version:       key.ChartOperatorVersion(),
+				WaitForDeploy: true,
 			},
 			{
-				// Install app-operator in the workload cluster namespace.
-				AppCRNamespace:     key.WorkloadClusterNamespace(),
-				AppOperatorVersion: project.ManagementClusterAppVersion(),
-				CatalogName:        key.ControlPlaneTestCatalogName(),
-				Name:               project.Name(),
-				Namespace:          key.WorkloadClusterNamespace(),
-				ValuesYAML:         templates.AppOperatorValues,
-				SHA:                env.CircleSHA(),
-				WaitForDeploy:      true,
-			},
-			{
-				// Install test app using the workload cluster instance of
-				// app-operator.
-				AppCRNamespace:     key.WorkloadClusterNamespace(),
-				AppOperatorVersion: project.Version(),
-				CatalogName:        key.DefaultCatalogName(),
-				KubeConfig:         kubeConfig,
-				Name:               key.TestAppName(),
-				Namespace:          metav1.NamespaceDefault,
-				Version:            "0.1.0",
-				WaitForDeploy:      true,
+				// Install test app.
+				CatalogName:   key.DefaultCatalogName(),
+				KubeConfig:    kubeConfig,
+				Name:          key.TestAppName(),
+				Namespace:     metav1.NamespaceDefault,
+				Version:       "0.1.0",
+				WaitForDeploy: true,
 			},
 		}
 		err = config.AppTest.InstallApps(ctx, apps)

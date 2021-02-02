@@ -17,6 +17,7 @@ import (
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
+	"github.com/giantswarm/app-operator/v3/pkg/annotation"
 	pkglabel "github.com/giantswarm/app-operator/v3/pkg/label"
 	"github.com/giantswarm/app-operator/v3/pkg/project"
 )
@@ -34,12 +35,6 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
-	// Skip creating appcatalogentry CRs if the catalog is not public.
-	if key.AppCatalogVisibility(cr) != publicVisibilityType {
-		r.logger.Debugf(ctx, "not creating CRs for catalog %#q with visibility %#q", cr.Name, key.AppCatalogVisibility(cr))
-		r.logger.Debugf(ctx, "canceling resource")
-		return nil
-	}
 	// Skip creating appcatalogentry CRs if this is a community catalog.
 	if key.AppCatalogType(cr) == communityCatalogType {
 		r.logger.Debugf(ctx, "not creating CRs for catalog %#q with type %#q", cr.Name, communityCatalogType)
@@ -175,10 +170,12 @@ func (r *Resource) newAppCatalogEntries(ctx context.Context, cr v1alpha1.AppCata
 
 			var rawMetadata []byte
 			{
-				rawMetadata, err = r.getMetadata(ctx, key.AppCatalogStorageURL(cr), entry.Name, entry.Version)
-				if err != nil {
-					r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("failed to get appMetadata for entry %#q in catalog %#q", entry.Name, cr.Name), "stack", fmt.Sprintf("%#v", err))
-					continue
+				if url, ok := entry.Annotations[annotation.Metadata]; ok {
+					rawMetadata, err = r.getMetadata(ctx, url)
+					if err != nil {
+						r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("failed to get appMetadata for entry %#q in catalog %#q", entry.Name, cr.Name), "stack", fmt.Sprintf("%#v", err))
+						continue
+					}
 				}
 			}
 
