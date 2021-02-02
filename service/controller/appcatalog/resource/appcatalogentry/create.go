@@ -34,6 +34,13 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
+	// Skip creating appcatalogentry CRs if this is a community catalog.
+	if key.AppCatalogType(cr) == communityCatalogType {
+		r.logger.Debugf(ctx, "not creating CRs for catalog %#q with type %#q", cr.Name, communityCatalogType)
+		r.logger.Debugf(ctx, "canceling resource")
+		return nil
+	}
+
 	currentEntryCRs, err := r.getCurrentEntryCRs(ctx, cr)
 	if err != nil {
 		return microerror.Mask(err)
