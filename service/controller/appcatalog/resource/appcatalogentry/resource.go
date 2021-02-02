@@ -23,12 +23,10 @@ import (
 const (
 	Name = "appcatalogentry"
 
-	apiVersion           = "application.giantswarm.io/v1alpha1"
-	communityCatalogType = "community"
-	kindAppCatalog       = "AppCatalog"
-	kindAppCatalogEntry  = "AppCatalogEntry"
-	maxEntriesPerApp     = 5
-	publicVisibilityType = "public"
+	apiVersion          = "application.giantswarm.io/v1alpha1"
+	kindAppCatalog      = "AppCatalog"
+	kindAppCatalogEntry = "AppCatalogEntry"
+	maxEntriesPerApp    = 5
 )
 
 type Config struct {
