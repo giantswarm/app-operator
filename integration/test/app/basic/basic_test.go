@@ -97,12 +97,13 @@ func TestAppLifecycle(t *testing.T) {
 	{
 		apps := []apptest.App{
 			{
+				AppCRName:     key.ChartOperatorUniqueName(),
 				CatalogName:   key.DefaultCatalogName(),
 				Name:          key.ChartOperatorName(),
 				Namespace:     key.Namespace(),
 				ValuesYAML:    templates.ChartOperatorValues,
 				Version:       key.ChartOperatorVersion(),
-				WaitForDeploy: true,
+				WaitForDeploy: false,
 			},
 			{
 				CatalogName:   key.DefaultCatalogName(),
@@ -156,7 +157,7 @@ func TestAppLifecycle(t *testing.T) {
 	{
 		config.Logger.Debugf(ctx, "checking tarball URL in chart spec")
 
-		err = config.Release.WaitForReleaseVersion(ctx, key.Namespace(), key.TestAppName(), "0.1.1")
+		err = config.Release.WaitForReleaseVersion(ctx, metav1.NamespaceDefault, key.TestAppName(), "0.1.1")
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
@@ -202,7 +203,7 @@ func TestAppLifecycle(t *testing.T) {
 	{
 		config.Logger.Debugf(ctx, "checking %#q release has been deleted", key.TestAppName())
 
-		err = config.Release.WaitForReleaseStatus(ctx, key.Namespace(), key.TestAppName(), helmclient.StatusUninstalled)
+		err = config.Release.WaitForReleaseStatus(ctx, metav1.NamespaceDefault, key.TestAppName(), helmclient.StatusUninstalled)
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
