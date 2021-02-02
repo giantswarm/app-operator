@@ -67,7 +67,7 @@ func TestAppCatalogEntry(t *testing.T) {
 
 	var latestEntry appcatalog.Entry
 	{
-		latestEntry, err = appcatalog.GetLatestEntry(ctx, "https://giantswarm.github.io/giantswarm-catalog/", "prometheus-operator-app", "")
+		latestEntry, err = appcatalog.GetLatestEntry(ctx, key.StableCatalogStorageURL(), "prometheus-operator-app", "")
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}

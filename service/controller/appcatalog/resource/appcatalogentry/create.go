@@ -88,7 +88,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	}
 
 	// To keep the number of appCatalogEntry CR below a certain level,
-	// controller should delete outgrowing appCatalogEntry CR.
+	// we delete any appCatalogEntries older than the max entries.
 	for name, currentEntryCR := range currentEntryCRs {
 		_, ok := desiredEntryCRs[name]
 		if !ok {
