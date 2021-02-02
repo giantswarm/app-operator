@@ -23,7 +23,7 @@ type Config struct {
 	Logger     micrologger.Logger
 }
 
-// Resource does garbage collection on the AzureConfig CR finalizers.
+// Resource does garbage collection on the App CR finalizers.
 type Resource struct {
 	ctrlClient client.Client
 	logger     micrologger.Logger
@@ -45,7 +45,7 @@ func New(config Config) (*Resource, error) {
 	return r, nil
 }
 
-// EnsureCreated ensures that reconciled AzureConfig CR gets orphaned finalizer
+// EnsureCreated ensures that reconciled App CR gets orphaned finalizer
 // deleted.
 func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	cr, err := key.ToApp(obj)
