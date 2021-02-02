@@ -118,7 +118,7 @@ func (c *ChartStatus) watchChartStatus(ctx context.Context) {
 
 			app, err := c.k8sClient.G8sClient().ApplicationV1alpha1().Apps(appNamespace).Get(ctx, chart.Name, metav1.GetOptions{})
 			if err != nil {
-				c.logger.Errorf(ctx, err, "failed to get app '%s/%s'", app.Namespace, app.Name)
+				c.logger.Errorf(ctx, err, "failed to get app %#q in namespace %#q", app.Namespace, app.Name)
 				continue
 			}
 
@@ -127,16 +127,18 @@ func (c *ChartStatus) watchChartStatus(ctx context.Context) {
 
 			if !equals(currentStatus, desiredStatus) {
 				if diff := cmp.Diff(currentStatus, desiredStatus); diff != "" {
-					fmt.Printf("app '%s/%s' has to be updated, (-current +desired):\n%s", app.Namespace, app.Name, diff)
+					c.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("status for app %#q in %#q namespace has to be updated", app.Name, app.Namespace), "diff", fmt.Sprintf("(-current +desired):\n%s", diff))
 				}
 
 				app.Status = desiredStatus
 
 				_, err = c.k8sClient.G8sClient().ApplicationV1alpha1().Apps(app.Namespace).UpdateStatus(ctx, app, metav1.UpdateOptions{})
 				if err != nil {
-					c.logger.Errorf(ctx, err, "failed to update status for app '%s/%s'", app.Namespace, app.Name)
+					c.logger.Errorf(ctx, err, "failed to update status for app %#q in namespace %#q", app.Name, app.Namespace)
 					continue
 				}
+
+				c.logger.Debugf(ctx, "status set for app %#q in namespace %#q", app.Name, app.Namespace)
 			}
 		}
 
