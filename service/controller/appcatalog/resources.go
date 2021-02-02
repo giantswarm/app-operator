@@ -9,6 +9,7 @@ import (
 	"github.com/giantswarm/operatorkit/v4/pkg/resource/wrapper/retryresource"
 
 	"github.com/giantswarm/app-operator/v3/service/controller/appcatalog/resource/appcatalogentry"
+	"github.com/giantswarm/app-operator/v3/service/controller/appcatalog/resource/appcatalogfinalizer"
 )
 
 type appCatalogResourcesConfig struct {
@@ -30,6 +31,18 @@ func newAppCatalogResources(config appCatalogResourcesConfig) ([]resource.Interf
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
 
+	var appCatalogFinalizerResource resource.Interface
+	{
+		c := appcatalogfinalizer.Config{
+			CtrlClient: config.K8sClient.CtrlClient(),
+			Logger:     config.Logger,
+		}
+		appCatalogFinalizerResource, err = appcatalogfinalizer.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var appCatalogEntryResource resource.Interface
 	{
 		c := appcatalogentry.Config{
@@ -47,6 +60,7 @@ func newAppCatalogResources(config appCatalogResourcesConfig) ([]resource.Interf
 	}
 
 	resources := []resource.Interface{
+		appCatalogFinalizerResource,
 		appCatalogEntryResource,
 	}
 
