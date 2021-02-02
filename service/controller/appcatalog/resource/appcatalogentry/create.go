@@ -169,8 +169,8 @@ func (r *Resource) newAppCatalogEntries(ctx context.Context, cr v1alpha1.AppCata
 
 			var rawMetadata []byte
 			{
-				if url, ok := entry.Annotations[metadataAnnotation]; !ok {
-					rawMetadata, err = r.getMetadata(ctx, url, entry.Name, entry.Version)
+				if url, ok := entry.Annotations[metadataAnnotation]; ok {
+					rawMetadata, err = r.getMetadata(ctx, url)
 					if err != nil {
 						r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("failed to get appMetadata for entry %#q in catalog %#q", entry.Name, cr.Name), "stack", fmt.Sprintf("%#v", err))
 						continue

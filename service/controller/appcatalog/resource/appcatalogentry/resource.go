@@ -126,13 +126,11 @@ func (r *Resource) getIndex(ctx context.Context, storageURL string) (index, erro
 	return i, nil
 }
 
-func (r *Resource) getMetadata(ctx context.Context, mainURL, name, version string) ([]byte, error) {
+func (r *Resource) getMetadata(ctx context.Context, mainURL string) ([]byte, error) {
 	eventName := "pull_metadata_file"
 
 	t := prometheus.NewTimer(histogram.WithLabelValues(eventName))
 	defer t.ObserveDuration()
-
-	//mainURL := fmt.Sprintf("%s/%s-%s.tgz-meta/main.yaml", strings.TrimRight(storageURL, "/"), name, version)
 
 	r.logger.Debugf(ctx, "getting main.yaml from %#q", mainURL)
 
