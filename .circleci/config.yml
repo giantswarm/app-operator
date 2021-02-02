@@ -61,14 +61,6 @@ workflows:
 
       - architect/integration-test:
           context: architect
-          name: kubeconfig-integration-test
-          test-dir: "integration/test/app/kubeconfig"
-          requires:
-            - go-build
-            - push-app-operator-to-control-plane-app-catalog
-
-      - architect/integration-test:
-          context: architect
           name: appcatalogentry-integration-test
           test-dir: "integration/test/appcatalog/appcatalogentry"
           requires:
@@ -82,3 +74,12 @@ workflows:
           requires:
             - go-build
             - push-app-operator-to-control-plane-app-catalog
+
+      - architect/integration-test:
+          context: architect
+          name: workload-cluster-integration-test
+          test-dir: "integration/test/app/workload"
+          requires:
+            - go-build
+            - push-app-operator-to-control-plane-app-catalog
+

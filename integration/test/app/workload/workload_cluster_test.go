@@ -1,6 +1,6 @@
 // +build k8srequired
 
-package kubeconfig
+package workload
 
 import (
 	"context"
@@ -22,9 +22,9 @@ const (
 	kubeConfigName       = "kube-config"
 )
 
-// TestAppWithKubeconfig checks app-operator can bootstrap chart-operator
+// TestWorkloadCluster checks app-operator can bootstrap chart-operator
 // when a kubeconfig is provided.
-func TestAppWithKubeconfig(t *testing.T) {
+func TestWorkloadCluster(t *testing.T) {
 	ctx := context.Background()
 	var err error
 

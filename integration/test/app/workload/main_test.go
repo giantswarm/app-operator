@@ -1,6 +1,6 @@
 // +build k8srequired
 
-package kubeconfig
+package workload
 
 import (
 	"testing"
