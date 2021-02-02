@@ -6,12 +6,13 @@ require (
 	github.com/Masterminds/semver v1.5.0
 	github.com/Masterminds/semver/v3 v3.1.1
 	github.com/ghodss/yaml v1.0.0
-	github.com/giantswarm/apiextensions/v3 v3.14.1
+	github.com/giantswarm/apiextensions/v3 v3.16.1
 	github.com/giantswarm/app/v4 v4.2.0
-	github.com/giantswarm/appcatalog v0.3.2
+	github.com/giantswarm/appcatalog v0.4.0
+	github.com/giantswarm/apptest v0.9.0
 	github.com/giantswarm/backoff v0.2.0
 	github.com/giantswarm/errors v0.2.3
-	github.com/giantswarm/helmclient/v4 v4.1.0
+	github.com/giantswarm/helmclient/v4 v4.3.0
 	github.com/giantswarm/k8sclient/v5 v5.0.0
 	github.com/giantswarm/kubeconfig/v4 v4.0.0
 	github.com/giantswarm/microendpoint v0.2.0
@@ -34,6 +35,8 @@ require (
 )
 
 replace (
+	// Use v0.8.10 of hcsshim to fix nancy alert.
+	github.com/Microsoft/hcsshim v0.8.7 => github.com/Microsoft/hcsshim v0.8.10
 	// Apply fix for CVE-2020-15114 not yet released in github.com/spf13/viper.
 	github.com/bketelsen/crypt => github.com/bketelsen/crypt v0.0.3
 	// Use moby v20.10.0-beta1 to fix build issue on darwin.
@@ -42,6 +45,8 @@ replace (
 	github.com/go-logr/logr v0.2.0 => github.com/go-logr/logr v0.1.0
 	// Use mergo 0.3.11 due to bug in 0.3.9 merging Go structs.
 	github.com/imdario/mergo => github.com/imdario/mergo v0.3.11
+	// Use v1.0.0-rc7 of runc to fix nancy alert.
+	github.com/opencontainers/runc v0.1.1 => github.com/opencontainers/runc v1.0.0-rc7
 	// Same as go-logr/logr, klog/v2 is using logr v0.2.0
 	k8s.io/klog/v2 v2.2.0 => k8s.io/klog/v2 v2.0.0
 	// Use fork of CAPI with Kubernetes 1.18 support.

@@ -16,6 +16,7 @@ import (
 	"github.com/spf13/afero"
 	"sigs.k8s.io/yaml"
 
+	"github.com/giantswarm/app-operator/v3/integration/env"
 	"github.com/giantswarm/app-operator/v3/integration/key"
 	"github.com/giantswarm/app-operator/v3/integration/templates"
 	"github.com/giantswarm/app-operator/v3/pkg/project"
@@ -82,7 +83,7 @@ func installResources(ctx context.Context, config Config) error {
 	{
 		config.Logger.Debugf(ctx, "getting tarball URL")
 
-		operatorTarballURL, err := appcatalog.GetLatestChart(ctx, key.ControlPlaneTestCatalogStorageURL(), project.Name(), project.Version())
+		operatorTarballURL, err := appcatalog.GetLatestChart(ctx, key.ControlPlaneTestCatalogStorageURL(), project.Name(), env.CircleSHA())
 		if err != nil {
 			return microerror.Mask(err)
 		}
@@ -122,6 +123,7 @@ func installResources(ctx context.Context, config Config) error {
 		// implemented for the unique instance.
 		opts := helmclient.InstallOptions{
 			ReleaseName: key.AppOperatorUniqueName(),
+			Wait:        true,
 		}
 		err = config.HelmClient.InstallReleaseFromTarball(ctx,
 			operatorTarballPath,
