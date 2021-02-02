@@ -28,7 +28,6 @@ const (
 	kindAppCatalog       = "AppCatalog"
 	kindAppCatalogEntry  = "AppCatalogEntry"
 	maxEntriesPerApp     = 5
-	metadataAnnotation   = "application.giantswarm.io/metadata"
 )
 
 type Config struct {
