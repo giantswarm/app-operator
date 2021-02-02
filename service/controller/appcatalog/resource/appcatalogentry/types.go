@@ -1,6 +1,9 @@
 package appcatalogentry
 
-import "github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
+import (
+	"github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+)
 
 type index struct {
 	Entries   map[string][]entry `json:"entries"`
@@ -17,6 +20,9 @@ type entry struct {
 	Version    string   `json:"version"`
 }
 
-type metadata struct {
-	Restrictions v1alpha1.AppCatalogEntrySpecRestrictions `json:"restrictions"`
+type appMetadata struct {
+	Annotations     map[string]string                         `json:"annotations"`
+	ChartAPIVersion string                                    `json:"chartApiVersion"`
+	DataCreated     *metav1.Time                              `json:"dataCreated"`
+	Restrictions    *v1alpha1.AppCatalogEntrySpecRestrictions `json:"restrictions"`
 }

@@ -66,7 +66,8 @@ func New(config Config) (*Service, error) {
 			Logger:    config.Logger,
 			K8sClient: config.K8sClient,
 
-			UniqueApp: config.Viper.GetBool(config.Flag.Service.App.Unique),
+			MaxEntriesPerApp: config.Viper.GetInt(config.Flag.Service.AppCatalog.MaxEntriesPerApp),
+			UniqueApp:        config.Viper.GetBool(config.Flag.Service.App.Unique),
 		}
 
 		appCatalogController, err = appcatalog.NewAppCatalog(c)

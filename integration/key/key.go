@@ -12,10 +12,6 @@ func AppCatalogConfigMapName() string {
 	return "appcatalog-config"
 }
 
-func AppCatalogEntryName() string {
-	return "giantswarm-prometheus-operator-app-0.3.4"
-}
-
 func AppOperatorUniqueName() string {
 	return fmt.Sprintf("%s-unique", project.Name())
 }
@@ -29,7 +25,7 @@ func ChartOperatorUniqueName() string {
 }
 
 func ChartOperatorVersion() string {
-	return "2.5.1"
+	return "2.7.1"
 }
 
 func ControlPlaneTestCatalogName() string {

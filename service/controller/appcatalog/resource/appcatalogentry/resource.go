@@ -27,6 +27,7 @@ const (
 	communityCatalogType = "community"
 	kindAppCatalog       = "AppCatalog"
 	kindAppCatalogEntry  = "AppCatalogEntry"
+	maxEntriesPerApp     = 5
 	publicVisibilityType = "public"
 )
 
@@ -34,14 +35,16 @@ type Config struct {
 	K8sClient k8sclient.Interface
 	Logger    micrologger.Logger
 
-	UniqueApp bool
+	MaxEntriesPerApp int
+	UniqueApp        bool
 }
 
 type Resource struct {
 	k8sClient k8sclient.Interface
 	logger    micrologger.Logger
 
-	uniqueApp bool
+	maxEntriesPerApp int
+	uniqueApp        bool
 }
 
 // New creates a new configured tcnamespace resource.
@@ -53,11 +56,16 @@ func New(config Config) (*Resource, error) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
 
+	if config.MaxEntriesPerApp == 0 {
+		config.MaxEntriesPerApp = maxEntriesPerApp
+	}
+
 	r := &Resource{
 		k8sClient: config.K8sClient,
 		logger:    config.Logger,
 
-		uniqueApp: config.UniqueApp,
+		maxEntriesPerApp: config.MaxEntriesPerApp,
+		uniqueApp:        config.UniqueApp,
 	}
 
 	return r, nil
@@ -150,13 +158,13 @@ func (r *Resource) getMetadata(ctx context.Context, storageURL, name, version st
 	return body, nil
 }
 
-func parseRestrictions(rawMetadata []byte) (*v1alpha1.AppCatalogEntrySpecRestrictions, error) {
-	var m metadata
+func parseMetadata(rawMetadata []byte) (*appMetadata, error) {
+	var m appMetadata
 
 	err := yaml.Unmarshal(rawMetadata, &m)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
 
-	return &m.Restrictions, nil
+	return &m, nil
 }
