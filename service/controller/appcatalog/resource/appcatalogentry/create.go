@@ -62,7 +62,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
-	var created, updated int
+	var created, updated, deleted int
 
 	r.logger.Debugf(ctx, "finding out changes to appcatalogentries for catalog %#q", cr.Name)
 
@@ -87,7 +87,21 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		}
 	}
 
-	r.logger.Debugf(ctx, "created %d updated %d appcatalogentries for catalog %#q", created, updated, cr.Name)
+	// To keep the number of appCatalogEntry CR below a certain level,
+	// we delete any appCatalogEntries older than the max entries.
+	for name, currentEntryCR := range currentEntryCRs {
+		_, ok := desiredEntryCRs[name]
+		if !ok {
+			err := r.deleteAppCatalogEntry(ctx, currentEntryCR)
+			if err != nil {
+				return microerror.Mask(err)
+			}
+
+			deleted++
+		}
+	}
+
+	r.logger.Debugf(ctx, "created %d updated %d deleted %d appcatalogentries for catalog %#q", created, updated, deleted, cr.Name)
 
 	return nil
 }
@@ -104,6 +118,19 @@ func (r *Resource) createAppCatalogEntry(ctx context.Context, entryCR *v1alpha1.
 	}
 
 	r.logger.Debugf(ctx, "created appcatalogentry CR %#q in namespace %#q", entryCR.Name, entryCR.Namespace)
+
+	return nil
+}
+
+func (r *Resource) deleteAppCatalogEntry(ctx context.Context, entryCR *v1alpha1.AppCatalogEntry) error {
+	r.logger.Debugf(ctx, "deleting appcatalogentry CR %#q in namespace %#q", entryCR.Name, entryCR.Namespace)
+
+	err := r.k8sClient.G8sClient().ApplicationV1alpha1().AppCatalogEntries(entryCR.Namespace).Delete(ctx, entryCR.Name, metav1.DeleteOptions{})
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
+	r.logger.Debugf(ctx, "deleted appcatalogentry CR %#q in namespace %#q", entryCR.Name, entryCR.Namespace)
 
 	return nil
 }
@@ -137,7 +164,13 @@ func (r *Resource) newAppCatalogEntries(ctx context.Context, cr v1alpha1.AppCata
 			r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("failed to parse latest version for %#q in catalog %#q", name, cr.Name), "stack", fmt.Sprintf("%#v", err))
 		}
 
-		for _, entry := range entries {
+		maxEntries := r.maxEntriesPerApp
+		if len(entries) < maxEntries {
+			maxEntries = len(entries)
+		}
+
+		for i := 0; i < maxEntries; i++ {
+			entry := entries[i]
 			name := fmt.Sprintf("%s-%s-%s", cr.Name, entry.Name, entry.Version)
 
 			var rawMetadata []byte

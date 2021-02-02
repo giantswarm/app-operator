@@ -10,6 +10,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 ### Added
 
 - Include `apiVersion`, `restrictions.compatibleProviders` in appcatalogentry CRs.
+  
+### Changed
+  
+- Limit the number of AppCatalogEntry per app.
 
 ## [3.1.0] - 2021-01-13
 

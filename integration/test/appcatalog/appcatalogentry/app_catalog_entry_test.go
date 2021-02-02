@@ -11,6 +11,7 @@ import (
 
 	"github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/apiextensions/v3/pkg/label"
+	"github.com/giantswarm/appcatalog"
 	"github.com/giantswarm/backoff"
 	"github.com/giantswarm/microerror"
 	"github.com/google/go-cmp/cmp"
@@ -64,11 +65,20 @@ func TestAppCatalogEntry(t *testing.T) {
 		config.Logger.Debugf(ctx, "created %#q appcatalog cr", key.StableCatalogName())
 	}
 
-	var entryCR *v1alpha1.AppCatalogEntry
-
+	var latestEntry appcatalog.Entry
 	{
+		latestEntry, err = appcatalog.GetLatestEntry(ctx, key.StableCatalogStorageURL(), "prometheus-operator-app", "")
+		if err != nil {
+			t.Fatalf("expected %#v got %#v", nil, err)
+		}
+	}
+
+	var entryCR *v1alpha1.AppCatalogEntry
+	{
+		appCatalogEntryName := fmt.Sprintf("%s-%s-%s", key.Namespace(), latestEntry.Name, latestEntry.Version)
+
 		o := func() error {
-			entryCR, err = config.K8sClients.G8sClient().ApplicationV1alpha1().AppCatalogEntries(metav1.NamespaceDefault).Get(ctx, key.AppCatalogEntryName(), metav1.GetOptions{})
+			entryCR, err = config.K8sClients.G8sClient().ApplicationV1alpha1().AppCatalogEntries(metav1.NamespaceDefault).Get(ctx, appCatalogEntryName, metav1.GetOptions{})
 			if err != nil {
 				return microerror.Mask(err)
 			}
@@ -77,7 +87,7 @@ func TestAppCatalogEntry(t *testing.T) {
 		}
 
 		n := func(err error, t time.Duration) {
-			config.Logger.Errorf(ctx, err, "failed to get appcatalogentry CR with name %#q: retrying in %s", key.AppCatalogEntryName(), t)
+			config.Logger.Errorf(ctx, err, "failed to get appcatalogentry CR with name %#q: retrying in %s", appCatalogEntryName, t)
 		}
 
 		b := backoff.NewConstant(5*time.Minute, 15*time.Second)
@@ -92,7 +102,7 @@ func TestAppCatalogEntry(t *testing.T) {
 			label.AppKubernetesName: "prometheus-operator-app",
 			label.CatalogName:       key.StableCatalogName(),
 			label.CatalogType:       "stable",
-			pkglabel.Latest:         "false",
+			pkglabel.Latest:         "true",
 			label.ManagedBy:         "app-operator-unique",
 		}
 
@@ -101,20 +111,20 @@ func TestAppCatalogEntry(t *testing.T) {
 		}
 
 		expectedEntrySpec := v1alpha1.AppCatalogEntrySpec{
-			AppName:    "prometheus-operator-app",
-			AppVersion: "0.38.1",
+			AppName:    latestEntry.Name,
+			AppVersion: latestEntry.AppVersion,
 			Catalog: v1alpha1.AppCatalogEntrySpecCatalog{
 				Name:      key.StableCatalogName(),
 				Namespace: "",
 			},
 			Chart: v1alpha1.AppCatalogEntrySpecChart{
 				APIVersion: "v1",
-				Home:       "https://github.com/giantswarm/prometheus-operator-app",
-				Icon:       "https://raw.githubusercontent.com/prometheus/prometheus.github.io/master/assets/prometheus_logo-cb55bb5c346.png",
+				Home:       latestEntry.Home,
+				Icon:       latestEntry.Icon,
 			},
 			DateCreated: nil,
 			DateUpdated: nil,
-			Version:     "0.3.4",
+			Version:     latestEntry.Version,
 		}
 
 		// Clear dates for comparison.

@@ -14,7 +14,8 @@ type Config struct {
 	K8sClient k8sclient.Interface
 	Logger    micrologger.Logger
 
-	UniqueApp bool
+	MaxEntriesPerApp int
+	UniqueApp        bool
 }
 
 type AppCatalog struct {

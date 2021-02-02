@@ -147,6 +147,7 @@ func mainWithError() (err error) {
 	daemonCommand := newCommand.DaemonCommand().CobraCommand()
 
 	daemonCommand.PersistentFlags().Bool(f.Service.App.Unique, false, "Whether the operator is deployed as a unique app.")
+	daemonCommand.PersistentFlags().Int(f.Service.AppCatalog.MaxEntriesPerApp, 5, "The maximum number of appCatalogEntries per app.")
 	daemonCommand.PersistentFlags().String(f.Service.Chart.Namespace, "giantswarm", "The namespace where chart CRs are located.")
 	daemonCommand.PersistentFlags().String(f.Service.Chart.WebhookAuthToken, "", "The auth token value for requests to the webhook.")
 	daemonCommand.PersistentFlags().String(f.Service.Chart.WebhookBaseURL, "", "The webhook base URL where chart-operator reports chart updates.")

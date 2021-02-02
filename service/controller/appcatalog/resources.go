@@ -17,7 +17,8 @@ type appCatalogResourcesConfig struct {
 	Logger    micrologger.Logger
 
 	// Settings.
-	UniqueApp bool
+	MaxEntriesPerApp int
+	UniqueApp        bool
 }
 
 // NewResourceSet returns a configured AppCatalog controller ResourceSet.
@@ -35,7 +36,8 @@ func newAppCatalogResources(config appCatalogResourcesConfig) ([]resource.Interf
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
 
-			UniqueApp: config.UniqueApp,
+			MaxEntriesPerApp: config.MaxEntriesPerApp,
+			UniqueApp:        config.UniqueApp,
 		}
 
 		appCatalogEntryResource, err = appcatalogentry.New(c)
