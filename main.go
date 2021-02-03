@@ -100,7 +100,7 @@ func mainWithError() (err error) {
 				panic(fmt.Sprintf("%#v\n", microerror.Mask(err)))
 			}
 
-			go newService.Boot(ctx, v.GetBool(f.Service.App.Unique))
+			go newService.Boot(ctx)
 		}
 
 		// New custom server that bundles microkit endpoints.
