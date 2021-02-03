@@ -41,7 +41,6 @@ rules:
     - appcatalogs
   verbs:
     - get
-    - update
     - list
     - patch
     - watch
