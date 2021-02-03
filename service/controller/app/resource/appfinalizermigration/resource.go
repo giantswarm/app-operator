@@ -1,4 +1,4 @@
-package appfinalizer
+package appfinalizermigration
 
 import (
 	"context"
@@ -12,7 +12,7 @@ import (
 
 const (
 	// Name is the identifier of the resource.
-	Name = "appfinalizer"
+	Name = "appfinalizermigration"
 
 	// Finalizer of old operator's controller.
 	legacyFinalizer = "operatorkit.giantswarm.io/app-operator"

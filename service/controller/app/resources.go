@@ -15,7 +15,7 @@ import (
 	"github.com/spf13/afero"
 
 	"github.com/giantswarm/app-operator/v3/service/controller/app/resource/appcatalog"
-	"github.com/giantswarm/app-operator/v3/service/controller/app/resource/appfinalizer"
+	"github.com/giantswarm/app-operator/v3/service/controller/app/resource/appfinalizermigration"
 	"github.com/giantswarm/app-operator/v3/service/controller/app/resource/appnamespace"
 	"github.com/giantswarm/app-operator/v3/service/controller/app/resource/authtoken"
 	"github.com/giantswarm/app-operator/v3/service/controller/app/resource/chart"
@@ -100,11 +100,11 @@ func newAppResources(config appResourcesConfig) ([]resource.Interface, error) {
 
 	var appfinalizerResource resource.Interface
 	{
-		c := appfinalizer.Config{
+		c := appfinalizermigration.Config{
 			CtrlClient: config.K8sClient.CtrlClient(),
 			Logger:     config.Logger,
 		}
-		appfinalizerResource, err = appfinalizer.New(c)
+		appfinalizerResource, err = appfinalizermigration.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}

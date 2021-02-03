@@ -1,4 +1,4 @@
-package appfinalizer
+package appfinalizermigration
 
 import "github.com/giantswarm/microerror"
 
