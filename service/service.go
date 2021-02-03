@@ -91,19 +91,6 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
-	var appCatalogController *appcatalog.AppCatalog
-	{
-		c := appcatalog.Config{
-			Logger:    config.Logger,
-			K8sClient: k8sClient,
-		}
-
-		appCatalogController, err = appcatalog.NewAppCatalog(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
 	fs := afero.NewOsFs()
 	var appController *app.App
 	{
@@ -143,9 +130,8 @@ func New(config Config) (*Service, error) {
 	newService := &Service{
 		Version: versionService,
 
-		appController:        appController,
-		appCatalogController: appCatalogController,
-		bootOnce:             sync.Once{},
+		appController: appController,
+		bootOnce:      sync.Once{},
 	}
 
 	return newService, nil
@@ -154,8 +140,7 @@ func New(config Config) (*Service, error) {
 // Boot starts top level service implementation.
 func (s *Service) Boot(ctx context.Context) {
 	s.bootOnce.Do(func() {
-		// Start the controllers.
-		go s.appCatalogController.Boot(ctx)
+		// Start the controller.
 		go s.appController.Boot(ctx)
 	})
 }
