@@ -141,10 +141,14 @@ func New(config Config) (*Service, error) {
 }
 
 // Boot starts top level service implementation.
-func (s *Service) Boot(ctx context.Context) {
+func (s *Service) Boot(ctx context.Context, uniqueApp bool) {
 	s.bootOnce.Do(func() {
+		// Boot appCatalogController only if it's unique app.
+		if uniqueApp {
+			go s.appCatalogController.Boot(ctx)
+		}
+
 		// Start the controllers.
-		go s.appCatalogController.Boot(ctx)
 		go s.appController.Boot(ctx)
 		go s.appValueWatcher.Boot(ctx)
 	})
