@@ -18,7 +18,6 @@ import (
 	"github.com/giantswarm/app-operator/flag"
 	"github.com/giantswarm/app-operator/pkg/project"
 	"github.com/giantswarm/app-operator/service/controller/app"
-	"github.com/giantswarm/app-operator/service/controller/appcatalog"
 )
 
 // Config represents the configuration used to create a new service.
@@ -34,9 +33,8 @@ type Service struct {
 	Version *version.Service
 
 	// Internals
-	appController        *app.App
-	appCatalogController *appcatalog.AppCatalog
-	bootOnce             sync.Once
+	appController *app.App
+	bootOnce      sync.Once
 }
 
 // New creates a new service with given configuration.
