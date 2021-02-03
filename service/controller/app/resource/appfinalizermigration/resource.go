@@ -13,9 +13,14 @@ import (
 const (
 	// Name is the identifier of the resource.
 	Name = "appfinalizermigration"
+)
 
-	// Finalizer of old operator's controller.
-	legacyFinalizer = "operatorkit.giantswarm.io/app-operator"
+var (
+	// Finalizers of old operator's controller.
+	legacyFinalizers = map[string]bool{
+		"operatorkit.giantswarm.io/app":          true,
+		"operatorkit.giantswarm.io/app-operator": true,
+	}
 )
 
 type Config struct {
@@ -62,17 +67,19 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	}
 
 	var exists bool
-	for i, v := range cr.Finalizers {
-		if strings.TrimSpace(v) == legacyFinalizer {
+	var newFinalizers []string
+	for _, v := range cr.Finalizers {
+		if legacyFinalizers[strings.TrimSpace(v)] {
+			// drop it
 			exists = true
-
-			// Drop it.
-			cr.Finalizers = append(cr.Finalizers[:i], cr.Finalizers[i+1:]...)
-			break
+			continue
 		}
+
+		newFinalizers = append(newFinalizers, strings.TrimSpace(v))
 	}
 
 	if exists {
+		cr.Finalizers = newFinalizers
 		r.logger.Debugf(ctx, "deleting legacy finalizer from app CR")
 
 		err := r.ctrlClient.Update(ctx, &cr)
