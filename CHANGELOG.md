@@ -7,6 +7,8 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+## [1.0.16] - 2021-02-04
+
 ### Removed
 
 - Deleted AppCatalog controller.
@@ -101,7 +103,8 @@ app CRs. A message is added to the app CR status for the user.
 
 - Flattening operator release structure.
 
-[Unreleased]: https://github.com/giantswarm/app-operator/compare/v1.0.15...HEAD
+[Unreleased]: https://github.com/giantswarm/app-operator/compare/v1.0.16...HEAD
+[1.0.16]: https://github.com/giantswarm/app-operator/compare/v1.0.15...v1.0.16
 [1.0.15]: https://github.com/giantswarm/app-operator/compare/v1.0.14...v1.0.15
 [1.0.14]: https://github.com/giantswarm/app-operator/compare/v1.0.13...v1.0.14
 [1.0.13]: https://github.com/giantswarm/app-operator/compare/v1.0.12...v1.0.13
