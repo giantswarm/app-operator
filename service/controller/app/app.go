@@ -15,8 +15,11 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 
 	"github.com/giantswarm/app-operator/v3/pkg/label"
+	"github.com/giantswarm/app-operator/v3/pkg/project"
 	"github.com/giantswarm/app-operator/v3/service/controller/app/controllercontext"
 )
+
+const appControllerSuffix = "-app"
 
 type Config struct {
 	Fs        afero.Fs
@@ -110,7 +113,7 @@ func NewApp(config Config) (*App, error) {
 				return new(v1alpha1.App)
 			},
 
-			Name: "app",
+			Name: project.Name() + appControllerSuffix,
 		}
 
 		appController, err = controller.New(c)

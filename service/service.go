@@ -37,6 +37,9 @@ type Service struct {
 	appCatalogController *appcatalog.AppCatalog
 	appValueWatcher      *watcher.AppValueWatcher
 	bootOnce             sync.Once
+
+	// Settings
+	unique bool
 }
 
 // New creates a new service with given configuration.
@@ -135,6 +138,8 @@ func New(config Config) (*Service, error) {
 		appCatalogController: appCatalogController,
 		appValueWatcher:      appValueWatcher,
 		bootOnce:             sync.Once{},
+
+		unique: config.Viper.GetBool(config.Flag.Service.App.Unique),
 	}
 
 	return newService, nil
@@ -143,8 +148,12 @@ func New(config Config) (*Service, error) {
 // Boot starts top level service implementation.
 func (s *Service) Boot(ctx context.Context) {
 	s.bootOnce.Do(func() {
+		// Boot appCatalogController only if it's unique app.
+		if s.unique {
+			go s.appCatalogController.Boot(ctx)
+		}
+
 		// Start the controllers.
-		go s.appCatalogController.Boot(ctx)
 		go s.appController.Boot(ctx)
 		go s.appValueWatcher.Boot(ctx)
 	})
