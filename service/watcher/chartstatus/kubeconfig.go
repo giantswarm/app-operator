@@ -17,7 +17,7 @@ import (
 
 // getG8sClient returns a versioned clientset for the kubeconfig used by the
 // chart-operator app CR running in the same namespace as the operator.
-func (c *ChartStatus) getG8sClient(ctx context.Context) (versioned.Interface, error) {
+func (c *ChartStatusWatcher) getG8sClient(ctx context.Context) (versioned.Interface, error) {
 	lo := metav1.ListOptions{
 		LabelSelector: label.ChartOperatorAppSelector(c.uniqueApp),
 	}
@@ -74,7 +74,7 @@ func (c *ChartStatus) getG8sClient(ctx context.Context) (versioned.Interface, er
 // waitForActiveKubeConfig gets a kubeconfig for the chart-operator app CR.
 // If the target cluster is remote then sometimes the connection will be down
 // so we list all chart CRs to confirm the connection is active.
-func (c *ChartStatus) waitForActiveKubeConfig(ctx context.Context) (versioned.Interface, error) {
+func (c *ChartStatusWatcher) waitForActiveKubeConfig(ctx context.Context) (versioned.Interface, error) {
 	var g8sClient versioned.Interface
 	var err error
 

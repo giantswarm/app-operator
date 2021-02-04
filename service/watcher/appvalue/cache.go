@@ -17,7 +17,7 @@ import (
 	pkglabel "github.com/giantswarm/app-operator/v3/pkg/label"
 )
 
-func (c *AppValue) buildCache(ctx context.Context) {
+func (c *AppValueWatcher) buildCache(ctx context.Context) {
 	for {
 		lo := metav1.ListOptions{
 			LabelSelector: c.selector.String(),
@@ -48,7 +48,7 @@ func (c *AppValue) buildCache(ctx context.Context) {
 
 }
 
-func (c *AppValue) addCache(ctx context.Context, cr v1alpha1.App, eventType watch.EventType) error {
+func (c *AppValueWatcher) addCache(ctx context.Context, cr v1alpha1.App, eventType watch.EventType) error {
 	app := appIndex{
 		Name:      cr.GetName(),
 		Namespace: cr.GetNamespace(),
@@ -167,7 +167,7 @@ func (c *AppValue) addCache(ctx context.Context, cr v1alpha1.App, eventType watc
 	return nil
 }
 
-func (c *AppValue) addLabel(ctx context.Context, resource resourceIndex) error {
+func (c *AppValueWatcher) addLabel(ctx context.Context, resource resourceIndex) error {
 	var currentLabels map[string]string
 	{
 		if resource.ResourceType == configMapType {
@@ -230,7 +230,7 @@ func (c *AppValue) addLabel(ctx context.Context, resource resourceIndex) error {
 	return nil
 }
 
-func (c *AppValue) removeLabel(ctx context.Context, resource resourceIndex) error {
+func (c *AppValueWatcher) removeLabel(ctx context.Context, resource resourceIndex) error {
 	var currentLabels map[string]string
 	{
 		if resource.ResourceType == configMapType {

@@ -16,7 +16,7 @@ import (
 	"github.com/giantswarm/app-operator/v3/pkg/annotation"
 )
 
-type ChartStatusConfig struct {
+type ChartStatusWatcherConfig struct {
 	K8sClient k8sclient.Interface
 	Logger    micrologger.Logger
 
@@ -25,7 +25,7 @@ type ChartStatusConfig struct {
 	UniqueApp      bool
 }
 
-type ChartStatus struct {
+type ChartStatusWatcher struct {
 	k8sClient k8sclient.Interface
 	logger    micrologger.Logger
 
@@ -34,7 +34,7 @@ type ChartStatus struct {
 	uniqueApp      bool
 }
 
-func NewChartStatus(config ChartStatusConfig) (*ChartStatus, error) {
+func NewChartStatusWatcher(config ChartStatusWatcherConfig) (*ChartStatusWatcher, error) {
 	if config.K8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
 	}
@@ -49,7 +49,7 @@ func NewChartStatus(config ChartStatusConfig) (*ChartStatus, error) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.PodNamespace must not be empty", config)
 	}
 
-	c := &ChartStatus{
+	c := &ChartStatusWatcher{
 		k8sClient: config.K8sClient,
 		logger:    config.Logger,
 
@@ -63,14 +63,14 @@ func NewChartStatus(config ChartStatusConfig) (*ChartStatus, error) {
 	return c, nil
 }
 
-func (c *ChartStatus) Boot(ctx context.Context) {
+func (c *ChartStatusWatcher) Boot(ctx context.Context) {
 	go c.watchChartStatus(ctx)
 }
 
 // watchChartStatus watches all chart CRs in the target cluster for status
 // changes. The matching app CR status is updated otherwise there can be a
 // delay of up to 5 minutes until the next resync period.
-func (c *ChartStatus) watchChartStatus(ctx context.Context) {
+func (c *ChartStatusWatcher) watchChartStatus(ctx context.Context) {
 	for {
 		// We need an active kubeconfig to connect to the cluster as it may be
 		// remote. We get this from the chart-operator app CR. The connection
