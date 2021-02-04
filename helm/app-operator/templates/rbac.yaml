@@ -23,6 +23,7 @@ rules:
     - apps
   verbs:
     - get
+    - update
     - list
     - patch
     - watch
