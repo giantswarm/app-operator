@@ -98,13 +98,13 @@ func newAppResources(config appResourcesConfig) ([]resource.Interface, error) {
 		}
 	}
 
-	var appfinalizerResource resource.Interface
+	var appFinalizerResource resource.Interface
 	{
 		c := appfinalizermigration.Config{
 			CtrlClient: config.K8sClient.CtrlClient(),
 			Logger:     config.Logger,
 		}
-		appfinalizerResource, err = appfinalizermigration.New(c)
+		appFinalizerResource, err = appfinalizermigration.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -318,8 +318,8 @@ func newAppResources(config appResourcesConfig) ([]resource.Interface, error) {
 		// validationResource checks CRs for validation errors and sets the CR status.
 		validationResource,
 
-		// appfinalizerResource check CRs for it has legacy fianlizer and delete it.
-		appfinalizerResource,
+		// // appFinalizerResource check CRs for legacy finalizers and removes them.
+		appFinalizerResource,
 
 		// Following resources manage controller context information.
 		appNamespaceResource,

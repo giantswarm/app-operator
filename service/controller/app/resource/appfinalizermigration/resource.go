@@ -16,7 +16,7 @@ const (
 )
 
 var (
-	// Finalizers of old operator's controller.
+	// legacyFinalizers are removed by this resource.
 	legacyFinalizers = map[string]bool{
 		"operatorkit.giantswarm.io/app":          true,
 		"operatorkit.giantswarm.io/app-operator": true,
