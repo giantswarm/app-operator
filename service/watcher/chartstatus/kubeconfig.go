@@ -7,6 +7,7 @@ import (
 	"github.com/giantswarm/apiextensions/v3/pkg/clientset/versioned"
 	"github.com/giantswarm/app/v4/pkg/key"
 	"github.com/giantswarm/backoff"
+	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/kubeconfig/v4"
 	"github.com/giantswarm/microerror"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -95,7 +96,12 @@ func (c *ChartStatusWatcher) waitForActiveKubeConfig(ctx context.Context) (versi
 	}
 
 	n := func(err error, t time.Duration) {
-		c.logger.Errorf(ctx, err, "failed to get active kubeconfig: retrying in %s", t)
+		if tenant.IsAPINotAvailable(err) {
+			// At times the cluster API may be unavailable so we will retry.
+			c.logger.Debugf(ctx, "cluster is not available: retrying in %s", t)
+		} else {
+			c.logger.Errorf(ctx, err, "failed to get active kubeconfig: retrying in %s", t)
+		}
 	}
 
 	b := backoff.NewExponential(5*time.Minute, 30*time.Second)
