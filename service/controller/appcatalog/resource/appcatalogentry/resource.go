@@ -178,6 +178,7 @@ func copyAppCatalogEntry(current *v1alpha1.AppCatalogEntry) *v1alpha1.AppCatalog
 
 	newChart.Name = current.Name
 	newChart.Namespace = current.Namespace
+	newChart.OwnerReferences = current.OwnerReferences
 
 	newChart.Annotations = current.Annotations
 	newChart.Labels = current.Labels
