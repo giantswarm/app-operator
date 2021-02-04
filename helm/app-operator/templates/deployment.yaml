@@ -44,6 +44,11 @@ spec:
         - daemon
         - --config.dirs=/var/run/{{ include "name" . }}/configmap/
         - --config.files=config
+        env:
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
         livenessProbe:
           httpGet:
             path: /healthz
