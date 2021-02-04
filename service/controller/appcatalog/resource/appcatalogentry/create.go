@@ -65,6 +65,10 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		currentEntryCR, ok := currentEntryCRs[name]
 		if ok {
 			if !equals(currentEntryCR, desiredEntryCR) {
+				if diff := cmp.Diff(currentEntryCR, desiredEntryCR); diff != "" {
+					r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("appCatalogEntry %#q has to be updated", currentEntryCR.Name), "diff", fmt.Sprintf("(-current +desired):\n%s", diff))
+				}
+
 				err := r.updateAppCatalogEntry(ctx, desiredEntryCR)
 				if err != nil {
 					return microerror.Mask(err)
