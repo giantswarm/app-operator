@@ -26,6 +26,7 @@ type Config struct {
 	ChartNamespace    string
 	HTTPClientTimeout time.Duration
 	ImageRegistry     string
+	PodNamespace      string
 	ResyncPeriod      time.Duration
 	UniqueApp         bool
 	WebhookAuthToken  string
@@ -54,6 +55,9 @@ func NewApp(config Config) (*App, error) {
 	}
 	if config.ImageRegistry == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ImageRegistry must not be empty", config)
+	}
+	if config.PodNamespace == "" {
+		return nil, microerror.Maskf(invalidConfigError, "%T.PodNamespace must not be empty", config)
 	}
 	if config.ResyncPeriod == 0 {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ResyncPeriod must not be empty", config)
@@ -111,6 +115,12 @@ func NewApp(config Config) (*App, error) {
 			},
 
 			Name: "app",
+		}
+
+		if !config.UniqueApp {
+			// Only watch app CRs in the current namespace. The label selector
+			// excludes the operator's own app CR which has the unique version.
+			c.Namespace = config.PodNamespace
 		}
 
 		appController, err = controller.New(c)

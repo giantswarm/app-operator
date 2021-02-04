@@ -13,6 +13,7 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/giantswarm/app-operator/v3/flag"
+	"github.com/giantswarm/app-operator/v3/pkg/env"
 	"github.com/giantswarm/app-operator/v3/pkg/project"
 	"github.com/giantswarm/app-operator/v3/service/controller/app"
 	"github.com/giantswarm/app-operator/v3/service/controller/appcatalog"
@@ -74,6 +75,8 @@ func New(config Config) (*Service, error) {
 	}
 
 	fs := afero.NewOsFs()
+	podNamespace := env.PodNamespace()
+
 	var appController *app.App
 	{
 		c := app.Config{
@@ -84,6 +87,7 @@ func New(config Config) (*Service, error) {
 			ChartNamespace:    config.Viper.GetString(config.Flag.Service.Chart.Namespace),
 			HTTPClientTimeout: config.Viper.GetDuration(config.Flag.Service.Helm.HTTP.ClientTimeout),
 			ImageRegistry:     config.Viper.GetString(config.Flag.Service.Image.Registry),
+			PodNamespace:      podNamespace,
 			ResyncPeriod:      config.Viper.GetDuration(config.Flag.Service.Operatorkit.ResyncPeriod),
 			UniqueApp:         config.Viper.GetBool(config.Flag.Service.App.Unique),
 			WebhookAuthToken:  config.Viper.GetString(config.Flag.Service.Chart.WebhookAuthToken),
