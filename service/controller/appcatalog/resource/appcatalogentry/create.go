@@ -73,6 +73,8 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			timeComparer := cmp.Comparer(func(current, desired *metav1.Time) bool {
 				if current != nil && desired != nil {
 					return current.Unix() == desired.Unix()
+				} else if current == nil && desired == nil {
+					return true
 				}
 
 				return false
