@@ -165,3 +165,23 @@ func parseMetadata(rawMetadata []byte) (*appMetadata, error) {
 
 	return &m, nil
 }
+
+// copyAppCatalogEntry creates a new AppCatalogEntry object based on the current entry,
+// so later we don't need to show unnecessary differences.
+func copyAppCatalogEntry(current *v1alpha1.AppCatalogEntry) *v1alpha1.AppCatalogEntry {
+	newChart := &v1alpha1.AppCatalogEntry{
+		TypeMeta: metav1.TypeMeta{
+			APIVersion: apiVersion,
+			Kind:       kindAppCatalogEntry,
+		},
+	}
+
+	newChart.Name = current.Name
+	newChart.Namespace = current.Namespace
+
+	newChart.Annotations = current.Annotations
+	newChart.Labels = current.Labels
+	newChart.Spec = *current.Spec.DeepCopy()
+
+	return newChart
+}

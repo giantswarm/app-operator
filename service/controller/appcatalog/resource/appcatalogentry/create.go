@@ -64,6 +64,10 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	for name, desiredEntryCR := range desiredEntryCRs {
 		currentEntryCR, ok := currentEntryCRs[name]
 		if ok {
+			// Copy current appCatalogEntry CR so we keep only the values we need
+			// for comparing them.
+			currentEntryCR = copyAppCatalogEntry(currentEntryCR)
+
 			if !equals(currentEntryCR, desiredEntryCR) {
 				if diff := cmp.Diff(currentEntryCR, desiredEntryCR); diff != "" {
 					r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("appCatalogEntry %#q has to be updated", currentEntryCR.Name), "diff", fmt.Sprintf("(-current +desired):\n%s", diff))
