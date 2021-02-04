@@ -1,4 +1,4 @@
-package watcher
+package appvalue
 
 import "github.com/giantswarm/microerror"
 

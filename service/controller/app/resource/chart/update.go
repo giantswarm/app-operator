@@ -86,7 +86,7 @@ func (r *Resource) newUpdateChange(ctx context.Context, currentResource, desired
 
 	if !reflect.DeepEqual(currentChart, desiredChart) {
 		if diff := cmp.Diff(currentChart, desiredChart); diff != "" {
-			fmt.Printf("chart %#q has to be updated, (-current +desired):\n%s", currentChart.Name, diff)
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("chart %#q has to be updated", currentChart.Name), "diff", fmt.Sprintf("(-current +desired):\n%s", diff))
 		}
 
 		updateChart = desiredChart.DeepCopy()

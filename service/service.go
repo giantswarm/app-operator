@@ -16,7 +16,7 @@ import (
 	"github.com/giantswarm/app-operator/v3/pkg/project"
 	"github.com/giantswarm/app-operator/v3/service/controller/app"
 	"github.com/giantswarm/app-operator/v3/service/controller/appcatalog"
-	"github.com/giantswarm/app-operator/v3/service/watcher"
+	"github.com/giantswarm/app-operator/v3/service/watcher/appvalue"
 )
 
 // Config represents the configuration used to create a new service.
@@ -35,8 +35,11 @@ type Service struct {
 	// Internals
 	appController        *app.App
 	appCatalogController *appcatalog.AppCatalog
-	appValueWatcher      *watcher.AppValueWatcher
+	appValueWatcher      *appvalue.AppValueWatcher
 	bootOnce             sync.Once
+
+	// Settings
+	unique bool
 }
 
 // New creates a new service with given configuration.
@@ -96,16 +99,16 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
-	var appValueWatcher *watcher.AppValueWatcher
+	var appValueWatcher *appvalue.AppValueWatcher
 	{
-		c := watcher.AppValueWatcherConfig{
+		c := appvalue.AppValueWatcherConfig{
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
 
 			UniqueApp: config.Viper.GetBool(config.Flag.Service.App.Unique),
 		}
 
-		appValueWatcher, err = watcher.NewAppValueWatcher(c)
+		appValueWatcher, err = appvalue.NewAppValueWatcher(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -135,6 +138,8 @@ func New(config Config) (*Service, error) {
 		appCatalogController: appCatalogController,
 		appValueWatcher:      appValueWatcher,
 		bootOnce:             sync.Once{},
+
+		unique: config.Viper.GetBool(config.Flag.Service.App.Unique),
 	}
 
 	return newService, nil
@@ -143,9 +148,15 @@ func New(config Config) (*Service, error) {
 // Boot starts top level service implementation.
 func (s *Service) Boot(ctx context.Context) {
 	s.bootOnce.Do(func() {
-		// Start the controllers.
-		go s.appCatalogController.Boot(ctx)
+		// Boot appCatalogController only if it's unique app.
+		if s.unique {
+			go s.appCatalogController.Boot(ctx)
+		}
+
+		// Start the controller.
 		go s.appController.Boot(ctx)
+
+		// Start the watcher.
 		go s.appValueWatcher.Boot(ctx)
 	})
 }

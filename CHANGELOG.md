@@ -14,6 +14,12 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 ### Changed
   
 - Limit the number of AppCatalogEntry per app.
+- Delete legacy finalizers on app CRs. 
+- Reconciling appCatalog CRs only if pod is unique.
+
+### Fixed
+
+- Updating status as cordoned if app CR has cordoned annotation.
 
 ## [3.1.0] - 2021-01-13
 
