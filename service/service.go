@@ -37,9 +37,12 @@ type Service struct {
 	// Internals
 	appController        *app.App
 	appCatalogController *appcatalog.AppCatalog
-	appValueWatcher      *appvalue.AppValue
+	appValueWatcher      *appvalue.AppValueWatcher
 	chartStatusWatcher   *chartstatus.ChartStatus
 	bootOnce             sync.Once
+
+	// Settings
+	unique bool
 }
 
 // New creates a new service with given configuration.
@@ -102,9 +105,15 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
+<<<<<<< HEAD
 	var appValueWatcher *appvalue.AppValue
 	{
 		c := appvalue.AppValueConfig{
+=======
+	var appValueWatcher *appvalue.AppValueWatcher
+	{
+		c := appvalue.AppValueWatcherConfig{
+>>>>>>> v4-dev
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
 
@@ -112,6 +121,7 @@ func New(config Config) (*Service, error) {
 			UniqueApp:    config.Viper.GetBool(config.Flag.Service.App.Unique),
 		}
 
+<<<<<<< HEAD
 		appValueWatcher, err = appvalue.NewAppValue(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
@@ -130,6 +140,9 @@ func New(config Config) (*Service, error) {
 		}
 
 		chartStatusWatcher, err = chartstatus.NewChartStatus(c)
+=======
+		appValueWatcher, err = appvalue.NewAppValueWatcher(c)
+>>>>>>> v4-dev
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -159,7 +172,12 @@ func New(config Config) (*Service, error) {
 		appCatalogController: appCatalogController,
 		appValueWatcher:      appValueWatcher,
 		bootOnce:             sync.Once{},
+<<<<<<< HEAD
 		chartStatusWatcher:   chartStatusWatcher,
+=======
+
+		unique: config.Viper.GetBool(config.Flag.Service.App.Unique),
+>>>>>>> v4-dev
 	}
 
 	return newService, nil
@@ -168,11 +186,19 @@ func New(config Config) (*Service, error) {
 // Boot starts top level service implementation.
 func (s *Service) Boot(ctx context.Context) {
 	s.bootOnce.Do(func() {
-		// Start the controllers.
-		go s.appCatalogController.Boot(ctx)
+		// Boot appCatalogController only if it's unique app.
+		if s.unique {
+			go s.appCatalogController.Boot(ctx)
+		}
+
+		// Start the controller.
 		go s.appController.Boot(ctx)
 
+<<<<<<< HEAD
 		// Start the watchers.
+=======
+		// Start the watcher.
+>>>>>>> v4-dev
 		go s.appValueWatcher.Boot(ctx)
 		go s.chartStatusWatcher.Boot(ctx)
 	})
