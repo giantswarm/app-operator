@@ -83,7 +83,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 				continue
 			}
 
-			diff := cmp.Diff(currentEntryCR, desiredEntryCRs, timeComparer)
+			diff := cmp.Diff(currentEntryCR, desiredEntryCR, timeComparer)
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("appCatalogEntry %#q has to be updated", currentEntryCR.Name), "diff", fmt.Sprintf("(-current +desired):\n%s", diff))
 			err := r.updateAppCatalogEntry(ctx, desiredEntryCR)
 			if err != nil {
