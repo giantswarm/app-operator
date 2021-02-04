@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Removed
+
+- Deleted AppCatalog controller.
+
 ## [1.0.15] - 2020-10-20
 
 ### Fixed

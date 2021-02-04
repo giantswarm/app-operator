@@ -18,7 +18,6 @@ import (
 	"github.com/giantswarm/app-operator/flag"
 	"github.com/giantswarm/app-operator/pkg/project"
 	"github.com/giantswarm/app-operator/service/controller/app"
-	"github.com/giantswarm/app-operator/service/controller/appcatalog"
 )
 
 // Config represents the configuration used to create a new service.
@@ -34,9 +33,8 @@ type Service struct {
 	Version *version.Service
 
 	// Internals
-	appController        *app.App
-	appCatalogController *appcatalog.AppCatalog
-	bootOnce             sync.Once
+	appController *app.App
+	bootOnce      sync.Once
 }
 
 // New creates a new service with given configuration.
@@ -91,19 +89,6 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
-	var appCatalogController *appcatalog.AppCatalog
-	{
-		c := appcatalog.Config{
-			Logger:    config.Logger,
-			K8sClient: k8sClient,
-		}
-
-		appCatalogController, err = appcatalog.NewAppCatalog(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
 	fs := afero.NewOsFs()
 	var appController *app.App
 	{
@@ -143,9 +128,8 @@ func New(config Config) (*Service, error) {
 	newService := &Service{
 		Version: versionService,
 
-		appController:        appController,
-		appCatalogController: appCatalogController,
-		bootOnce:             sync.Once{},
+		appController: appController,
+		bootOnce:      sync.Once{},
 	}
 
 	return newService, nil
@@ -154,8 +138,7 @@ func New(config Config) (*Service, error) {
 // Boot starts top level service implementation.
 func (s *Service) Boot(ctx context.Context) {
 	s.bootOnce.Do(func() {
-		// Start the controllers.
-		go s.appCatalogController.Boot(ctx)
+		// Start the controller.
 		go s.appController.Boot(ctx)
 	})
 }
