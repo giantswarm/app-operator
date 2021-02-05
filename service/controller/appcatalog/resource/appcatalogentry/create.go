@@ -64,14 +64,35 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	for name, desiredEntryCR := range desiredEntryCRs {
 		currentEntryCR, ok := currentEntryCRs[name]
 		if ok {
-			if !equals(currentEntryCR, desiredEntryCR) {
-				err := r.updateAppCatalogEntry(ctx, desiredEntryCR)
-				if err != nil {
-					return microerror.Mask(err)
+			// Copy current appCatalogEntry CR so we keep only the values we need
+			// for comparing them.
+			currentEntryCR = copyAppCatalogEntry(currentEntryCR)
+
+			// Using reflect.DeepEqual doesn't work for the 2 date fields due to time
+			// zones. Instead we compare the unix epoch and clear the date fields.
+			timeComparer := cmp.Comparer(func(current, desired *metav1.Time) bool {
+				if current != nil && desired != nil {
+					return current.Unix() == desired.Unix()
+				} else if current == nil && desired == nil {
+					return true
 				}
 
-				updated++
+				return false
+			})
+
+			if cmp.Equal(currentEntryCR, desiredEntryCR, timeComparer) {
+				// no-op
+				continue
 			}
+
+			diff := cmp.Diff(currentEntryCR, desiredEntryCR, timeComparer)
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("appCatalogEntry %#q has to be updated", currentEntryCR.Name), "diff", fmt.Sprintf("(-current +desired):\n%s", diff))
+			err := r.updateAppCatalogEntry(ctx, desiredEntryCR)
+			if err != nil {
+				return microerror.Mask(err)
+			}
+
+			updated++
 		} else {
 			err := r.createAppCatalogEntry(ctx, desiredEntryCR)
 			if err != nil {
@@ -270,31 +291,6 @@ func (r *Resource) newAppCatalogEntries(ctx context.Context, cr v1alpha1.AppCata
 	}
 
 	return entryCRs, nil
-}
-
-func equals(current, desired *v1alpha1.AppCatalogEntry) bool {
-	if current.Name != desired.Name {
-		return false
-	}
-	if !cmp.Equal(current.Labels, desired.Labels) {
-		return false
-	}
-
-	if !cmp.Equal(current.Annotations, desired.Annotations) {
-		return false
-	}
-
-	// Using reflect.DeepEqual doesn't work for the 2 date fields due to time
-	// zones. Instead we compare the unix epoch and clear the date fields.
-	timeComparer := cmp.Comparer(func(current, desired *metav1.Time) bool {
-		if current != nil && desired != nil {
-			return current.Unix() == desired.Unix()
-		}
-
-		return false
-	})
-
-	return cmp.Equal(current.Spec, desired.Spec, timeComparer)
 }
 
 func parseLatestVersion(entries []entry) (string, error) {
