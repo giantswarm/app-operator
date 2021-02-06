@@ -2,9 +2,6 @@ package chart
 
 import (
 	"context"
-	"fmt"
-	"net/url"
-	"path"
 	"strings"
 
 	"github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
@@ -17,6 +14,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 
+	pkgannotation "github.com/giantswarm/app-operator/v3/pkg/annotation"
 	"github.com/giantswarm/app-operator/v3/pkg/project"
 	"github.com/giantswarm/app-operator/v3/service/controller/app/controllercontext"
 )
@@ -59,9 +57,10 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 			APIVersion: chartAPIVersion,
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      cr.GetName(),
-			Namespace: r.chartNamespace,
-			Labels:    processLabels(project.Name(), cr.GetLabels()),
+			Annotations: generateAnnotations(cr.GetAnnotations(), cr.Namespace),
+			Name:        cr.GetName(),
+			Namespace:   r.chartNamespace,
+			Labels:      processLabels(project.Name(), cr.GetLabels()),
 		},
 		Spec: v1alpha1.ChartSpec{
 			Config:     config,
@@ -72,27 +71,13 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		},
 	}
 
-	annotations := generateAnnotations(cr.GetAnnotations())
-
-	u, err := url.Parse(r.webhookBaseURL)
-	if err != nil {
-		return nil, microerror.Mask(err)
-	}
-
-	u.Path = path.Join(u.Path, "status", cr.Namespace, cr.Name)
-
-	webhookAnnotation := fmt.Sprintf("%s/%s", annotation.ChartOperatorPrefix, annotation.WebhookURL)
-	annotations[webhookAnnotation] = u.String()
-
-	if len(annotations) > 0 {
-		chartCR.Annotations = annotations
-	}
-
 	return chartCR, nil
 }
 
-func generateAnnotations(input map[string]string) map[string]string {
-	annotations := map[string]string{}
+func generateAnnotations(input map[string]string, appNamespace string) map[string]string {
+	annotations := map[string]string{
+		pkgannotation.AppNamespace: appNamespace,
+	}
 
 	for k, v := range input {
 		// Copy all annotations which has a prefix with chart-operator.giantswarm.io.
