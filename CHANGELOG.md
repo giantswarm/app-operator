@@ -7,6 +7,8 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+## [3.2.0] - 2021-02-08
+
 ### Added
 
 - Include `apiVersion`, `restrictions.compatibleProviders` in appcatalogentry CRs.
@@ -288,7 +290,8 @@ from Helm 2 to Helm 3.
 
 - Flattening operator release structure.
 
-[Unreleased]: https://github.com/giantswarm/app-operator/compare/v3.1.0...HEAD
+[Unreleased]: https://github.com/giantswarm/app-operator/compare/v3.2.0...HEAD
+[3.2.0]: https://github.com/giantswarm/app-operator/compare/v3.1.0...v3.2.0
 [3.1.0]: https://github.com/giantswarm/app-operator/compare/v3.0.0...v3.1.0
 [3.0.0]: https://github.com/giantswarm/app-operator/compare/v2.8.0...v3.0.0
 [2.8.0]: https://github.com/giantswarm/app-operator/compare/v2.7.0...v2.8.0
