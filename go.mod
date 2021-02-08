@@ -9,7 +9,7 @@ require (
 	github.com/giantswarm/apiextensions/v3 v3.17.0
 	github.com/giantswarm/app/v4 v4.3.0
 	github.com/giantswarm/appcatalog v0.4.0
-	github.com/giantswarm/apptest v0.10.2-0.20210208103900-794991bfe7d9
+	github.com/giantswarm/apptest v0.10.2
 	github.com/giantswarm/backoff v0.2.0
 	github.com/giantswarm/errors v0.2.3
 	github.com/giantswarm/helmclient/v4 v4.3.0
