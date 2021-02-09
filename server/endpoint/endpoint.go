@@ -7,27 +7,20 @@ import (
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 
-	"github.com/giantswarm/app-operator/v3/server/endpoint/status"
-	"github.com/giantswarm/app-operator/v3/server/middleware"
 	"github.com/giantswarm/app-operator/v3/service"
 )
 
 // Config represents the configuration used to construct an endpoint.
 type Config struct {
 	// Dependencies
-	K8sClient  k8sclient.Interface
-	Logger     micrologger.Logger
-	Middleware *middleware.Middleware
-	Service    *service.Service
-
-	// Settings
-	WebhookAuthToken string
+	K8sClient k8sclient.Interface
+	Logger    micrologger.Logger
+	Service   *service.Service
 }
 
 // Endpoint is the endpoint collection.
 type Endpoint struct {
 	Healthz *healthz.Endpoint
-	Status  *status.Endpoint
 	Version *version.Endpoint
 }
 
@@ -57,21 +50,6 @@ func New(config Config) (*Endpoint, error) {
 		}
 	}
 
-	var statusEndpoint *status.Endpoint
-	{
-		c := status.Config{
-			K8sClient: config.K8sClient,
-			Logger:    config.Logger,
-
-			WebhookAuthToken: config.WebhookAuthToken,
-		}
-
-		statusEndpoint, err = status.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
 	var versionEndpoint *version.Endpoint
 	{
 		c := version.Config{
@@ -87,7 +65,6 @@ func New(config Config) (*Endpoint, error) {
 
 	endpoint := &Endpoint{
 		Healthz: healthzEndpoint,
-		Status:  statusEndpoint,
 		Version: versionEndpoint,
 	}
 

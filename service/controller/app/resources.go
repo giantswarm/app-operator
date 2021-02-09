@@ -41,8 +41,6 @@ type appResourcesConfig struct {
 	HTTPClientTimeout time.Duration
 	ImageRegistry     string
 	UniqueApp         bool
-	WebhookAuthToken  string
-	WebhookBaseURL    string
 }
 
 func newAppResources(config appResourcesConfig) ([]resource.Interface, error) {
@@ -68,9 +66,6 @@ func newAppResources(config appResourcesConfig) ([]resource.Interface, error) {
 	}
 	if config.ImageRegistry == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ImageRegistry must not be empty", config)
-	}
-	if config.WebhookBaseURL == "" {
-		return nil, microerror.Maskf(invalidConfigError, "%T.WebhookBaseURL must not be empty", config)
 	}
 
 	var valuesService *values.Values
@@ -127,8 +122,6 @@ func newAppResources(config appResourcesConfig) ([]resource.Interface, error) {
 		c := authtoken.Config{
 			K8sClient: config.K8sClient.K8sClient(),
 			Logger:    config.Logger,
-
-			WebhookAuthToken: config.WebhookAuthToken,
 		}
 		authTokenResource, err = authtoken.New(c)
 		if err != nil {
@@ -157,7 +150,6 @@ func newAppResources(config appResourcesConfig) ([]resource.Interface, error) {
 			Logger: config.Logger,
 
 			ChartNamespace: config.ChartNamespace,
-			WebhookBaseURL: config.WebhookBaseURL,
 		}
 
 		ops, err := chart.New(c)
