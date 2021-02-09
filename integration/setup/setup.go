@@ -52,18 +52,18 @@ func installResources(ctx context.Context, config Config) error {
 	var err error
 
 	{
-		err = config.K8s.EnsureNamespaceCreated(ctx, key.Namespace())
+		err = config.K8s.EnsureNamespaceCreated(ctx, key.GiantSwarmNamespace())
 		if err != nil {
 			return microerror.Mask(err)
 		}
 	}
 
-	// Create CRDs. The Chart CRD is created by the operator
 	// for the kubeconfig test that bootstraps chart-operator.
 	crds := []string{
 		"App",
 		"AppCatalog",
 		"AppCatalogEntry",
+		"Chart",
 	}
 
 	{
@@ -127,7 +127,7 @@ func installResources(ctx context.Context, config Config) error {
 		}
 		err = config.HelmClient.InstallReleaseFromTarball(ctx,
 			operatorTarballPath,
-			key.Namespace(),
+			key.GiantSwarmNamespace(),
 			values,
 			opts)
 		if err != nil {

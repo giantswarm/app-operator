@@ -14,6 +14,7 @@ import (
 	"github.com/giantswarm/app-operator/v3/integration/env"
 	"github.com/giantswarm/app-operator/v3/integration/key"
 	"github.com/giantswarm/app-operator/v3/integration/templates"
+	"github.com/giantswarm/app-operator/v3/pkg/project"
 )
 
 const (
@@ -27,6 +28,13 @@ const (
 func TestWorkloadCluster(t *testing.T) {
 	ctx := context.Background()
 	var err error
+
+	{
+		err = config.K8s.EnsureNamespaceCreated(ctx, key.WorkloadClusterNamespace())
+		if err != nil {
+			t.Fatalf("expected nil got %#v", err)
+		}
+	}
 
 	// Transform kubeconfig file to restconfig and flatten.
 	var kubeConfig string
@@ -72,19 +80,32 @@ func TestWorkloadCluster(t *testing.T) {
 				CatalogName:   key.DefaultCatalogName(),
 				KubeConfig:    kubeConfig,
 				Name:          key.ChartOperatorName(),
-				Namespace:     key.Namespace(),
+				Namespace:     key.GiantSwarmNamespace(),
 				ValuesYAML:    templates.ChartOperatorValues,
 				Version:       key.ChartOperatorVersion(),
 				WaitForDeploy: true,
 			},
 			{
-				// Install test app.
-				CatalogName:   key.DefaultCatalogName(),
-				KubeConfig:    kubeConfig,
-				Name:          key.TestAppName(),
-				Namespace:     metav1.NamespaceDefault,
-				Version:       "0.1.0",
-				WaitForDeploy: true,
+				// Install app-operator in the workload cluster namespace.
+				AppCRNamespace: key.WorkloadClusterNamespace(),
+				CatalogName:    key.ControlPlaneTestCatalogName(),
+				Name:           project.Name(),
+				Namespace:      key.WorkloadClusterNamespace(),
+				ValuesYAML:     templates.AppOperatorValues,
+				SHA:            env.CircleSHA(),
+				WaitForDeploy:  true,
+			},
+			{
+				// Install test app using the workload cluster instance of
+				// app-operator.
+				AppCRNamespace:     key.WorkloadClusterNamespace(),
+				AppOperatorVersion: project.Version(),
+				CatalogName:        key.DefaultCatalogName(),
+				KubeConfig:         kubeConfig,
+				Name:               key.TestAppName(),
+				Namespace:          metav1.NamespaceDefault,
+				Version:            "0.1.0",
+				WaitForDeploy:      true,
 			},
 		}
 		err = config.AppTest.InstallApps(ctx, apps)
