@@ -95,8 +95,6 @@ func New(config Config) (*Service, error) {
 			PodNamespace:      podNamespace,
 			ResyncPeriod:      config.Viper.GetDuration(config.Flag.Service.Operatorkit.ResyncPeriod),
 			UniqueApp:         config.Viper.GetBool(config.Flag.Service.App.Unique),
-			WebhookAuthToken:  config.Viper.GetString(config.Flag.Service.Chart.WebhookAuthToken),
-			WebhookBaseURL:    config.Viper.GetString(config.Flag.Service.Chart.WebhookBaseURL),
 		}
 
 		appController, err = app.NewApp(c)
