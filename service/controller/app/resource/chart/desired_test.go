@@ -90,13 +90,13 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "my-cool-prometheus",
 					Namespace: "giantswarm",
+					Annotations: map[string]string{
+						"chart-operator.giantswarm.io/app-namespace": "default",
+					},
 					Labels: map[string]string{
 						"app":                                  "prometheus",
 						"chart-operator.giantswarm.io/version": "1.0.0",
 						"giantswarm.io/managed-by":             "app-operator",
-					},
-					Annotations: map[string]string{
-						"chart-operator.giantswarm.io/webhook-url": "http://webhook/status/default/my-cool-prometheus",
 					},
 				},
 				Spec: v1alpha1.ChartSpec{
@@ -176,13 +176,13 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "my-cool-prometheus",
 					Namespace: "giantswarm",
+					Annotations: map[string]string{
+						"chart-operator.giantswarm.io/app-namespace": "default",
+					},
 					Labels: map[string]string{
 						"app":                                  "prometheus",
 						"chart-operator.giantswarm.io/version": "1.0.0",
 						"giantswarm.io/managed-by":             "app-operator",
-					},
-					Annotations: map[string]string{
-						"chart-operator.giantswarm.io/webhook-url": "http://webhook/status/default/my-cool-prometheus",
 					},
 				},
 				Spec: v1alpha1.ChartSpec{
@@ -243,8 +243,8 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 				},
 				ObjectMeta: metav1.ObjectMeta{
 					Annotations: map[string]string{
+						"chart-operator.giantswarm.io/app-namespace":      "default",
 						"chart-operator.giantswarm.io/force-helm-upgrade": "true",
-						"chart-operator.giantswarm.io/webhook-url":        "http://webhook/status/default/my-cool-prometheus",
 					},
 					Name:      "my-cool-prometheus",
 					Namespace: "giantswarm",
