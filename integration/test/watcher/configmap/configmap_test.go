@@ -41,24 +41,24 @@ func TestWatchingConfigMap(t *testing.T) {
 	var err error
 
 	{
-		config.Logger.Debugf(ctx, "creating configmap %#q in namespace %#q", key.AppCatalogConfigMapName(), key.Namespace())
+		config.Logger.Debugf(ctx, "creating configmap %#q in namespace %#q", key.AppCatalogConfigMapName(), key.GiantSwarmNamespace())
 
 		cm := &corev1.ConfigMap{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      key.AppCatalogConfigMapName(),
-				Namespace: key.Namespace(),
+				Namespace: key.GiantSwarmNamespace(),
 			},
 			Data: map[string]string{
 				"values": "",
 			},
 		}
 
-		_, err := config.K8sClients.K8sClient().CoreV1().ConfigMaps(key.Namespace()).Create(ctx, cm, metav1.CreateOptions{})
+		_, err := config.K8sClients.K8sClient().CoreV1().ConfigMaps(key.GiantSwarmNamespace()).Create(ctx, cm, metav1.CreateOptions{})
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
 
-		config.Logger.Debugf(ctx, "created configmap %#q in namespace %#q", key.AppCatalogConfigMapName(), key.Namespace())
+		config.Logger.Debugf(ctx, "created configmap %#q in namespace %#q", key.AppCatalogConfigMapName(), key.GiantSwarmNamespace())
 	}
 
 	{
@@ -75,7 +75,7 @@ func TestWatchingConfigMap(t *testing.T) {
 				Config: v1alpha1.AppCatalogSpecConfig{
 					ConfigMap: v1alpha1.AppCatalogSpecConfigConfigMap{
 						Name:      key.AppCatalogConfigMapName(),
-						Namespace: key.Namespace(),
+						Namespace: key.GiantSwarmNamespace(),
 					},
 				},
 				Description: key.DefaultCatalogName(),
@@ -95,24 +95,24 @@ func TestWatchingConfigMap(t *testing.T) {
 	}
 
 	{
-		config.Logger.Debugf(ctx, "creating configmap %#q in namespace %#q", key.UserConfigMapName(), key.Namespace())
+		config.Logger.Debugf(ctx, "creating configmap %#q in namespace %#q", key.UserConfigMapName(), key.GiantSwarmNamespace())
 
 		cm := &corev1.ConfigMap{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      key.UserConfigMapName(),
-				Namespace: key.Namespace(),
+				Namespace: key.GiantSwarmNamespace(),
 			},
 			Data: map[string]string{
 				"values": "",
 			},
 		}
 
-		_, err := config.K8sClients.K8sClient().CoreV1().ConfigMaps(key.Namespace()).Create(ctx, cm, metav1.CreateOptions{})
+		_, err := config.K8sClients.K8sClient().CoreV1().ConfigMaps(key.GiantSwarmNamespace()).Create(ctx, cm, metav1.CreateOptions{})
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
 
-		config.Logger.Debugf(ctx, "created configmap %#q in namespace %#q", key.UserConfigMapName(), key.Namespace())
+		config.Logger.Debugf(ctx, "created configmap %#q in namespace %#q", key.UserConfigMapName(), key.GiantSwarmNamespace())
 	}
 
 	{
@@ -121,7 +121,7 @@ func TestWatchingConfigMap(t *testing.T) {
 		appCR := &v1alpha1.App{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      key.TestAppName(),
-				Namespace: key.Namespace(),
+				Namespace: key.GiantSwarmNamespace(),
 				Labels: map[string]string{
 					label.AppOperatorVersion: key.UniqueAppVersion(),
 				},
@@ -132,18 +132,18 @@ func TestWatchingConfigMap(t *testing.T) {
 					InCluster: true,
 				},
 				Name:      key.TestAppName(),
-				Namespace: key.Namespace(),
+				Namespace: key.GiantSwarmNamespace(),
 				UserConfig: v1alpha1.AppSpecUserConfig{
 					ConfigMap: v1alpha1.AppSpecUserConfigConfigMap{
 						Name:      key.UserConfigMapName(),
-						Namespace: key.Namespace(),
+						Namespace: key.GiantSwarmNamespace(),
 					},
 				},
 				Version: "0.1.0",
 			},
 		}
 
-		_, err = config.K8sClients.G8sClient().ApplicationV1alpha1().Apps(key.Namespace()).Create(ctx, appCR, metav1.CreateOptions{})
+		_, err = config.K8sClients.G8sClient().ApplicationV1alpha1().Apps(key.GiantSwarmNamespace()).Create(ctx, appCR, metav1.CreateOptions{})
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
@@ -155,7 +155,7 @@ func TestWatchingConfigMap(t *testing.T) {
 		config.Logger.Debugf(ctx, "waiting until user configmap is labelled")
 
 		o := func() error {
-			cm, err := config.K8sClients.K8sClient().CoreV1().ConfigMaps(key.Namespace()).Get(ctx, key.UserConfigMapName(), metav1.GetOptions{})
+			cm, err := config.K8sClients.K8sClient().CoreV1().ConfigMaps(key.GiantSwarmNamespace()).Get(ctx, key.UserConfigMapName(), metav1.GetOptions{})
 			if err != nil {
 				return microerror.Mask(err)
 			}
@@ -184,7 +184,7 @@ func TestWatchingConfigMap(t *testing.T) {
 		config.Logger.Debugf(ctx, "waiting until appcatalog configmap is labelled")
 
 		o := func() error {
-			cm, err := config.K8sClients.K8sClient().CoreV1().ConfigMaps(key.Namespace()).Get(ctx, key.AppCatalogConfigMapName(), metav1.GetOptions{})
+			cm, err := config.K8sClients.K8sClient().CoreV1().ConfigMaps(key.GiantSwarmNamespace()).Get(ctx, key.AppCatalogConfigMapName(), metav1.GetOptions{})
 			if err != nil {
 				return microerror.Mask(err)
 			}
@@ -211,22 +211,22 @@ func TestWatchingConfigMap(t *testing.T) {
 
 	var updatedResourceVersion string
 	{
-		config.Logger.Debugf(ctx, "updating values in configmap %#q in namespace %#q", key.UserConfigMapName(), key.Namespace())
+		config.Logger.Debugf(ctx, "updating values in configmap %#q in namespace %#q", key.UserConfigMapName(), key.GiantSwarmNamespace())
 
-		cm, err := config.K8sClients.K8sClient().CoreV1().ConfigMaps(key.Namespace()).Get(ctx, key.UserConfigMapName(), metav1.GetOptions{})
+		cm, err := config.K8sClients.K8sClient().CoreV1().ConfigMaps(key.GiantSwarmNamespace()).Get(ctx, key.UserConfigMapName(), metav1.GetOptions{})
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
 
 		cm.Data["values"] = "test: userconfigmap"
-		updatedCM, err := config.K8sClients.K8sClient().CoreV1().ConfigMaps(key.Namespace()).Update(ctx, cm, metav1.UpdateOptions{})
+		updatedCM, err := config.K8sClients.K8sClient().CoreV1().ConfigMaps(key.GiantSwarmNamespace()).Update(ctx, cm, metav1.UpdateOptions{})
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
 
 		updatedResourceVersion = updatedCM.GetResourceVersion()
 
-		config.Logger.Debugf(ctx, "updated values in configmap %#q in namespace %#q", key.UserConfigMapName(), key.Namespace())
+		config.Logger.Debugf(ctx, "updated values in configmap %#q in namespace %#q", key.UserConfigMapName(), key.GiantSwarmNamespace())
 	}
 
 	versionAnnotation := fmt.Sprintf("%s/%s", annotation.AppOperatorPrefix, annotation.LatestConfigMapVersion)
@@ -235,7 +235,7 @@ func TestWatchingConfigMap(t *testing.T) {
 		config.Logger.Debugf(ctx, "waiting until app CR is annotated with user configmap's resourceVersion")
 
 		o := func() error {
-			cr, err := config.K8sClients.G8sClient().ApplicationV1alpha1().Apps(key.Namespace()).Get(ctx, key.TestAppName(), metav1.GetOptions{})
+			cr, err := config.K8sClients.G8sClient().ApplicationV1alpha1().Apps(key.GiantSwarmNamespace()).Get(ctx, key.TestAppName(), metav1.GetOptions{})
 			if err != nil {
 				return microerror.Mask(err)
 			}
@@ -263,29 +263,29 @@ func TestWatchingConfigMap(t *testing.T) {
 	}
 
 	{
-		config.Logger.Debugf(ctx, "editing configmap %#q in namespace %#q", key.AppCatalogConfigMapName(), key.Namespace())
+		config.Logger.Debugf(ctx, "editing configmap %#q in namespace %#q", key.AppCatalogConfigMapName(), key.GiantSwarmNamespace())
 
-		cm, err := config.K8sClients.K8sClient().CoreV1().ConfigMaps(key.Namespace()).Get(ctx, key.AppCatalogConfigMapName(), metav1.GetOptions{})
+		cm, err := config.K8sClients.K8sClient().CoreV1().ConfigMaps(key.GiantSwarmNamespace()).Get(ctx, key.AppCatalogConfigMapName(), metav1.GetOptions{})
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
 
 		cm.Data["values"] = "test: appcatalogConfigmap"
-		updatedCM, err := config.K8sClients.K8sClient().CoreV1().ConfigMaps(key.Namespace()).Update(ctx, cm, metav1.UpdateOptions{})
+		updatedCM, err := config.K8sClients.K8sClient().CoreV1().ConfigMaps(key.GiantSwarmNamespace()).Update(ctx, cm, metav1.UpdateOptions{})
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
 
 		updatedResourceVersion = updatedCM.GetResourceVersion()
 
-		config.Logger.Debugf(ctx, "edited configmap %#q in namespace %#q", key.UserConfigMapName(), key.Namespace())
+		config.Logger.Debugf(ctx, "edited configmap %#q in namespace %#q", key.UserConfigMapName(), key.GiantSwarmNamespace())
 	}
 
 	{
 		config.Logger.Debugf(ctx, "waiting until app CR annotate by appcatalog configmap's resourceVersion")
 
 		o := func() error {
-			cr, err := config.K8sClients.G8sClient().ApplicationV1alpha1().Apps(key.Namespace()).Get(ctx, key.TestAppName(), metav1.GetOptions{})
+			cr, err := config.K8sClients.G8sClient().ApplicationV1alpha1().Apps(key.GiantSwarmNamespace()).Get(ctx, key.TestAppName(), metav1.GetOptions{})
 			if err != nil {
 				return microerror.Mask(err)
 			}
@@ -315,7 +315,7 @@ func TestWatchingConfigMap(t *testing.T) {
 	{
 		config.Logger.Debugf(ctx, "deleting app CR %#q", key.TestAppName())
 
-		err = config.K8sClients.G8sClient().ApplicationV1alpha1().Apps(key.Namespace()).Delete(ctx, key.TestAppName(), metav1.DeleteOptions{})
+		err = config.K8sClients.G8sClient().ApplicationV1alpha1().Apps(key.GiantSwarmNamespace()).Delete(ctx, key.TestAppName(), metav1.DeleteOptions{})
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
@@ -327,7 +327,7 @@ func TestWatchingConfigMap(t *testing.T) {
 		config.Logger.Debugf(ctx, "waiting until watching label is deleted")
 
 		o := func() error {
-			cm, err := config.K8sClients.K8sClient().CoreV1().ConfigMaps(key.Namespace()).Get(ctx, key.UserConfigMapName(), metav1.GetOptions{})
+			cm, err := config.K8sClients.K8sClient().CoreV1().ConfigMaps(key.GiantSwarmNamespace()).Get(ctx, key.UserConfigMapName(), metav1.GetOptions{})
 			if err != nil {
 				return microerror.Mask(err)
 			}
