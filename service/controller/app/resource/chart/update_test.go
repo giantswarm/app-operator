@@ -196,7 +196,6 @@ func Test_Resource_newUpdateChange(t *testing.T) {
 				Logger: microloggertest.New(),
 
 				ChartNamespace: "giantswarm",
-				WebhookBaseURL: "http://webhook",
 			}
 			r, err := New(c)
 			if err != nil {

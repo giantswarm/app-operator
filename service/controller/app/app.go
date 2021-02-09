@@ -32,8 +32,6 @@ type Config struct {
 	PodNamespace      string
 	ResyncPeriod      time.Duration
 	UniqueApp         bool
-	WebhookAuthToken  string
-	WebhookBaseURL    string
 }
 
 type App struct {
@@ -65,9 +63,6 @@ func NewApp(config Config) (*App, error) {
 	if config.ResyncPeriod == 0 {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ResyncPeriod must not be empty", config)
 	}
-	if config.WebhookBaseURL == "" {
-		return nil, microerror.Maskf(invalidConfigError, "%T.WebhookBaseURL must not be empty", config)
-	}
 
 	// TODO: Remove usage of deprecated controller context.
 	//
@@ -91,8 +86,6 @@ func NewApp(config Config) (*App, error) {
 			HTTPClientTimeout: config.HTTPClientTimeout,
 			ImageRegistry:     config.ImageRegistry,
 			UniqueApp:         config.UniqueApp,
-			WebhookAuthToken:  config.WebhookAuthToken,
-			WebhookBaseURL:    config.WebhookBaseURL,
 		}
 
 		resources, err = newAppResources(c)
