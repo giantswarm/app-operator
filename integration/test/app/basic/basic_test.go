@@ -97,6 +97,17 @@ func TestAppLifecycle(t *testing.T) {
 	{
 		apps := []apptest.App{
 			{
+				// chart-operator app CR is used by the chart status watcher
+				// to get a kubeconfig.
+				AppCRName:     key.ChartOperatorUniqueName(),
+				CatalogName:   key.DefaultCatalogName(),
+				Name:          key.ChartOperatorName(),
+				Namespace:     key.Namespace(),
+				ValuesYAML:    templates.ChartOperatorValues,
+				Version:       key.ChartOperatorVersion(),
+				WaitForDeploy: false,
+			},
+			{
 				// Install test app.
 				CatalogName:   key.DefaultCatalogName(),
 				Name:          key.TestAppName(),

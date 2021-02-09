@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/giantswarm/apiextensions/v3/pkg/label"
+	"github.com/giantswarm/app/v4/pkg/key"
 	"k8s.io/apimachinery/pkg/labels"
 
 	"github.com/giantswarm/app-operator/v3/pkg/project"
@@ -30,6 +31,13 @@ func AppVersionSelector(unique bool) labels.Selector {
 	}
 
 	return selector
+}
+
+func ChartOperatorAppSelector(unique bool) string {
+	return fmt.Sprintf("%s=%s,%s=%s", label.AppOperatorVersion,
+		GetProjectVersion(unique),
+		label.AppKubernetesName,
+		key.ChartOperatorAppName)
 }
 
 func GetProjectVersion(unique bool) string {
