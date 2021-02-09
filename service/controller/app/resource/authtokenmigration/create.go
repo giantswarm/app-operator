@@ -25,7 +25,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	}
 
 	if key.AppName(cr) != key.ChartOperatorAppName {
-		r.logger.Debugf(ctx, "no need to install webhook auth token for %#q", key.AppName(cr))
+		r.logger.Debugf(ctx, "no need to delete webhook auth token for %#q", key.AppName(cr))
 		r.logger.Debugf(ctx, "canceling resource")
 		return nil
 	}
