@@ -1,4 +1,4 @@
-package authtoken
+package authtokenmigration
 
 import "github.com/giantswarm/microerror"
 

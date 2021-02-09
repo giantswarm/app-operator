@@ -17,7 +17,7 @@ import (
 	"github.com/giantswarm/app-operator/v3/service/controller/app/resource/appcatalog"
 	"github.com/giantswarm/app-operator/v3/service/controller/app/resource/appfinalizermigration"
 	"github.com/giantswarm/app-operator/v3/service/controller/app/resource/appnamespace"
-	"github.com/giantswarm/app-operator/v3/service/controller/app/resource/authtoken"
+	"github.com/giantswarm/app-operator/v3/service/controller/app/resource/authtokenmigration"
 	"github.com/giantswarm/app-operator/v3/service/controller/app/resource/chart"
 	"github.com/giantswarm/app-operator/v3/service/controller/app/resource/chartcrd"
 	"github.com/giantswarm/app-operator/v3/service/controller/app/resource/chartoperator"
@@ -122,15 +122,15 @@ func newAppResources(config appResourcesConfig) ([]resource.Interface, error) {
 		}
 	}
 
-	var authTokenResource resource.Interface
+	var authTokenMigrationResource resource.Interface
 	{
-		c := authtoken.Config{
+		c := authtokenmigration.Config{
 			K8sClient: config.K8sClient.K8sClient(),
 			Logger:    config.Logger,
 
 			WebhookAuthToken: config.WebhookAuthToken,
 		}
-		authTokenResource, err = authtoken.New(c)
+		authTokenMigrationResource, err = authtokenmigration.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -318,7 +318,7 @@ func newAppResources(config appResourcesConfig) ([]resource.Interface, error) {
 		// validationResource checks CRs for validation errors and sets the CR status.
 		validationResource,
 
-		// // appFinalizerResource check CRs for legacy finalizers and removes them.
+		// appFinalizerResource check CRs for legacy finalizers and removes them.
 		appFinalizerResource,
 
 		// Following resources manage controller context information.
@@ -326,12 +326,15 @@ func newAppResources(config appResourcesConfig) ([]resource.Interface, error) {
 		appcatalogResource,
 		clientsResource,
 
+		// authTokenMigrationResource deletes auth token secrets that are no
+		// longer used.
+		authTokenMigrationResource,
+
 		// Following resources bootstrap chart-operator in workload clusters.
 		tcNamespaceResource,
 		chartCRDResource,
 		chartOperatorResource,
 		releaseMigrationResource,
-		authTokenResource,
 
 		// Following resources process app CRs.
 		configMapResource,

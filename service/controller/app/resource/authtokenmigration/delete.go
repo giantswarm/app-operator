@@ -1,4 +1,4 @@
-package authtoken
+package authtokenmigration
 
 import "context"
 
