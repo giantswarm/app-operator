@@ -31,7 +31,6 @@ type Config struct {
 
 	// Settings.
 	ChartNamespace string
-	WebhookBaseURL string
 }
 
 // Resource implements the chart resource.
@@ -41,7 +40,6 @@ type Resource struct {
 
 	// Settings.
 	chartNamespace string
-	webhookBaseURL string
 }
 
 // New creates a new configured chart resource.
@@ -53,15 +51,11 @@ func New(config Config) (*Resource, error) {
 	if config.ChartNamespace == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ChartNamespace must not be empty", config)
 	}
-	if config.WebhookBaseURL == "" {
-		return nil, microerror.Maskf(invalidConfigError, "%T.WebhookBaseURL must not be empty", config)
-	}
 
 	r := &Resource{
 		logger: config.Logger,
 
 		chartNamespace: config.ChartNamespace,
-		webhookBaseURL: config.WebhookBaseURL,
 	}
 
 	return r, nil
