@@ -58,15 +58,10 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
-	if key.InCluster(cr) {
-		r.logger.Debugf(ctx, "app %#q in %#q uses InCluster kubeconfig no need for webhook auth token", cr.Name, cr.Namespace)
-		r.logger.Debugf(ctx, "canceling resource")
-		return nil
-	}
-
-	if key.AppName(cr) != key.ChartOperatorAppName {
-		r.logger.Debugf(ctx, "no need to delete webhook auth token for %#q", key.AppName(cr))
-		r.logger.Debugf(ctx, "canceling resource")
+	// For in-cluster app CRs or if the app is not chart-operator we don't need
+	// to take any action.
+	if key.InCluster(cr) || key.AppName(cr) != key.ChartOperatorAppName {
+		// Just return to avoid making the logs noisy.
 		return nil
 	}
 
@@ -85,6 +80,13 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	if cc.Status.ClusterStatus.IsUnavailable {
 		r.logger.Debugf(ctx, "workload cluster is unavailable")
 		r.logger.Debugf(ctx, "canceling resource")
+		return nil
+	}
+
+	// Check if the secret exists.
+	_, err = cc.Clients.K8s.K8sClient().CoreV1().Secrets(namespace).Get(ctx, authTokenName, metav1.GetOptions{})
+	if apierrors.IsNotFound(err) {
+		// Nothing to do. Just return to avoid making the logs noisy.
 		return nil
 	}
 
