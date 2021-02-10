@@ -4,9 +4,11 @@ package workload
 
 import (
 	"context"
+	"fmt"
 	"testing"
 
 	"github.com/giantswarm/apptest"
+	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/tools/clientcmd/api"
@@ -65,6 +67,21 @@ func TestWorkloadCluster(t *testing.T) {
 		clusterKubeConfig.Clusters[clusterName].Server = "https://kubernetes.default.svc.cluster.local"
 
 		bytes, err := clientcmd.Write(*c)
+		if err != nil {
+			t.Fatalf("expected nil got %#v", err)
+		}
+
+		// Create kubeconfig secret for the chart CR watcher in app-operator.
+		secret := &corev1.Secret{
+			Data: map[string][]byte{
+				"kubeConfig": bytes,
+			},
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      fmt.Sprintf("%s-kubeconfig", key.WorkloadClusterNamespace()),
+				Namespace: key.WorkloadClusterNamespace(),
+			},
+		}
+		_, err = config.K8sClients.K8sClient().CoreV1().Secrets(key.WorkloadClusterNamespace()).Create(ctx, secret, metav1.CreateOptions{})
 		if err != nil {
 			t.Fatalf("expected nil got %#v", err)
 		}
