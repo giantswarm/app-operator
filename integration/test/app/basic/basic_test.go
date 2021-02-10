@@ -102,7 +102,7 @@ func TestAppLifecycle(t *testing.T) {
 				AppCRName:     key.ChartOperatorUniqueName(),
 				CatalogName:   key.DefaultCatalogName(),
 				Name:          key.ChartOperatorName(),
-				Namespace:     key.Namespace(),
+				Namespace:     key.GiantSwarmNamespace(),
 				ValuesYAML:    templates.ChartOperatorValues,
 				Version:       key.ChartOperatorVersion(),
 				WaitForDeploy: false,
