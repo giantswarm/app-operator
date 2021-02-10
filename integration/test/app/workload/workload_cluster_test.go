@@ -71,7 +71,7 @@ func TestWorkloadCluster(t *testing.T) {
 				CatalogName:   key.DefaultCatalogName(),
 				KubeConfig:    kubeConfig,
 				Name:          key.ChartOperatorName(),
-				Namespace:     key.Namespace(),
+				Namespace:     key.GiantSwarmNamespace(),
 				ValuesYAML:    templates.ChartOperatorValues,
 				Version:       key.ChartOperatorVersion(),
 				WaitForDeploy: true,

@@ -40,7 +40,7 @@ func DefaultCatalogStorageURL() string {
 	return "https://giantswarm.github.io/default-catalog"
 }
 
-func Namespace() string {
+func GiantSwarmNamespace() string {
 	return "giantswarm"
 }
 
