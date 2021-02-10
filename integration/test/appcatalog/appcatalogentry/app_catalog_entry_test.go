@@ -75,7 +75,7 @@ func TestAppCatalogEntry(t *testing.T) {
 
 	var entryCR *v1alpha1.AppCatalogEntry
 	{
-		appCatalogEntryName := fmt.Sprintf("%s-%s-%s", key.Namespace(), latestEntry.Name, latestEntry.Version)
+		appCatalogEntryName := fmt.Sprintf("%s-%s-%s", key.GiantSwarmNamespace(), latestEntry.Name, latestEntry.Version)
 
 		o := func() error {
 			entryCR, err = config.K8sClients.G8sClient().ApplicationV1alpha1().AppCatalogEntries(metav1.NamespaceDefault).Get(ctx, appCatalogEntryName, metav1.GetOptions{})

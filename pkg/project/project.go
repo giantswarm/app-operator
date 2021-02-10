@@ -33,9 +33,3 @@ func Source() string {
 func Version() string {
 	return version
 }
-
-// WorkloadClusterAppVersion is always 1.0.0 for workload cluster app CRs using Helm 2.
-// For app CRs using Helm 3 we use project.Version().
-func WorkloadClusterAppVersion() string {
-	return "1.0.0"
-}
