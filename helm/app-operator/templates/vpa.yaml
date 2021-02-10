@@ -9,7 +9,7 @@ metadata:
 spec:
   resourcePolicy:
     containerPolicies:
-    - containerName: {{ .Chart.Name }}
+    - containerName: {{ include "name" . }}
       controlledValues: RequestsAndLimits
       mode: Auto
   targetRef:
