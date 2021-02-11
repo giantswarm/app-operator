@@ -2,10 +2,10 @@
 apiVersion: autoscaling.k8s.io/v1
 kind: VerticalPodAutoscaler
 metadata:
-  name: {{ tpl .Values.resource.default.name  . }}
-  namespace: {{ tpl .Values.resource.default.namespace . }}
+  name: {{ include "resource.default.name"  . }}
+  namespace: {{ include "resource.default.namespace" . }}
   labels:
-    {{- include "chart-operator.labels" . | nindent 4 }}
+    {{- include "labels.common" . | nindent 4 }}
 spec:
   resourcePolicy:
     containerPolicies:
@@ -15,7 +15,7 @@ spec:
   targetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name:  {{ tpl .Values.resource.default.name  . }}
+    name:  {{ include "resource.default.name"  . }}
   updatePolicy:
     updateMode: Auto
 {{ end }}
