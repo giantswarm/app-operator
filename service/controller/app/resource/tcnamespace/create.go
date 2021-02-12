@@ -70,7 +70,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	select {
 	case <-ch:
 		// Fall through.
-	case <-time.After(3 * time.Second):
+	case <-time.After(10 * time.Second):
 		// Set status so we don't try to connect to the tenant cluster
 		// again in this reconciliation loop.
 		cc.Status.ClusterStatus.IsUnavailable = true
