@@ -3,6 +3,7 @@ package chart
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"strings"
 
 	"github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
@@ -124,8 +125,13 @@ func copyChart(current *v1alpha1.Chart) *v1alpha1.Chart {
 // copyAnnotations copies annotations from the current to desired chart,
 // only if the key has a chart-operator.giantswarm.io prefix.
 func copyAnnotations(current, desired *v1alpha1.Chart) {
+	webhookAnnotation := fmt.Sprintf("%s/%s", annotation.ChartOperatorPrefix, annotation.WebhookURL)
+
 	for k, currentValue := range current.Annotations {
-		if !strings.HasPrefix(k, annotation.ChartOperatorPrefix) {
+		if k == webhookAnnotation {
+			// Remove webhook annotation that is no longer used.
+			continue
+		} else if !strings.HasPrefix(k, annotation.ChartOperatorPrefix) {
 			continue
 		}
 
