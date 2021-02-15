@@ -294,15 +294,21 @@ func sortEntry(entries []entry) ([]entry, error) {
 	}
 
 	sort.Slice(entries, func(i, j int) bool {
-		prev := entries[i]
-		next := entries[j]
+		prevRelease, err := entries[i].Version.SetPrerelease("")
+		if err != nil {
+			return false
+		}
+		nextRelease, err := entries[j].Version.SetPrerelease("")
+		if err != nil {
+			return false
+		}
 
-		if prev.Version.GreaterThan(&next.Version) {
+		if prevRelease.GreaterThan(&nextRelease) {
 			return true
 		}
 
-		if prev.Version.Equal(&next.Version) {
-			if prev.Created.After(next.Created.Time) {
+		if prevRelease.Equal(&nextRelease) {
+			if entries[i].Created.After(entries[j].Created.Time) {
 				return true
 			}
 		}
