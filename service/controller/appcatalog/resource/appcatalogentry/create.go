@@ -186,7 +186,7 @@ func (r *Resource) newAppCatalogEntries(ctx context.Context, cr v1alpha1.AppCata
 
 		for i := 0; i < maxEntries; i++ {
 			e := sortedEntries[i]
-			name := fmt.Sprintf("%s-%s-%s", cr.Name, e.Name, e.Version)
+			name := fmt.Sprintf("%s-%s-%s", cr.Name, e.Name, e.Version.String())
 
 			var rawMetadata []byte
 			{
