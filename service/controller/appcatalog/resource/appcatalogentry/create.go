@@ -229,11 +229,12 @@ func (r *Resource) newAppCatalogEntries(ctx context.Context, cr v1alpha1.AppCata
 					Name:      name,
 					Namespace: metav1.NamespaceDefault,
 					Labels: map[string]string{
-						label.AppKubernetesName: e.Name,
-						label.CatalogName:       cr.Name,
-						label.CatalogType:       key.AppCatalogType(cr),
-						pkglabel.Latest:         strconv.FormatBool(isLatest),
-						label.ManagedBy:         key.AppCatalogEntryManagedBy(project.Name()),
+						label.AppKubernetesName:    e.Name,
+						label.AppKubernetesVersion: e.Version.String(),
+						label.CatalogName:          cr.Name,
+						label.CatalogType:          key.AppCatalogType(cr),
+						pkglabel.Latest:            strconv.FormatBool(isLatest),
+						label.ManagedBy:            key.AppCatalogEntryManagedBy(project.Name()),
 					},
 					OwnerReferences: []metav1.OwnerReference{
 						{
