@@ -294,6 +294,7 @@ func sortEntry(entries []entry) ([]entry, error) {
 	}
 
 	sort.Slice(entries, func(i, j int) bool {
+		// Removing Prerelease from version since they are mostly SHA strings which we could not compare the size.
 		prevRelease, err := entries[i].Version.SetPrerelease("")
 		if err != nil {
 			return false
