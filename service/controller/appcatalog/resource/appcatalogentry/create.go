@@ -5,9 +5,7 @@ import (
 	"fmt"
 	"sort"
 	"strconv"
-	"time"
 
-	"github.com/Masterminds/semver"
 	"github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/apiextensions/v3/pkg/label"
 	"github.com/giantswarm/app/v4/pkg/key"
@@ -174,11 +172,12 @@ func (r *Resource) newAppCatalogEntries(ctx context.Context, cr v1alpha1.AppCata
 	entryCRs := map[string]*v1alpha1.AppCatalogEntry{}
 
 	for name, entries := range index.Entries {
-		latestVersion, err := parseLatestVersion(entries)
+		sortedEntries, err := sortEntry(entries)
 		if err != nil {
-			// Log error but continue generating CRs.
 			r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("failed to parse latest version for %#q in catalog %#q", name, cr.Name), "stack", fmt.Sprintf("%#v", err))
 		}
+
+		latestVersion := sortedEntries[0].Version
 
 		maxEntries := r.maxEntriesPerApp
 		if len(entries) < maxEntries {
@@ -186,28 +185,23 @@ func (r *Resource) newAppCatalogEntries(ctx context.Context, cr v1alpha1.AppCata
 		}
 
 		for i := 0; i < maxEntries; i++ {
-			entry := entries[i]
-			name := fmt.Sprintf("%s-%s-%s", cr.Name, entry.Name, entry.Version)
+			e := sortedEntries[i]
+			name := fmt.Sprintf("%s-%s-%s", cr.Name, e.Name, e.Version)
 
 			var rawMetadata []byte
 			{
-				if url, ok := entry.Annotations[annotation.Metadata]; ok {
+				if url, ok := e.Annotations[annotation.Metadata]; ok {
 					rawMetadata, err = r.getMetadata(ctx, url)
 					if err != nil {
-						r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("failed to get appMetadata for entry %#q in catalog %#q", entry.Name, cr.Name), "stack", fmt.Sprintf("%#v", err))
+						r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("failed to get appMetadata for entry %#q in catalog %#q", e.Name, cr.Name), "stack", fmt.Sprintf("%#v", err))
 						continue
 					}
 				}
 			}
 
-			createdTime, err := parseTime(entry.Created)
-			if err != nil {
-				return nil, microerror.Mask(err)
-			}
-
 			// Until we add support for appMetadata files the updated time will be
 			// the same as the created time.
-			updatedTime := createdTime
+			updatedTime := e.Created.DeepCopy()
 
 			var m *appMetadata
 			{
@@ -222,7 +216,7 @@ func (r *Resource) newAppCatalogEntries(ctx context.Context, cr v1alpha1.AppCata
 			var isLatest bool
 
 			// We set the latest label to true for easier filtering.
-			if entry.Version == latestVersion {
+			if e.Version == latestVersion {
 				isLatest = true
 			}
 
@@ -235,7 +229,7 @@ func (r *Resource) newAppCatalogEntries(ctx context.Context, cr v1alpha1.AppCata
 					Name:      name,
 					Namespace: metav1.NamespaceDefault,
 					Labels: map[string]string{
-						label.AppKubernetesName: entry.Name,
+						label.AppKubernetesName: e.Name,
 						label.CatalogName:       cr.Name,
 						label.CatalogType:       key.AppCatalogType(cr),
 						pkglabel.Latest:         strconv.FormatBool(isLatest),
@@ -252,18 +246,18 @@ func (r *Resource) newAppCatalogEntries(ctx context.Context, cr v1alpha1.AppCata
 					},
 				},
 				Spec: v1alpha1.AppCatalogEntrySpec{
-					AppName:    entry.Name,
-					AppVersion: entry.AppVersion,
+					AppName:    e.Name,
+					AppVersion: e.AppVersion,
 					Catalog: v1alpha1.AppCatalogEntrySpecCatalog{
 						Name: cr.Name,
 						// Namespace will be empty until appcatalog CRs become namespace scoped.
 						Namespace: "",
 					},
 					Chart: v1alpha1.AppCatalogEntrySpecChart{
-						Home: entry.Home,
-						Icon: entry.Icon,
+						Home: e.Home,
+						Icon: e.Icon,
 					},
-					Version: entry.Version,
+					Version: e.Version.String(),
 				},
 			}
 
@@ -282,7 +276,7 @@ func (r *Resource) newAppCatalogEntries(ctx context.Context, cr v1alpha1.AppCata
 
 			if entryCR.Spec.DateCreated == nil {
 				// If meta.yaml does not have dateCreated, use the timestamp from app.
-				entryCR.Spec.DateCreated = createdTime
+				entryCR.Spec.DateCreated = &e.Created
 				entryCR.Spec.DateUpdated = updatedTime
 			}
 
@@ -293,35 +287,27 @@ func (r *Resource) newAppCatalogEntries(ctx context.Context, cr v1alpha1.AppCata
 	return entryCRs, nil
 }
 
-func parseLatestVersion(entries []entry) (string, error) {
+func sortEntry(entries []entry) ([]entry, error) {
 	if len(entries) == 0 {
-		return "", nil
+		return nil, nil
 	}
 
-	versions := make([]*semver.Version, len(entries))
+	sort.Slice(entries, func(i, j int) bool {
+		prev := entries[i]
+		next := entries[j]
 
-	for i, entry := range entries {
-		v, err := semver.NewVersion(entry.Version)
-		if err != nil {
-			return "", microerror.Mask(err)
+		if prev.Version.GreaterThan(&next.Version) {
+			return true
 		}
 
-		versions[i] = v
-	}
+		if prev.Version.Equal(&next.Version) {
+			if prev.Created.After(next.Created.Time) {
+				return true
+			}
+		}
 
-	// Sort the versions semantically and return the latest.
-	sort.Sort(semver.Collection(versions))
-	latest := versions[len(versions)-1]
+		return false
+	})
 
-	return latest.String(), nil
-}
-
-func parseTime(created string) (*metav1.Time, error) {
-	rawTime, err := time.Parse(time.RFC3339, created)
-	if err != nil {
-		return nil, microerror.Maskf(executionFailedError, "wrong timestamp format %#q", created)
-	}
-	timeVal := metav1.NewTime(rawTime)
-
-	return &timeVal, nil
+	return entries, nil
 }
