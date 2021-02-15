@@ -7,6 +7,11 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Deleted
+
+- Revert pausing App CR reconciliation when it has
+  `app-operator.giantswarm.io/paused=true` annotation.
+
 ## [3.2.0] - 2021-02-08
 
 ### Added
