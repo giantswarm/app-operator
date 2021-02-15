@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Changed
+
+- Order by a version to limit AppCatalogEntry per app.
+
 ## [3.2.0] - 2021-02-08
 
 ### Added
