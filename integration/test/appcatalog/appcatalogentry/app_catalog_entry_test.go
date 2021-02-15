@@ -99,11 +99,12 @@ func TestAppCatalogEntry(t *testing.T) {
 
 	{
 		expectedLabels := map[string]string{
-			label.AppKubernetesName: "prometheus-operator-app",
-			label.CatalogName:       key.StableCatalogName(),
-			label.CatalogType:       "stable",
-			pkglabel.Latest:         "true",
-			label.ManagedBy:         "app-operator-unique",
+			label.AppKubernetesName:    "prometheus-operator-app",
+			label.AppKubernetesVersion: latestEntry.Version,
+			label.CatalogName:          key.StableCatalogName(),
+			label.CatalogType:          "stable",
+			pkglabel.Latest:            "true",
+			label.ManagedBy:            "app-operator-unique",
 		}
 
 		if !reflect.DeepEqual(entryCR.Labels, expectedLabels) {

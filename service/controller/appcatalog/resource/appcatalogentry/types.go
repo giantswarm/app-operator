@@ -1,6 +1,7 @@
 package appcatalogentry
 
 import (
+	"github.com/Masterminds/semver"
 	"github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -13,12 +14,12 @@ type index struct {
 type entry struct {
 	Annotations map[string]string `json:"annotations"`
 	AppVersion  string            `json:"appVersion"`
-	Created     string            `json:"created"`
+	Created     metav1.Time       `json:"created"`
 	Home        string            `json:"home"`
 	Icon        string            `json:"icon"`
 	Name        string            `json:"name"`
 	Urls        []string          `json:"urls"`
-	Version     string            `json:"version"`
+	Version     semver.Version    `json:"version"`
 }
 
 type appMetadata struct {

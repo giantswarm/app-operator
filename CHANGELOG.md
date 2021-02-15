@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Changed
+
+- Sort AppCatalogEntry CRs by version and created timestamp.
+
 ## [3.2.0] - 2021-02-08
 
 ### Added
