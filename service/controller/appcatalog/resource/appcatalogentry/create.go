@@ -179,7 +179,10 @@ func (r *Resource) newAppCatalogEntries(ctx context.Context, cr v1alpha1.AppCata
 			return entries[i].Created.After(entries[j].Created.Time)
 		})
 
-		latestVersion := entries[0].Version
+		latestVersion, err := r.getLatestVersion(ctx, entries)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
 
 		maxEntries := r.maxEntriesPerApp
 		if len(entries) < maxEntries {
