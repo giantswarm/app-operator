@@ -260,6 +260,7 @@ func (r *Resource) getDesiredAppCatalogEntryCR(ctx context.Context, cr *v1alpha1
 	return entryCR, nil
 }
 
+// getLatestEntry returns the entry with the highest version without considering the creation date.
 func (r *Resource) getLatestEntry(ctx context.Context, entries []entry) (entry, error) {
 	var latestIndex int
 	var latestVersion semver.Version
