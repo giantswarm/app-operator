@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"sort"
+	"strconv"
 
 	"github.com/Masterminds/semver/v3"
 	"github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
@@ -169,7 +170,7 @@ func (r *Resource) updateAppCatalogEntry(ctx context.Context, entryCR *v1alpha1.
 	return nil
 }
 
-func (r *Resource) getDesiredAppCatalogEntryCR(ctx context.Context, cr *v1alpha1.AppCatalog, e entry) (*v1alpha1.AppCatalogEntry, error) {
+func (r *Resource) getDesiredAppCatalogEntryCR(ctx context.Context, cr *v1alpha1.AppCatalog, e entry, isLatest bool) (*v1alpha1.AppCatalogEntry, error) {
 	var err error
 	name := fmt.Sprintf("%s-%s-%s", cr.Name, e.Name, e.Version)
 
@@ -210,6 +211,7 @@ func (r *Resource) getDesiredAppCatalogEntryCR(ctx context.Context, cr *v1alpha1
 				label.AppKubernetesVersion: e.Version,
 				label.CatalogName:          cr.Name,
 				label.CatalogType:          key.AppCatalogType(*cr),
+				pkglabel.Latest:            strconv.FormatBool(isLatest),
 				label.ManagedBy:            key.AppCatalogEntryManagedBy(project.Name()),
 			},
 			OwnerReferences: []metav1.OwnerReference{
@@ -313,10 +315,15 @@ func (r *Resource) newAppCatalogEntries(ctx context.Context, cr v1alpha1.AppCata
 			maxEntries = len(entries)
 		}
 
+		latestEntry, err := r.getLatestEntry(ctx, entries)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
 		for i := 0; i < maxEntries; i++ {
 			e := entries[i]
 
-			entryCR, err := r.getDesiredAppCatalogEntryCR(ctx, &cr, e)
+			entryCR, err := r.getDesiredAppCatalogEntryCR(ctx, &cr, e, latestEntry.Version == e.Version)
 			if err != nil {
 				return nil, microerror.Mask(err)
 			}
@@ -324,21 +331,13 @@ func (r *Resource) newAppCatalogEntries(ctx context.Context, cr v1alpha1.AppCata
 			entryCRs[entryCR.Name] = entryCR
 		}
 
-		latestEntry, err := r.getLatestEntry(ctx, entries)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-
 		_, ok := entryCRs[latestEntry.Name]
-		if ok {
-			entryCRs[latestEntry.Name].Labels[pkglabel.Latest] = "true"
-		} else {
-			entryCR, err := r.getDesiredAppCatalogEntryCR(ctx, &cr, latestEntry)
+		if !ok {
+			entryCR, err := r.getDesiredAppCatalogEntryCR(ctx, &cr, latestEntry, true)
 			if err != nil {
 				return nil, microerror.Mask(err)
 			}
 
-			entryCR.Labels[pkglabel.Latest] = "true"
 			entryCRs[latestEntry.Name] = entryCR
 		}
 	}
