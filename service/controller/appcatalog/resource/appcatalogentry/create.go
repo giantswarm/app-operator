@@ -318,7 +318,7 @@ func (r *Resource) getLatestVersion(ctx context.Context, entries []entry) (strin
 		}
 
 		if nextVersion.Equal(&latestVersion) {
-			if latestCreated.After(entries[i].Created.Time) {
+			if latestCreated != nil && latestCreated.After(entries[i].Created.Time) {
 				latestVersion = nextVersion
 				latestCreated = entries[i].Created.DeepCopy()
 			}
