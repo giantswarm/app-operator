@@ -171,7 +171,6 @@ func (r *Resource) updateAppCatalogEntry(ctx context.Context, entryCR *v1alpha1.
 }
 
 func (r *Resource) newAppCatalogEntries(ctx context.Context, cr v1alpha1.AppCatalog, index index) (map[string]*v1alpha1.AppCatalogEntry, error) {
-	var err error
 	entryCRs := map[string]*v1alpha1.AppCatalogEntry{}
 
 	for _, entries := range index.Entries {
