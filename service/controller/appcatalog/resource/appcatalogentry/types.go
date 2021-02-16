@@ -1,7 +1,6 @@
 package appcatalogentry
 
 import (
-	"github.com/Masterminds/semver/v3"
 	"github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -20,7 +19,6 @@ type entry struct {
 	Name        string            `json:"name"`
 	Urls        []string          `json:"urls"`
 	Version     string            `json:"version"`
-	semVer      semver.Version
 }
 
 type appMetadata struct {

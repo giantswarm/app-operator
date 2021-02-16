@@ -171,15 +171,15 @@ func (r *Resource) updateAppCatalogEntry(ctx context.Context, entryCR *v1alpha1.
 }
 
 func (r *Resource) newAppCatalogEntries(ctx context.Context, cr v1alpha1.AppCatalog, index index) (map[string]*v1alpha1.AppCatalogEntry, error) {
+	var err error
 	entryCRs := map[string]*v1alpha1.AppCatalogEntry{}
 
-	for name, entries := range index.Entries {
-		sortedEntries, err := r.sortEntry(ctx, entries)
-		if err != nil {
-			r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("failed to parse latest version for %#q in catalog %#q", name, cr.Name), "stack", fmt.Sprintf("%#v", err))
-		}
+	for _, entries := range index.Entries {
+		sort.Slice(entries, func(i, j int) bool {
+			return entries[i].Created.After(entries[j].Created.Time)
+		})
 
-		latestVersion := sortedEntries[0].Version
+		latestVersion := entries[0].Version
 
 		maxEntries := r.maxEntriesPerApp
 		if len(entries) < maxEntries {
@@ -187,7 +187,7 @@ func (r *Resource) newAppCatalogEntries(ctx context.Context, cr v1alpha1.AppCata
 		}
 
 		for i := 0; i < maxEntries; i++ {
-			e := sortedEntries[i]
+			e := entries[i]
 			name := fmt.Sprintf("%s-%s-%s", cr.Name, e.Name, e.Version)
 
 			var rawMetadata []byte
@@ -290,12 +290,9 @@ func (r *Resource) newAppCatalogEntries(ctx context.Context, cr v1alpha1.AppCata
 	return entryCRs, nil
 }
 
-func (r *Resource) sortEntry(ctx context.Context, entries []entry) ([]entry, error) {
-	if len(entries) == 0 {
-		return nil, nil
-	}
-
-	var newEntries []entry
+func (r *Resource) getLatestVersion(ctx context.Context, entries []entry) (string, error) {
+	var latestVersion semver.Version
+	var latestCreated *metav1.Time
 
 	for i := 0; i < len(entries); i++ {
 		v, err := semver.NewVersion(entries[i].Version)
@@ -303,36 +300,28 @@ func (r *Resource) sortEntry(ctx context.Context, entries []entry) ([]entry, err
 			r.logger.Debugf(ctx, "invalid semver from converting app entries %s, version is %s", entries[i].Name, entries[i].Version)
 			continue
 		} else if err != nil {
-			return nil, microerror.Mask(err)
+			return "", microerror.Mask(err)
 		}
 
-		entries[i].semVer = *v
-		newEntries = append(newEntries, entries[i])
-	}
-
-	sort.Slice(newEntries, func(i, j int) bool {
 		// Removing Prerelease from version since they are mostly SHA strings which we could not compare the size.
-		prevRelease, err := newEntries[i].semVer.SetPrerelease("")
+		nextVersion, err := v.SetPrerelease("")
 		if err != nil {
-			return false
-		}
-		nextRelease, err := newEntries[j].semVer.SetPrerelease("")
-		if err != nil {
-			return false
+			return "", microerror.Mask(err)
 		}
 
-		if prevRelease.GreaterThan(&nextRelease) {
-			return true
+		if nextVersion.GreaterThan(&latestVersion) {
+			latestVersion = nextVersion
+			latestCreated = entries[i].Created.DeepCopy()
+			continue
 		}
 
-		if prevRelease.Equal(&nextRelease) {
-			if entries[i].Created.After(entries[j].Created.Time) {
-				return true
+		if nextVersion.Equal(&latestVersion) {
+			if latestCreated.After(entries[i].Created.Time) {
+				latestVersion = nextVersion
+				latestCreated = entries[i].Created.DeepCopy()
 			}
 		}
+	}
 
-		return false
-	})
-
-	return entries, nil
+	return latestVersion.String(), nil
 }
