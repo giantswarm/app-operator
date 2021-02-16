@@ -2,10 +2,12 @@ package appcatalogentry
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"sort"
 	"strconv"
 
+	"github.com/Masterminds/semver/v3"
 	"github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/apiextensions/v3/pkg/label"
 	"github.com/giantswarm/app/v4/pkg/key"
@@ -172,7 +174,7 @@ func (r *Resource) newAppCatalogEntries(ctx context.Context, cr v1alpha1.AppCata
 	entryCRs := map[string]*v1alpha1.AppCatalogEntry{}
 
 	for name, entries := range index.Entries {
-		sortedEntries, err := sortEntry(entries)
+		sortedEntries, err := r.sortEntry(ctx, entries)
 		if err != nil {
 			r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("failed to parse latest version for %#q in catalog %#q", name, cr.Name), "stack", fmt.Sprintf("%#v", err))
 		}
@@ -186,7 +188,7 @@ func (r *Resource) newAppCatalogEntries(ctx context.Context, cr v1alpha1.AppCata
 
 		for i := 0; i < maxEntries; i++ {
 			e := sortedEntries[i]
-			name := fmt.Sprintf("%s-%s-%s", cr.Name, e.Name, e.Version.String())
+			name := fmt.Sprintf("%s-%s-%s", cr.Name, e.Name, e.Version)
 
 			var rawMetadata []byte
 			{
@@ -230,7 +232,7 @@ func (r *Resource) newAppCatalogEntries(ctx context.Context, cr v1alpha1.AppCata
 					Namespace: metav1.NamespaceDefault,
 					Labels: map[string]string{
 						label.AppKubernetesName:    e.Name,
-						label.AppKubernetesVersion: e.Version.String(),
+						label.AppKubernetesVersion: e.Version,
 						label.CatalogName:          cr.Name,
 						label.CatalogType:          key.AppCatalogType(cr),
 						pkglabel.Latest:            strconv.FormatBool(isLatest),
@@ -258,7 +260,7 @@ func (r *Resource) newAppCatalogEntries(ctx context.Context, cr v1alpha1.AppCata
 						Home: e.Home,
 						Icon: e.Icon,
 					},
-					Version: e.Version.String(),
+					Version: e.Version,
 				},
 			}
 
@@ -288,18 +290,33 @@ func (r *Resource) newAppCatalogEntries(ctx context.Context, cr v1alpha1.AppCata
 	return entryCRs, nil
 }
 
-func sortEntry(entries []entry) ([]entry, error) {
+func (r *Resource) sortEntry(ctx context.Context, entries []entry) ([]entry, error) {
 	if len(entries) == 0 {
 		return nil, nil
 	}
 
-	sort.Slice(entries, func(i, j int) bool {
+	var newEntries []entry
+
+	for i := 0; i < len(entries); i++ {
+		v, err := semver.NewVersion(entries[i].Version)
+		if errors.As(err, &semver.ErrInvalidSemVer) {
+			r.logger.Debugf(ctx, "invalid semver from converting app entries %s, version is %s", entries[i].Name, entries[i].Version)
+			continue
+		} else if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		entries[i].SemVer = *v
+		newEntries = append(newEntries, entries[i])
+	}
+
+	sort.Slice(newEntries, func(i, j int) bool {
 		// Removing Prerelease from version since they are mostly SHA strings which we could not compare the size.
-		prevRelease, err := entries[i].Version.SetPrerelease("")
+		prevRelease, err := newEntries[i].SemVer.SetPrerelease("")
 		if err != nil {
 			return false
 		}
-		nextRelease, err := entries[j].Version.SetPrerelease("")
+		nextRelease, err := newEntries[j].SemVer.SetPrerelease("")
 		if err != nil {
 			return false
 		}
