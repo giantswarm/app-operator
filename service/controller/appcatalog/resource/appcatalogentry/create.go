@@ -328,7 +328,10 @@ func (r *Resource) newAppCatalogEntries(ctx context.Context, cr v1alpha1.AppCata
 			return nil, microerror.Mask(err)
 		}
 
-		if v, ok := entryCRs[latestEntry.Name]; !ok {
+		_, ok := entryCRs[latestEntry.Name]
+		if ok {
+			entryCRs[latestEntry.Name].Labels[pkglabel.Latest] = "true"
+		} else {
 			entryCR, err := r.getDesiredAppCatalogEntryCR(ctx, &cr, latestEntry)
 			if err != nil {
 				return nil, microerror.Mask(err)
@@ -336,8 +339,6 @@ func (r *Resource) newAppCatalogEntries(ctx context.Context, cr v1alpha1.AppCata
 
 			entryCR.Labels[pkglabel.Latest] = "true"
 			entryCRs[latestEntry.Name] = entryCR
-		} else {
-			v.Labels[pkglabel.Latest] = "true"
 		}
 	}
 
