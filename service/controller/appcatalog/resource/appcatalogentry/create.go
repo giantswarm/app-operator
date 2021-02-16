@@ -331,6 +331,7 @@ func (r *Resource) newAppCatalogEntries(ctx context.Context, cr v1alpha1.AppCata
 			entryCRs[entryCR.Name] = entryCR
 		}
 
+		// If the latest entry is not included in the desired CRs, we should add them so users could see the latest CR always.
 		_, ok := entryCRs[latestEntry.Name]
 		if !ok {
 			entryCR, err := r.getDesiredAppCatalogEntryCR(ctx, &cr, latestEntry, true)
