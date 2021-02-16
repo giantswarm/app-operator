@@ -20,7 +20,7 @@ type entry struct {
 	Name        string            `json:"name"`
 	Urls        []string          `json:"urls"`
 	Version     string            `json:"version"`
-	SemVer      semver.Version
+	semVer      semver.Version
 }
 
 type appMetadata struct {

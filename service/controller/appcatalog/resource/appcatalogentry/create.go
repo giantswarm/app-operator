@@ -306,17 +306,17 @@ func (r *Resource) sortEntry(ctx context.Context, entries []entry) ([]entry, err
 			return nil, microerror.Mask(err)
 		}
 
-		entries[i].SemVer = *v
+		entries[i].semVer = *v
 		newEntries = append(newEntries, entries[i])
 	}
 
 	sort.Slice(newEntries, func(i, j int) bool {
 		// Removing Prerelease from version since they are mostly SHA strings which we could not compare the size.
-		prevRelease, err := newEntries[i].SemVer.SetPrerelease("")
+		prevRelease, err := newEntries[i].semVer.SetPrerelease("")
 		if err != nil {
 			return false
 		}
-		nextRelease, err := newEntries[j].SemVer.SetPrerelease("")
+		nextRelease, err := newEntries[j].semVer.SetPrerelease("")
 		if err != nil {
 			return false
 		}
