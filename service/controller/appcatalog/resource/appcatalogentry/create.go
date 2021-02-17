@@ -271,13 +271,13 @@ func (r *Resource) getLatestEntry(ctx context.Context, entries []entry) (entry, 
 	for i := 0; i < len(entries); i++ {
 		v, err := semver.NewVersion(entries[i].Version)
 		if errors.As(err, &semver.ErrInvalidSemVer) {
-			r.logger.Debugf(ctx, "invalid semver from converting app entries %s, version is %s", entries[i].Name, entries[i].Version)
+			r.logger.Debugf(ctx, "invalid semver from converting app entry %s, version is %s", entries[i].Name, entries[i].Version)
 			continue
 		} else if err != nil {
 			return entry{}, microerror.Mask(err)
 		}
 
-		// Removing Prerelease from version since they are mostly SHA strings which we could not compare the size.
+		// Removing Prerelease from version since they are mostly SHA strings which we cannot compare.
 		nextVersion, err := v.SetPrerelease("")
 		if err != nil {
 			return entry{}, microerror.Mask(err)
@@ -331,7 +331,7 @@ func (r *Resource) newAppCatalogEntries(ctx context.Context, cr v1alpha1.AppCata
 			entryCRs[entryCR.Name] = entryCR
 		}
 
-		// If the latest entry is not included in the desired CRs, we should add them so users could see the latest CR always.
+		// If the latest entry is not included in the desired CRs, we add it so users can always see the latest CR.
 		_, ok := entryCRs[latestEntry.Name]
 		if !ok {
 			entryCR, err := r.getDesiredAppCatalogEntryCR(ctx, &cr, latestEntry, true)
