@@ -318,6 +318,10 @@ func (r *Resource) newAppCatalogEntries(ctx context.Context, cr v1alpha1.AppCata
 		var latestEntryCR *v1alpha1.AppCatalogEntry
 		{
 			latestEntry, err := r.getLatestEntry(ctx, entries)
+			if err != nil {
+				return nil, microerror.Mask(err)
+			}
+
 			latestEntryCR, err = r.getDesiredAppCatalogEntryCR(ctx, &cr, latestEntry, true)
 			if err != nil {
 				return nil, microerror.Mask(err)
