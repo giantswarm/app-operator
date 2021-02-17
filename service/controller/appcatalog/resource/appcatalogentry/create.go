@@ -315,15 +315,19 @@ func (r *Resource) newAppCatalogEntries(ctx context.Context, cr v1alpha1.AppCata
 			maxEntries = len(entries)
 		}
 
-		latestEntry, err := r.getLatestEntry(ctx, entries)
-		if err != nil {
-			return nil, microerror.Mask(err)
+		var latestEntryCR *v1alpha1.AppCatalogEntry
+		{
+			latestEntry, err := r.getLatestEntry(ctx, entries)
+			latestEntryCR, err = r.getDesiredAppCatalogEntryCR(ctx, &cr, latestEntry, true)
+			if err != nil {
+				return nil, microerror.Mask(err)
+			}
 		}
 
 		for i := 0; i < maxEntries; i++ {
 			e := entries[i]
 
-			entryCR, err := r.getDesiredAppCatalogEntryCR(ctx, &cr, e, latestEntry.Version == e.Version)
+			entryCR, err := r.getDesiredAppCatalogEntryCR(ctx, &cr, e, latestEntryCR.Spec.Version == e.Version)
 			if err != nil {
 				return nil, microerror.Mask(err)
 			}
@@ -332,14 +336,9 @@ func (r *Resource) newAppCatalogEntries(ctx context.Context, cr v1alpha1.AppCata
 		}
 
 		// If the latest entry is not included in the desired CRs, we add it so users can always see the latest CR.
-		_, ok := entryCRs[latestEntry.Name]
+		_, ok := entryCRs[latestEntryCR.Name]
 		if !ok {
-			entryCR, err := r.getDesiredAppCatalogEntryCR(ctx, &cr, latestEntry, true)
-			if err != nil {
-				return nil, microerror.Mask(err)
-			}
-
-			entryCRs[latestEntry.Name] = entryCR
+			entryCRs[latestEntryCR.Name] = latestEntryCR
 		}
 	}
 
