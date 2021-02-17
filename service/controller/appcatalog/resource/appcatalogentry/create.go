@@ -266,7 +266,7 @@ func (r *Resource) getDesiredAppCatalogEntryCR(ctx context.Context, cr *v1alpha1
 func (r *Resource) getLatestEntry(ctx context.Context, entries []entry) (entry, error) {
 	var latestIndex int
 	var latestVersion semver.Version
-	var latestCreated *metav1.Time
+	var latestCreated metav1.Time
 
 	for i := 0; i < len(entries); i++ {
 		v, err := semver.NewVersion(entries[i].Version)
@@ -286,15 +286,15 @@ func (r *Resource) getLatestEntry(ctx context.Context, entries []entry) (entry, 
 		if nextVersion.GreaterThan(&latestVersion) {
 			latestIndex = i
 			latestVersion = nextVersion
-			latestCreated = entries[i].Created.DeepCopy()
+			latestCreated = entries[i].Created
 			continue
 		}
 
 		if nextVersion.Equal(&latestVersion) {
-			if latestCreated != nil && latestCreated.After(entries[i].Created.Time) {
+			if entries[i].Created.Time.After(latestCreated.Time) {
 				latestIndex = i
 				latestVersion = nextVersion
-				latestCreated = entries[i].Created.DeepCopy()
+				latestCreated = entries[i].Created
 			}
 		}
 	}
