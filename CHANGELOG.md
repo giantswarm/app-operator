@@ -11,6 +11,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 - Enable Vertical Pod Autoscaler.
 
+### Changed
+
+- Sort AppCatalogEntry CRs by version and created timestamp.
+
 ## [3.2.0] - 2021-02-08
 
 ### Added

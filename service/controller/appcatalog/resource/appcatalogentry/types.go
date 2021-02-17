@@ -13,7 +13,7 @@ type index struct {
 type entry struct {
 	Annotations map[string]string `json:"annotations"`
 	AppVersion  string            `json:"appVersion"`
-	Created     string            `json:"created"`
+	Created     metav1.Time       `json:"created"`
 	Home        string            `json:"home"`
 	Icon        string            `json:"icon"`
 	Name        string            `json:"name"`

@@ -43,8 +43,6 @@ github.com/MakeNowJust/heredoc v1.0.0 h1:cXCdzVdstXyiTqTvfqk9SDHpKNjxuom+DOlyEeQ
 github.com/MakeNowJust/heredoc v1.0.0/go.mod h1:mG5amYoWBHf8vpLOuehzbGGw0EHxpZZ6lCpQ4fNJ8LE=
 github.com/Masterminds/goutils v1.1.0 h1:zukEsf/1JZwCMgHiK3GZftabmxiCw4apj3a28RPBiVg=
 github.com/Masterminds/goutils v1.1.0/go.mod h1:8cTjp+g8YejhMuvIA5y2vz3BpJxksy863GQaJW2MFNU=
-github.com/Masterminds/semver v1.5.0 h1:H65muMkzWKEuNDnfl9d70GUjFniHKHRbFPGBuZ3QEww=
-github.com/Masterminds/semver v1.5.0/go.mod h1:MB6lktGJrhw8PrUyiEoblNEGEQ+RzHPF078ddwwvV3Y=
 github.com/Masterminds/semver/v3 v3.1.0/go.mod h1:VPu/7SZ7ePZ3QOrcuXROw5FAcLl4a0cBrbBpGY/8hQs=
 github.com/Masterminds/semver/v3 v3.1.1 h1:hLg3sBzpNErnxhQtUy/mmLR2I9foDujNK030IGemrRc=
 github.com/Masterminds/semver/v3 v3.1.1/go.mod h1:VPu/7SZ7ePZ3QOrcuXROw5FAcLl4a0cBrbBpGY/8hQs=
@@ -262,6 +260,8 @@ github.com/giantswarm/apiextensions/v3 v3.13.0/go.mod h1:f+dFUDLroK50aCGzvpqPw/j
 github.com/giantswarm/apiextensions/v3 v3.16.1/go.mod h1:N4SS083wjVR3GEL/pqWycva4yUtYrlU5lUKhRtZJ7EY=
 github.com/giantswarm/apiextensions/v3 v3.17.0 h1:gltezezid1WVIBaSJRyZieWUngcbYjml5nCIDpifOus=
 github.com/giantswarm/apiextensions/v3 v3.17.0/go.mod h1:N4SS083wjVR3GEL/pqWycva4yUtYrlU5lUKhRtZJ7EY=
+github.com/giantswarm/apiextensions/v3 v3.18.1 h1:vbGH0u9MyPIum2QGm+ehTGm/9B1Na5zVCrCV5BMxCjg=
+github.com/giantswarm/apiextensions/v3 v3.18.1/go.mod h1:N4SS083wjVR3GEL/pqWycva4yUtYrlU5lUKhRtZJ7EY=
 github.com/giantswarm/app/v4 v4.3.0 h1:ey1foODGS7ScpXVHcKwUpWzdQoe/IKL5RkOu8szQAWo=
 github.com/giantswarm/app/v4 v4.3.0/go.mod h1:GrY88JvjWI/S5Ysh/tc6+vMWHmLKuLvnQxsNS42OFXU=
 github.com/giantswarm/appcatalog v0.4.0 h1:d1EltSPAJu/H6R8NHEf7kGvM4HTMktxDQdIUH2L+jw4=
@@ -280,6 +280,8 @@ github.com/giantswarm/helmclient/v4 v4.3.0 h1:1fUvY+3q/ATdjkviLglUVRwyp+AxIhAvxZ
 github.com/giantswarm/helmclient/v4 v4.3.0/go.mod h1:QD9YMzuoH6jlW6oM4yJpuYoPUir7bqPC5ADWmoZ8TCs=
 github.com/giantswarm/k8sclient/v5 v5.0.0 h1:+Qs75jAphCC6ddlpjyGqXG9525rABUb160gVsJq2uHg=
 github.com/giantswarm/k8sclient/v5 v5.0.0/go.mod h1:OhlknCs1Wgc0ErjWBgeZDGe4Y6aThus21nQOXPAq4rQ=
+github.com/giantswarm/k8sclient/v5 v5.10.0 h1:ZgiteFkbU0yuSv/b+3rw/VQZIBE7mZsBJcT16bKEDhA=
+github.com/giantswarm/k8sclient/v5 v5.10.0/go.mod h1:HHSHvERGfLhNqTsqKBUQSQ5VXGhLfVRojplYwio6jDU=
 github.com/giantswarm/kubeconfig/v4 v4.0.0 h1:c0OKKwlvZU/PlY2adFCY7APwlqJXh4Oj9oURC+kX89s=
 github.com/giantswarm/kubeconfig/v4 v4.0.0/go.mod h1:9vcJJ65RH4d7vlm24oKLimjOnKcMkEX1HtKSQXiQHLg=
 github.com/giantswarm/microendpoint v0.2.0 h1:xCAqAVRjTw/4ifEuBeNavALdbQsLk6+k/ukzdy0GWZE=
