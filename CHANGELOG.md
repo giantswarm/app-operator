@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Added
+
+- Add annotations from Helm charts to AppCatalogEntry CRs.
+
 ### Changed
 
 - Sort AppCatalogEntry CRs by version and created timestamp.
