@@ -172,7 +172,7 @@ func (r *Resource) updateAppCatalogEntry(ctx context.Context, entryCR *v1alpha1.
 
 func (r *Resource) getDesiredAppCatalogEntryCR(ctx context.Context, cr *v1alpha1.AppCatalog, e entry, isLatest bool) (*v1alpha1.AppCatalogEntry, error) {
 	var err error
-	name := fmt.Sprintf("%s-%s-%s", cr.Name, e.Name, e.Version)
+	name := key.AppCatalogEntryName(cr.Name, e.Name, e.Version)
 
 	var rawMetadata []byte
 	{
@@ -204,8 +204,9 @@ func (r *Resource) getDesiredAppCatalogEntryCR(ctx context.Context, cr *v1alpha1
 			Kind:       kindAppCatalogEntry,
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      name,
-			Namespace: metav1.NamespaceDefault,
+			Name:        name,
+			Namespace:   metav1.NamespaceDefault,
+			Annotations: e.Annotations,
 			Labels: map[string]string{
 				label.AppKubernetesName:    e.Name,
 				label.AppKubernetesVersion: e.Version,
