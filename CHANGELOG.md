@@ -14,7 +14,9 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ### Changed
 
+- Replace status webhook with chart CR status watcher.
 - Sort AppCatalogEntry CRs by version and created timestamp.
+- Watch cluster namespace for per workload cluster instances of app-operator.
 
 ## [3.2.0] - 2021-02-08
 
