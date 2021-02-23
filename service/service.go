@@ -13,10 +13,12 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/giantswarm/app-operator/v3/flag"
+	"github.com/giantswarm/app-operator/v3/pkg/env"
 	"github.com/giantswarm/app-operator/v3/pkg/project"
 	"github.com/giantswarm/app-operator/v3/service/controller/app"
 	"github.com/giantswarm/app-operator/v3/service/controller/appcatalog"
 	"github.com/giantswarm/app-operator/v3/service/watcher/appvalue"
+	"github.com/giantswarm/app-operator/v3/service/watcher/chartstatus"
 )
 
 // Config represents the configuration used to create a new service.
@@ -36,6 +38,7 @@ type Service struct {
 	appController        *app.App
 	appCatalogController *appcatalog.AppCatalog
 	appValueWatcher      *appvalue.AppValueWatcher
+	chartStatusWatcher   *chartstatus.ChartStatusWatcher
 	bootOnce             sync.Once
 
 	// Settings
@@ -77,6 +80,8 @@ func New(config Config) (*Service, error) {
 	}
 
 	fs := afero.NewOsFs()
+	podNamespace := env.PodNamespace()
+
 	var appController *app.App
 	{
 		c := app.Config{
@@ -87,10 +92,9 @@ func New(config Config) (*Service, error) {
 			ChartNamespace:    config.Viper.GetString(config.Flag.Service.Chart.Namespace),
 			HTTPClientTimeout: config.Viper.GetDuration(config.Flag.Service.Helm.HTTP.ClientTimeout),
 			ImageRegistry:     config.Viper.GetString(config.Flag.Service.Image.Registry),
+			PodNamespace:      podNamespace,
 			ResyncPeriod:      config.Viper.GetDuration(config.Flag.Service.Operatorkit.ResyncPeriod),
 			UniqueApp:         config.Viper.GetBool(config.Flag.Service.App.Unique),
-			WebhookAuthToken:  config.Viper.GetString(config.Flag.Service.Chart.WebhookAuthToken),
-			WebhookBaseURL:    config.Viper.GetString(config.Flag.Service.Chart.WebhookBaseURL),
 		}
 
 		appController, err = app.NewApp(c)
@@ -109,6 +113,23 @@ func New(config Config) (*Service, error) {
 		}
 
 		appValueWatcher, err = appvalue.NewAppValueWatcher(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	var chartStatusWatcher *chartstatus.ChartStatusWatcher
+	{
+		c := chartstatus.ChartStatusWatcherConfig{
+			K8sClient: config.K8sClient,
+			Logger:    config.Logger,
+
+			ChartNamespace: config.Viper.GetString(config.Flag.Service.Chart.Namespace),
+			PodNamespace:   podNamespace,
+			UniqueApp:      config.Viper.GetBool(config.Flag.Service.App.Unique),
+		}
+
+		chartStatusWatcher, err = chartstatus.NewChartStatusWatcher(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -137,6 +158,7 @@ func New(config Config) (*Service, error) {
 		appController:        appController,
 		appCatalogController: appCatalogController,
 		appValueWatcher:      appValueWatcher,
+		chartStatusWatcher:   chartStatusWatcher,
 		bootOnce:             sync.Once{},
 
 		unique: config.Viper.GetBool(config.Flag.Service.App.Unique),
@@ -156,7 +178,8 @@ func (s *Service) Boot(ctx context.Context) {
 		// Start the controller.
 		go s.appController.Boot(ctx)
 
-		// Start the watcher.
+		// Start the watchers.
 		go s.appValueWatcher.Boot(ctx)
+		go s.chartStatusWatcher.Boot(ctx)
 	})
 }

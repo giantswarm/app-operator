@@ -101,6 +101,13 @@ rules:
     - delete
     - get
 - apiGroups:
+    -  scheduling.k8s.io/v1
+  resources:
+    - priorityclasses
+  verbs:
+    - create
+    - get
+- apiGroups:
     - ""
   resources:
     - services

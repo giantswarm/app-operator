@@ -3,6 +3,7 @@ package chart
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"strings"
 
 	"github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
@@ -31,7 +32,6 @@ type Config struct {
 
 	// Settings.
 	ChartNamespace string
-	WebhookBaseURL string
 }
 
 // Resource implements the chart resource.
@@ -41,7 +41,6 @@ type Resource struct {
 
 	// Settings.
 	chartNamespace string
-	webhookBaseURL string
 }
 
 // New creates a new configured chart resource.
@@ -53,15 +52,11 @@ func New(config Config) (*Resource, error) {
 	if config.ChartNamespace == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ChartNamespace must not be empty", config)
 	}
-	if config.WebhookBaseURL == "" {
-		return nil, microerror.Maskf(invalidConfigError, "%T.WebhookBaseURL must not be empty", config)
-	}
 
 	r := &Resource{
 		logger: config.Logger,
 
 		chartNamespace: config.ChartNamespace,
-		webhookBaseURL: config.WebhookBaseURL,
 	}
 
 	return r, nil
@@ -130,8 +125,13 @@ func copyChart(current *v1alpha1.Chart) *v1alpha1.Chart {
 // copyAnnotations copies annotations from the current to desired chart,
 // only if the key has a chart-operator.giantswarm.io prefix.
 func copyAnnotations(current, desired *v1alpha1.Chart) {
+	webhookAnnotation := fmt.Sprintf("%s/%s", annotation.ChartOperatorPrefix, annotation.WebhookURL)
+
 	for k, currentValue := range current.Annotations {
-		if !strings.HasPrefix(k, annotation.ChartOperatorPrefix) {
+		if k == webhookAnnotation {
+			// Remove webhook annotation that is no longer used.
+			continue
+		} else if !strings.HasPrefix(k, annotation.ChartOperatorPrefix) {
 			continue
 		}
 

@@ -15,6 +15,12 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
+	// If the app CR is in-cluster then we need to delete the resources even if
+	// the namespace is being deleted.
+	if key.InCluster(cr) {
+		return nil
+	}
+
 	err = r.addNamespaceStatusToContext(ctx, cr)
 	if err != nil {
 		return microerror.Mask(err)

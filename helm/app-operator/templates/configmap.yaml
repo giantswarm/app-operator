@@ -16,13 +16,6 @@ data:
     service:
       app:
         unique: {{ include "resource.app.unique" . }}
-      chart:
-        webhookAuthToken: '{{ .Values.Installation.V1.Secret.AppOperator.WebhookAuthToken }}'
-        {{- if hasSuffix "-unique" .Release.Name }}
-        webhookBaseURL: 'http://{{ include "resource.default.name" . }}.{{ include "resource.default.namespace" . }}.svc.cluster.local:{{ .Values.port }}'
-        {{- else }}
-        webhookBaseURL: 'https://{{ include "resource.default.name" . }}.{{ .Values.Installation.V1.Kubernetes.API.Address }}'
-        {{- end }}
       helm:
         http:
           clientTimeout: '{{ .Values.Installation.V1.Helm.HTTP.ClientTimeout }}'

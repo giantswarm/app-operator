@@ -29,10 +29,9 @@ type Config struct {
 	ChartNamespace    string
 	HTTPClientTimeout time.Duration
 	ImageRegistry     string
+	PodNamespace      string
 	ResyncPeriod      time.Duration
 	UniqueApp         bool
-	WebhookAuthToken  string
-	WebhookBaseURL    string
 }
 
 type App struct {
@@ -58,11 +57,11 @@ func NewApp(config Config) (*App, error) {
 	if config.ImageRegistry == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ImageRegistry must not be empty", config)
 	}
+	if config.PodNamespace == "" {
+		return nil, microerror.Maskf(invalidConfigError, "%T.PodNamespace must not be empty", config)
+	}
 	if config.ResyncPeriod == 0 {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ResyncPeriod must not be empty", config)
-	}
-	if config.WebhookBaseURL == "" {
-		return nil, microerror.Maskf(invalidConfigError, "%T.WebhookBaseURL must not be empty", config)
 	}
 
 	// TODO: Remove usage of deprecated controller context.
@@ -87,8 +86,6 @@ func NewApp(config Config) (*App, error) {
 			HTTPClientTimeout: config.HTTPClientTimeout,
 			ImageRegistry:     config.ImageRegistry,
 			UniqueApp:         config.UniqueApp,
-			WebhookAuthToken:  config.WebhookAuthToken,
-			WebhookBaseURL:    config.WebhookBaseURL,
 		}
 
 		resources, err = newAppResources(c)
@@ -114,6 +111,12 @@ func NewApp(config Config) (*App, error) {
 			},
 
 			Name: project.Name() + appControllerSuffix,
+		}
+
+		if !config.UniqueApp {
+			// Only watch app CRs in the current namespace. The label selector
+			// excludes the operator's own app CR which has the unique version.
+			c.Namespace = config.PodNamespace
 		}
 
 		appController, err = controller.New(c)

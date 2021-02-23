@@ -1,4 +1,4 @@
-package authtoken
+package chartstatus
 
 import "github.com/giantswarm/microerror"
 

@@ -24,11 +24,11 @@ room for such suffix.
 {{- end -}}
 
 {{- define "resource.default.namespace" -}}
-giantswarm
+{{-  .Release.Namespace }}
 {{- end -}}
 
 {{/*
-The unique deployment of app-operator manages control plane app CRs and uses
+The unique deployment of app-operator is for management cluster app CRs and uses
 a special app version of 0.0.0.
 */}}
 {{- define "resource.app.unique" -}}
@@ -38,3 +38,14 @@ a special app version of 0.0.0.
 {{- if hasSuffix "-unique" .Release.Name }}0.0.0{{ else }}{{ .Chart.AppVersion }}{{ end }}
 {{- end -}}
 
+{{/*
+The unique deployment in the management cluster requires more resources than
+the per workload cluster instances.
+*/}}
+{{- define "resource.deployment.resources" -}}
+{{- if eq (include "resource.app.unique" .) "true" -}}
+{{ toYaml .Values.deployment.management }}
+{{- else }}
+{{ toYaml .Values.deployment.workload }}
+{{- end -}}
+{{- end -}}
