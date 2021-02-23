@@ -7,6 +7,8 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+## [4.0.0] - 2021-02-23
+
 ### Added
 
 - Add annotations from Helm charts to AppCatalogEntry CRs.
@@ -301,7 +303,8 @@ from Helm 2 to Helm 3.
 
 - Flattening operator release structure.
 
-[Unreleased]: https://github.com/giantswarm/app-operator/compare/v3.2.0...HEAD
+[Unreleased]: https://github.com/giantswarm/app-operator/compare/v4.0.0...HEAD
+[4.0.0]: https://github.com/giantswarm/app-operator/compare/v3.2.0...v4.0.0
 [3.2.0]: https://github.com/giantswarm/app-operator/compare/v3.1.0...v3.2.0
 [3.1.0]: https://github.com/giantswarm/app-operator/compare/v3.0.0...v3.1.0
 [3.0.0]: https://github.com/giantswarm/app-operator/compare/v2.8.0...v3.0.0
