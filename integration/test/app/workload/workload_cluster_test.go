@@ -13,10 +13,10 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/tools/clientcmd/api"
 
-	"github.com/giantswarm/app-operator/v3/integration/env"
-	"github.com/giantswarm/app-operator/v3/integration/key"
-	"github.com/giantswarm/app-operator/v3/integration/templates"
-	"github.com/giantswarm/app-operator/v3/pkg/project"
+	"github.com/giantswarm/app-operator/v4/integration/env"
+	"github.com/giantswarm/app-operator/v4/integration/key"
+	"github.com/giantswarm/app-operator/v4/integration/templates"
+	"github.com/giantswarm/app-operator/v4/pkg/project"
 )
 
 const (

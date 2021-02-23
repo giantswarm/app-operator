@@ -16,8 +16,8 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"github.com/giantswarm/app-operator/v3/integration/key"
-	pkglabel "github.com/giantswarm/app-operator/v3/pkg/label"
+	"github.com/giantswarm/app-operator/v4/integration/key"
+	pkglabel "github.com/giantswarm/app-operator/v4/pkg/label"
 )
 
 // TestWatchingConfigMap tests app CRs are updated when wired configmaps are updated

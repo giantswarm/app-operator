@@ -14,9 +14,9 @@ import (
 	"github.com/spf13/afero"
 	"k8s.io/apimachinery/pkg/runtime"
 
-	"github.com/giantswarm/app-operator/v3/pkg/label"
-	"github.com/giantswarm/app-operator/v3/pkg/project"
-	"github.com/giantswarm/app-operator/v3/service/controller/app/controllercontext"
+	"github.com/giantswarm/app-operator/v4/pkg/label"
+	"github.com/giantswarm/app-operator/v4/pkg/project"
+	"github.com/giantswarm/app-operator/v4/service/controller/app/controllercontext"
 )
 
 const appControllerSuffix = "-app"

@@ -9,7 +9,7 @@ import (
 	"github.com/giantswarm/operatorkit/v4/pkg/resource"
 	"k8s.io/apimachinery/pkg/runtime"
 
-	"github.com/giantswarm/app-operator/v3/pkg/project"
+	"github.com/giantswarm/app-operator/v4/pkg/project"
 )
 
 const appCatalogControllerSuffix = "-appcatalog"

@@ -14,9 +14,9 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 
-	pkgannotation "github.com/giantswarm/app-operator/v3/pkg/annotation"
-	"github.com/giantswarm/app-operator/v3/pkg/project"
-	"github.com/giantswarm/app-operator/v3/service/controller/app/controllercontext"
+	pkgannotation "github.com/giantswarm/app-operator/v4/pkg/annotation"
+	"github.com/giantswarm/app-operator/v4/pkg/project"
+	"github.com/giantswarm/app-operator/v4/service/controller/app/controllercontext"
 )
 
 func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interface{}, error) {
