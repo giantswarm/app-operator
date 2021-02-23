@@ -11,7 +11,7 @@ import (
 	"github.com/giantswarm/microerror"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 
-	"github.com/giantswarm/app-operator/v3/service/controller/app/controllercontext"
+	"github.com/giantswarm/app-operator/v4/service/controller/app/controllercontext"
 )
 
 func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {

@@ -13,7 +13,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/watch"
 
-	"github.com/giantswarm/app-operator/v3/pkg/annotation"
+	"github.com/giantswarm/app-operator/v4/pkg/annotation"
 )
 
 type ChartStatusWatcherConfig struct {

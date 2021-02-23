@@ -9,7 +9,7 @@ import (
 	"github.com/giantswarm/app/v4/pkg/key"
 	"k8s.io/apimachinery/pkg/labels"
 
-	"github.com/giantswarm/app-operator/v3/pkg/project"
+	"github.com/giantswarm/app-operator/v4/pkg/project"
 )
 
 const (

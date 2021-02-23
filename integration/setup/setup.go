@@ -16,10 +16,10 @@ import (
 	"github.com/spf13/afero"
 	"sigs.k8s.io/yaml"
 
-	"github.com/giantswarm/app-operator/v3/integration/env"
-	"github.com/giantswarm/app-operator/v3/integration/key"
-	"github.com/giantswarm/app-operator/v3/integration/templates"
-	"github.com/giantswarm/app-operator/v3/pkg/project"
+	"github.com/giantswarm/app-operator/v4/integration/env"
+	"github.com/giantswarm/app-operator/v4/integration/key"
+	"github.com/giantswarm/app-operator/v4/integration/templates"
+	"github.com/giantswarm/app-operator/v4/pkg/project"
 )
 
 func Setup(m *testing.M, config Config) {

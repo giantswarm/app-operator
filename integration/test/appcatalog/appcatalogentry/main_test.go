@@ -5,7 +5,7 @@ package appcatalogentry
 import (
 	"testing"
 
-	"github.com/giantswarm/app-operator/v3/integration/setup"
+	"github.com/giantswarm/app-operator/v4/integration/setup"
 )
 
 var (
