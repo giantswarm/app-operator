@@ -119,7 +119,7 @@ func TestAppCatalogEntry(t *testing.T) {
 				Namespace: "",
 			},
 			Chart: v1alpha1.AppCatalogEntrySpecChart{
-				APIVersion: "v1",
+				APIVersion: "v2",
 				Home:       latestEntry.Home,
 				Icon:       latestEntry.Icon,
 			},
