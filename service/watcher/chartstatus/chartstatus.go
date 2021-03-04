@@ -72,15 +72,17 @@ func (c *ChartStatusWatcher) Boot(ctx context.Context) {
 // delay of up to 5 minutes until the next resync period.
 func (c *ChartStatusWatcher) watchChartStatus(ctx context.Context) {
 	for {
-		g8sClient, err := c.getG8sClient(ctx)
+		// We need a g8s client to connect to the cluster. For remote clusters
+		// we use the kubeconfig secret but there can be a delay while its
+		// created during cluster creation so we wait till it exists.
+		g8sClient, err := c.waitForG8sClient(ctx)
 		if err != nil {
 			c.logger.Errorf(ctx, err, "failed to get g8sclient")
 			continue
 		}
 
-		// We need an available g8s client to connect to the cluster. The
-		// connection to the cluster will sometimes be down. So we wait with
-		// a backoff until we can connect.
+		// The connection to the cluster will sometimes be down. So we
+		// check we can connect and wait with a backoff if it is unavailable.
 		err = c.waitForAvailableG8sClient(ctx, g8sClient)
 		if err != nil {
 			c.logger.Errorf(ctx, err, "failed to get active g8sclient")

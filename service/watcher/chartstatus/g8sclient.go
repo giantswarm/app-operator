@@ -14,9 +14,10 @@ import (
 	"k8s.io/client-go/rest"
 )
 
-// getG8sClient returns a versioned clientset for watching chart CRs. If the
-// target cluster is remote we get this from its kubeconfig secret.
-func (c *ChartStatusWatcher) getG8sClient(ctx context.Context) (versioned.Interface, error) {
+// waitForG8sClient returns a versioned clientset for watching chart CRs.
+// If the target cluster is remote we get this from its kubeconfig secret.
+// We use a backoff because there can be a delay while the secret is created.
+func (c *ChartStatusWatcher) waitForG8sClient(ctx context.Context) (versioned.Interface, error) {
 	var err error
 
 	if c.uniqueApp {
@@ -37,12 +38,25 @@ func (c *ChartStatusWatcher) getG8sClient(ctx context.Context) (versioned.Interf
 	}
 
 	var restConfig *rest.Config
-	{
+
+	o := func() error {
 		kubeConfigName := fmt.Sprintf("%s-kubeconfig", c.appNamespace)
 		restConfig, err = kubeConfig.NewRESTConfigForApp(ctx, kubeConfigName, c.appNamespace)
 		if err != nil {
-			return nil, microerror.Mask(err)
+			return microerror.Mask(err)
 		}
+
+		return nil
+	}
+
+	n := func(err error, t time.Duration) {
+		c.logger.Errorf(ctx, err, "failed to get kubeconfig: retrying in %s", t)
+	}
+
+	b := backoff.NewExponential(5*time.Minute, 30*time.Second)
+	err = backoff.RetryNotify(o, b, n)
+	if err != nil {
+		return nil, microerror.Mask(err)
 	}
 
 	var g8sClient versioned.Interface
