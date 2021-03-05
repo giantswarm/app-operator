@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Fixed
+
+- Use backoff in chart CR watcher to wait until kubeconfig secret exists.
+
 ## [4.0.0] - 2021-02-23
 
 ### Added
