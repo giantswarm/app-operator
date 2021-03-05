@@ -83,7 +83,7 @@ func (c *ChartStatusWatcher) watchChartStatus(ctx context.Context) {
 
 		// The connection to the cluster will sometimes be down. So we
 		// check we can connect and wait with a backoff if it is unavailable.
-		err = c.waitForAvailableG8sClient(ctx, g8sClient)
+		err = c.waitForAvailableConnection(ctx, g8sClient)
 		if err != nil {
 			c.logger.Errorf(ctx, err, "failed to get active g8sclient")
 			continue

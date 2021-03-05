@@ -72,10 +72,10 @@ func (c *ChartStatusWatcher) waitForG8sClient(ctx context.Context) (versioned.In
 	return g8sClient, nil
 }
 
-// waitForAvailableG8sClient ensures we can connect to the target cluster if it
+// waitForAvailableConnection ensures we can connect to the target cluster if it
 // is remote. Sometimes the connection will be unavailable so we list all chart
 // CRs to confirm the connection is active.
-func (c *ChartStatusWatcher) waitForAvailableG8sClient(ctx context.Context, g8sClient versioned.Interface) error {
+func (c *ChartStatusWatcher) waitForAvailableConnection(ctx context.Context, g8sClient versioned.Interface) error {
 	var err error
 
 	o := func() error {
