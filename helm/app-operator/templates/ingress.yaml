@@ -18,7 +18,7 @@ spec:
     - host: {{ include "resource.default.name" . }}.{{ .Values.Installation.V1.Kubernetes.API.Address }}
       http:
         paths:
-          - path: /
+          - path: /status
             backend:
               serviceName: {{ include "resource.default.name" . }}
               servicePort: {{ .Values.port }}

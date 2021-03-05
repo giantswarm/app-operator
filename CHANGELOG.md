@@ -7,6 +7,12 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+## [3.2.1] - 2021-03-05
+
+### Security
+
+- Restrict ingress to only expose the status endpoint.
+
 ## [3.2.0] - 2021-02-08
 
 ### Added
@@ -290,7 +296,8 @@ from Helm 2 to Helm 3.
 
 - Flattening operator release structure.
 
-[Unreleased]: https://github.com/giantswarm/app-operator/compare/v3.2.0...HEAD
+[Unreleased]: https://github.com/giantswarm/app-operator/compare/v3.2.1...HEAD
+[3.2.1]: https://github.com/giantswarm/app-operator/compare/v3.2.0...v3.2.1
 [3.2.0]: https://github.com/giantswarm/app-operator/compare/v3.1.0...v3.2.0
 [3.1.0]: https://github.com/giantswarm/app-operator/compare/v3.0.0...v3.1.0
 [3.0.0]: https://github.com/giantswarm/app-operator/compare/v2.8.0...v3.0.0
