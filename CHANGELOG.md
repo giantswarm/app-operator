@@ -7,6 +7,12 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+## [3.2.1] - 2021-03-05
+
+### Security
+
+- stop exposing `/metrics` endpoints through ingress object.
+
 ## [3.2.0] - 2021-02-08
 
 ### Added
