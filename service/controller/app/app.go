@@ -30,6 +30,7 @@ type Config struct {
 	HTTPClientTimeout time.Duration
 	ImageRegistry     string
 	PodNamespace      string
+	Provider          string
 	ResyncPeriod      time.Duration
 	UniqueApp         bool
 }
@@ -60,6 +61,9 @@ func NewApp(config Config) (*App, error) {
 	if config.PodNamespace == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.PodNamespace must not be empty", config)
 	}
+	if config.Provider == "" {
+		return nil, microerror.Maskf(invalidConfigError, "%T.Provider must not be empty", config)
+	}
 	if config.ResyncPeriod == 0 {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ResyncPeriod must not be empty", config)
 	}
@@ -85,6 +89,7 @@ func NewApp(config Config) (*App, error) {
 			ChartNamespace:    config.ChartNamespace,
 			HTTPClientTimeout: config.HTTPClientTimeout,
 			ImageRegistry:     config.ImageRegistry,
+			Provider:          config.Provider,
 			UniqueApp:         config.UniqueApp,
 		}
 

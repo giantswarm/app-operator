@@ -9,6 +9,7 @@ import (
 	"github.com/giantswarm/app-operator/v4/flag/service/helm"
 	"github.com/giantswarm/app-operator/v4/flag/service/image"
 	"github.com/giantswarm/app-operator/v4/flag/service/operatorkit"
+	"github.com/giantswarm/app-operator/v4/flag/service/provider"
 )
 
 // Service is an intermediate data structure for command line configuration flags.
@@ -20,4 +21,5 @@ type Service struct {
 	Image       image.Image
 	Kubernetes  kubernetes.Kubernetes
 	Operatorkit operatorkit.Operatorkit
+	Provider    provider.Provider
 }

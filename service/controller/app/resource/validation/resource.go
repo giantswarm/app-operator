@@ -17,6 +17,8 @@ type Config struct {
 	G8sClient versioned.Interface
 	K8sClient kubernetes.Interface
 	Logger    micrologger.Logger
+
+	Provider string
 }
 
 // Resource implements the chartstatus resource.
@@ -24,6 +26,8 @@ type Resource struct {
 	appValidator *validation.Validator
 	g8sClient    versioned.Interface
 	logger       micrologger.Logger
+
+	provider string
 }
 
 func New(config Config) (*Resource, error) {
@@ -37,6 +41,10 @@ func New(config Config) (*Resource, error) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
 
+	if config.Provider == "" {
+		return nil, microerror.Maskf(invalidConfigError, "%T.Provider must not be empty", config)
+	}
+
 	var err error
 
 	var appValidator *validation.Validator
@@ -45,6 +53,8 @@ func New(config Config) (*Resource, error) {
 			G8sClient: config.G8sClient,
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
+
+			Provider: config.Provider,
 		}
 		appValidator, err = validation.NewValidator(c)
 		if err != nil {
