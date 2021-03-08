@@ -26,8 +26,6 @@ type Resource struct {
 	appValidator *validation.Validator
 	g8sClient    versioned.Interface
 	logger       micrologger.Logger
-
-	provider string
 }
 
 func New(config Config) (*Resource, error) {
