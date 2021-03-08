@@ -7,7 +7,7 @@ require (
 	github.com/ghodss/yaml v1.0.0
 	github.com/giantswarm/apiextensions/v3 v3.19.0
 	github.com/giantswarm/app/v4 v4.7.0
-	github.com/giantswarm/appcatalog v0.4.0
+	github.com/giantswarm/appcatalog v0.4.1-0.20210308105944-c53db7b6b10b
 	github.com/giantswarm/apptest v0.10.2
 	github.com/giantswarm/backoff v0.2.0
 	github.com/giantswarm/errors v0.3.0
