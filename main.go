@@ -158,6 +158,7 @@ func mainWithError() (err error) {
 	daemonCommand.PersistentFlags().String(f.Service.Kubernetes.TLS.KeyFile, "", "Key file path to use to authenticate with Kubernetes.")
 	daemonCommand.PersistentFlags().String(f.Service.Kubernetes.Watch.Namespace, "default", "The namespace where appcatalog and app CRs are located.")
 	daemonCommand.PersistentFlags().String(f.Service.Operatorkit.ResyncPeriod, "5m", "Resync period after which a complete resync of all runtime objects is performed.")
+	daemonCommand.PersistentFlags().String(f.Service.Provider.Kind, "", "Provider of the management cluster. One of aws, azure, kvm.")
 
 	err = newCommand.CobraCommand().Execute()
 	if err != nil {

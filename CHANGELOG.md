@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Added
+
+- Apply `compatibleProvider`,`namespace` metadata validation based on the relevant `AppCatalogEntry` CR.
+
 ## [4.0.1] - 2021-03-05
 
 ### Fixed
