@@ -25,3 +25,5 @@ data:
         incluster: true
       operatorkit:
         resyncPeriod: '{{ .Values.operatorkit.resyncPeriod }}' 
+      provider:
+        kind: '{{ .Values.Installation.V1.Provider.Kind }}'

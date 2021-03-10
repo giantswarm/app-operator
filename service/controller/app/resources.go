@@ -40,6 +40,7 @@ type appResourcesConfig struct {
 	ChartNamespace    string
 	HTTPClientTimeout time.Duration
 	ImageRegistry     string
+	Provider          string
 	UniqueApp         bool
 }
 
@@ -66,6 +67,9 @@ func newAppResources(config appResourcesConfig) ([]resource.Interface, error) {
 	}
 	if config.ImageRegistry == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ImageRegistry must not be empty", config)
+	}
+	if config.Provider == "" {
+		return nil, microerror.Maskf(invalidConfigError, "%T.Provider must not be empty", config)
 	}
 
 	var valuesService *values.Values
@@ -298,6 +302,8 @@ func newAppResources(config appResourcesConfig) ([]resource.Interface, error) {
 			G8sClient: config.K8sClient.G8sClient(),
 			K8sClient: config.K8sClient.K8sClient(),
 			Logger:    config.Logger,
+
+			Provider: config.Provider,
 		}
 
 		validationResource, err = validation.New(c)

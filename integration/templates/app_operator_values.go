@@ -6,6 +6,8 @@ package templates
 const AppOperatorValues = `
 Installation:
   V1:
+    Provider:
+      Kind: aws
     Registry:
       Domain: quay.io
 `

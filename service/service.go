@@ -93,6 +93,7 @@ func New(config Config) (*Service, error) {
 			HTTPClientTimeout: config.Viper.GetDuration(config.Flag.Service.Helm.HTTP.ClientTimeout),
 			ImageRegistry:     config.Viper.GetString(config.Flag.Service.Image.Registry),
 			PodNamespace:      podNamespace,
+			Provider:          config.Viper.GetString(config.Flag.Service.Provider.Kind),
 			ResyncPeriod:      config.Viper.GetDuration(config.Flag.Service.Operatorkit.ResyncPeriod),
 			UniqueApp:         config.Viper.GetBool(config.Flag.Service.App.Unique),
 		}

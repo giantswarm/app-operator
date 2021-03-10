@@ -7,6 +7,12 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+## [4.0.2] - 2021-03-09
+
+### Added
+
+- Apply `compatibleProvider`,`namespace` metadata validation based on the relevant `AppCatalogEntry` CR.
+
 ## [4.0.1] - 2021-03-05
 
 ### Fixed
@@ -309,7 +315,8 @@ from Helm 2 to Helm 3.
 
 - Flattening operator release structure.
 
-[Unreleased]: https://github.com/giantswarm/app-operator/compare/v4.0.1...HEAD
+[Unreleased]: https://github.com/giantswarm/app-operator/compare/v4.0.2...HEAD
+[4.0.2]: https://github.com/giantswarm/app-operator/compare/v4.0.1...v4.0.2
 [4.0.1]: https://github.com/giantswarm/app-operator/compare/v4.0.0...v4.0.1
 [4.0.0]: https://github.com/giantswarm/app-operator/compare/v3.2.0...v4.0.0
 [3.2.0]: https://github.com/giantswarm/app-operator/compare/v3.1.0...v3.2.0

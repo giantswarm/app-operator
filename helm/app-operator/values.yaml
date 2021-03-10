@@ -24,11 +24,10 @@ Installation:
     Kubernetes:
       API:
         Address: ""
+    Provider:
+      Kind: ""
     Registry:
       Domain: quay.io
-    Secret:
-      AppOperator:
-        WebhookAuthToken: ""
 
 operatorkit:
   resyncPeriod: "5m"
