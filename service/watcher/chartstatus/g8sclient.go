@@ -41,7 +41,7 @@ func (c *ChartStatusWatcher) waitForG8sClient(ctx context.Context) (versioned.In
 
 	o := func() error {
 		kubeConfigName := fmt.Sprintf("%s-kubeconfig", c.appNamespace)
-		restConfig, err = kubeConfig.NewRESTConfigForApp(ctx, kubeConfigName, c.appNamespace)
+		restConfig, err = kubeConfig.NewRESTConfigForApp(ctx, kubeConfigName, c.appNamespace, "values")
 		if err != nil {
 			return microerror.Mask(err)
 		}
