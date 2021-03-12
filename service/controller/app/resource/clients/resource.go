@@ -121,7 +121,7 @@ func (r *Resource) addClientsToContext(ctx context.Context, cr v1alpha1.App) err
 
 	var restConfig *rest.Config
 	{
-		restConfig, err = kubeConfig.NewRESTConfigForApp(ctx, key.KubeConfigSecretName(cr), key.KubeConfigSecretNamespace(cr), "values")
+		restConfig, err = kubeConfig.NewRESTConfigForApp(ctx, key.KubeConfigSecretName(cr), key.KubeConfigSecretNamespace(cr), "value")
 		if kubeconfig.IsNotFoundError(err) {
 			// Set status so we don't try to connect to the workload cluster
 			// again in this reconciliation loop.
