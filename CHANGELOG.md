@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Fixed
+
+- Remove finalizers added by config-controller.
+
 ## [4.0.2] - 2021-03-09
 
 ### Added

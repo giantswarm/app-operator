@@ -4,6 +4,7 @@ import (
 	"context"
 	"strings"
 
+	"github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/app/v4/pkg/key"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
@@ -18,8 +19,10 @@ const (
 var (
 	// legacyFinalizers are removed by this resource.
 	legacyFinalizers = map[string]bool{
-		"operatorkit.giantswarm.io/app":          true,
-		"operatorkit.giantswarm.io/app-operator": true,
+		"operatorkit.giantswarm.io/app":                                            true,
+		"operatorkit.giantswarm.io/app-operator":                                   true,
+		"operatorkit.giantswarm.io/config-controller-app-controller":               true,
+		"operatorkit.giantswarm.io/config-controller-app-catalog-entry-controller": true,
 	}
 )
 
@@ -58,6 +61,26 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
+	return r.updateFinalizers(ctx, cr)
+}
+
+// EnsureDeleted ensures that reconciled App CR gets orphaned finalizer
+// deleted.
+func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
+	cr, err := key.ToApp(obj)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
+	return r.updateFinalizers(ctx, cr)
+}
+
+// Name returns the resource name.
+func (r *Resource) Name() string {
+	return Name
+}
+
+func (r *Resource) updateFinalizers(ctx context.Context, cr v1alpha1.App) error {
 	{
 		// Refresh the CR object.
 		err := r.ctrlClient.Get(ctx, client.ObjectKey{Name: cr.Name, Namespace: cr.Namespace}, &cr)
@@ -92,14 +115,4 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	}
 
 	return nil
-}
-
-// EnsureDeleted is no-op.
-func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
-	return nil
-}
-
-// Name returns the resource name.
-func (r *Resource) Name() string {
-	return Name
 }
