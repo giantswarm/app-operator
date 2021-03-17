@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Added
+
+- Install apps in CAPI Workload Clusters.
+
 ## [4.0.2] - 2021-03-09
 
 ### Added
@@ -37,11 +41,11 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 ### Added
 
 - Include `apiVersion`, `restrictions.compatibleProviders` in appcatalogentry CRs.
-  
+
 ### Changed
-  
+
 - Limit the number of AppCatalogEntry per app.
-- Delete legacy finalizers on app CRs. 
+- Delete legacy finalizers on app CRs.
 - Reconciling appCatalog CRs only if pod is unique.
 
 ### Fixed
