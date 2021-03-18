@@ -5,7 +5,7 @@ go 1.15
 require (
 	github.com/Masterminds/semver/v3 v3.1.1
 	github.com/ghodss/yaml v1.0.0
-	github.com/giantswarm/apiextensions/v3 v3.19.0
+	github.com/giantswarm/apiextensions/v3 v3.22.0
 	github.com/giantswarm/app/v4 v4.7.0
 	github.com/giantswarm/appcatalog v0.4.1
 	github.com/giantswarm/apptest v0.10.3
@@ -22,7 +22,7 @@ require (
 	github.com/giantswarm/to v0.3.0
 	github.com/giantswarm/versionbundle v0.2.0
 	github.com/google/go-cmp v0.5.5
-	github.com/prometheus/client_golang v1.9.0
+	github.com/prometheus/client_golang v1.10.0
 	github.com/spf13/afero v1.5.1
 	github.com/spf13/viper v1.7.1
 	k8s.io/api v0.19.4
