@@ -43,7 +43,12 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					Catalog:   "giantswarm",
 					Name:      "prometheus",
 					Namespace: "monitoring",
-					Version:   "1.0.0",
+					NamespaceConfig: v1alpha1.AppSpecNamespaceConfig{
+						Annotations: map[string]string{
+							"linkerd.io/inject": "enabled",
+						},
+					},
+					Version: "1.0.0",
 					Config: v1alpha1.AppSpecConfig{
 						ConfigMap: v1alpha1.AppSpecConfigConfigMap{
 							Name:      "giant-swarm-config",
@@ -106,8 +111,13 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 							Namespace: "giantswarm",
 						},
 					},
-					Name:       "my-cool-prometheus",
-					Namespace:  "monitoring",
+					Name:      "my-cool-prometheus",
+					Namespace: "monitoring",
+					NamespaceConfig: v1alpha1.ChartSpecNamespaceConfig{
+						Annotations: map[string]string{
+							"linkerd.io/inject": "enabled",
+						},
+					},
 					TarballURL: "https://giantswarm.github.com/app-catalog/prometheus-1.0.0.tgz",
 					Version:    "1.0.0",
 				},

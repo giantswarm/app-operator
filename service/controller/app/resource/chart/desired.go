@@ -63,9 +63,13 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 			Labels:      processLabels(project.Name(), cr.GetLabels()),
 		},
 		Spec: v1alpha1.ChartSpec{
-			Config:     config,
-			Name:       cr.GetName(),
-			Namespace:  key.Namespace(cr),
+			Config:    config,
+			Name:      cr.GetName(),
+			Namespace: key.Namespace(cr),
+			NamespaceConfig: v1alpha1.ChartSpecNamespaceConfig{
+				Annotations: cr.Spec.NamespaceConfig.Annotations,
+				Labels:      cr.Spec.NamespaceConfig.Labels,
+			},
 			TarballURL: tarballURL,
 			Version:    key.Version(cr),
 		},
