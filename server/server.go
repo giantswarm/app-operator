@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"sync"
 
-	"github.com/giantswarm/k8sclient/v5/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	microserver "github.com/giantswarm/microkit/server"
 	"github.com/giantswarm/micrologger"
@@ -18,9 +17,8 @@ import (
 
 // Config represents the configuration used to construct server object.
 type Config struct {
-	K8sClient k8sclient.Interface
-	Logger    micrologger.Logger
-	Service   *service.Service
+	Logger  micrologger.Logger
+	Service *service.Service
 
 	Viper            *viper.Viper
 	WebhookAuthToken string
@@ -30,9 +28,6 @@ type Config struct {
 func New(config Config) (microserver.Server, error) {
 	var err error
 
-	if config.K8sClient == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
-	}
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
@@ -47,9 +42,8 @@ func New(config Config) (microserver.Server, error) {
 	var endpointCollection *endpoint.Endpoint
 	{
 		c := endpoint.Config{
-			K8sClient: config.K8sClient,
-			Logger:    config.Logger,
-			Service:   config.Service,
+			Logger:  config.Logger,
+			Service: config.Service,
 		}
 
 		endpointCollection, err = endpoint.New(c)
