@@ -1,7 +1,6 @@
 package endpoint
 
 import (
-	"github.com/giantswarm/k8sclient/v5/pkg/k8sclient"
 	"github.com/giantswarm/microendpoint/endpoint/healthz"
 	"github.com/giantswarm/microendpoint/endpoint/version"
 	"github.com/giantswarm/microerror"
@@ -13,9 +12,8 @@ import (
 // Config represents the configuration used to construct an endpoint.
 type Config struct {
 	// Dependencies
-	K8sClient k8sclient.Interface
-	Logger    micrologger.Logger
-	Service   *service.Service
+	Logger  micrologger.Logger
+	Service *service.Service
 }
 
 // Endpoint is the endpoint collection.
@@ -26,9 +24,6 @@ type Endpoint struct {
 
 // New creates a new endpoint with given configuration.
 func New(config Config) (*Endpoint, error) {
-	if config.K8sClient == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
-	}
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}

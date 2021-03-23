@@ -107,9 +107,8 @@ func mainWithError() (err error) {
 		var newServer microserver.Server
 		{
 			c := server.Config{
-				K8sClient: k8sClient,
-				Logger:    newLogger,
-				Service:   newService,
+				Logger:  newLogger,
+				Service: newService,
 
 				Viper: v,
 			}
