@@ -5,8 +5,6 @@ import (
 	"time"
 
 	"github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
-	"github.com/giantswarm/app-operator/v4/service/controller/app/controllercontext"
-	cachedk8sclient "github.com/giantswarm/app-operator/v4/service/internal/k8sclient"
 	"github.com/giantswarm/app/v4/pkg/key"
 	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/helmclient/v4/pkg/helmclient"
@@ -15,6 +13,9 @@ import (
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/spf13/afero"
+
+	"github.com/giantswarm/app-operator/v4/service/controller/app/controllercontext"
+	cachedk8sclient "github.com/giantswarm/app-operator/v4/service/internal/k8sclient"
 )
 
 const (

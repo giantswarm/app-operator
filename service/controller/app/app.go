@@ -6,7 +6,6 @@ import (
 
 	"github.com/giantswarm/apiextensions/v3/pkg/annotation"
 	"github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
-	cachedk8sclient "github.com/giantswarm/app-operator/v4/service/internal/k8sclient"
 	"github.com/giantswarm/k8sclient/v5/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
@@ -18,6 +17,7 @@ import (
 	"github.com/giantswarm/app-operator/v4/pkg/label"
 	"github.com/giantswarm/app-operator/v4/pkg/project"
 	"github.com/giantswarm/app-operator/v4/service/controller/app/controllercontext"
+	cachedk8sclient "github.com/giantswarm/app-operator/v4/service/internal/k8sclient"
 )
 
 const appControllerSuffix = "-app"
