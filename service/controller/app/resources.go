@@ -205,10 +205,11 @@ func newAppResources(config appResourcesConfig) ([]resource.Interface, error) {
 	var clientsResource resource.Interface
 	{
 		c := clients.Config{
-			Fs:         config.FileSystem,
-			HelmClient: helmClient,
-			K8sClient:  config.K8sClient,
-			Logger:     config.Logger,
+			CachedK8sClient: config.CachedK8sClient,
+			Fs:              config.FileSystem,
+			HelmClient:      helmClient,
+			K8sClient:       config.K8sClient,
+			Logger:          config.Logger,
 
 			HTTPClientTimeout: config.HTTPClientTimeout,
 		}
