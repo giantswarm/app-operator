@@ -74,6 +74,7 @@ func New(config Config) (*Resource, error) {
 func (r *Resource) GetK8sClient(ctx context.Context, kubeConfig *v1alpha1.AppSpecKubeConfig) (k8sclient.Interface, error) {
 	k := fmt.Sprintf("%s/%s", kubeConfig.Secret.Namespace, kubeConfig.Secret.Name)
 
+	fmt.Println("CHECKING CACHE")
 	if v, ok := r.cache.Get(k); ok {
 		clients, ok := v.(k8sclient.Interface)
 		if !ok {
@@ -83,13 +84,17 @@ func (r *Resource) GetK8sClient(ctx context.Context, kubeConfig *v1alpha1.AppSpe
 		return clients, nil
 	}
 
+	fmt.Println("CACHE FAULT")
+	fmt.Println("CREATE CLIENT")
 	clients, err := r.generateK8sClient(ctx, kubeConfig)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
 
+	fmt.Println("CREATE KEY")
 	r.cache.SetDefault(k, clients)
 
+	fmt.Println("RETURNING")
 	return clients, nil
 }
 
