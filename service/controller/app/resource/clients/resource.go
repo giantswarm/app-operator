@@ -5,6 +5,8 @@ import (
 	"time"
 
 	"github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
+	"github.com/giantswarm/app-operator/v4/service/controller/app/controllercontext"
+	cachedk8sclient "github.com/giantswarm/app-operator/v4/service/internal/k8sclient"
 	"github.com/giantswarm/app/v4/pkg/key"
 	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/helmclient/v4/pkg/helmclient"
@@ -13,9 +15,6 @@ import (
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/spf13/afero"
-	"k8s.io/client-go/rest"
-
-	"github.com/giantswarm/app-operator/v4/service/controller/app/controllercontext"
 )
 
 const (
@@ -26,10 +25,11 @@ const (
 // Config represents the configuration used to create a new clients resource.
 type Config struct {
 	// Dependencies.
-	Fs         afero.Fs
-	HelmClient helmclient.Interface
-	K8sClient  k8sclient.Interface
-	Logger     micrologger.Logger
+	CachedK8sClient *cachedk8sclient.Resource
+	Fs              afero.Fs
+	HelmClient      helmclient.Interface
+	K8sClient       k8sclient.Interface
+	Logger          micrologger.Logger
 
 	// Settings.
 	HTTPClientTimeout time.Duration
@@ -38,10 +38,11 @@ type Config struct {
 // Resource implements the clients resource.
 type Resource struct {
 	// Dependencies.
-	fs         afero.Fs
-	helmClient helmclient.Interface
-	k8sClient  k8sclient.Interface
-	logger     micrologger.Logger
+	cachedK8sClient *cachedk8sclient.Resource
+	fs              afero.Fs
+	helmClient      helmclient.Interface
+	k8sClient       k8sclient.Interface
+	logger          micrologger.Logger
 
 	// Settings.
 	httpClientTimeout time.Duration
@@ -49,6 +50,9 @@ type Resource struct {
 
 // New creates a new configured clients resource.
 func New(config Config) (*Resource, error) {
+	if config.CachedK8sClient == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.CachedK8sClient must not be empty", config)
+	}
 	if config.Fs == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Fs must not be empty", config)
 	}
@@ -68,10 +72,11 @@ func New(config Config) (*Resource, error) {
 
 	r := &Resource{
 		// Dependencies.
-		fs:         config.Fs,
-		helmClient: config.HelmClient,
-		k8sClient:  config.K8sClient,
-		logger:     config.Logger,
+		cachedK8sClient: config.CachedK8sClient,
+		fs:              config.Fs,
+		helmClient:      config.HelmClient,
+		k8sClient:       config.K8sClient,
+		logger:          config.Logger,
 
 		// Settings
 		httpClientTimeout: config.HTTPClientTimeout,
@@ -106,56 +111,25 @@ func (r *Resource) addClientsToContext(ctx context.Context, cr v1alpha1.App) err
 		return nil
 	}
 
-	var kubeConfig kubeconfig.Interface
-	{
-		c := kubeconfig.Config{
-			K8sClient: r.k8sClient.K8sClient(),
-			Logger:    r.logger,
-		}
+	k8sClient, err := r.cachedK8sClient.GetK8sClient(ctx, &cr.Spec.KubeConfig)
+	if kubeconfig.IsNotFoundError(err) {
+		// Set status so we don't try to connect to the workload cluster
+		// again in this reconciliation loop.
+		cc.Status.ClusterStatus.IsUnavailable = true
 
-		kubeConfig, err = kubeconfig.New(c)
-		if err != nil {
-			return microerror.Mask(err)
-		}
-	}
+		r.logger.Debugf(ctx, "kubeconfig secret not found")
+		r.logger.Debugf(ctx, "canceling resource")
+		return nil
+	} else if tenant.IsAPINotAvailable(err) {
+		// Set status so we don't try to connect to the workload cluster
+		// again in this reconciliation loop.
+		cc.Status.ClusterStatus.IsUnavailable = true
 
-	var restConfig *rest.Config
-	{
-		restConfig, err = kubeConfig.NewRESTConfigForApp(ctx, key.KubeConfigSecretName(cr), key.KubeConfigSecretNamespace(cr))
-		if kubeconfig.IsNotFoundError(err) {
-			// Set status so we don't try to connect to the workload cluster
-			// again in this reconciliation loop.
-			cc.Status.ClusterStatus.IsUnavailable = true
-
-			r.logger.Debugf(ctx, "kubeconfig secret not found")
-			r.logger.Debugf(ctx, "canceling resource")
-			return nil
-
-		} else if err != nil {
-			return microerror.Mask(err)
-		}
-	}
-
-	var k8sClient k8sclient.Interface
-	{
-		c := k8sclient.ClientsConfig{
-			Logger:     r.logger,
-			RestConfig: rest.CopyConfig(restConfig),
-		}
-
-		k8sClient, err = k8sclient.NewClients(c)
-		if tenant.IsAPINotAvailable(err) {
-			// Set status so we don't try to connect to the workload cluster
-			// again in this reconciliation loop.
-			cc.Status.ClusterStatus.IsUnavailable = true
-
-			r.logger.Debugf(ctx, "workload API not available yet")
-			r.logger.Debugf(ctx, "canceling resource")
-			return nil
-
-		} else if err != nil {
-			return microerror.Mask(err)
-		}
+		r.logger.Debugf(ctx, "workload API not available yet")
+		r.logger.Debugf(ctx, "canceling resource")
+		return nil
+	} else if err != nil {
+		return microerror.Mask(err)
 	}
 
 	var helmClient helmclient.Interface

@@ -17,6 +17,7 @@ import (
 	"github.com/giantswarm/app-operator/v4/pkg/project"
 	"github.com/giantswarm/app-operator/v4/service/controller/app"
 	"github.com/giantswarm/app-operator/v4/service/controller/appcatalog"
+	cachedk8sclient "github.com/giantswarm/app-operator/v4/service/internal/k8sclient"
 	"github.com/giantswarm/app-operator/v4/service/watcher/appvalue"
 	"github.com/giantswarm/app-operator/v4/service/watcher/chartstatus"
 )
@@ -82,12 +83,29 @@ func New(config Config) (*Service, error) {
 	fs := afero.NewOsFs()
 	podNamespace := env.PodNamespace()
 
+	var cachedK8sClient *cachedk8sclient.Resource
+	{
+		c := cachedk8sclient.Config{
+			Fs:        fs,
+			K8sClient: config.K8sClient,
+			Logger:    config.Logger,
+
+			HTTPClientTimeout: config.Viper.GetDuration(config.Flag.Service.Helm.HTTP.ClientTimeout),
+		}
+
+		cachedK8sClient, err = cachedk8sclient.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var appController *app.App
 	{
 		c := app.Config{
-			Fs:        fs,
-			Logger:    config.Logger,
-			K8sClient: config.K8sClient,
+			CachedK8sClient: cachedK8sClient,
+			Fs:              fs,
+			Logger:          config.Logger,
+			K8sClient:       config.K8sClient,
 
 			ChartNamespace:    config.Viper.GetString(config.Flag.Service.Chart.Namespace),
 			HTTPClientTimeout: config.Viper.GetDuration(config.Flag.Service.Helm.HTTP.ClientTimeout),

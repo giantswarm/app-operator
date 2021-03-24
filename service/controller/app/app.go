@@ -6,6 +6,7 @@ import (
 
 	"github.com/giantswarm/apiextensions/v3/pkg/annotation"
 	"github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
+	cachedk8sclient "github.com/giantswarm/app-operator/v4/service/internal/k8sclient"
 	"github.com/giantswarm/k8sclient/v5/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
@@ -22,9 +23,10 @@ import (
 const appControllerSuffix = "-app"
 
 type Config struct {
-	Fs        afero.Fs
-	K8sClient k8sclient.Interface
-	Logger    micrologger.Logger
+	CachedK8sClient *cachedk8sclient.Resource
+	Fs              afero.Fs
+	K8sClient       k8sclient.Interface
+	Logger          micrologger.Logger
 
 	ChartNamespace    string
 	HTTPClientTimeout time.Duration
@@ -42,6 +44,9 @@ type App struct {
 func NewApp(config Config) (*App, error) {
 	var err error
 
+	if config.CachedK8sClient == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.CachedK8sClient must not be empty", config)
+	}
 	if config.Fs == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Fs must not be empty", config)
 	}
@@ -82,9 +87,10 @@ func NewApp(config Config) (*App, error) {
 	var resources []resource.Interface
 	{
 		c := appResourcesConfig{
-			FileSystem: config.Fs,
-			K8sClient:  config.K8sClient,
-			Logger:     config.Logger,
+			CachedK8sClient: config.CachedK8sClient,
+			FileSystem:      config.Fs,
+			K8sClient:       config.K8sClient,
+			Logger:          config.Logger,
 
 			ChartNamespace:    config.ChartNamespace,
 			HTTPClientTimeout: config.HTTPClientTimeout,

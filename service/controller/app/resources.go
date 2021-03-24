@@ -28,13 +28,15 @@ import (
 	"github.com/giantswarm/app-operator/v4/service/controller/app/resource/status"
 	"github.com/giantswarm/app-operator/v4/service/controller/app/resource/tcnamespace"
 	"github.com/giantswarm/app-operator/v4/service/controller/app/resource/validation"
+	cachedk8sclient "github.com/giantswarm/app-operator/v4/service/internal/k8sclient"
 )
 
 type appResourcesConfig struct {
 	// Dependencies.
-	FileSystem afero.Fs
-	K8sClient  k8sclient.Interface
-	Logger     micrologger.Logger
+	CachedK8sClient *cachedk8sclient.Resource
+	FileSystem      afero.Fs
+	K8sClient       k8sclient.Interface
+	Logger          micrologger.Logger
 
 	// Settings.
 	ChartNamespace    string
@@ -48,6 +50,9 @@ func newAppResources(config appResourcesConfig) ([]resource.Interface, error) {
 	var err error
 
 	// Dependencies.
+	if config.CachedK8sClient == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.CachedK8sClient must not be empty", config)
+	}
 	if config.FileSystem == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Fs must not be empty", config)
 	}
