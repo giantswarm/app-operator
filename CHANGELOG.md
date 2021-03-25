@@ -11,6 +11,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 - Cache k8sclient for later use.
 
+### Changed
+
+- Updated Helm to v3.5.3.
+
 ## [4.2.0] - 2021-03-19
 
 ### Added
