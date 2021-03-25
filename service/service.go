@@ -86,7 +86,6 @@ func New(config Config) (*Service, error) {
 	var k8sClientCache *k8sclientcache.Resource
 	{
 		c := k8sclientcache.Config{
-			Fs:        fs,
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
 

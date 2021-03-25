@@ -12,7 +12,6 @@ import (
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	gocache "github.com/patrickmn/go-cache"
-	"github.com/spf13/afero"
 	"k8s.io/client-go/rest"
 )
 
@@ -22,7 +21,6 @@ const (
 
 type Config struct {
 	// Dependencies.
-	Fs        afero.Fs
 	K8sClient k8sclient.Interface
 	Logger    micrologger.Logger
 
@@ -33,7 +31,6 @@ type Config struct {
 type Resource struct {
 	// Dependencies.
 	cache     *gocache.Cache
-	fs        afero.Fs
 	k8sClient k8sclient.Interface
 	logger    micrologger.Logger
 
@@ -43,9 +40,6 @@ type Resource struct {
 
 // New creates a new configured clients resource.
 func New(config Config) (*Resource, error) {
-	if config.Fs == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.Fs must not be empty", config)
-	}
 	if config.K8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
 	}
@@ -60,7 +54,6 @@ func New(config Config) (*Resource, error) {
 	r := &Resource{
 		// Dependencies.
 		cache:     gocache.New(expiration, expiration/2),
-		fs:        config.Fs,
 		k8sClient: config.K8sClient,
 		logger:    config.Logger,
 
