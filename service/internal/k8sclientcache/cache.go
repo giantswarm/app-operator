@@ -17,7 +17,7 @@ import (
 )
 
 const (
-	expiration = 1 * time.Hour
+	expiration = 10 * time.Minute
 )
 
 type Config struct {
