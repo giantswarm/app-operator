@@ -13,9 +13,9 @@ import (
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/spf13/afero"
-	"k8s.io/client-go/rest"
 
 	"github.com/giantswarm/app-operator/v4/service/controller/app/controllercontext"
+	"github.com/giantswarm/app-operator/v4/service/internal/k8sclientcache"
 )
 
 const (
@@ -26,10 +26,11 @@ const (
 // Config represents the configuration used to create a new clients resource.
 type Config struct {
 	// Dependencies.
-	Fs         afero.Fs
-	HelmClient helmclient.Interface
-	K8sClient  k8sclient.Interface
-	Logger     micrologger.Logger
+	Fs             afero.Fs
+	HelmClient     helmclient.Interface
+	K8sClient      k8sclient.Interface
+	K8sClientCache *k8sclientcache.Resource
+	Logger         micrologger.Logger
 
 	// Settings.
 	HTTPClientTimeout time.Duration
@@ -38,10 +39,11 @@ type Config struct {
 // Resource implements the clients resource.
 type Resource struct {
 	// Dependencies.
-	fs         afero.Fs
-	helmClient helmclient.Interface
-	k8sClient  k8sclient.Interface
-	logger     micrologger.Logger
+	fs             afero.Fs
+	helmClient     helmclient.Interface
+	k8sClient      k8sclient.Interface
+	k8sClientCache *k8sclientcache.Resource
+	logger         micrologger.Logger
 
 	// Settings.
 	httpClientTimeout time.Duration
@@ -58,6 +60,9 @@ func New(config Config) (*Resource, error) {
 	if config.K8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
 	}
+	if config.K8sClientCache == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.CachedK8sClient must not be empty", config)
+	}
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
@@ -68,10 +73,11 @@ func New(config Config) (*Resource, error) {
 
 	r := &Resource{
 		// Dependencies.
-		fs:         config.Fs,
-		helmClient: config.HelmClient,
-		k8sClient:  config.K8sClient,
-		logger:     config.Logger,
+		fs:             config.Fs,
+		helmClient:     config.HelmClient,
+		k8sClient:      config.K8sClient,
+		k8sClientCache: config.K8sClientCache,
+		logger:         config.Logger,
 
 		// Settings
 		httpClientTimeout: config.HTTPClientTimeout,
@@ -106,56 +112,25 @@ func (r *Resource) addClientsToContext(ctx context.Context, cr v1alpha1.App) err
 		return nil
 	}
 
-	var kubeConfig kubeconfig.Interface
-	{
-		c := kubeconfig.Config{
-			K8sClient: r.k8sClient.K8sClient(),
-			Logger:    r.logger,
-		}
+	k8sClient, err := r.k8sClientCache.GetK8sClient(ctx, &cr.Spec.KubeConfig)
+	if kubeconfig.IsNotFoundError(err) {
+		// Set status so we don't try to connect to the workload cluster
+		// again in this reconciliation loop.
+		cc.Status.ClusterStatus.IsUnavailable = true
 
-		kubeConfig, err = kubeconfig.New(c)
-		if err != nil {
-			return microerror.Mask(err)
-		}
-	}
+		r.logger.Debugf(ctx, "kubeconfig secret not found")
+		r.logger.Debugf(ctx, "canceling resource")
+		return nil
+	} else if tenant.IsAPINotAvailable(err) {
+		// Set status so we don't try to connect to the workload cluster
+		// again in this reconciliation loop.
+		cc.Status.ClusterStatus.IsUnavailable = true
 
-	var restConfig *rest.Config
-	{
-		restConfig, err = kubeConfig.NewRESTConfigForApp(ctx, key.KubeConfigSecretName(cr), key.KubeConfigSecretNamespace(cr))
-		if kubeconfig.IsNotFoundError(err) {
-			// Set status so we don't try to connect to the workload cluster
-			// again in this reconciliation loop.
-			cc.Status.ClusterStatus.IsUnavailable = true
-
-			r.logger.Debugf(ctx, "kubeconfig secret not found")
-			r.logger.Debugf(ctx, "canceling resource")
-			return nil
-
-		} else if err != nil {
-			return microerror.Mask(err)
-		}
-	}
-
-	var k8sClient k8sclient.Interface
-	{
-		c := k8sclient.ClientsConfig{
-			Logger:     r.logger,
-			RestConfig: rest.CopyConfig(restConfig),
-		}
-
-		k8sClient, err = k8sclient.NewClients(c)
-		if tenant.IsAPINotAvailable(err) {
-			// Set status so we don't try to connect to the workload cluster
-			// again in this reconciliation loop.
-			cc.Status.ClusterStatus.IsUnavailable = true
-
-			r.logger.Debugf(ctx, "workload API not available yet")
-			r.logger.Debugf(ctx, "canceling resource")
-			return nil
-
-		} else if err != nil {
-			return microerror.Mask(err)
-		}
+		r.logger.Debugf(ctx, "workload API not available yet")
+		r.logger.Debugf(ctx, "canceling resource")
+		return nil
+	} else if err != nil {
+		return microerror.Mask(err)
 	}
 
 	var helmClient helmclient.Interface

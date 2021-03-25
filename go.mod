@@ -22,6 +22,7 @@ require (
 	github.com/giantswarm/to v0.3.0
 	github.com/giantswarm/versionbundle v0.2.0
 	github.com/google/go-cmp v0.5.5
+	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/prometheus/client_golang v1.10.0
 	github.com/spf13/afero v1.6.0
 	github.com/spf13/viper v1.7.1

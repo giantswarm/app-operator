@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Added
+
+- Cache k8sclient for later use.
+
 ## [4.2.0] - 2021-03-19
 
 ### Added
