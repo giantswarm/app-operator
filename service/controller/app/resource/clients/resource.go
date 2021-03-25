@@ -15,7 +15,7 @@ import (
 	"github.com/spf13/afero"
 
 	"github.com/giantswarm/app-operator/v4/service/controller/app/controllercontext"
-	cachedk8sclient "github.com/giantswarm/app-operator/v4/service/internal/k8sclient"
+	"github.com/giantswarm/app-operator/v4/service/internal/k8sclientcache"
 )
 
 const (
@@ -26,11 +26,11 @@ const (
 // Config represents the configuration used to create a new clients resource.
 type Config struct {
 	// Dependencies.
-	CachedK8sClient *cachedk8sclient.Resource
-	Fs              afero.Fs
-	HelmClient      helmclient.Interface
-	K8sClient       k8sclient.Interface
-	Logger          micrologger.Logger
+	Fs             afero.Fs
+	HelmClient     helmclient.Interface
+	K8sClient      k8sclient.Interface
+	K8sClientCache *k8sclientcache.Resource
+	Logger         micrologger.Logger
 
 	// Settings.
 	HTTPClientTimeout time.Duration
@@ -39,11 +39,11 @@ type Config struct {
 // Resource implements the clients resource.
 type Resource struct {
 	// Dependencies.
-	cachedK8sClient *cachedk8sclient.Resource
-	fs              afero.Fs
-	helmClient      helmclient.Interface
-	k8sClient       k8sclient.Interface
-	logger          micrologger.Logger
+	fs             afero.Fs
+	helmClient     helmclient.Interface
+	k8sClient      k8sclient.Interface
+	k8sClientCache *k8sclientcache.Resource
+	logger         micrologger.Logger
 
 	// Settings.
 	httpClientTimeout time.Duration
@@ -51,9 +51,6 @@ type Resource struct {
 
 // New creates a new configured clients resource.
 func New(config Config) (*Resource, error) {
-	if config.CachedK8sClient == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.CachedK8sClient must not be empty", config)
-	}
 	if config.Fs == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Fs must not be empty", config)
 	}
@@ -62,6 +59,9 @@ func New(config Config) (*Resource, error) {
 	}
 	if config.K8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
+	}
+	if config.K8sClientCache == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.CachedK8sClient must not be empty", config)
 	}
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
@@ -73,11 +73,11 @@ func New(config Config) (*Resource, error) {
 
 	r := &Resource{
 		// Dependencies.
-		cachedK8sClient: config.CachedK8sClient,
-		fs:              config.Fs,
-		helmClient:      config.HelmClient,
-		k8sClient:       config.K8sClient,
-		logger:          config.Logger,
+		fs:             config.Fs,
+		helmClient:     config.HelmClient,
+		k8sClient:      config.K8sClient,
+		k8sClientCache: config.K8sClientCache,
+		logger:         config.Logger,
 
 		// Settings
 		httpClientTimeout: config.HTTPClientTimeout,
@@ -112,7 +112,7 @@ func (r *Resource) addClientsToContext(ctx context.Context, cr v1alpha1.App) err
 		return nil
 	}
 
-	k8sClient, err := r.cachedK8sClient.GetK8sClient(ctx, &cr.Spec.KubeConfig)
+	k8sClient, err := r.k8sClientCache.GetK8sClient(ctx, &cr.Spec.KubeConfig)
 	if kubeconfig.IsNotFoundError(err) {
 		// Set status so we don't try to connect to the workload cluster
 		// again in this reconciliation loop.

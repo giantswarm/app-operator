@@ -28,15 +28,15 @@ import (
 	"github.com/giantswarm/app-operator/v4/service/controller/app/resource/status"
 	"github.com/giantswarm/app-operator/v4/service/controller/app/resource/tcnamespace"
 	"github.com/giantswarm/app-operator/v4/service/controller/app/resource/validation"
-	cachedk8sclient "github.com/giantswarm/app-operator/v4/service/internal/k8sclient"
+	"github.com/giantswarm/app-operator/v4/service/internal/k8sclientcache"
 )
 
 type appResourcesConfig struct {
 	// Dependencies.
-	CachedK8sClient *cachedk8sclient.Resource
-	FileSystem      afero.Fs
-	K8sClient       k8sclient.Interface
-	Logger          micrologger.Logger
+	FileSystem     afero.Fs
+	K8sClient      k8sclient.Interface
+	K8sClientCache *k8sclientcache.Resource
+	Logger         micrologger.Logger
 
 	// Settings.
 	ChartNamespace    string
@@ -50,14 +50,14 @@ func newAppResources(config appResourcesConfig) ([]resource.Interface, error) {
 	var err error
 
 	// Dependencies.
-	if config.CachedK8sClient == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.CachedK8sClient must not be empty", config)
-	}
 	if config.FileSystem == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Fs must not be empty", config)
 	}
 	if config.K8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
+	}
+	if config.K8sClientCache == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.CachedK8sClient must not be empty", config)
 	}
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
@@ -205,11 +205,11 @@ func newAppResources(config appResourcesConfig) ([]resource.Interface, error) {
 	var clientsResource resource.Interface
 	{
 		c := clients.Config{
-			CachedK8sClient: config.CachedK8sClient,
-			Fs:              config.FileSystem,
-			HelmClient:      helmClient,
-			K8sClient:       config.K8sClient,
-			Logger:          config.Logger,
+			Fs:             config.FileSystem,
+			HelmClient:     helmClient,
+			K8sClient:      config.K8sClient,
+			K8sClientCache: config.K8sClientCache,
+			Logger:         config.Logger,
 
 			HTTPClientTimeout: config.HTTPClientTimeout,
 		}
