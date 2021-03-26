@@ -13,7 +13,7 @@ import (
 	"github.com/giantswarm/micrologger"
 
 	"github.com/giantswarm/app-operator/v4/service/controller/app/controllercontext"
-	"github.com/giantswarm/app-operator/v4/service/internal/k8sclientcache"
+	"github.com/giantswarm/app-operator/v4/service/internal/clientcache"
 )
 
 const (
@@ -24,31 +24,31 @@ const (
 // Config represents the configuration used to create a new clients resource.
 type Config struct {
 	// Dependencies.
-	HelmClient     helmclient.Interface
-	K8sClient      k8sclient.Interface
-	K8sClientCache *k8sclientcache.Resource
-	Logger         micrologger.Logger
+	ClientCache *clientcache.Resource
+	HelmClient  helmclient.Interface
+	K8sClient   k8sclient.Interface
+	Logger      micrologger.Logger
 }
 
 // Resource implements the clients resource.
 type Resource struct {
 	// Dependencies.
-	helmClient     helmclient.Interface
-	k8sClient      k8sclient.Interface
-	k8sClientCache *k8sclientcache.Resource
-	logger         micrologger.Logger
+	clientCache *clientcache.Resource
+	helmClient  helmclient.Interface
+	k8sClient   k8sclient.Interface
+	logger      micrologger.Logger
 }
 
 // New creates a new configured clients resource.
 func New(config Config) (*Resource, error) {
+	if config.ClientCache == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.ClientCache must not be empty", config)
+	}
 	if config.HelmClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.HelmClient must not be empty", config)
 	}
 	if config.K8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
-	}
-	if config.K8sClientCache == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.CachedK8sClient must not be empty", config)
 	}
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
@@ -56,10 +56,10 @@ func New(config Config) (*Resource, error) {
 
 	r := &Resource{
 		// Dependencies.
-		helmClient:     config.HelmClient,
-		k8sClient:      config.K8sClient,
-		k8sClientCache: config.K8sClientCache,
-		logger:         config.Logger,
+		clientCache: config.ClientCache,
+		helmClient:  config.HelmClient,
+		k8sClient:   config.K8sClient,
+		logger:      config.Logger,
 	}
 
 	return r, nil
@@ -91,7 +91,7 @@ func (r *Resource) addClientsToContext(ctx context.Context, cr v1alpha1.App) err
 		return nil
 	}
 
-	clients, err := r.k8sClientCache.GetClients(ctx, &cr.Spec.KubeConfig)
+	clients, err := r.clientCache.GetClients(ctx, &cr.Spec.KubeConfig)
 	if kubeconfig.IsNotFoundError(err) {
 		// Set status so we don't try to connect to the workload cluster
 		// again in this reconciliation loop.
