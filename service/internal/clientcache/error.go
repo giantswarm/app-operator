@@ -1,4 +1,4 @@
-package k8sclientcache
+package clientcache
 
 import "github.com/giantswarm/microerror"
 
