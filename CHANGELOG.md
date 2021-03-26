@@ -9,7 +9,7 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ### Added
 
-- Cache k8sclient for later use.
+- Cache k8sclient, helmclient for later use.
 
 ### Changed
 
