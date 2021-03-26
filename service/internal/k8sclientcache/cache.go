@@ -7,12 +7,15 @@ import (
 
 	"github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/errors/tenant"
+	"github.com/giantswarm/helmclient/v4/pkg/helmclient"
 	"github.com/giantswarm/k8sclient/v5/pkg/k8sclient"
 	"github.com/giantswarm/kubeconfig/v4"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	gocache "github.com/patrickmn/go-cache"
+	"github.com/spf13/afero"
 	"k8s.io/client-go/rest"
+	"sigs.k8s.io/controller-runtime/pkg/client/apiutil"
 )
 
 const (
@@ -21,6 +24,7 @@ const (
 
 type Config struct {
 	// Dependencies.
+	Fs        afero.Fs
 	K8sClient k8sclient.Interface
 	Logger    micrologger.Logger
 
@@ -31,6 +35,7 @@ type Config struct {
 type Resource struct {
 	// Dependencies.
 	cache     *gocache.Cache
+	fs        afero.Fs
 	k8sClient k8sclient.Interface
 	logger    micrologger.Logger
 
@@ -38,8 +43,16 @@ type Resource struct {
 	httpClientTimeout time.Duration
 }
 
+type clients struct {
+	K8sClient  k8sclient.Interface
+	HelmClient helmclient.Interface
+}
+
 // New creates a new configured clients resource.
 func New(config Config) (*Resource, error) {
+	if config.Fs == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.Fs must not be empty", config)
+	}
 	if config.K8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
 	}
@@ -54,6 +67,7 @@ func New(config Config) (*Resource, error) {
 	r := &Resource{
 		// Dependencies.
 		cache:     gocache.New(expiration, expiration/2),
+		fs:        config.Fs,
 		k8sClient: config.K8sClient,
 		logger:    config.Logger,
 
@@ -64,26 +78,39 @@ func New(config Config) (*Resource, error) {
 	return r, nil
 }
 
-func (r *Resource) GetK8sClient(ctx context.Context, kubeConfig *v1alpha1.AppSpecKubeConfig) (k8sclient.Interface, error) {
+func (r *Resource) GetClients(ctx context.Context, kubeConfig *v1alpha1.AppSpecKubeConfig) (*clients, error) {
 	k := fmt.Sprintf("%s/%s", kubeConfig.Secret.Namespace, kubeConfig.Secret.Name)
 
 	if v, ok := r.cache.Get(k); ok {
-		clients, ok := v.(k8sclient.Interface)
+		c, ok := v.(clients)
 		if !ok {
-			return nil, microerror.Maskf(wrongTypeError, "expected '%T', got '%T'", k8sclient.Clients{}, v)
+			return nil, microerror.Maskf(wrongTypeError, "expected '%T', got '%T'", clients{}, v)
 		}
 
-		return clients, nil
+		return &c, nil
 	}
 
-	clients, err := r.generateK8sClient(ctx, kubeConfig)
-	if err != nil {
-		return nil, microerror.Mask(err)
+	var c clients
+	{
+		k8sClient, err := r.generateK8sClient(ctx, kubeConfig)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		helmClient, err := r.generateHelmClient(k8sClient)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		c := clients{
+			K8sClient:  k8sClient,
+			HelmClient: helmClient,
+		}
+
+		r.cache.SetDefault(k, c)
 	}
 
-	r.cache.SetDefault(k, clients)
-
-	return clients, nil
+	return &c, nil
 }
 
 func (r *Resource) generateK8sClient(ctx context.Context, config *v1alpha1.AppSpecKubeConfig) (k8sclient.Interface, error) {
@@ -128,4 +155,32 @@ func (r *Resource) generateK8sClient(ctx context.Context, config *v1alpha1.AppSp
 	}
 
 	return k8sClient, nil
+}
+
+func (r *Resource) generateHelmClient(k8sClient k8sclient.Interface) (helmclient.Interface, error) {
+	var helmClient *helmclient.Client
+	{
+		restMapper, err := apiutil.NewDynamicRESTMapper(rest.CopyConfig(k8sClient.RESTConfig()))
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		c := helmclient.Config{
+			Fs:         r.fs,
+			K8sClient:  k8sClient.K8sClient(),
+			Logger:     r.logger,
+			RestClient: k8sClient.RESTClient(),
+			RestConfig: k8sClient.RESTConfig(),
+			RestMapper: restMapper,
+
+			HTTPClientTimeout: r.httpClientTimeout,
+		}
+
+		helmClient, err = helmclient.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	return helmClient, nil
 }
