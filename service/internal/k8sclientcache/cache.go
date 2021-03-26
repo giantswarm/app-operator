@@ -102,13 +102,13 @@ func (r *Resource) GetClients(ctx context.Context, kubeConfig *v1alpha1.AppSpecK
 			return nil, microerror.Mask(err)
 		}
 
-		c := clients{
+		c = clients{
 			K8sClient:  k8sClient,
 			HelmClient: helmClient,
 		}
-
-		r.cache.SetDefault(k, c)
 	}
+
+	r.cache.SetDefault(k, c)
 
 	return &c, nil
 }
