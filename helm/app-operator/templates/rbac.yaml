@@ -105,15 +105,17 @@ rules:
   resources:
     - priorityclasses
   verbs:
-    - create
     - get
+    - delete
+    - create
 - apiGroups:
     - autoscaling.k8s.io
   resources:
     - verticalpodautoscalers
   verbs:
-    - create
     - get
+    - delete
+    - create
 - apiGroups:
     - ""
   resources:
