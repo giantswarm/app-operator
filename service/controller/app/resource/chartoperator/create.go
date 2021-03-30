@@ -111,11 +111,16 @@ func (r Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			}
 
 			r.logger.Debugf(ctx, "updated release %#q", cr.Name)
-		case helmclient.StatusPendingInstall:
-			r.logger.Debugf(ctx, "release %#q stuck in pending-install", cr.Name)
+		case helmclient.StatusPendingInstall, helmclient.StatusUninstalling:
+			r.logger.Debugf(ctx, "release %#q stuck in %#s", cr.Name, releaseContent.Status)
 			r.logger.Debugf(ctx, "delete release %#q", cr.Name)
 
-			err = cc.Clients.Helm.DeleteRelease(ctx, key.Namespace(cr), cr.Name)
+			err = r.uninstallChartOperator(ctx, cr)
+			if err != nil {
+				return microerror.Mask(err)
+			}
+
+			err = r.deleteFinalizers(ctx, cr)
 			if err != nil {
 				return microerror.Mask(err)
 			}
