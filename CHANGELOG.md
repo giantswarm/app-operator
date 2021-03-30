@@ -7,6 +7,12 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+## [4.3.1] - 2021-03-30
+
+### Fixed 
+
+- Restore chart-operator when it had been deleted.
+
 ## [4.3.0] - 2021-03-26
 
 ### Added
@@ -337,7 +343,8 @@ from Helm 2 to Helm 3.
 
 - Flattening operator release structure.
 
-[Unreleased]: https://github.com/giantswarm/app-operator/compare/v4.3.0...HEAD
+[Unreleased]: https://github.com/giantswarm/app-operator/compare/v4.3.1...HEAD
+[4.3.1]: https://github.com/giantswarm/app-operator/compare/v4.3.0...v4.3.1
 [4.3.0]: https://github.com/giantswarm/app-operator/compare/v4.2.0...v4.3.0
 [4.2.0]: https://github.com/giantswarm/app-operator/compare/v4.1.0...v4.2.0
 [4.1.0]: https://github.com/giantswarm/app-operator/compare/v4.0.2...v4.1.0
