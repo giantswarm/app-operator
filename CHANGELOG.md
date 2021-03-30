@@ -9,6 +9,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [4.3.1] - 2021-03-30
 
+### Fixed 
+
+- Restore chart-operator when it had been deleted.
+
 ## [4.3.0] - 2021-03-26
 
 ### Added
