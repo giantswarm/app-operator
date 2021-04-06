@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Fixed
+
+- Updated OperatorKit to v4.3.1 for Kubernetes 1.20 support.
+
 ## [4.3.1] - 2021-03-30
 
 ### Fixed 
