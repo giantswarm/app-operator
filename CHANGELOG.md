@@ -7,6 +7,8 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+## [4.3.2] - 2021-04-06
+
 ### Fixed
 
 - Updated OperatorKit to v4.3.1 for Kubernetes 1.20 support.
@@ -347,7 +349,8 @@ from Helm 2 to Helm 3.
 
 - Flattening operator release structure.
 
-[Unreleased]: https://github.com/giantswarm/app-operator/compare/v4.3.1...HEAD
+[Unreleased]: https://github.com/giantswarm/app-operator/compare/v4.3.2...HEAD
+[4.3.2]: https://github.com/giantswarm/app-operator/compare/v4.3.1...v4.3.2
 [4.3.1]: https://github.com/giantswarm/app-operator/compare/v4.3.0...v4.3.1
 [4.3.0]: https://github.com/giantswarm/app-operator/compare/v4.2.0...v4.3.0
 [4.2.0]: https://github.com/giantswarm/app-operator/compare/v4.1.0...v4.2.0
