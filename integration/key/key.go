@@ -28,6 +28,10 @@ func ChartOperatorVersion() string {
 	return "2.13.1"
 }
 
+func ControlPlaneCatalogName() string {
+	return "control-plane-catalog"
+}
+
 func ControlPlaneTestCatalogName() string {
 	return "control-plane-test-catalog"
 }
