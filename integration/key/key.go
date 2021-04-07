@@ -25,7 +25,7 @@ func ChartOperatorUniqueName() string {
 }
 
 func ChartOperatorVersion() string {
-	return "2.7.1"
+	return "2.13.1"
 }
 
 func ControlPlaneTestCatalogName() string {
