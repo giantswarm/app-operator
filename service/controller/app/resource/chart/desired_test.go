@@ -76,7 +76,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					Description: "Catalog of Apps by Giant Swarm",
 					Storage: v1alpha1.AppCatalogSpecStorage{
 						Type: "helm",
-						URL:  "https://giantswarm.github.com/app-catalog/",
+						URL:  "https://giantswarm.github.io/app-catalog/",
 					},
 					LogoURL: "https://s.giantswarm.io/...",
 				},
@@ -118,7 +118,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 							"linkerd.io/inject": "enabled",
 						},
 					},
-					TarballURL: "https://giantswarm.github.com/app-catalog/prometheus-1.0.0.tgz",
+					TarballURL: "https://giantswarm.github.io/app-catalog/prometheus-1.0.0.tgz",
 					Version:    "1.0.0",
 				},
 			},
@@ -242,7 +242,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					Title: "Giant Swarm",
 					Storage: v1alpha1.AppCatalogSpecStorage{
 						Type: "helm",
-						URL:  "https://giantswarm.github.com/app-catalog/",
+						URL:  "https://giantswarm.github.io/app-catalog/",
 					},
 				},
 			},
@@ -267,7 +267,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 				Spec: v1alpha1.ChartSpec{
 					Name:       "my-cool-prometheus",
 					Namespace:  "monitoring",
-					TarballURL: "https://giantswarm.github.com/app-catalog/prometheus-1.0.0.tgz",
+					TarballURL: "https://giantswarm.github.io/app-catalog/prometheus-1.0.0.tgz",
 					Version:    "1.0.0",
 				},
 			},
