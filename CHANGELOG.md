@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Changed
+
+- Use `giantswarm/config` `1.x.x` to generate values.
+
 ## [4.3.2] - 2021-04-06
 
 ### Fixed
@@ -15,7 +19,7 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [4.3.1] - 2021-03-30
 
-### Fixed 
+### Fixed
 
 - Restore chart-operator when it had been deleted.
 
