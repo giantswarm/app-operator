@@ -16,18 +16,13 @@ image:
   repository: giantswarm/app-operator
   tag: [[ .Version ]]
 
-Installation:
-  V1:
-    Helm:
-      HTTP:
-        ClientTimeout: "5s"
-    Kubernetes:
-      API:
-        Address: ""
-    Provider:
-      Kind: ""
-    Registry:
-      Domain: quay.io
+helm:
+  http:
+    clientTimeout: ""
+provider:
+  kind: ""
+registry:
+  domain: quay.io
 
 operatorkit:
   resyncPeriod: "5m"
