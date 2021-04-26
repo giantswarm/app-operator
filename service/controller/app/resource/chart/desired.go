@@ -64,6 +64,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		},
 		Spec: v1alpha1.ChartSpec{
 			Config:    config,
+			Install:   generateInstall(cr),
 			Name:      cr.GetName(),
 			Namespace: key.Namespace(cr),
 			NamespaceConfig: v1alpha1.ChartSpecNamespaceConfig{
@@ -133,6 +134,16 @@ func generateConfig(ctx context.Context, k8sClient kubernetes.Interface, cr v1al
 	}
 
 	return config, nil
+}
+
+func generateInstall(cr v1alpha1.App) v1alpha1.ChartSpecInstall {
+	if key.InstallSkipCRDs(cr) {
+		return v1alpha1.ChartSpecInstall{
+			SkipCRDs: true,
+		}
+	}
+
+	return v1alpha1.ChartSpecInstall{}
 }
 
 func hasConfigMap(cr v1alpha1.App, appCatalog v1alpha1.AppCatalog) bool {
