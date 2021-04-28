@@ -18,12 +18,12 @@ data:
         unique: {{ include "resource.app.unique" . }}
       helm:
         http:
-          clientTimeout: '{{ .Values.Installation.V1.Helm.HTTP.ClientTimeout }}'
+          clientTimeout: '{{ .Values.helm.http.clientTimeout }}'
       image:
-        registry: '{{ .Values.Installation.V1.Registry.Domain }}' 
+        registry: '{{ .Values.registry.domain }}'
       kubernetes:
         incluster: true
       operatorkit:
-        resyncPeriod: '{{ .Values.operatorkit.resyncPeriod }}' 
+        resyncPeriod: '{{ .Values.operatorkit.resyncPeriod }}'
       provider:
-        kind: '{{ .Values.Installation.V1.Provider.Kind }}'
+        kind: '{{ .Values.provider.kind }}'

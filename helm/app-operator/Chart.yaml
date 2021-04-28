@@ -6,3 +6,4 @@ appVersion: [[ .AppVersion ]]
 version: [[ .Version ]]
 annotations:
   application.giantswarm.io/team: "batman"
+  config.giantswarm.io/version: 1.x.x
