@@ -6,12 +6,12 @@ require (
 	github.com/Masterminds/semver/v3 v3.1.1
 	github.com/ghodss/yaml v1.0.0
 	github.com/giantswarm/apiextensions/v3 v3.22.0
-	github.com/giantswarm/app/v4 v4.10.0
+	github.com/giantswarm/app/v4 v4.11.0
 	github.com/giantswarm/appcatalog v0.4.2
 	github.com/giantswarm/apptest v0.10.3
 	github.com/giantswarm/backoff v0.2.0
 	github.com/giantswarm/errors v0.3.0
-	github.com/giantswarm/helmclient/v4 v4.5.0
+	github.com/giantswarm/helmclient/v4 v4.6.0
 	github.com/giantswarm/k8sclient/v5 v5.11.0
 	github.com/giantswarm/kubeconfig/v4 v4.1.0
 	github.com/giantswarm/microendpoint v0.2.0
@@ -26,9 +26,9 @@ require (
 	github.com/prometheus/client_golang v1.10.0
 	github.com/spf13/afero v1.6.0
 	github.com/spf13/viper v1.7.1
-	k8s.io/api v0.20.2
-	k8s.io/apimachinery v0.20.2
-	k8s.io/client-go v0.20.2
+	k8s.io/api v0.20.4
+	k8s.io/apimachinery v0.20.4
+	k8s.io/client-go v0.20.4
 	sigs.k8s.io/controller-runtime v0.6.5
 	sigs.k8s.io/yaml v1.2.0
 )
