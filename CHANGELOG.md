@@ -9,6 +9,7 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ### Added
 
+- Add support for skip CRD flag when installing Helm releases.
 - Emit events when config maps and secrets referenced in App CRs are updated.
 
 ## [4.3.2] - 2021-04-06

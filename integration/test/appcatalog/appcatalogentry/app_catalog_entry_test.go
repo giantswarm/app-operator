@@ -103,7 +103,7 @@ func TestAppCatalogEntry(t *testing.T) {
 			label.AppKubernetesVersion: latestEntry.Version,
 			label.CatalogName:          key.StableCatalogName(),
 			label.CatalogType:          "stable",
-			pkglabel.Latest:            "true",
+			pkglabel.Latest:            "false",
 			label.ManagedBy:            "app-operator-unique",
 		}
 
