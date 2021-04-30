@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Added
+
+- Emit events when configMaps/secrets referenced in App CRs updated.
+
 ## [4.3.2] - 2021-04-06
 
 ### Fixed
