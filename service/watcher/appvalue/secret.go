@@ -100,13 +100,21 @@ func (c *AppValueWatcher) watchSecret(ctx context.Context) {
 			for app := range storedIndex {
 				c.logger.Debugf(ctx, "triggering %#q app update in namespace %#q", app.Name, app.Namespace)
 
-				err := c.addAnnotation(ctx, app, secret.GetResourceVersion(), secretType)
+				currentApp, err := c.k8sClient.G8sClient().ApplicationV1alpha1().Apps(app.Namespace).Get(ctx, app.Name, metav1.GetOptions{})
+				if err != nil {
+					c.logger.Errorf(ctx, err, "cannot fetch an app CR %s/%s", app.Namespace, app.Name)
+					continue
+				}
+
+				err = c.addAnnotation(ctx, currentApp, secret.GetResourceVersion(), secretType)
 				if err != nil {
 					c.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("failed to add annotation to app %#q in namespace %#q", app.Name, app.Namespace), "stack", fmt.Sprintf("%#v", err))
 					continue
 				}
 
 				c.logger.Debugf(ctx, "triggered %#q app update in namespace %#q", app.Name, app.Namespace)
+
+				c.event.Emit(ctx, currentApp, "AppUpdated", "triggered an update following to secret %s/%s update", secret.Namespace, secret.Name)
 			}
 			c.logger.Debugf(ctx, "listed apps depends on %#q secret in namespace %#q", secret.Name, secret.Namespace)
 		}

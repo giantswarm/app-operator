@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/app/v4/pkg/annotation"
 	"github.com/giantswarm/microerror"
 	corev1 "k8s.io/api/core/v1"
@@ -104,13 +105,21 @@ func (c *AppValueWatcher) watchConfigMap(ctx context.Context) {
 			for app := range storedIndex {
 				c.logger.Debugf(ctx, "triggering %#q app update in namespace %#q", app.Name, app.Namespace)
 
-				err := c.addAnnotation(ctx, app, cm.GetResourceVersion(), configMapType)
+				currentApp, err := c.k8sClient.G8sClient().ApplicationV1alpha1().Apps(app.Namespace).Get(ctx, app.Name, metav1.GetOptions{})
+				if err != nil {
+					c.logger.Errorf(ctx, err, "cannot fetch an app CR %s/%s", app.Namespace, app.Name)
+					continue
+				}
+
+				err = c.addAnnotation(ctx, currentApp, cm.GetResourceVersion(), configMapType)
 				if err != nil {
 					c.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("failed to add annotation to app %#q in namespace %#q", app.Name, app.Namespace), "stack", fmt.Sprintf("%#v", err))
 					continue
 				}
 
 				c.logger.Debugf(ctx, "triggered %#q app update in namespace %#q", app.Name, app.Namespace)
+
+				c.event.Emit(ctx, currentApp, "AppUpdated", "triggered an update following to configmap %s/%s update", configMap.Namespace, configMap.Name)
 			}
 			c.logger.Debugf(ctx, "listed apps depends on %#q configmap in namespace %#q", cm.Name, cm.Namespace)
 		}
@@ -119,7 +128,7 @@ func (c *AppValueWatcher) watchConfigMap(ctx context.Context) {
 	}
 }
 
-func (c *AppValueWatcher) addAnnotation(ctx context.Context, app appIndex, latestResourceVersion string, resType resourceType) error {
+func (c *AppValueWatcher) addAnnotation(ctx context.Context, app *v1alpha1.App, latestResourceVersion string, resType resourceType) error {
 	var versionAnnotation string
 	{
 		if resType == configMapType {
