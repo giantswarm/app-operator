@@ -67,6 +67,14 @@ rules:
     - delete
     - get
 - apiGroups:
+    - ""
+  resources:
+    - events
+  verbs:
+    - create
+    - patch
+    - update
+- apiGroups:
     - networking.k8s.io
   resources:
     - networkpolicies
