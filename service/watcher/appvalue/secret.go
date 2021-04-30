@@ -102,7 +102,7 @@ func (c *AppValueWatcher) watchSecret(ctx context.Context) {
 
 				currentApp, err := c.k8sClient.G8sClient().ApplicationV1alpha1().Apps(app.Namespace).Get(ctx, app.Name, metav1.GetOptions{})
 				if err != nil {
-					c.logger.Errorf(ctx, err, "cannot fetch an app CR %s/%s", app.Namespace, app.Name)
+					c.logger.Errorf(ctx, err, "cannot fetch app CR %s/%s", app.Namespace, app.Name)
 					continue
 				}
 
@@ -114,7 +114,7 @@ func (c *AppValueWatcher) watchSecret(ctx context.Context) {
 
 				c.logger.Debugf(ctx, "triggered %#q app update in namespace %#q", app.Name, app.Namespace)
 
-				c.event.Emit(ctx, currentApp, "AppUpdated", "triggered an update following to secret %s/%s update", secret.Namespace, secret.Name)
+				c.event.Emit(ctx, currentApp, "AppUpdated", "change to secret %s/%s triggered an update", secret.Namespace, secret.Name)
 			}
 			c.logger.Debugf(ctx, "listed apps depends on %#q secret in namespace %#q", secret.Name, secret.Namespace)
 		}
