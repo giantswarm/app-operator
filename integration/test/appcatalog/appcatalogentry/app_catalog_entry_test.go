@@ -98,12 +98,16 @@ func TestAppCatalogEntry(t *testing.T) {
 	}
 
 	{
+		// Set latest label to false to stop the test from flapping. This is
+		// because the latest release may not be the latest according to semver.
+		entryCR.Labels[pkglabel.Latest] = "false"
+
 		expectedLabels := map[string]string{
 			label.AppKubernetesName:    "prometheus-operator-app",
 			label.AppKubernetesVersion: latestEntry.Version,
 			label.CatalogName:          key.StableCatalogName(),
 			label.CatalogType:          "stable",
-			pkglabel.Latest:            "true",
+			pkglabel.Latest:            "false",
 			label.ManagedBy:            "app-operator-unique",
 		}
 

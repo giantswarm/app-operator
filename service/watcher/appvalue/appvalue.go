@@ -10,9 +10,11 @@ import (
 	"k8s.io/apimachinery/pkg/labels"
 
 	"github.com/giantswarm/app-operator/v4/pkg/label"
+	"github.com/giantswarm/app-operator/v4/service/internal/recorder"
 )
 
 type AppValueWatcherConfig struct {
+	Event     recorder.Interface
 	K8sClient k8sclient.Interface
 	Logger    micrologger.Logger
 
@@ -20,6 +22,7 @@ type AppValueWatcherConfig struct {
 }
 
 type AppValueWatcher struct {
+	event     recorder.Interface
 	k8sClient k8sclient.Interface
 	logger    micrologger.Logger
 
@@ -29,6 +32,9 @@ type AppValueWatcher struct {
 }
 
 func NewAppValueWatcher(config AppValueWatcherConfig) (*AppValueWatcher, error) {
+	if config.Event == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.Event must not be empty", config)
+	}
 	if config.K8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
 	}
@@ -37,6 +43,7 @@ func NewAppValueWatcher(config AppValueWatcherConfig) (*AppValueWatcher, error) 
 	}
 
 	c := &AppValueWatcher{
+		event:     config.Event,
 		k8sClient: config.K8sClient,
 		logger:    config.Logger,
 

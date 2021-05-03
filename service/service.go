@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"sync"
 
 	"github.com/giantswarm/k8sclient/v5/pkg/k8sclient"
@@ -18,6 +19,7 @@ import (
 	"github.com/giantswarm/app-operator/v4/service/controller/app"
 	"github.com/giantswarm/app-operator/v4/service/controller/appcatalog"
 	"github.com/giantswarm/app-operator/v4/service/internal/clientcache"
+	"github.com/giantswarm/app-operator/v4/service/internal/recorder"
 	"github.com/giantswarm/app-operator/v4/service/watcher/appvalue"
 	"github.com/giantswarm/app-operator/v4/service/watcher/chartstatus"
 )
@@ -122,9 +124,21 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
+	var event recorder.Interface
+	{
+		c := recorder.Config{
+			K8sClient: config.K8sClient,
+
+			Component: fmt.Sprintf("%s-%s", project.Name(), project.Version()),
+		}
+
+		event = recorder.New(c)
+	}
+
 	var appValueWatcher *appvalue.AppValueWatcher
 	{
 		c := appvalue.AppValueWatcherConfig{
+			Event:     event,
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
 

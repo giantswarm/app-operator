@@ -7,6 +7,13 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+## [4.4.0] - 2021-05-03
+
+### Added
+
+- Add support for skip CRD flag when installing Helm releases.
+- Emit events when config maps and secrets referenced in App CRs are updated.
+
 ## [4.3.2] - 2021-04-06
 
 ### Fixed
@@ -349,7 +356,8 @@ from Helm 2 to Helm 3.
 
 - Flattening operator release structure.
 
-[Unreleased]: https://github.com/giantswarm/app-operator/compare/v4.3.2...HEAD
+[Unreleased]: https://github.com/giantswarm/app-operator/compare/v4.4.0...HEAD
+[4.4.0]: https://github.com/giantswarm/app-operator/compare/v4.3.2...v4.4.0
 [4.3.2]: https://github.com/giantswarm/app-operator/compare/v4.3.1...v4.3.2
 [4.3.1]: https://github.com/giantswarm/app-operator/compare/v4.3.0...v4.3.1
 [4.3.0]: https://github.com/giantswarm/app-operator/compare/v4.2.0...v4.3.0
