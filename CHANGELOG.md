@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Changed
+
+- Get metadata constants from k8smetadata library not apiextensions.
+
 ## [4.4.0] - 2021-05-03
 
 ### Added
