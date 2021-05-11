@@ -3,11 +3,10 @@ package chart
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"strings"
 
 	"github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
-	"github.com/giantswarm/app/v4/pkg/annotation"
+	"github.com/giantswarm/k8smetadata/pkg/annotation"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -125,7 +124,7 @@ func copyChart(current *v1alpha1.Chart) *v1alpha1.Chart {
 // copyAnnotations copies annotations from the current to desired chart,
 // only if the key has a chart-operator.giantswarm.io prefix.
 func copyAnnotations(current, desired *v1alpha1.Chart) {
-	webhookAnnotation := fmt.Sprintf("%s/%s", annotation.ChartOperatorPrefix, annotation.WebhookURL)
+	webhookAnnotation := annotation.AppOperatorWebhookURL
 
 	for k, currentValue := range current.Annotations {
 		if k == webhookAnnotation {

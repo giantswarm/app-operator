@@ -8,11 +8,11 @@ import (
 	"time"
 
 	"github.com/giantswarm/apiextensions/v3/pkg/crd"
-	"github.com/giantswarm/apiextensions/v3/pkg/label"
 	"github.com/giantswarm/appcatalog"
 	"github.com/giantswarm/apptest"
 	"github.com/giantswarm/backoff"
 	"github.com/giantswarm/helmclient/v4/pkg/helmclient"
+	"github.com/giantswarm/k8smetadata/pkg/label"
 	"github.com/spf13/afero"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/yaml"

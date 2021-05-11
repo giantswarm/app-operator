@@ -7,7 +7,7 @@ import (
 	"strconv"
 
 	"github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
-	"github.com/giantswarm/app/v4/pkg/annotation"
+	"github.com/giantswarm/k8smetadata/pkg/annotation"
 	"github.com/giantswarm/microerror"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -132,9 +132,9 @@ func (c *AppValueWatcher) addAnnotation(ctx context.Context, app *v1alpha1.App, 
 	var versionAnnotation string
 	{
 		if resType == configMapType {
-			versionAnnotation = fmt.Sprintf("%s/%s", annotation.AppOperatorPrefix, annotation.LatestConfigMapVersion)
+			versionAnnotation = annotation.AppOperatorLatestConfigMapVersion
 		} else {
-			versionAnnotation = fmt.Sprintf("%s/%s", annotation.AppOperatorPrefix, annotation.LatestSecretVersion)
+			versionAnnotation = annotation.AppOperatorLatestSecretVersion
 		}
 	}
 

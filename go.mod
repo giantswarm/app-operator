@@ -13,7 +13,7 @@ require (
 	github.com/giantswarm/errors v0.3.0
 	github.com/giantswarm/helmclient/v4 v4.6.0
 	github.com/giantswarm/k8sclient/v5 v5.11.0
-	github.com/giantswarm/k8smetadata v0.1.0
+	github.com/giantswarm/k8smetadata v0.1.1-0.20210511104733-abea5aa7900f
 	github.com/giantswarm/kubeconfig/v4 v4.1.0
 	github.com/giantswarm/microendpoint v0.2.0
 	github.com/giantswarm/microerror v0.3.0
