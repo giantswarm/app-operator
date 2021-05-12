@@ -8,9 +8,9 @@ import (
 
 	"github.com/Masterminds/semver/v3"
 	"github.com/giantswarm/apiextensions/v3/pkg/clientset/versioned"
-	"github.com/giantswarm/app/v4/pkg/annotation"
 	"github.com/giantswarm/app/v4/pkg/key"
 	"github.com/giantswarm/k8sclient/v5/pkg/k8sclient"
+	"github.com/giantswarm/k8smetadata/pkg/annotation"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/v4/pkg/controller/context/reconciliationcanceledcontext"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -197,8 +197,8 @@ func (r *Resource) cordonChart(ctx context.Context, g8sClient versioned.Interfac
 
 	r.logger.Debugf(ctx, "cordoning %d charts", len(charts.Items))
 
-	cordonReason := replaceToEscape(fmt.Sprintf("%s/%s", annotation.ChartOperatorPrefix, annotation.CordonReason))
-	cordonUntil := replaceToEscape(fmt.Sprintf("%s/%s", annotation.ChartOperatorPrefix, annotation.CordonUntil))
+	cordonReason := replaceToEscape(annotation.ChartOperatorCordonReason)
+	cordonUntil := replaceToEscape(annotation.ChartOperatorCordonUntil)
 
 	for _, chart := range charts.Items {
 		patches := []patch{}
@@ -250,8 +250,8 @@ func (r *Resource) uncordonChart(ctx context.Context, g8sClient versioned.Interf
 	}
 	r.logger.Debugf(ctx, "uncordoning cordoned charts")
 
-	cordonReason := replaceToEscape(fmt.Sprintf("%s/%s", annotation.ChartOperatorPrefix, annotation.CordonReason))
-	cordonUntil := replaceToEscape(fmt.Sprintf("%s/%s", annotation.ChartOperatorPrefix, annotation.CordonUntil))
+	cordonReason := replaceToEscape(annotation.ChartOperatorCordonReason)
+	cordonUntil := replaceToEscape(annotation.ChartOperatorCordonUntil)
 	patches := []patch{
 		{
 			Op:   "remove",

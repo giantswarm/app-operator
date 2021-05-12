@@ -5,16 +5,15 @@ import (
 	"strings"
 
 	"github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
-	"github.com/giantswarm/apiextensions/v3/pkg/label"
-	"github.com/giantswarm/app/v4/pkg/annotation"
 	"github.com/giantswarm/app/v4/pkg/key"
 	"github.com/giantswarm/appcatalog"
+	"github.com/giantswarm/k8smetadata/pkg/annotation"
+	"github.com/giantswarm/k8smetadata/pkg/label"
 	"github.com/giantswarm/microerror"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 
-	pkgannotation "github.com/giantswarm/app-operator/v4/pkg/annotation"
 	"github.com/giantswarm/app-operator/v4/pkg/project"
 	"github.com/giantswarm/app-operator/v4/service/controller/app/controllercontext"
 )
@@ -81,7 +80,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 
 func generateAnnotations(input map[string]string, appNamespace string) map[string]string {
 	annotations := map[string]string{
-		pkgannotation.AppNamespace: appNamespace,
+		annotation.AppNamespace: appNamespace,
 	}
 
 	for k, v := range input {

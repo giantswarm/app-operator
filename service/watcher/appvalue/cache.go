@@ -9,12 +9,11 @@ import (
 
 	"github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/app/v4/pkg/key"
+	"github.com/giantswarm/k8smetadata/pkg/label"
 	"github.com/giantswarm/microerror"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/watch"
-
-	pkglabel "github.com/giantswarm/app-operator/v4/pkg/label"
 )
 
 func (c *AppValueWatcher) buildCache(ctx context.Context) {
@@ -189,7 +188,7 @@ func (c *AppValueWatcher) addLabel(ctx context.Context, resource resourceIndex) 
 		}
 	}
 
-	if _, ok := currentLabels[pkglabel.Watching]; ok {
+	if _, ok := currentLabels[label.AppOperatorWatching]; ok {
 		// no-op
 		return nil
 	}
@@ -206,7 +205,7 @@ func (c *AppValueWatcher) addLabel(ctx context.Context, resource resourceIndex) 
 
 	patches = append(patches, patch{
 		Op:    "add",
-		Path:  fmt.Sprintf("/metadata/labels/%s", replaceToEscape(pkglabel.Watching)),
+		Path:  fmt.Sprintf("/metadata/labels/%s", replaceToEscape(label.AppOperatorWatching)),
 		Value: "true",
 	})
 
@@ -252,7 +251,7 @@ func (c *AppValueWatcher) removeLabel(ctx context.Context, resource resourceInde
 		}
 	}
 
-	if _, ok := currentLabels[pkglabel.Watching]; !ok {
+	if _, ok := currentLabels[label.AppOperatorWatching]; !ok {
 		// no-op
 		return nil
 	}
@@ -260,7 +259,7 @@ func (c *AppValueWatcher) removeLabel(ctx context.Context, resource resourceInde
 	patches := []patch{
 		{
 			Op:   "remove",
-			Path: fmt.Sprintf("/metadata/labels/%s", replaceToEscape(pkglabel.Watching)),
+			Path: fmt.Sprintf("/metadata/labels/%s", replaceToEscape(label.AppOperatorWatching)),
 		},
 	}
 

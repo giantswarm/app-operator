@@ -9,15 +9,14 @@ import (
 	"time"
 
 	"github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
-	"github.com/giantswarm/apiextensions/v3/pkg/label"
-	"github.com/giantswarm/app/v4/pkg/annotation"
 	"github.com/giantswarm/backoff"
+	"github.com/giantswarm/k8smetadata/pkg/annotation"
+	"github.com/giantswarm/k8smetadata/pkg/label"
 	"github.com/giantswarm/microerror"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/giantswarm/app-operator/v4/integration/key"
-	pkglabel "github.com/giantswarm/app-operator/v4/pkg/label"
 )
 
 // TestWatchingConfigMap tests app CRs are updated when wired configmaps are updated
@@ -160,8 +159,8 @@ func TestWatchingConfigMap(t *testing.T) {
 				return microerror.Mask(err)
 			}
 
-			if _, ok := cm.GetLabels()[pkglabel.Watching]; !ok {
-				return microerror.Maskf(notFoundError, fmt.Sprintf("%#q label not found", pkglabel.Watching))
+			if _, ok := cm.GetLabels()[label.AppOperatorWatching]; !ok {
+				return microerror.Maskf(notFoundError, fmt.Sprintf("%#q label not found", label.AppOperatorWatching))
 			}
 
 			return nil
@@ -189,8 +188,8 @@ func TestWatchingConfigMap(t *testing.T) {
 				return microerror.Mask(err)
 			}
 
-			if _, ok := cm.GetLabels()[pkglabel.Watching]; !ok {
-				return microerror.Maskf(notFoundError, fmt.Sprintf("%#q label not found", pkglabel.Watching))
+			if _, ok := cm.GetLabels()[label.AppOperatorWatching]; !ok {
+				return microerror.Maskf(notFoundError, fmt.Sprintf("%#q label not found", label.AppOperatorWatching))
 			}
 
 			return nil
@@ -229,7 +228,7 @@ func TestWatchingConfigMap(t *testing.T) {
 		config.Logger.Debugf(ctx, "updated values in configmap %#q in namespace %#q", key.UserConfigMapName(), key.GiantSwarmNamespace())
 	}
 
-	versionAnnotation := fmt.Sprintf("%s/%s", annotation.AppOperatorPrefix, annotation.LatestConfigMapVersion)
+	versionAnnotation := annotation.AppOperatorLatestConfigMapVersion
 
 	{
 		config.Logger.Debugf(ctx, "waiting until app CR is annotated with user configmap's resourceVersion")
@@ -332,8 +331,8 @@ func TestWatchingConfigMap(t *testing.T) {
 				return microerror.Mask(err)
 			}
 
-			if _, ok := cm.GetLabels()[pkglabel.Watching]; ok {
-				return microerror.Maskf(testError, fmt.Sprintf("%#q label still found", pkglabel.Watching))
+			if _, ok := cm.GetLabels()[label.AppOperatorWatching]; ok {
+				return microerror.Maskf(testError, fmt.Sprintf("%#q label still found", label.AppOperatorWatching))
 			}
 
 			return nil

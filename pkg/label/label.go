@@ -5,8 +5,9 @@ package label
 import (
 	"fmt"
 
-	"github.com/giantswarm/apiextensions/v3/pkg/label"
 	"github.com/giantswarm/app/v4/pkg/key"
+	"github.com/giantswarm/k8smetadata/pkg/label"
+	k8smetadatalabel "github.com/giantswarm/k8smetadata/pkg/label"
 	"k8s.io/apimachinery/pkg/labels"
 
 	"github.com/giantswarm/app-operator/v4/pkg/project"
@@ -16,9 +17,6 @@ const (
 	// Latest label is added to appcatalogentry CRs to filter for the most
 	// recent release.
 	Latest = "latest"
-
-	// Watching is the label added to configmaps watched by the app value controller.
-	Watching = "app-operator.giantswarm.io/watching"
 )
 
 func AppVersionSelector(unique bool) labels.Selector {
@@ -34,9 +32,9 @@ func AppVersionSelector(unique bool) labels.Selector {
 }
 
 func ChartOperatorAppSelector(unique bool) string {
-	return fmt.Sprintf("%s=%s,%s=%s", label.AppOperatorVersion,
+	return fmt.Sprintf("%s=%s,%s=%s", k8smetadatalabel.AppOperatorVersion,
 		GetProjectVersion(unique),
-		label.AppKubernetesName,
+		k8smetadatalabel.AppKubernetesName,
 		key.ChartOperatorAppName)
 }
 
