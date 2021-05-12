@@ -4,24 +4,23 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/giantswarm/k8smetadata/pkg/label"
 	"github.com/giantswarm/microerror"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/watch"
-
-	pkglabel "github.com/giantswarm/app-operator/v4/pkg/label"
 )
 
 func (c *AppValueWatcher) watchSecret(ctx context.Context) {
 	for {
 		lo := metav1.ListOptions{
-			LabelSelector: pkglabel.Watching,
+			LabelSelector: label.AppOperatorWatching,
 		}
 
 		// Find the highest resourceVersion for each secret.
 		secrets, err := c.k8sClient.K8sClient().CoreV1().Secrets("").List(ctx, lo)
 		if err != nil {
-			c.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("failed to get secrets with label %#q", pkglabel.Watching), "stack", fmt.Sprintf("%#v", err))
+			c.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("failed to get secrets with label %#q", label.AppOperatorWatching), "stack", fmt.Sprintf("%#v", err))
 			continue
 		}
 
@@ -42,7 +41,7 @@ func (c *AppValueWatcher) watchSecret(ctx context.Context) {
 
 		res, err := c.k8sClient.K8sClient().CoreV1().Secrets("").Watch(ctx, lo)
 		if err != nil {
-			c.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("failed to get secrets with label %#q", pkglabel.Watching), "stack", fmt.Sprintf("%#v", err))
+			c.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("failed to get secrets with label %#q", label.AppOperatorWatching), "stack", fmt.Sprintf("%#v", err))
 			continue
 		}
 
