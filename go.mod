@@ -4,6 +4,7 @@ go 1.16
 
 require (
 	github.com/Masterminds/semver/v3 v3.1.1
+	github.com/getsentry/sentry-go v0.10.0 // indirect
 	github.com/ghodss/yaml v1.0.0
 	github.com/giantswarm/apiextensions/v3 v3.22.0
 	github.com/giantswarm/app/v4 v4.13.0
