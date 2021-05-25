@@ -28,7 +28,7 @@ require (
 	github.com/spf13/afero v1.6.0
 	github.com/spf13/viper v1.7.1
 	k8s.io/api v0.20.4
-	k8s.io/apimachinery v0.20.4
+	k8s.io/apimachinery v0.21.1
 	k8s.io/client-go v0.20.4
 	sigs.k8s.io/controller-runtime v0.6.5
 	sigs.k8s.io/yaml v1.2.0
