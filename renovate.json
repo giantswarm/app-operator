@@ -9,11 +9,11 @@
     },
     {
       "matchPackagePrefixes": ["k8s.io", "sigs.k8s.io"],
-      "groupName": "k8s packages"
+      "groupName": "k8s modules"
     },
     {
       "matchPackagePatterns": ["^(?!.*k8s.io|github.com\/giantswarm).*"],
-      "groupName": "etc packages"
+      "groupName": "etc modules"
     }
   ]
 }
