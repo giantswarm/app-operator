@@ -4,7 +4,7 @@
   ],
   "packageRules": [
     {
-      "matchPackagePatterns": ["^github.com/giantswarm"],
+      "matchPackagePatterns": [".*giantswarm.*"],
       "groupName": "giantswarm modules"
     },
     {
@@ -12,8 +12,11 @@
       "groupName": "k8s modules"
     },
     {
-      "excludePackagePatterns": ["^github.com/giantswarm" ,"^k8s.io", "^sigs.k8s.io"],
+      "excludePackagePatterns": [".*giantswarm.*" ,"^k8s.io", "^sigs.k8s.io"],
       "groupName": "etc modules"
     }
-  ]
+  ],
+  "postUpdateOptions": ["gomodTidy", "gomodUpdateImportPaths"],
+  "schedule": ["after 9am on thursday"]
 }
+
