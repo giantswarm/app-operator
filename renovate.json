@@ -4,12 +4,16 @@
   ],
   "packageRules": [
     {
-      "matchPackagePrefixes": ["github.com/giantswarm"],
+      "matchPackagePatterns": ["^github.com/giantswarm"],
       "groupName": "giantswarm modules"
     },
     {
-      "matchPackagePrefixes": ["k8s.io", "sigs.k8s.io"],
+      "matchPackagePatterns": ["^k8s.io", "^sigs.k8s.io"],
       "groupName": "k8s modules"
+    },
+    {
+      "excludePackagePatterns": ["^github.com/giantswarm" ,"^k8s.io", "^sigs.k8s.io"],
+      "groupName": "etc modules"
     }
   ]
 }
