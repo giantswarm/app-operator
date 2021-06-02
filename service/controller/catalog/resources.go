@@ -1,4 +1,4 @@
-package appcatalog
+package catalog
 
 import (
 	"github.com/giantswarm/k8sclient/v5/pkg/k8sclient"
@@ -8,7 +8,7 @@ import (
 	"github.com/giantswarm/operatorkit/v4/pkg/resource/wrapper/metricsresource"
 	"github.com/giantswarm/operatorkit/v4/pkg/resource/wrapper/retryresource"
 
-	"github.com/giantswarm/app-operator/v4/service/controller/appcatalog/resource/appcatalogentry"
+	"github.com/giantswarm/app-operator/v4/service/controller/catalog/resource/appcatalogentry"
 )
 
 type appCatalogResourcesConfig struct {

@@ -14,6 +14,7 @@ import (
 	"github.com/spf13/afero"
 	"k8s.io/apimachinery/pkg/runtime"
 
+	"github.com/giantswarm/app-operator/v4/service/internal/crdcache"
 	"github.com/giantswarm/app-operator/v4/pkg/label"
 	"github.com/giantswarm/app-operator/v4/pkg/project"
 	"github.com/giantswarm/app-operator/v4/service/controller/app/controllercontext"
@@ -26,6 +27,7 @@ type Config struct {
 	Fs          afero.Fs
 	K8sClient   k8sclient.Interface
 	ClientCache *clientcache.Resource
+	CRDCache    *crdcache.Resource
 	Logger      micrologger.Logger
 
 	ChartNamespace    string
@@ -46,6 +48,9 @@ func NewApp(config Config) (*App, error) {
 
 	if config.ClientCache == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ClientCache must not be empty", config)
+	}
+	if config.CRDCache == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.CRDCache must not be empty", config)
 	}
 	if config.Fs == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Fs must not be empty", config)
@@ -88,6 +93,7 @@ func NewApp(config Config) (*App, error) {
 	{
 		c := appResourcesConfig{
 			ClientCache: config.ClientCache,
+			CRDCache : config.CRDCache,
 			FileSystem:  config.Fs,
 			K8sClient:   config.K8sClient,
 			Logger:      config.Logger,

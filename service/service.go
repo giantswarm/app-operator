@@ -13,11 +13,12 @@ import (
 	"github.com/spf13/afero"
 	"github.com/spf13/viper"
 
+	"github.com/giantswarm/app-operator/v4/service/internal/crdcache"
 	"github.com/giantswarm/app-operator/v4/flag"
 	"github.com/giantswarm/app-operator/v4/pkg/env"
 	"github.com/giantswarm/app-operator/v4/pkg/project"
 	"github.com/giantswarm/app-operator/v4/service/controller/app"
-	"github.com/giantswarm/app-operator/v4/service/controller/appcatalog"
+	"github.com/giantswarm/app-operator/v4/service/controller/catalog"
 	"github.com/giantswarm/app-operator/v4/service/internal/clientcache"
 	"github.com/giantswarm/app-operator/v4/service/internal/recorder"
 	"github.com/giantswarm/app-operator/v4/service/watcher/appvalue"
@@ -38,11 +39,11 @@ type Service struct {
 	Version *version.Service
 
 	// Internals
-	appController        *app.App
-	appCatalogController *appcatalog.AppCatalog
-	appValueWatcher      *appvalue.AppValueWatcher
-	chartStatusWatcher   *chartstatus.ChartStatusWatcher
-	bootOnce             sync.Once
+	appController      *app.App
+	catalogController  *catalog.Catalog
+	appValueWatcher    *appvalue.AppValueWatcher
+	chartStatusWatcher *chartstatus.ChartStatusWatcher
+	bootOnce           sync.Once
 
 	// Settings
 	unique bool
@@ -66,9 +67,9 @@ func New(config Config) (*Service, error) {
 
 	var err error
 
-	var appCatalogController *appcatalog.AppCatalog
+	var catalogController *catalog.Catalog
 	{
-		c := appcatalog.Config{
+		c := catalog.Config{
 			Logger:    config.Logger,
 			K8sClient: config.K8sClient,
 
@@ -76,7 +77,7 @@ func New(config Config) (*Service, error) {
 			UniqueApp:        config.Viper.GetBool(config.Flag.Service.App.Unique),
 		}
 
-		appCatalogController, err = appcatalog.NewAppCatalog(c)
+		catalogController, err = catalog.NewCatalog(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -101,10 +102,23 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
+	var crdCache *crdcache.Resource
+	{
+		c := crdcache.Config{
+			Logger:    config.Logger,
+		}
+
+		crdCache, err = crdcache.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var appController *app.App
 	{
 		c := app.Config{
 			ClientCache: clientCache,
+			CRDCache:   crdCache,
 			Fs:          fs,
 			Logger:      config.Logger,
 			K8sClient:   config.K8sClient,
@@ -188,11 +202,11 @@ func New(config Config) (*Service, error) {
 	newService := &Service{
 		Version: versionService,
 
-		appController:        appController,
-		appCatalogController: appCatalogController,
-		appValueWatcher:      appValueWatcher,
-		chartStatusWatcher:   chartStatusWatcher,
-		bootOnce:             sync.Once{},
+		appController:      appController,
+		catalogController:  catalogController,
+		appValueWatcher:    appValueWatcher,
+		chartStatusWatcher: chartStatusWatcher,
+		bootOnce:           sync.Once{},
 
 		unique: config.Viper.GetBool(config.Flag.Service.App.Unique),
 	}
@@ -205,7 +219,7 @@ func (s *Service) Boot(ctx context.Context) {
 	s.bootOnce.Do(func() {
 		// Boot appCatalogController only if it's unique app.
 		if s.unique {
-			go s.appCatalogController.Boot(ctx)
+			go s.catalogController.Boot(ctx)
 		}
 
 		// Start the controller.

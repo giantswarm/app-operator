@@ -3,7 +3,7 @@ package app
 import (
 	"time"
 
-	"github.com/giantswarm/app/v4/pkg/values"
+	"github.com/giantswarm/app/v5/pkg/values"
 	"github.com/giantswarm/helmclient/v4/pkg/helmclient"
 	"github.com/giantswarm/k8sclient/v5/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
@@ -14,6 +14,7 @@ import (
 	"github.com/giantswarm/operatorkit/v4/pkg/resource/wrapper/retryresource"
 	"github.com/spf13/afero"
 
+	"github.com/giantswarm/app-operator/v4/service/internal/crdcache"
 	"github.com/giantswarm/app-operator/v4/service/controller/app/resource/appcatalog"
 	"github.com/giantswarm/app-operator/v4/service/controller/app/resource/appfinalizermigration"
 	"github.com/giantswarm/app-operator/v4/service/controller/app/resource/appnamespace"
@@ -34,6 +35,7 @@ import (
 type appResourcesConfig struct {
 	// Dependencies.
 	ClientCache *clientcache.Resource
+	CRDCache *crdcache.Resource
 	FileSystem  afero.Fs
 	K8sClient   k8sclient.Interface
 	Logger      micrologger.Logger
@@ -58,6 +60,9 @@ func newAppResources(config appResourcesConfig) ([]resource.Interface, error) {
 	}
 	if config.ClientCache == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.CachedK8sClient must not be empty", config)
+	}
+	if config.CRDCache == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.CRDCache must not be empty", config)
 	}
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
@@ -177,6 +182,7 @@ func newAppResources(config appResourcesConfig) ([]resource.Interface, error) {
 	var chartCRDResource resource.Interface
 	{
 		c := chartcrd.Config{
+			CRDCache: config.CRDCache,
 			Logger: config.Logger,
 		}
 
