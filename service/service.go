@@ -17,7 +17,7 @@ import (
 	"github.com/giantswarm/app-operator/v4/pkg/env"
 	"github.com/giantswarm/app-operator/v4/pkg/project"
 	"github.com/giantswarm/app-operator/v4/service/controller/app"
-	"github.com/giantswarm/app-operator/v4/service/controller/catalog"
+	"github.com/giantswarm/app-operator/v4/service/controller/appcatalog"
 	"github.com/giantswarm/app-operator/v4/service/internal/clientcache"
 	"github.com/giantswarm/app-operator/v4/service/internal/crdcache"
 	"github.com/giantswarm/app-operator/v4/service/internal/recorder"
@@ -39,11 +39,11 @@ type Service struct {
 	Version *version.Service
 
 	// Internals
-	appController      *app.App
-	catalogController  *catalog.Catalog
-	appValueWatcher    *appvalue.AppValueWatcher
-	chartStatusWatcher *chartstatus.ChartStatusWatcher
-	bootOnce           sync.Once
+	appController        *app.App
+	appcatalogController *appcatalog.AppCatalog
+	appValueWatcher      *appvalue.AppValueWatcher
+	chartStatusWatcher   *chartstatus.ChartStatusWatcher
+	bootOnce             sync.Once
 
 	// Settings
 	unique bool
@@ -67,9 +67,9 @@ func New(config Config) (*Service, error) {
 
 	var err error
 
-	var catalogController *catalog.Catalog
+	var appcatalogController *appcatalog.AppCatalog
 	{
-		c := catalog.Config{
+		c := appcatalog.Config{
 			Logger:    config.Logger,
 			K8sClient: config.K8sClient,
 
@@ -77,7 +77,7 @@ func New(config Config) (*Service, error) {
 			UniqueApp:        config.Viper.GetBool(config.Flag.Service.App.Unique),
 		}
 
-		catalogController, err = catalog.NewCatalog(c)
+		appcatalogController, err = appcatalog.NewAppCatalog(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -202,11 +202,11 @@ func New(config Config) (*Service, error) {
 	newService := &Service{
 		Version: versionService,
 
-		appController:      appController,
-		catalogController:  catalogController,
-		appValueWatcher:    appValueWatcher,
-		chartStatusWatcher: chartStatusWatcher,
-		bootOnce:           sync.Once{},
+		appController:        appController,
+		appcatalogController: appcatalogController,
+		appValueWatcher:      appValueWatcher,
+		chartStatusWatcher:   chartStatusWatcher,
+		bootOnce:             sync.Once{},
 
 		unique: config.Viper.GetBool(config.Flag.Service.App.Unique),
 	}
@@ -219,7 +219,7 @@ func (s *Service) Boot(ctx context.Context) {
 	s.bootOnce.Do(func() {
 		// Boot appCatalogController only if it's unique app.
 		if s.unique {
-			go s.catalogController.Boot(ctx)
+			go s.appcatalogController.Boot(ctx)
 		}
 
 		// Start the controller.
