@@ -8,12 +8,15 @@ import (
 	"github.com/giantswarm/app/v4/pkg/key"
 	"github.com/giantswarm/k8sclient/v5/pkg/k8sclient"
 	"github.com/giantswarm/k8smetadata/pkg/annotation"
+	"github.com/giantswarm/kubeconfig/v4"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/google/go-cmp/cmp"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/watch"
 )
+
+const chartOperatorAppName = "chart-operator"
 
 type ChartStatusWatcherConfig struct {
 	K8sClient k8sclient.Interface
@@ -25,8 +28,9 @@ type ChartStatusWatcherConfig struct {
 }
 
 type ChartStatusWatcher struct {
-	k8sClient k8sclient.Interface
-	logger    micrologger.Logger
+	k8sClient  k8sclient.Interface
+	kubeConfig kubeconfig.Interface
+	logger     micrologger.Logger
 
 	appNamespace   string
 	chartNamespace string
@@ -48,9 +52,24 @@ func NewChartStatusWatcher(config ChartStatusWatcherConfig) (*ChartStatusWatcher
 		return nil, microerror.Maskf(invalidConfigError, "%T.PodNamespace must not be empty", config)
 	}
 
+	var kubeConfig kubeconfig.Interface
+	var err error
+	{
+		c := kubeconfig.Config{
+			K8sClient: config.K8sClient.K8sClient(),
+			Logger:    config.Logger,
+		}
+
+		kubeConfig, err = kubeconfig.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	c := &ChartStatusWatcher{
-		k8sClient: config.K8sClient,
-		logger:    config.Logger,
+		k8sClient:  config.K8sClient,
+		kubeConfig: kubeConfig,
+		logger:     config.Logger,
 
 		// We get a kubeconfig for the cluster from the chart-operator app CR
 		// which is in the same namespace as this instance of app-operator.
