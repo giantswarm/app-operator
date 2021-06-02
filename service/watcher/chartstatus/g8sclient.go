@@ -2,14 +2,15 @@ package chartstatus
 
 import (
 	"context"
-	"fmt"
 	"time"
 
+	"github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/apiextensions/v3/pkg/clientset/versioned"
+	"github.com/giantswarm/app/v4/pkg/key"
 	"github.com/giantswarm/backoff"
 	"github.com/giantswarm/errors/tenant"
-	"github.com/giantswarm/kubeconfig/v4"
 	"github.com/giantswarm/microerror"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/rest"
 )
@@ -24,39 +25,22 @@ func (c *ChartStatusWatcher) waitForG8sClient(ctx context.Context) (versioned.In
 		return c.k8sClient.G8sClient(), nil
 	}
 
-	var kubeConfig kubeconfig.Interface
+	var chartOperatorAppCR *v1alpha1.App
 	{
-		c := kubeconfig.Config{
-			K8sClient: c.k8sClient.K8sClient(),
-			Logger:    c.logger,
-		}
-
-		kubeConfig, err = kubeconfig.New(c)
+		chartOperatorAppCR, err = c.waitForChartOperator(ctx)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
 	}
 
 	var restConfig *rest.Config
-
-	o := func() error {
-		kubeConfigName := fmt.Sprintf("%s-kubeconfig", c.appNamespace)
-		restConfig, err = kubeConfig.NewRESTConfigForApp(ctx, kubeConfigName, c.appNamespace)
+	{
+		secretName := key.KubeConfigSecretName(*chartOperatorAppCR)
+		secretNamespace := key.KubeConfigSecretNamespace(*chartOperatorAppCR)
+		restConfig, err = c.kubeConfig.NewRESTConfigForApp(ctx, secretName, secretNamespace)
 		if err != nil {
-			return microerror.Mask(err)
+			return nil, microerror.Mask(err)
 		}
-
-		return nil
-	}
-
-	n := func(err error, t time.Duration) {
-		c.logger.Errorf(ctx, err, "failed to get kubeconfig: retrying in %s", t)
-	}
-
-	b := backoff.NewExponential(5*time.Minute, 30*time.Second)
-	err = backoff.RetryNotify(o, b, n)
-	if err != nil {
-		return nil, microerror.Mask(err)
 	}
 
 	var g8sClient versioned.Interface
@@ -105,4 +89,35 @@ func (c *ChartStatusWatcher) waitForAvailableConnection(ctx context.Context, g8s
 	}
 
 	return nil
+}
+
+// waitForChartOperator waits until the app CR is created. We use this app
+// CR to get the kubeconfig secret we use to access the remote cluster
+func (c *ChartStatusWatcher) waitForChartOperator(ctx context.Context) (*v1alpha1.App, error) {
+	var chartOperatorAppCR *v1alpha1.App
+	var err error
+
+	o := func() error {
+		chartOperatorAppCR, err = c.g8sClient.ApplicationV1alpha1().Apps(c.appNamespace).Get(ctx, chartOperatorAppName, metav1.GetOptions{})
+		if err != nil {
+			return microerror.Mask(err)
+		}
+
+		return nil
+	}
+
+	n := func(err error, t time.Duration) {
+		if apierrors.IsNotFound(err) {
+			c.logger.Debugf(ctx, "'%s/%s' app CR does not exist yet: retrying in %s", c.appNamespace, chartOperatorAppName, t)
+		} else if err != nil {
+			c.logger.Errorf(ctx, err, "failed to get '%s/%s' app CR: retrying in %s", c.appNamespace, chartOperatorAppName, t)
+		}
+	}
+
+	b := backoff.NewExponential(5*time.Minute, 30*time.Second)
+	err = backoff.RetryNotify(o, b, n)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+	return chartOperatorAppCR, nil
 }

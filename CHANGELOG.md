@@ -11,6 +11,11 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 - Get metadata constants from k8smetadata library not apiextensions.
 
+### Fixed
+
+- For the chart CR watcher get the kubeconfig secret from the chart-operator app
+CR to avoid hardcoding it. 
+
 ## [4.4.0] - 2021-05-03
 
 ### Added
