@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
-	"github.com/giantswarm/apiextensions/v3/pkg/clientset/versioned"
 	"github.com/giantswarm/app/v4/pkg/key"
 	"github.com/giantswarm/k8sclient/v5/pkg/k8sclient"
 	"github.com/giantswarm/k8smetadata/pkg/annotation"
@@ -20,7 +19,6 @@ import (
 const chartOperatorAppName = "chart-operator"
 
 type ChartStatusWatcherConfig struct {
-	G8sClient versioned.Interface
 	K8sClient k8sclient.Interface
 	Logger    micrologger.Logger
 
@@ -30,7 +28,6 @@ type ChartStatusWatcherConfig struct {
 }
 
 type ChartStatusWatcher struct {
-	g8sClient  versioned.Interface
 	k8sClient  k8sclient.Interface
 	kubeConfig kubeconfig.Interface
 	logger     micrologger.Logger
@@ -41,9 +38,6 @@ type ChartStatusWatcher struct {
 }
 
 func NewChartStatusWatcher(config ChartStatusWatcherConfig) (*ChartStatusWatcher, error) {
-	if config.G8sClient == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.G8sClient must not be empty", config)
-	}
 	if config.K8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
 	}
@@ -73,7 +67,6 @@ func NewChartStatusWatcher(config ChartStatusWatcherConfig) (*ChartStatusWatcher
 	}
 
 	c := &ChartStatusWatcher{
-		g8sClient:  config.G8sClient,
 		k8sClient:  config.K8sClient,
 		kubeConfig: kubeConfig,
 		logger:     config.Logger,

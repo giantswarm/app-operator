@@ -98,7 +98,7 @@ func (c *ChartStatusWatcher) waitForChartOperator(ctx context.Context) (*v1alpha
 	var err error
 
 	o := func() error {
-		chartOperatorAppCR, err = c.g8sClient.ApplicationV1alpha1().Apps(c.appNamespace).Get(ctx, chartOperatorAppName, metav1.GetOptions{})
+		chartOperatorAppCR, err = c.k8sClient.G8sClient().ApplicationV1alpha1().Apps(c.appNamespace).Get(ctx, chartOperatorAppName, metav1.GetOptions{})
 		if err != nil {
 			return microerror.Mask(err)
 		}
