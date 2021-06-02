@@ -3,7 +3,7 @@ package app
 import (
 	"time"
 
-	"github.com/giantswarm/app/v5/pkg/values"
+	"github.com/giantswarm/app/v4/pkg/values"
 	"github.com/giantswarm/helmclient/v4/pkg/helmclient"
 	"github.com/giantswarm/k8sclient/v5/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
