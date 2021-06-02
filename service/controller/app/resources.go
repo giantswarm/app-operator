@@ -14,7 +14,6 @@ import (
 	"github.com/giantswarm/operatorkit/v4/pkg/resource/wrapper/retryresource"
 	"github.com/spf13/afero"
 
-	"github.com/giantswarm/app-operator/v4/service/internal/crdcache"
 	"github.com/giantswarm/app-operator/v4/service/controller/app/resource/appcatalog"
 	"github.com/giantswarm/app-operator/v4/service/controller/app/resource/appfinalizermigration"
 	"github.com/giantswarm/app-operator/v4/service/controller/app/resource/appnamespace"
@@ -30,12 +29,13 @@ import (
 	"github.com/giantswarm/app-operator/v4/service/controller/app/resource/tcnamespace"
 	"github.com/giantswarm/app-operator/v4/service/controller/app/resource/validation"
 	"github.com/giantswarm/app-operator/v4/service/internal/clientcache"
+	"github.com/giantswarm/app-operator/v4/service/internal/crdcache"
 )
 
 type appResourcesConfig struct {
 	// Dependencies.
 	ClientCache *clientcache.Resource
-	CRDCache *crdcache.Resource
+	CRDCache    *crdcache.Resource
 	FileSystem  afero.Fs
 	K8sClient   k8sclient.Interface
 	Logger      micrologger.Logger
@@ -183,7 +183,7 @@ func newAppResources(config appResourcesConfig) ([]resource.Interface, error) {
 	{
 		c := chartcrd.Config{
 			CRDCache: config.CRDCache,
-			Logger: config.Logger,
+			Logger:   config.Logger,
 		}
 
 		chartCRDResource, err = chartcrd.New(c)

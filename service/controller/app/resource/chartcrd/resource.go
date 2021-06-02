@@ -1,9 +1,10 @@
 package chartcrd
 
 import (
-	"github.com/giantswarm/app-operator/v4/service/internal/crdcache"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
+
+	"github.com/giantswarm/app-operator/v4/service/internal/crdcache"
 )
 
 const (
@@ -12,12 +13,12 @@ const (
 
 type Config struct {
 	CRDCache *crdcache.Resource
-	Logger micrologger.Logger
+	Logger   micrologger.Logger
 }
 
 type Resource struct {
 	crdCache *crdcache.Resource
-	logger micrologger.Logger
+	logger   micrologger.Logger
 }
 
 // New creates a new configured tcnamespace resource.
@@ -31,7 +32,7 @@ func New(config Config) (*Resource, error) {
 
 	r := &Resource{
 		crdCache: config.CRDCache,
-		logger: config.Logger,
+		logger:   config.Logger,
 	}
 
 	return r, nil

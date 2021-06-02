@@ -14,11 +14,11 @@ import (
 	"github.com/spf13/afero"
 	"k8s.io/apimachinery/pkg/runtime"
 
-	"github.com/giantswarm/app-operator/v4/service/internal/crdcache"
 	"github.com/giantswarm/app-operator/v4/pkg/label"
 	"github.com/giantswarm/app-operator/v4/pkg/project"
 	"github.com/giantswarm/app-operator/v4/service/controller/app/controllercontext"
 	"github.com/giantswarm/app-operator/v4/service/internal/clientcache"
+	"github.com/giantswarm/app-operator/v4/service/internal/crdcache"
 )
 
 const appControllerSuffix = "-app"
@@ -93,7 +93,7 @@ func NewApp(config Config) (*App, error) {
 	{
 		c := appResourcesConfig{
 			ClientCache: config.ClientCache,
-			CRDCache : config.CRDCache,
+			CRDCache:    config.CRDCache,
 			FileSystem:  config.Fs,
 			K8sClient:   config.K8sClient,
 			Logger:      config.Logger,
