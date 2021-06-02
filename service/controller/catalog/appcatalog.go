@@ -45,20 +45,20 @@ func NewAppCatalog(config Config) (*AppCatalog, error) {
 		}
 	}
 
-	var appCatalogController *controller.Controller
+	var catalogController *controller.Controller
 	{
 		c := controller.Config{
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
 			Resources: resources,
 			NewRuntimeObjectFunc: func() runtime.Object {
-				return new(v1alpha1.AppCatalog)
+				return new(v1alpha1.Catalog)
 			},
 
 			Name: project.Name() + appCatalogControllerSuffix,
 		}
 
-		appCatalogController, err = controller.New(c)
+		catalogController, err = controller.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
