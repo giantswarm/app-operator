@@ -7,7 +7,7 @@ require (
 	github.com/ghodss/yaml v1.0.0
 	github.com/giantswarm/apiextensions/v3 v3.26.0
 	github.com/giantswarm/app/v4 v4.13.0
-	github.com/giantswarm/app/v5 v5.0.0-20210602153104-d19c56cbe516
+	github.com/giantswarm/app/v5 v5.0.0-20210603090121-ada93de65e7f
 	github.com/giantswarm/appcatalog v0.4.2
 	github.com/giantswarm/apptest v0.10.3
 	github.com/giantswarm/backoff v0.2.0
@@ -23,7 +23,7 @@ require (
 	github.com/giantswarm/operatorkit/v4 v4.3.1
 	github.com/giantswarm/to v0.3.0
 	github.com/giantswarm/versionbundle v0.2.0
-	github.com/google/go-cmp v0.5.5
+	github.com/google/go-cmp v0.5.6
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/prometheus/client_golang v1.10.0
 	github.com/spf13/afero v1.6.0
