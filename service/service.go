@@ -40,7 +40,7 @@ type Service struct {
 
 	// Internals
 	appController        *app.App
-	appcatalogController *appcatalog.AppCatalog
+	appCatalogController *appcatalog.AppCatalog
 	appValueWatcher      *appvalue.AppValueWatcher
 	chartStatusWatcher   *chartstatus.ChartStatusWatcher
 	bootOnce             sync.Once
@@ -67,7 +67,7 @@ func New(config Config) (*Service, error) {
 
 	var err error
 
-	var appcatalogController *appcatalog.AppCatalog
+	var appCatalogController *appcatalog.AppCatalog
 	{
 		c := appcatalog.Config{
 			Logger:    config.Logger,
@@ -77,7 +77,7 @@ func New(config Config) (*Service, error) {
 			UniqueApp:        config.Viper.GetBool(config.Flag.Service.App.Unique),
 		}
 
-		appcatalogController, err = appcatalog.NewAppCatalog(c)
+		appCatalogController, err = appcatalog.NewAppCatalog(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -203,7 +203,7 @@ func New(config Config) (*Service, error) {
 		Version: versionService,
 
 		appController:        appController,
-		appcatalogController: appcatalogController,
+		appCatalogController: appCatalogController,
 		appValueWatcher:      appValueWatcher,
 		chartStatusWatcher:   chartStatusWatcher,
 		bootOnce:             sync.Once{},
@@ -219,7 +219,7 @@ func (s *Service) Boot(ctx context.Context) {
 	s.bootOnce.Do(func() {
 		// Boot appCatalogController only if it's unique app.
 		if s.unique {
-			go s.appcatalogController.Boot(ctx)
+			go s.appCatalogController.Boot(ctx)
 		}
 
 		// Start the controller.
