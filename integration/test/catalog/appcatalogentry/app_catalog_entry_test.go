@@ -25,10 +25,10 @@ import (
 // TestAppCatalogEntry tests appcatalogentry CRs are generated for the
 // giantswarm catalog.
 //
-// Create giantswarm appcatalog CR to trigger creation of appcatalogentry CRs.
+// Create giantswarm catalog CR to trigger creation of appcatalogentry CRs.
 // Get a single CR and check values are correct.
 //
-// Delete giantswarm appcatalog CR to trigger deletion of appcatalogentry CRs.
+// Delete giantswarm catalog CR to trigger deletion of appcatalogentry CRs.
 // Check all appcatalogentry CRs are deleted.
 //
 func TestAppCatalogEntry(t *testing.T) {
@@ -37,9 +37,9 @@ func TestAppCatalogEntry(t *testing.T) {
 	var err error
 
 	{
-		config.Logger.Debugf(ctx, "creating %#q appcatalog cr", key.StableCatalogName())
+		config.Logger.Debugf(ctx, "creating %#q catalog cr", key.StableCatalogName())
 
-		appCatalogCR := &v1alpha1.AppCatalog{
+		catalogCR := &v1alpha1.Catalog{
 			ObjectMeta: metav1.ObjectMeta{
 				Name: key.StableCatalogName(),
 				Labels: map[string]string{
@@ -48,21 +48,21 @@ func TestAppCatalogEntry(t *testing.T) {
 					label.CatalogVisibility:  "public",
 				},
 			},
-			Spec: v1alpha1.AppCatalogSpec{
+			Spec: v1alpha1.CatalogSpec{
 				Description: key.StableCatalogName(),
 				Title:       key.StableCatalogName(),
-				Storage: v1alpha1.AppCatalogSpecStorage{
+				Storage: v1alpha1.CatalogSpecStorage{
 					Type: "helm",
 					URL:  key.StableCatalogStorageURL(),
 				},
 			},
 		}
-		_, err = config.K8sClients.G8sClient().ApplicationV1alpha1().AppCatalogs().Create(ctx, appCatalogCR, metav1.CreateOptions{})
+		_, err = config.K8sClients.G8sClient().ApplicationV1alpha1().Catalogs(metav1.NamespaceDefault).Create(ctx, catalogCR, metav1.CreateOptions{})
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
 
-		config.Logger.Debugf(ctx, "created %#q appcatalog cr", key.StableCatalogName())
+		config.Logger.Debugf(ctx, "created %#q catalog cr", key.StableCatalogName())
 	}
 
 	var latestEntry appcatalog.Entry
@@ -142,7 +142,7 @@ func TestAppCatalogEntry(t *testing.T) {
 	}
 
 	{
-		err = config.K8sClients.G8sClient().ApplicationV1alpha1().AppCatalogs().Delete(ctx, key.StableCatalogName(), metav1.DeleteOptions{})
+		err = config.K8sClients.G8sClient().ApplicationV1alpha1().Catalogs(metav1.NamespaceDefault).Delete(ctx, key.StableCatalogName(), metav1.DeleteOptions{})
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
