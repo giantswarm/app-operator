@@ -16,7 +16,7 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 		return nil
 	}
 
-	cr, err := key.ToAppCatalog(obj)
+	cr, err := key.ToCatalog(obj)
 	if err != nil {
 		return microerror.Mask(err)
 	}

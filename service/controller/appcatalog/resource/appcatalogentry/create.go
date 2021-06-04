@@ -30,13 +30,13 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return nil
 	}
 
-	cr, err := key.ToAppCatalog(obj)
+	cr, err := key.ToCatalog(obj)
 	if err != nil {
 		return microerror.Mask(err)
 	}
 
 	// Skip creating appcatalogentry CRs if this is a community catalog.
-	if key.AppCatalogType(cr) == communityCatalogType {
+	if key.CatalogType(cr) == communityCatalogType {
 		r.logger.Debugf(ctx, "not creating CRs for catalog %#q with type %#q", cr.Name, communityCatalogType)
 		r.logger.Debugf(ctx, "canceling resource")
 		return nil
@@ -47,7 +47,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
-	index, err := r.getIndex(ctx, key.AppCatalogStorageURL(cr))
+	index, err := r.getIndex(ctx, key.CatalogStorageURL(cr))
 	if err != nil {
 		return microerror.Mask(err)
 	}
@@ -170,7 +170,7 @@ func (r *Resource) updateAppCatalogEntry(ctx context.Context, entryCR *v1alpha1.
 	return nil
 }
 
-func (r *Resource) getDesiredAppCatalogEntryCR(ctx context.Context, cr *v1alpha1.AppCatalog, e entry, isLatest bool) (*v1alpha1.AppCatalogEntry, error) {
+func (r *Resource) getDesiredAppCatalogEntryCR(ctx context.Context, cr *v1alpha1.Catalog, e entry, isLatest bool) (*v1alpha1.AppCatalogEntry, error) {
 	var err error
 	name := key.AppCatalogEntryName(cr.Name, e.Name, e.Version)
 
@@ -211,7 +211,7 @@ func (r *Resource) getDesiredAppCatalogEntryCR(ctx context.Context, cr *v1alpha1
 				label.AppKubernetesName:    e.Name,
 				label.AppKubernetesVersion: e.Version,
 				label.CatalogName:          cr.Name,
-				label.CatalogType:          key.AppCatalogType(*cr),
+				label.CatalogType:          key.CatalogType(*cr),
 				pkglabel.Latest:            strconv.FormatBool(isLatest),
 				label.ManagedBy:            key.AppCatalogEntryManagedBy(project.Name()),
 			},
@@ -303,7 +303,7 @@ func (r *Resource) getLatestEntry(ctx context.Context, entries []entry) (entry, 
 	return entries[latestIndex], nil
 }
 
-func (r *Resource) newAppCatalogEntries(ctx context.Context, cr v1alpha1.AppCatalog, index index) (map[string]*v1alpha1.AppCatalogEntry, error) {
+func (r *Resource) newAppCatalogEntries(ctx context.Context, cr v1alpha1.Catalog, index index) (map[string]*v1alpha1.AppCatalogEntry, error) {
 	entryCRs := map[string]*v1alpha1.AppCatalogEntry{}
 
 	for _, entries := range index.Entries {

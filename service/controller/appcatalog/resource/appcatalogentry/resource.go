@@ -74,7 +74,7 @@ func (r Resource) Name() string {
 	return Name
 }
 
-func (r *Resource) getCurrentEntryCRs(ctx context.Context, cr v1alpha1.AppCatalog) (map[string]*v1alpha1.AppCatalogEntry, error) {
+func (r *Resource) getCurrentEntryCRs(ctx context.Context, cr v1alpha1.Catalog) (map[string]*v1alpha1.AppCatalogEntry, error) {
 	r.logger.Debugf(ctx, "getting current appcatalogentries for appcatalog %#q", cr.Name)
 
 	currentEntryCRs := map[string]*v1alpha1.AppCatalogEntry{}

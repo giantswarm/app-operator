@@ -52,7 +52,7 @@ func NewAppCatalog(config Config) (*AppCatalog, error) {
 			Logger:    config.Logger,
 			Resources: resources,
 			NewRuntimeObjectFunc: func() runtime.Object {
-				return new(v1alpha1.AppCatalog)
+				return new(v1alpha1.Catalog)
 			},
 
 			Name: project.Name() + appCatalogControllerSuffix,
