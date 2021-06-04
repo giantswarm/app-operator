@@ -8,7 +8,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/giantswarm/apiextensions/v3/pkg/crd"
 	"github.com/giantswarm/appcatalog"
 	"github.com/giantswarm/backoff"
 	"github.com/giantswarm/helmclient/v4/pkg/helmclient"
@@ -70,7 +69,12 @@ func installResources(ctx context.Context, config Config) error {
 		for _, crdName := range crds {
 			config.Logger.Debugf(ctx, "ensuring %#q CRD exists", crdName)
 
-			err := config.K8sClients.CRDClient().EnsureCreated(ctx, crd.LoadV1("application.giantswarm.io", crdName), backoff.NewMaxRetries(7, 1*time.Second))
+			crd, err := config.CRDGetter.LoadCRD(ctx, "application.giantswarm.io", crdName)
+			if err != nil {
+				return microerror.Mask(err)
+			}
+
+			err = config.K8sClients.CRDClient().EnsureCreated(ctx, crd, backoff.NewMaxRetries(7, 1*time.Second))
 			if err != nil {
 				return microerror.Mask(err)
 			}

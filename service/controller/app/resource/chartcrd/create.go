@@ -4,8 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/giantswarm/apiextensions/v3/pkg/crd"
-	"github.com/giantswarm/app/v4/pkg/key"
+	"github.com/giantswarm/app/v5/pkg/key"
 	"github.com/giantswarm/backoff"
 	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/microerror"
@@ -48,8 +47,13 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 	ch := make(chan error)
 
+	crdResource, err := r.crdCache.LoadCRD(ctx, "application.giantswarm.io", "Chart")
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
 	go func() {
-		err = cc.Clients.K8s.CRDClient().EnsureCreated(ctx, crd.LoadV1("application.giantswarm.io", "Chart"), backoff.NewMaxRetries(7, 1*time.Second))
+		err = cc.Clients.K8s.CRDClient().EnsureCreated(ctx, crdResource, backoff.NewMaxRetries(7, 1*time.Second))
 
 		close(ch)
 	}()

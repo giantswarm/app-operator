@@ -3,6 +3,7 @@
 package setup
 
 import (
+	"github.com/giantswarm/app/v5/pkg/crd"
 	"github.com/giantswarm/apptest"
 	"github.com/giantswarm/helmclient/v4/pkg/helmclient"
 	"github.com/giantswarm/k8sclient/v5/pkg/k8sclient"
@@ -17,6 +18,7 @@ import (
 
 type Config struct {
 	AppTest    apptest.Interface
+	CRDGetter  *crd.CRDGetter
 	HelmClient helmclient.Interface
 	K8s        *k8sclient.Setup
 	K8sClients k8sclient.Interface
@@ -52,6 +54,15 @@ func NewConfig() (Config, error) {
 		if err != nil {
 			return Config{}, microerror.Mask(err)
 		}
+	}
+
+	var crdGetter *crd.CRDGetter
+	{
+		c := crd.Config{
+			Logger: logger,
+		}
+
+		crdGetter, err = crd.NewCRDGetter(c)
 	}
 
 	var cpK8sClients *k8sclient.Clients
@@ -126,6 +137,7 @@ func NewConfig() (Config, error) {
 
 	c := Config{
 		AppTest:    appTest,
+		CRDGetter:  crdGetter,
 		HelmClient: helmClient,
 		K8s:        k8sSetup,
 		K8sClients: cpK8sClients,
