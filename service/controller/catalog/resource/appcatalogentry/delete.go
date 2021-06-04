@@ -9,7 +9,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-// EnsureDeleted ensures appcatalogentry CRs are deleted for this appcatalog CR.
+// EnsureDeleted ensures appcatalogentry CRs are deleted for this catalog CR.
 func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 	if !r.uniqueApp {
 		// Return early. Only unique instance manages appcatalogentry CRs.

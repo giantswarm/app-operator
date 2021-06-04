@@ -1,4 +1,4 @@
-package appcatalog
+package catalog
 
 import (
 	"github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
@@ -12,7 +12,7 @@ import (
 	"github.com/giantswarm/app-operator/v4/pkg/project"
 )
 
-const appCatalogControllerSuffix = "-appcatalog"
+const catalogControllerSuffix = "-catalog"
 
 type Config struct {
 	K8sClient k8sclient.Interface
@@ -22,11 +22,11 @@ type Config struct {
 	UniqueApp        bool
 }
 
-type AppCatalog struct {
+type Catalog struct {
 	*controller.Controller
 }
 
-func NewAppCatalog(config Config) (*AppCatalog, error) {
+func NewCatalog(config Config) (*Catalog, error) {
 	var err error
 
 	if config.K8sClient == nil {
@@ -38,14 +38,14 @@ func NewAppCatalog(config Config) (*AppCatalog, error) {
 
 	var resources []resource.Interface
 	{
-		c := appCatalogResourcesConfig(config)
-		resources, err = newAppCatalogResources(c)
+		c := catalogResourcesConfig(config)
+		resources, err = newCatalogResources(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
 	}
 
-	var appCatalogController *controller.Controller
+	var catalogController *controller.Controller
 	{
 		c := controller.Config{
 			K8sClient: config.K8sClient,
@@ -55,17 +55,17 @@ func NewAppCatalog(config Config) (*AppCatalog, error) {
 				return new(v1alpha1.Catalog)
 			},
 
-			Name: project.Name() + appCatalogControllerSuffix,
+			Name: project.Name() + catalogControllerSuffix,
 		}
 
-		appCatalogController, err = controller.New(c)
+		catalogController, err = controller.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
 	}
 
-	c := &AppCatalog{
-		Controller: appCatalogController,
+	c := &Catalog{
+		Controller: catalogController,
 	}
 
 	return c, nil

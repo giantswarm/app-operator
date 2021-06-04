@@ -23,7 +23,7 @@ import (
 )
 
 // EnsureCreated ensures appcatalogentry CRs are created or updated for this
-// appcatalog CR.
+// catalog CR.
 func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	if !r.uniqueApp {
 		// Return early. Only unique instance manages appcatalogentry CRs.
@@ -219,7 +219,7 @@ func (r *Resource) getDesiredAppCatalogEntryCR(ctx context.Context, cr *v1alpha1
 				{
 					APIVersion:         apiVersion,
 					BlockOwnerDeletion: to.BoolP(true),
-					Kind:               kindAppCatalog,
+					Kind:               kindCatalog,
 					Name:               cr.Name,
 					UID:                cr.UID,
 				},
@@ -230,8 +230,7 @@ func (r *Resource) getDesiredAppCatalogEntryCR(ctx context.Context, cr *v1alpha1
 			AppVersion: e.AppVersion,
 			Catalog: v1alpha1.AppCatalogEntrySpecCatalog{
 				Name: cr.Name,
-				// Namespace will be empty until appcatalog CRs become namespace scoped.
-				Namespace: "",
+				Namespace: cr.Namespace,
 			},
 			Chart: v1alpha1.AppCatalogEntrySpecChart{
 				Home: e.Home,
