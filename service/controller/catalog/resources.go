@@ -1,4 +1,4 @@
-package appcatalog
+package catalog
 
 import (
 	"github.com/giantswarm/k8sclient/v5/pkg/k8sclient"
@@ -8,10 +8,10 @@ import (
 	"github.com/giantswarm/operatorkit/v4/pkg/resource/wrapper/metricsresource"
 	"github.com/giantswarm/operatorkit/v4/pkg/resource/wrapper/retryresource"
 
-	"github.com/giantswarm/app-operator/v4/service/controller/appcatalog/resource/appcatalogentry"
+	"github.com/giantswarm/app-operator/v4/service/controller/catalog/resource/appcatalogentry"
 )
 
-type appCatalogResourcesConfig struct {
+type catalogResourcesConfig struct {
 	// Dependencies.
 	K8sClient k8sclient.Interface
 	Logger    micrologger.Logger
@@ -21,8 +21,8 @@ type appCatalogResourcesConfig struct {
 	UniqueApp        bool
 }
 
-// NewResourceSet returns a configured AppCatalog controller ResourceSet.
-func newAppCatalogResources(config appCatalogResourcesConfig) ([]resource.Interface, error) {
+// newCatalogResources returns a configured Catalog controller ResourceSet.
+func newCatalogResources(config catalogResourcesConfig) ([]resource.Interface, error) {
 	var err error
 
 	// Dependencies.

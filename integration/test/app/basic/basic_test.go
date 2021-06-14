@@ -21,7 +21,7 @@ import (
 )
 
 // TestAppLifecycle tests a chart CR can be created, updated and deleted
-// uaing a app, appCatalog CRs processed by app-operator.
+// using a app, appCatalog CRs processed by app-operator.
 //
 // - Install chart-operator.
 // - Create test app CR.

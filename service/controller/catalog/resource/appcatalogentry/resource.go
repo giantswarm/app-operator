@@ -25,7 +25,7 @@ const (
 
 	apiVersion           = "application.giantswarm.io/v1alpha1"
 	communityCatalogType = "community"
-	kindAppCatalog       = "AppCatalog"
+	kindCatalog          = "Catalog"
 	kindAppCatalogEntry  = "AppCatalogEntry"
 	maxEntriesPerApp     = 5
 )
@@ -74,15 +74,15 @@ func (r Resource) Name() string {
 	return Name
 }
 
-func (r *Resource) getCurrentEntryCRs(ctx context.Context, cr v1alpha1.AppCatalog) (map[string]*v1alpha1.AppCatalogEntry, error) {
-	r.logger.Debugf(ctx, "getting current appcatalogentries for appcatalog %#q", cr.Name)
+func (r *Resource) getCurrentEntryCRs(ctx context.Context, cr v1alpha1.Catalog) (map[string]*v1alpha1.AppCatalogEntry, error) {
+	r.logger.Debugf(ctx, "getting current appcatalogentries for catalog %#q", cr.Name)
 
 	currentEntryCRs := map[string]*v1alpha1.AppCatalogEntry{}
 
 	lo := metav1.ListOptions{
 		LabelSelector: fmt.Sprintf("%s=%s,%s=%s", label.ManagedBy, key.AppCatalogEntryManagedBy(project.Name()), label.CatalogName, cr.Name),
 	}
-	entries, err := r.k8sClient.G8sClient().ApplicationV1alpha1().AppCatalogEntries(metav1.NamespaceDefault).List(ctx, lo)
+	entries, err := r.k8sClient.G8sClient().ApplicationV1alpha1().AppCatalogEntries(metav1.NamespaceAll).List(ctx, lo)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
@@ -91,7 +91,7 @@ func (r *Resource) getCurrentEntryCRs(ctx context.Context, cr v1alpha1.AppCatalo
 		currentEntryCRs[entry.Name] = entry.DeepCopy()
 	}
 
-	r.logger.Debugf(ctx, "got %d current appcatalogentries for appcatalog %#q", len(currentEntryCRs), cr.Name)
+	r.logger.Debugf(ctx, "got %d current appcatalogentries for catalog %#q", len(currentEntryCRs), cr.Name)
 
 	return currentEntryCRs, nil
 }
