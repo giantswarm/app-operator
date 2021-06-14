@@ -82,7 +82,7 @@ func (r *Resource) getCurrentEntryCRs(ctx context.Context, cr v1alpha1.Catalog) 
 	lo := metav1.ListOptions{
 		LabelSelector: fmt.Sprintf("%s=%s,%s=%s", label.ManagedBy, key.AppCatalogEntryManagedBy(project.Name()), label.CatalogName, cr.Name),
 	}
-	entries, err := r.k8sClient.G8sClient().ApplicationV1alpha1().AppCatalogEntries("").List(ctx, lo)
+	entries, err := r.k8sClient.G8sClient().ApplicationV1alpha1().AppCatalogEntries(metav1.NamespaceAll).List(ctx, lo)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
