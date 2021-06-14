@@ -9,10 +9,8 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ### Changed
 
+- Reconcile to `Catalog` CRs instead of `AppCatalog`.
 - Get `Chart` CRD from the GitHub resources.
-
-### Changed
-
 - Get metadata constants from k8smetadata library not apiextensions.
 
 ### Fixed
