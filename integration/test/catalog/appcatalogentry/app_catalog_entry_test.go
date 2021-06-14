@@ -120,7 +120,7 @@ func TestAppCatalogEntry(t *testing.T) {
 			AppVersion: latestEntry.AppVersion,
 			Catalog: v1alpha1.AppCatalogEntrySpecCatalog{
 				Name:      key.StableCatalogName(),
-				Namespace: "",
+				Namespace: metav1.NamespaceDefault,
 			},
 			Chart: v1alpha1.AppCatalogEntrySpecChart{
 				APIVersion: "v2",
