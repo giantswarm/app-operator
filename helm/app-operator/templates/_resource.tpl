@@ -28,14 +28,14 @@ room for such suffix.
 {{- end -}}
 
 {{/*
-The unique deployment of app-operator is for management cluster app CRs and uses
-a special app version of 0.0.0.
+The deployment of app-operator for management cluster reconciles a special app
+CR version of 0.0.0.
 */}}
 {{- define "resource.app.unique" -}}
-{{- if hasSuffix "-unique" .Release.Name }}true{{ else }}false{{ end }}
+{{- if eq $.Chart.Name $.Release.Name }}true{{ else }}false{{ end }}
 {{- end -}}
 {{- define "resource.app.version" -}}
-{{- if hasSuffix "-unique" .Release.Name }}0.0.0{{ else }}{{ .Chart.AppVersion }}{{ end }}
+{{- if eq $.Chart.Name $.Release.Name }}0.0.0{{ else }}{{ .Chart.AppVersion }}{{ end }}
 {{- end -}}
 
 {{/*
