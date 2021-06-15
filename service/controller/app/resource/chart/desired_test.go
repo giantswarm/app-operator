@@ -303,7 +303,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					Clients: controllercontext.Clients{
 						K8s: client,
 					},
-					AppCatalog: tc.appCatalog,
+					Catalog: tc.appCatalog,
 				}
 				ctx = controllercontext.NewContext(context.Background(), c)
 			}

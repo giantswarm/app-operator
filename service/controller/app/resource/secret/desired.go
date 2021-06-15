@@ -41,7 +41,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		return secret, nil
 	}
 
-	mergedData, err := r.values.MergeSecretData(ctx, cr, cc.AppCatalog)
+	mergedData, err := r.values.MergeSecretData(ctx, cr, cc.Catalog)
 	if values.IsNotFound(err) {
 		r.logger.LogCtx(ctx, "level", "warning", "message", "dependent secrets are not found")
 		addStatusToContext(cc, err.Error(), status.SecretMergeFailedStatus)

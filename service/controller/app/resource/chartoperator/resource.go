@@ -94,7 +94,7 @@ func (r Resource) installChartOperator(ctx context.Context, cr v1alpha1.App) err
 		return microerror.Mask(err)
 	}
 
-	chartOperatorValues, err := r.values.MergeAll(ctx, cr, cc.AppCatalog)
+	chartOperatorValues, err := r.values.MergeAll(ctx, cr, cc.Catalog)
 	if err != nil {
 		return microerror.Mask(err)
 	}
@@ -102,7 +102,7 @@ func (r Resource) installChartOperator(ctx context.Context, cr v1alpha1.App) err
 	// check app CR for chart-operator and fetching app-catalog name and version.
 	var tarballURL string
 	{
-		tarballURL, err = appcatalog.NewTarballURL(key.AppCatalogStorageURL(cc.AppCatalog), key.AppName(cr), key.Version(cr))
+		tarballURL, err = appcatalog.NewTarballURL(key.AppCatalogStorageURL(cc.Catalog), key.AppName(cr), key.Version(cr))
 		if err != nil {
 			return microerror.Mask(err)
 		}
@@ -146,7 +146,7 @@ func (r Resource) updateChartOperator(ctx context.Context, cr v1alpha1.App) erro
 		return microerror.Mask(err)
 	}
 
-	chartOperatorValues, err := r.values.MergeAll(ctx, cr, cc.AppCatalog)
+	chartOperatorValues, err := r.values.MergeAll(ctx, cr, cc.Catalog)
 	if err != nil {
 		return microerror.Mask(err)
 	}
@@ -154,7 +154,7 @@ func (r Resource) updateChartOperator(ctx context.Context, cr v1alpha1.App) erro
 	// check app CR for chart-operator and fetching app-catalog name and version.
 	var tarballURL string
 	{
-		tarballURL, err = appcatalog.NewTarballURL(key.AppCatalogStorageURL(cc.AppCatalog), key.AppName(cr), key.Version(cr))
+		tarballURL, err = appcatalog.NewTarballURL(key.AppCatalogStorageURL(cc.Catalog), key.AppName(cr), key.Version(cr))
 		if err != nil {
 			return microerror.Mask(err)
 		}

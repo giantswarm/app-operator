@@ -114,7 +114,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 			var ctx context.Context
 			{
 				c := controllercontext.Context{
-					AppCatalog: tc.appCatalog,
+					Catalog: tc.appCatalog,
 				}
 				ctx = controllercontext.NewContext(context.Background(), c)
 			}

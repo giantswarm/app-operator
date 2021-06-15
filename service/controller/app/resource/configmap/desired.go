@@ -41,7 +41,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		return configMap, nil
 	}
 
-	mergedData, err := r.values.MergeConfigMapData(ctx, cr, cc.AppCatalog)
+	mergedData, err := r.values.MergeConfigMapData(ctx, cr, cc.Catalog)
 	if values.IsNotFound(err) {
 		r.logger.LogCtx(ctx, "level", "warning", "message", "dependent configMaps are not found")
 		addStatusToContext(cc, err.Error(), status.ConfigmapMergeFailedStatus)

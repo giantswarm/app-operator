@@ -14,9 +14,9 @@ type contextKey string
 const controllerKey contextKey = "controller"
 
 type Context struct {
-	AppCatalog v1alpha1.AppCatalog
-	Clients    Clients
-	Status     Status
+	Catalog v1alpha1.Catalog
+	Clients Clients
+	Status  Status
 }
 
 type Clients struct {
