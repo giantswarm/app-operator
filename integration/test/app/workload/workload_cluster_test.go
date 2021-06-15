@@ -93,7 +93,7 @@ func TestWorkloadCluster(t *testing.T) {
 		apps := []apptest.App{
 			{
 				// Bootstrap chart-operator in the giantswarm namespace.
-				AppCRName:     key.ChartOperatorUniqueName(),
+				AppCRName:     key.ChartOperatorName(),
 				CatalogName:   key.ControlPlaneCatalogName(),
 				KubeConfig:    kubeConfig,
 				Name:          key.ChartOperatorName(),
