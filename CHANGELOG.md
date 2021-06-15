@@ -9,6 +9,7 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ### Changed
 
+- Prepare helm values to configuration management.
 - Reconcile to `Catalog` CRs instead of `AppCatalog`.
 - Get `Chart` CRD from the GitHub resources.
 - Get metadata constants from k8smetadata library not apiextensions.
@@ -16,7 +17,7 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 ### Fixed
 
 - For the chart CR watcher get the kubeconfig secret from the chart-operator app
-CR to avoid hardcoding it. 
+CR to avoid hardcoding it.
 
 ## [4.4.0] - 2021-05-03
 
@@ -33,7 +34,7 @@ CR to avoid hardcoding it.
 
 ## [4.3.1] - 2021-03-30
 
-### Fixed 
+### Fixed
 
 - Restore chart-operator when it had been deleted.
 
