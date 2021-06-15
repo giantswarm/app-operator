@@ -66,23 +66,33 @@ func (r *Resource) getCatalogForApp(ctx context.Context, customResource v1alpha1
 
 	r.logger.Debugf(ctx, "looking for catalog %#q", catalogName)
 
-	var namespace string
+	var namespaces []string
 	{
 		if customResource.Spec.CatalogNamespace != "" {
-			namespace = customResource.Spec.CatalogNamespace
+			namespaces = []string{customResource.Spec.CatalogNamespace}
 		} else {
-			namespace = metav1.NamespaceAll
+			namespaces = []string{metav1.NamespaceDefault, "giantswarm"}
 		}
 	}
 
-	catalog, err := r.g8sClient.ApplicationV1alpha1().Catalogs(namespace).Get(ctx, catalogName, metav1.GetOptions{})
-	if apierrors.IsNotFound(err) {
-		return microerror.Maskf(notFoundError, "catalog %#q", catalogName)
-	} else if err != nil {
-		return microerror.Mask(err)
+	var catalog *v1alpha1.Catalog
+	var namespace string
+	for _, namespace := range namespaces {
+		catalog, err = r.g8sClient.ApplicationV1alpha1().Catalogs(namespace).Get(ctx, catalogName, metav1.GetOptions{})
+		if apierrors.IsNotFound(err) {
+			// no-op
+			continue
+		} else if err != nil {
+			return microerror.Mask(err)
+		}
+		break
 	}
 
-	r.logger.Debugf(ctx, "found catalog %#q", catalogName)
+	if catalog == nil {
+		return microerror.Maskf(notFoundError, "catalog %#q", catalogName)
+	}
+
+	r.logger.Debugf(ctx, "found catalog %#q in namespace %#q", catalogName, namespace)
 	cc.Catalog = *catalog
 
 	return nil
