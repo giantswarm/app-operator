@@ -45,7 +45,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		return nil, microerror.Mask(err)
 	}
 
-	tarballURL, err := appcatalog.NewTarballURL(key.AppCatalogStorageURL(cc.Catalog), key.AppName(cr), key.Version(cr))
+	tarballURL, err := appcatalog.NewTarballURL(key.CatalogStorageURL(cc.Catalog), key.AppName(cr), key.Version(cr))
 	if err != nil {
 		r.logger.Errorf(ctx, err, "failed to generated tarball")
 	}
@@ -93,10 +93,10 @@ func generateAnnotations(input map[string]string, appNamespace string) map[strin
 	return annotations
 }
 
-func generateConfig(ctx context.Context, k8sClient kubernetes.Interface, cr v1alpha1.App, appCatalog v1alpha1.AppCatalog, chartNamespace string) (v1alpha1.ChartSpecConfig, error) {
+func generateConfig(ctx context.Context, k8sClient kubernetes.Interface, cr v1alpha1.App, catalog v1alpha1.Catalog, chartNamespace string) (v1alpha1.ChartSpecConfig, error) {
 	config := v1alpha1.ChartSpecConfig{}
 
-	if hasConfigMap(cr, appCatalog) {
+	if hasConfigMap(cr, catalog) {
 		configMapName := key.ChartConfigMapName(cr)
 		cm, err := k8sClient.CoreV1().ConfigMaps(chartNamespace).Get(ctx, configMapName, metav1.GetOptions{})
 		if apierrors.IsNotFound(err) {
@@ -114,7 +114,7 @@ func generateConfig(ctx context.Context, k8sClient kubernetes.Interface, cr v1al
 		}
 	}
 
-	if hasSecret(cr, appCatalog) {
+	if hasSecret(cr, catalog) {
 		secretName := key.ChartSecretName(cr)
 		secret, err := k8sClient.CoreV1().Secrets(chartNamespace).Get(ctx, secretName, metav1.GetOptions{})
 		if apierrors.IsNotFound(err) {
@@ -145,16 +145,16 @@ func generateInstall(cr v1alpha1.App) v1alpha1.ChartSpecInstall {
 	return v1alpha1.ChartSpecInstall{}
 }
 
-func hasConfigMap(cr v1alpha1.App, appCatalog v1alpha1.AppCatalog) bool {
-	if key.AppConfigMapName(cr) != "" || key.AppCatalogConfigMapName(appCatalog) != "" || key.UserConfigMapName(cr) != "" {
+func hasConfigMap(cr v1alpha1.App, catalog v1alpha1.Catalog) bool {
+	if key.AppConfigMapName(cr) != "" || key.CatalogConfigMapName(catalog) != "" || key.UserConfigMapName(cr) != "" {
 		return true
 	}
 
 	return false
 }
 
-func hasSecret(cr v1alpha1.App, appCatalog v1alpha1.AppCatalog) bool {
-	if key.AppSecretName(cr) != "" || key.AppCatalogSecretName(appCatalog) != "" || key.UserSecretName(cr) != "" {
+func hasSecret(cr v1alpha1.App, catalog v1alpha1.Catalog) bool {
+	if key.AppSecretName(cr) != "" || key.CatalogSecretName(catalog) != "" || key.UserSecretName(cr) != "" {
 		return true
 	}
 

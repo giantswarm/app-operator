@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	"github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
-	"github.com/giantswarm/app/v4/pkg/values"
+	"github.com/giantswarm/app/v5/pkg/values"
 	"github.com/giantswarm/k8smetadata/pkg/annotation"
 	"github.com/giantswarm/k8smetadata/pkg/label"
 	"github.com/giantswarm/micrologger/microloggertest"
@@ -24,7 +24,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 	tests := []struct {
 		name              string
 		obj               *v1alpha1.App
-		appCatalog        v1alpha1.AppCatalog
+		catalog           v1alpha1.Catalog
 		configMaps        []*corev1.ConfigMap
 		expectedConfigMap *corev1.ConfigMap
 		errorMatcher      func(error) bool
@@ -42,7 +42,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					Namespace: "kube-system",
 				},
 			},
-			appCatalog: v1alpha1.AppCatalog{
+			catalog: v1alpha1.Catalog{
 				ObjectMeta: metav1.ObjectMeta{
 					Name: "test-catalog",
 				},
@@ -68,7 +68,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					},
 				},
 			},
-			appCatalog: v1alpha1.AppCatalog{
+			catalog: v1alpha1.Catalog{
 				ObjectMeta: metav1.ObjectMeta{
 					Name: "test-catalog",
 				},
@@ -114,7 +114,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 			var ctx context.Context
 			{
 				c := controllercontext.Context{
-					Catalog: tc.appCatalog,
+					Catalog: tc.catalog,
 				}
 				ctx = controllercontext.NewContext(context.Background(), c)
 			}
