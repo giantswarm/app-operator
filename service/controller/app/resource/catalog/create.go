@@ -1,4 +1,4 @@
-package appcatalog
+package catalog
 
 import (
 	"context"

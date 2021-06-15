@@ -14,10 +14,10 @@ import (
 	"github.com/giantswarm/operatorkit/v4/pkg/resource/wrapper/retryresource"
 	"github.com/spf13/afero"
 
-	"github.com/giantswarm/app-operator/v4/service/controller/app/resource/appcatalog"
 	"github.com/giantswarm/app-operator/v4/service/controller/app/resource/appfinalizermigration"
 	"github.com/giantswarm/app-operator/v4/service/controller/app/resource/appnamespace"
 	"github.com/giantswarm/app-operator/v4/service/controller/app/resource/authtokenmigration"
+	"github.com/giantswarm/app-operator/v4/service/controller/app/resource/catalog"
 	"github.com/giantswarm/app-operator/v4/service/controller/app/resource/chart"
 	"github.com/giantswarm/app-operator/v4/service/controller/app/resource/chartcrd"
 	"github.com/giantswarm/app-operator/v4/service/controller/app/resource/chartoperator"
@@ -95,13 +95,13 @@ func newAppResources(config appResourcesConfig) ([]resource.Interface, error) {
 		}
 	}
 
-	var appcatalogResource resource.Interface
+	var catalogResource resource.Interface
 	{
-		c := appcatalog.Config{
+		c := catalog.Config{
 			G8sClient: config.K8sClient.G8sClient(),
 			Logger:    config.Logger,
 		}
-		appcatalogResource, err = appcatalog.New(c)
+		catalogResource, err = catalog.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -332,7 +332,7 @@ func newAppResources(config appResourcesConfig) ([]resource.Interface, error) {
 
 		// Following resources manage controller context information.
 		appNamespaceResource,
-		appcatalogResource,
+		catalogResource,
 		clientsResource,
 
 		// authTokenMigrationResource deletes auth token secrets that are no
