@@ -8,7 +8,7 @@ require (
 	github.com/giantswarm/apiextensions/v3 v3.26.0
 	github.com/giantswarm/app/v5 v5.0.0
 	github.com/giantswarm/appcatalog v0.4.2
-	github.com/giantswarm/apptest v0.10.3
+	github.com/giantswarm/apptest v0.10.4-0.20210615115515-1c27004547ba
 	github.com/giantswarm/backoff v0.2.0
 	github.com/giantswarm/errors v0.3.0
 	github.com/giantswarm/helmclient/v4 v4.6.0
