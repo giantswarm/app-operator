@@ -6,7 +6,7 @@ import (
 
 	"github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/apiextensions/v3/pkg/clientset/versioned"
-	"github.com/giantswarm/app/v4/pkg/key"
+	"github.com/giantswarm/app/v5/pkg/key"
 	"github.com/giantswarm/backoff"
 	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/microerror"

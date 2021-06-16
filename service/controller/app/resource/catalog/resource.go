@@ -1,4 +1,4 @@
-package appcatalog
+package catalog
 
 import (
 	"context"
@@ -16,24 +16,24 @@ import (
 
 const (
 	// Name is the identifier of the resource.
-	Name = "appcatalog"
+	Name = "catalog"
 )
 
-// Config represents the configuration used to create a new appcatalog resource.
+// Config represents the configuration used to create a new catalog resource.
 type Config struct {
 	// Dependencies.
 	G8sClient versioned.Interface
 	Logger    micrologger.Logger
 }
 
-// Resource implements the appcatalog resource.
+// Resource implements the catalog resource.
 type Resource struct {
 	// Dependencies.
 	g8sClient versioned.Interface
 	logger    micrologger.Logger
 }
 
-// New creates a new configured appcatalog resource.
+// New creates a new configured catalog resource.
 func New(config Config) (*Resource, error) {
 	if config.G8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.G8sClient must not be empty", config)
@@ -55,7 +55,7 @@ func (*Resource) Name() string {
 	return Name
 }
 
-// getCatalogForApp gets the appCatalog CR specified in the provided app CR.
+// getCatalogForApp gets the catalog CR specified in the provided app CR.
 func (r *Resource) getCatalogForApp(ctx context.Context, customResource v1alpha1.App) error {
 	cc, err := controllercontext.FromContext(ctx)
 	if err != nil {
@@ -64,17 +64,36 @@ func (r *Resource) getCatalogForApp(ctx context.Context, customResource v1alpha1
 
 	catalogName := key.CatalogName(customResource)
 
-	r.logger.Debugf(ctx, "looking for appCatalog %#q", catalogName)
+	r.logger.Debugf(ctx, "looking for catalog %#q", catalogName)
 
-	appCatalog, err := r.g8sClient.ApplicationV1alpha1().AppCatalogs().Get(ctx, catalogName, metav1.GetOptions{})
-	if apierrors.IsNotFound(err) {
-		return microerror.Maskf(notFoundError, "appCatalog %#q", catalogName)
-	} else if err != nil {
-		return microerror.Mask(err)
+	var namespaces []string
+	{
+		if customResource.Spec.CatalogNamespace != "" {
+			namespaces = []string{customResource.Spec.CatalogNamespace}
+		} else {
+			namespaces = []string{metav1.NamespaceDefault, "giantswarm"}
+		}
 	}
 
-	r.logger.Debugf(ctx, "found appCatalog %#q", catalogName)
-	cc.AppCatalog = *appCatalog
+	var catalog *v1alpha1.Catalog
+	var namespace string
+	for _, namespace := range namespaces {
+		catalog, err = r.g8sClient.ApplicationV1alpha1().Catalogs(namespace).Get(ctx, catalogName, metav1.GetOptions{})
+		if apierrors.IsNotFound(err) {
+			// no-op
+			continue
+		} else if err != nil {
+			return microerror.Mask(err)
+		}
+		break
+	}
+
+	if catalog == nil {
+		return microerror.Maskf(notFoundError, "catalog %#q", catalogName)
+	}
+
+	r.logger.Debugf(ctx, "found catalog %#q in namespace %#q", catalogName, namespace)
+	cc.Catalog = *catalog
 
 	return nil
 }

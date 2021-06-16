@@ -22,7 +22,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 	tests := []struct {
 		name          string
 		obj           *v1alpha1.App
-		appCatalog    v1alpha1.AppCatalog
+		catalog       v1alpha1.Catalog
 		configMap     *corev1.ConfigMap
 		expectedChart *v1alpha1.Chart
 		error         bool
@@ -63,7 +63,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					},
 				},
 			},
-			appCatalog: v1alpha1.AppCatalog{
+			catalog: v1alpha1.Catalog{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "giantswarm",
 					Namespace: "default",
@@ -71,10 +71,10 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 						"app-operator.giantswarm.io/version": "1.0.0",
 					},
 				},
-				Spec: v1alpha1.AppCatalogSpec{
+				Spec: v1alpha1.CatalogSpec{
 					Title:       "Giant Swarm",
 					Description: "Catalog of Apps by Giant Swarm",
-					Storage: v1alpha1.AppCatalogSpecStorage{
+					Storage: v1alpha1.CatalogSpecStorage{
 						Type: "helm",
 						URL:  "https://giantswarm.github.io/app-catalog/",
 					},
@@ -154,7 +154,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					},
 				},
 			},
-			appCatalog: v1alpha1.AppCatalog{
+			catalog: v1alpha1.Catalog{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "giantswarm",
 					Namespace: "default",
@@ -162,10 +162,10 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 						"app-operator.giantswarm.io/version": "1.0.0",
 					},
 				},
-				Spec: v1alpha1.AppCatalogSpec{
+				Spec: v1alpha1.CatalogSpec{
 					Title:       "Giant Swarm",
 					Description: "Catalog of Apps by Giant Swarm",
-					Storage: v1alpha1.AppCatalogSpecStorage{
+					Storage: v1alpha1.CatalogSpecStorage{
 						Type: "helm",
 						URL:  "", // Empty baseURL
 					},
@@ -234,13 +234,13 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					},
 				},
 			},
-			appCatalog: v1alpha1.AppCatalog{
+			catalog: v1alpha1.Catalog{
 				ObjectMeta: metav1.ObjectMeta{
 					Name: "giantswarm",
 				},
-				Spec: v1alpha1.AppCatalogSpec{
+				Spec: v1alpha1.CatalogSpec{
 					Title: "Giant Swarm",
-					Storage: v1alpha1.AppCatalogSpecStorage{
+					Storage: v1alpha1.CatalogSpecStorage{
 						Type: "helm",
 						URL:  "https://giantswarm.github.io/app-catalog/",
 					},
@@ -303,7 +303,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					Clients: controllercontext.Clients{
 						K8s: client,
 					},
-					AppCatalog: tc.appCatalog,
+					Catalog: tc.catalog,
 				}
 				ctx = controllercontext.NewContext(context.Background(), c)
 			}
@@ -342,7 +342,7 @@ func Test_generateConfig(t *testing.T) {
 	tests := []struct {
 		name           string
 		cr             v1alpha1.App
-		appCatalog     v1alpha1.AppCatalog
+		catalog        v1alpha1.Catalog
 		secret         *corev1.Secret
 		configMap      *corev1.ConfigMap
 		expectedConfig v1alpha1.ChartSpecConfig
@@ -350,7 +350,7 @@ func Test_generateConfig(t *testing.T) {
 		{
 			name:           "case 0: no config",
 			cr:             v1alpha1.App{},
-			appCatalog:     v1alpha1.AppCatalog{},
+			catalog:        v1alpha1.Catalog{},
 			expectedConfig: v1alpha1.ChartSpecConfig{},
 		},
 		{
@@ -369,7 +369,7 @@ func Test_generateConfig(t *testing.T) {
 					Namespace: "giantswarm",
 				},
 			},
-			appCatalog: v1alpha1.AppCatalog{},
+			catalog: v1alpha1.Catalog{},
 			configMap: &corev1.ConfigMap{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:            "test-app-chart-values",
@@ -401,7 +401,7 @@ func Test_generateConfig(t *testing.T) {
 					Namespace: "giantswarm",
 				},
 			},
-			appCatalog: v1alpha1.AppCatalog{},
+			catalog: v1alpha1.Catalog{},
 			secret: &corev1.Secret{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:            "test-app-chart-secrets",
@@ -437,7 +437,7 @@ func Test_generateConfig(t *testing.T) {
 					Namespace: "giantswarm",
 				},
 			},
-			appCatalog: v1alpha1.AppCatalog{},
+			catalog: v1alpha1.Catalog{},
 			configMap: &corev1.ConfigMap{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:            "test-app-chart-values",
@@ -475,10 +475,10 @@ func Test_generateConfig(t *testing.T) {
 					Namespace: "giantswarm",
 				},
 			},
-			appCatalog: v1alpha1.AppCatalog{
-				Spec: v1alpha1.AppCatalogSpec{
-					Config: v1alpha1.AppCatalogSpecConfig{
-						ConfigMap: v1alpha1.AppCatalogSpecConfigConfigMap{
+			catalog: v1alpha1.Catalog{
+				Spec: v1alpha1.CatalogSpec{
+					Config: &v1alpha1.CatalogSpecConfig{
+						ConfigMap: &v1alpha1.CatalogSpecConfigConfigMap{
 							Name:      "test-app-values",
 							Namespace: "default",
 						},
@@ -510,10 +510,10 @@ func Test_generateConfig(t *testing.T) {
 					Namespace: "giantswarm",
 				},
 			},
-			appCatalog: v1alpha1.AppCatalog{
-				Spec: v1alpha1.AppCatalogSpec{
-					Config: v1alpha1.AppCatalogSpecConfig{
-						Secret: v1alpha1.AppCatalogSpecConfigSecret{
+			catalog: v1alpha1.Catalog{
+				Spec: v1alpha1.CatalogSpec{
+					Config: &v1alpha1.CatalogSpecConfig{
+						Secret: &v1alpha1.CatalogSpecConfigSecret{
 							Name:      "test-app-values",
 							Namespace: "default",
 						},
@@ -545,14 +545,14 @@ func Test_generateConfig(t *testing.T) {
 					Namespace: "giantswarm",
 				},
 			},
-			appCatalog: v1alpha1.AppCatalog{
-				Spec: v1alpha1.AppCatalogSpec{
-					Config: v1alpha1.AppCatalogSpecConfig{
-						ConfigMap: v1alpha1.AppCatalogSpecConfigConfigMap{
+			catalog: v1alpha1.Catalog{
+				Spec: v1alpha1.CatalogSpec{
+					Config: &v1alpha1.CatalogSpecConfig{
+						ConfigMap: &v1alpha1.CatalogSpecConfigConfigMap{
 							Name:      "test-app-values",
 							Namespace: "default",
 						},
-						Secret: v1alpha1.AppCatalogSpecConfigSecret{
+						Secret: &v1alpha1.CatalogSpecConfigSecret{
 							Name:      "test-app-values",
 							Namespace: "default",
 						},
@@ -601,7 +601,7 @@ func Test_generateConfig(t *testing.T) {
 
 			client := clientgofake.NewSimpleClientset(objs...)
 
-			result, err := generateConfig(context.Background(), client, tc.cr, tc.appCatalog, "giantswarm")
+			result, err := generateConfig(context.Background(), client, tc.cr, tc.catalog, "giantswarm")
 			if err != nil {
 				t.Fatalf("error == %#v, want nil", err)
 			}
