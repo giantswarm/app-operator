@@ -57,7 +57,7 @@ func TestAppLifecycle(t *testing.T) {
 
 		var tarballPath string
 		{
-			config.Logger.Debugf(ctx, "installing %#q", key.ChartOperatorUniqueName())
+			config.Logger.Debugf(ctx, "installing %#q", key.ChartOperatorName())
 
 			tarballURL, err := appcatalog.GetLatestChart(ctx, key.DefaultCatalogStorageURL(), key.ChartOperatorName(), key.ChartOperatorVersion())
 			if err != nil {
@@ -87,7 +87,7 @@ func TestAppLifecycle(t *testing.T) {
 		}
 
 		opts := helmclient.InstallOptions{
-			ReleaseName: key.ChartOperatorUniqueName(),
+			ReleaseName: key.ChartOperatorName(),
 			Wait:        true,
 		}
 		err = config.HelmClient.InstallReleaseFromTarball(ctx, tarballPath, key.GiantSwarmNamespace(), values, opts)
@@ -95,7 +95,7 @@ func TestAppLifecycle(t *testing.T) {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
 
-		config.Logger.Debugf(ctx, "installed %#q", key.ChartOperatorUniqueName())
+		config.Logger.Debugf(ctx, "installed %#q", key.ChartOperatorName())
 	}
 
 	{
@@ -103,7 +103,7 @@ func TestAppLifecycle(t *testing.T) {
 			{
 				// chart-operator app CR is used by the chart status watcher
 				// to get a kubeconfig.
-				AppCRName:     key.ChartOperatorUniqueName(),
+				AppCRName:     key.ChartOperatorName(),
 				CatalogName:   key.DefaultCatalogName(),
 				Name:          key.ChartOperatorName(),
 				Namespace:     key.GiantSwarmNamespace(),

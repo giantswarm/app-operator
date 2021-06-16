@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/giantswarm/app/v4/pkg/values"
 	"github.com/giantswarm/app/v5/pkg/key"
+	"github.com/giantswarm/app/v5/pkg/values"
 	"github.com/giantswarm/k8smetadata/pkg/annotation"
 	"github.com/giantswarm/k8smetadata/pkg/label"
 	"github.com/giantswarm/microerror"
@@ -41,7 +41,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		return configMap, nil
 	}
 
-	mergedData, err := r.values.MergeConfigMapData(ctx, cr, cc.AppCatalog)
+	mergedData, err := r.values.MergeConfigMapData(ctx, cr, cc.Catalog)
 	if values.IsNotFound(err) {
 		r.logger.LogCtx(ctx, "level", "warning", "message", "dependent configMaps are not found")
 		addStatusToContext(cc, err.Error(), status.ConfigmapMergeFailedStatus)

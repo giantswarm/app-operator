@@ -1,4 +1,4 @@
-package appcatalog
+package catalog
 
 import (
 	"context"
@@ -7,7 +7,7 @@ import (
 	"github.com/giantswarm/microerror"
 )
 
-// EnsureCreated gets the appCatalog CR specified in the provided app CR.
+// EnsureCreated gets the catalog CR specified in the provided app CR.
 func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	cr, err := key.ToApp(obj)
 	if err != nil {
