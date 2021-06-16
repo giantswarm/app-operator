@@ -122,12 +122,12 @@ func installResources(ctx context.Context, config Config) error {
 			}
 		}()
 
-		config.Logger.Debugf(ctx, "installing %#q", key.AppOperatorUniqueName())
+		config.Logger.Debugf(ctx, "installing %#q", project.Name())
 
 		// Release is named app-operator-unique as some functionality is only
 		// implemented for the unique instance.
 		opts := helmclient.InstallOptions{
-			ReleaseName: key.AppOperatorUniqueName(),
+			ReleaseName: project.Name(),
 			Wait:        true,
 		}
 		err = config.HelmClient.InstallReleaseFromTarball(ctx,
@@ -139,7 +139,7 @@ func installResources(ctx context.Context, config Config) error {
 			return microerror.Mask(err)
 		}
 
-		config.Logger.Debugf(ctx, "installed %#q", key.AppOperatorUniqueName())
+		config.Logger.Debugf(ctx, "installed %#q", project.Version())
 	}
 
 	return nil
