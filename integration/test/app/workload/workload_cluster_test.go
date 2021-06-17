@@ -104,9 +104,10 @@ func TestWorkloadCluster(t *testing.T) {
 			},
 			{
 				// Install app-operator in the workload cluster namespace.
+				AppCRName:      fmt.Sprintf("%s-%s", project.Name(), key.WorkloadClusterNamespace()),
 				AppCRNamespace: key.WorkloadClusterNamespace(),
 				CatalogName:    key.ControlPlaneTestCatalogName(),
-				Name:           fmt.Sprintf("%s-%s", project.Name(), key.WorkloadClusterNamespace()),
+				Name:           project.Name(),
 				Namespace:      key.WorkloadClusterNamespace(),
 				ValuesYAML:     templates.AppOperatorValues,
 				SHA:            env.CircleSHA(),
