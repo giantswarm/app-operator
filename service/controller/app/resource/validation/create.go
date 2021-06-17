@@ -8,7 +8,7 @@ import (
 	"github.com/giantswarm/app/v5/pkg/key"
 	"github.com/giantswarm/app/v5/pkg/validation"
 	"github.com/giantswarm/microerror"
-	"github.com/giantswarm/operatorkit/v4/pkg/controller/context/reconciliationcanceledcontext"
+	"github.com/giantswarm/operatorkit/v5/pkg/controller/context/reconciliationcanceledcontext"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/giantswarm/app-operator/v4/pkg/status"
