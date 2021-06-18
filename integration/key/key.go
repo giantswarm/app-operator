@@ -8,8 +8,8 @@ import (
 	"github.com/giantswarm/app-operator/v4/pkg/project"
 )
 
-func AppCatalogConfigMapName() string {
-	return "appcatalog-config"
+func CatalogConfigMapName() string {
+	return "catalog-config"
 }
 
 func AppOperatorUniqueName() string {
