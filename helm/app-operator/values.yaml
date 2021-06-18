@@ -7,27 +7,24 @@ namespace: giantswarm
 port: 8000
 protocol: "TCP"
 
+helm:
+  http:
+    clientTimeout: "5s"
+
+provider:
+  kind: ""
+
 userID: 1000
 groupID: 1000
 
 replicas: 1
 
+registry:
+  domain: docker.io
+
 image:
   repository: giantswarm/app-operator
   tag: [[ .Version ]]
-
-Installation:
-  V1:
-    Helm:
-      HTTP:
-        ClientTimeout: "5s"
-    Kubernetes:
-      API:
-        Address: ""
-    Provider:
-      Kind: ""
-    Registry:
-      Domain: quay.io
 
 operatorkit:
   resyncPeriod: "5m"
