@@ -21,9 +21,9 @@ import (
 
 // TestWatchingConfigMap tests app CRs are updated when wired configmaps are updated
 //
-// - Create user configmap, appcatalog configmap
+// - Create user configmap, catalog configmap
 //
-// - Create app CR and wiring user configmap and appcatalog
+// - Create app CR and wiring user configmap and catalog
 //
 // - Update user configmap and check the latest resource version is set on the annotation
 //   of app CR.
@@ -40,11 +40,11 @@ func TestWatchingConfigMap(t *testing.T) {
 	var err error
 
 	{
-		config.Logger.Debugf(ctx, "creating configmap %#q in namespace %#q", key.AppCatalogConfigMapName(), key.GiantSwarmNamespace())
+		config.Logger.Debugf(ctx, "creating configmap %#q in namespace %#q", key.CatalogConfigMapName(), key.GiantSwarmNamespace())
 
 		cm := &corev1.ConfigMap{
 			ObjectMeta: metav1.ObjectMeta{
-				Name:      key.AppCatalogConfigMapName(),
+				Name:      key.CatalogConfigMapName(),
 				Namespace: key.GiantSwarmNamespace(),
 			},
 			Data: map[string]string{
@@ -57,40 +57,41 @@ func TestWatchingConfigMap(t *testing.T) {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
 
-		config.Logger.Debugf(ctx, "created configmap %#q in namespace %#q", key.AppCatalogConfigMapName(), key.GiantSwarmNamespace())
+		config.Logger.Debugf(ctx, "created configmap %#q in namespace %#q", key.CatalogConfigMapName(), key.GiantSwarmNamespace())
 	}
 
 	{
 		config.Logger.Debugf(ctx, "creating %#q appcatalog cr", key.DefaultCatalogName())
 
-		appCatalogCR := &v1alpha1.AppCatalog{
+		catalogCR := &v1alpha1.Catalog{
 			ObjectMeta: metav1.ObjectMeta{
-				Name: key.DefaultCatalogName(),
+				Name:      key.DefaultCatalogName(),
+				Namespace: key.GiantSwarmNamespace(),
 				Labels: map[string]string{
 					label.AppOperatorVersion: key.UniqueAppVersion(),
 				},
 			},
-			Spec: v1alpha1.AppCatalogSpec{
-				Config: v1alpha1.AppCatalogSpecConfig{
-					ConfigMap: v1alpha1.AppCatalogSpecConfigConfigMap{
-						Name:      key.AppCatalogConfigMapName(),
+			Spec: v1alpha1.CatalogSpec{
+				Config: &v1alpha1.CatalogSpecConfig{
+					ConfigMap: &v1alpha1.CatalogSpecConfigConfigMap{
+						Name:      key.CatalogConfigMapName(),
 						Namespace: key.GiantSwarmNamespace(),
 					},
 				},
 				Description: key.DefaultCatalogName(),
 				Title:       key.DefaultCatalogName(),
-				Storage: v1alpha1.AppCatalogSpecStorage{
+				Storage: v1alpha1.CatalogSpecStorage{
 					Type: "helm",
 					URL:  key.DefaultCatalogStorageURL(),
 				},
 			},
 		}
-		_, err = config.K8sClients.G8sClient().ApplicationV1alpha1().AppCatalogs().Create(ctx, appCatalogCR, metav1.CreateOptions{})
+		_, err = config.K8sClients.G8sClient().ApplicationV1alpha1().Catalogs(key.GiantSwarmNamespace()).Create(ctx, catalogCR, metav1.CreateOptions{})
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
 
-		config.Logger.Debugf(ctx, "created %#q appcatalog cr", key.DefaultCatalogName())
+		config.Logger.Debugf(ctx, "created %#q catalog cr in namespace %#q", key.DefaultCatalogName(), key.GiantSwarmNamespace())
 	}
 
 	{
@@ -183,7 +184,7 @@ func TestWatchingConfigMap(t *testing.T) {
 		config.Logger.Debugf(ctx, "waiting until appcatalog configmap is labelled")
 
 		o := func() error {
-			cm, err := config.K8sClients.K8sClient().CoreV1().ConfigMaps(key.GiantSwarmNamespace()).Get(ctx, key.AppCatalogConfigMapName(), metav1.GetOptions{})
+			cm, err := config.K8sClients.K8sClient().CoreV1().ConfigMaps(key.GiantSwarmNamespace()).Get(ctx, key.CatalogConfigMapName(), metav1.GetOptions{})
 			if err != nil {
 				return microerror.Mask(err)
 			}
@@ -262,9 +263,9 @@ func TestWatchingConfigMap(t *testing.T) {
 	}
 
 	{
-		config.Logger.Debugf(ctx, "editing configmap %#q in namespace %#q", key.AppCatalogConfigMapName(), key.GiantSwarmNamespace())
+		config.Logger.Debugf(ctx, "editing configmap %#q in namespace %#q", key.CatalogConfigMapName(), key.GiantSwarmNamespace())
 
-		cm, err := config.K8sClients.K8sClient().CoreV1().ConfigMaps(key.GiantSwarmNamespace()).Get(ctx, key.AppCatalogConfigMapName(), metav1.GetOptions{})
+		cm, err := config.K8sClients.K8sClient().CoreV1().ConfigMaps(key.GiantSwarmNamespace()).Get(ctx, key.CatalogConfigMapName(), metav1.GetOptions{})
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}

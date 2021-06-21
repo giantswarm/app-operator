@@ -11,6 +11,7 @@ import (
 	"github.com/giantswarm/app/v5/pkg/key"
 	"github.com/giantswarm/k8smetadata/pkg/label"
 	"github.com/giantswarm/microerror"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/watch"
@@ -55,16 +56,16 @@ func (c *AppValueWatcher) addCache(ctx context.Context, cr v1alpha1.App, eventTy
 
 	resources := []resourceIndex{}
 
-	appCatalog, err := c.k8sClient.G8sClient().ApplicationV1alpha1().AppCatalogs().Get(ctx, key.CatalogName(cr), metav1.GetOptions{})
+	catalog, err := c.findCatalog(ctx, cr)
 	if err != nil {
 		return microerror.Mask(err)
 	}
 
-	if key.AppCatalogConfigMapName(*appCatalog) != "" {
+	if key.CatalogConfigMapName(*catalog) != "" {
 		resources = append(resources, resourceIndex{
 			ResourceType: configMapType,
-			Name:         key.AppCatalogConfigMapName(*appCatalog),
-			Namespace:    key.AppCatalogConfigMapNamespace(*appCatalog),
+			Name:         key.CatalogConfigMapName(*catalog),
+			Namespace:    key.CatalogConfigMapNamespace(*catalog),
 		})
 	}
 
@@ -84,11 +85,11 @@ func (c *AppValueWatcher) addCache(ctx context.Context, cr v1alpha1.App, eventTy
 		})
 	}
 
-	if key.AppCatalogSecretName(*appCatalog) != "" {
+	if key.CatalogSecretName(*catalog) != "" {
 		resources = append(resources, resourceIndex{
 			ResourceType: secretType,
-			Name:         key.AppCatalogSecretName(*appCatalog),
-			Namespace:    key.AppCatalogSecretNamespace(*appCatalog),
+			Name:         key.CatalogSecretName(*catalog),
+			Namespace:    key.CatalogSecretNamespace(*catalog),
 		})
 	}
 
@@ -227,6 +228,36 @@ func (c *AppValueWatcher) addLabel(ctx context.Context, resource resourceIndex) 
 	}
 
 	return nil
+}
+
+func (c *AppValueWatcher) findCatalog(ctx context.Context, cr v1alpha1.App) (*v1alpha1.Catalog, error) {
+	var err error
+	var namespaces []string
+	{
+		if cr.Spec.CatalogNamespace != "" {
+			namespaces = []string{cr.Spec.CatalogNamespace}
+		} else {
+			namespaces = []string{metav1.NamespaceDefault, "giantswarm"}
+		}
+	}
+
+	var catalog *v1alpha1.Catalog
+	for _, namespace := range namespaces {
+		catalog, err = c.k8sClient.G8sClient().ApplicationV1alpha1().Catalogs(namespace).Get(ctx, key.CatalogName(cr), metav1.GetOptions{})
+		if apierrors.IsNotFound(err) {
+			// no-op
+			continue
+		} else if err != nil {
+			return nil, microerror.Mask(err)
+		}
+		break
+	}
+
+	if catalog == nil {
+		return nil, microerror.Maskf(notFoundError, "catalog %#q", key.CatalogName(cr))
+	}
+
+	return catalog, nil
 }
 
 func (c *AppValueWatcher) removeLabel(ctx context.Context, resource resourceIndex) error {
