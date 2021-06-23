@@ -27,7 +27,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return nil
 	}
 
-	appCatalogCR := &v1alpha1.AppCatalog{
+	newAppCatalogCR := &v1alpha1.AppCatalog{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:        cr.GetName(),
 			Annotations: cr.GetAnnotations(),
@@ -42,15 +42,34 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			},
 		},
 	}
-	_, err = r.k8sClient.G8sClient().ApplicationV1alpha1().AppCatalogs().Create(ctx, appCatalogCR, metav1.CreateOptions{})
-	if apierrors.IsAlreadyExists(err) {
-		// no-op
+
+	appCatalogCR, err := r.k8sClient.G8sClient().ApplicationV1alpha1().AppCatalogs().Get(ctx, cr.GetName(), metav1.GetOptions{})
+	if apierrors.IsNotFound(err) {
+		r.logger.Debugf(ctx, "creating appCatalog %#q for compatibility", cr.GetName())
+
+		_, err = r.k8sClient.G8sClient().ApplicationV1alpha1().AppCatalogs().Create(ctx, appCatalogCR, metav1.CreateOptions{})
+		if err != nil {
+			return microerror.Mask(err)
+		}
+
+		r.logger.Debugf(ctx, "created appCatalog %#q for compatibility", cr.GetName())
+
 		return nil
 	} else if err != nil {
 		return microerror.Mask(err)
 	}
 
-	r.logger.Debugf(ctx, "created appCatalog %#q for compatibility", cr.GetName())
+	if !equals(appCatalogCR, newAppCatalogCR) {
+		r.logger.Debugf(ctx, "updating appCatalog %#q for compatibility", cr.GetName())
+
+		newAppCatalogCR.ResourceVersion = appCatalogCR.ResourceVersion
+		_, err = r.k8sClient.G8sClient().ApplicationV1alpha1().AppCatalogs().Update(ctx, newAppCatalogCR, metav1.UpdateOptions{})
+		if err != nil {
+			return microerror.Mask(err)
+		}
+
+		r.logger.Debugf(ctx, "updated appCatalog %#q for compatibility", cr.GetName())
+	}
 
 	return nil
 }
