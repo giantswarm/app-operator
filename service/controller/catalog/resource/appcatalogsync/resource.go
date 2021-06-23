@@ -24,7 +24,6 @@ type Resource struct {
 	uniqueApp bool
 }
 
-// New creates a new configured tcnamespace resource.
 func New(config Config) (*Resource, error) {
 	if config.K8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)

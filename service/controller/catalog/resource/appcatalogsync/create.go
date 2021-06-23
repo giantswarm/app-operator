@@ -13,7 +13,7 @@ import (
 // EnsureCreated ensures appcatalog CRs are created for compatibility with catalog CRs
 func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	if !r.uniqueApp {
-		// Return early. Only unique instance manages appcatalogentry CRs.
+		// Return early. Only unique instance manages appcatalog CRs.
 		return nil
 	}
 

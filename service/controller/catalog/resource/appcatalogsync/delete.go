@@ -12,7 +12,7 @@ import (
 // EnsureDeleted ensures appcatalog CRs are deleted when catalog CRs are deleted.
 func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 	if !r.uniqueApp {
-		// Return early. Only unique instance manages appcatalogentry CRs.
+		// Return early. Only unique instance manages appcatalog CRs.
 		return nil
 	}
 
