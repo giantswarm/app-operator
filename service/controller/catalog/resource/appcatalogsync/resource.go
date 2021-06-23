@@ -55,9 +55,6 @@ func equals(a, b *v1alpha1.AppCatalog) bool {
 	if a.Name != b.Name {
 		return false
 	}
-	if a.Namespace != b.Namespace {
-		return false
-	}
 	if !reflect.DeepEqual(a.Annotations, b.Annotations) {
 		return false
 	}
