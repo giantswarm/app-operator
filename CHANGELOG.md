@@ -9,6 +9,7 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ### Changed
 
+- Create `AppCatalog` CRs out of `Catalog` CRs in the cluster namespace for compatibility.
 - Prepare helm values to configuration management.
 - Use `Catalog` CRs in `App` controller.
 - Reconcile to `Catalog` CRs instead of `AppCatalog`.
