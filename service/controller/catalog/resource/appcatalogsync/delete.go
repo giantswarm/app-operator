@@ -26,6 +26,14 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 		return nil
 	}
 
+	_, err = r.k8sClient.G8sClient().ApplicationV1alpha1().AppCatalogs().Get(ctx, cr.GetName(), metav1.GetOptions{})
+	if apierrors.IsNotFound(err) {
+		//no-op
+		return nil
+	}
+
+	r.logger.Debugf(ctx, "deleting appCatalog %#q which had been created for compatibility", cr.GetName())
+
 	err = r.k8sClient.G8sClient().ApplicationV1alpha1().AppCatalogs().Delete(ctx, cr.GetName(), metav1.DeleteOptions{})
 	if apierrors.IsNotFound(err) {
 		// no-op
