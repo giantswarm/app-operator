@@ -9,6 +9,7 @@ import (
 	"github.com/giantswarm/operatorkit/v5/pkg/resource/wrapper/retryresource"
 
 	"github.com/giantswarm/app-operator/v4/service/controller/catalog/resource/appcatalogentry"
+	"github.com/giantswarm/app-operator/v4/service/controller/catalog/resource/appcatalogsync"
 )
 
 type catalogResourcesConfig struct {
@@ -46,8 +47,24 @@ func newCatalogResources(config catalogResourcesConfig) ([]resource.Interface, e
 		}
 	}
 
+	var appCatalogSyncResource resource.Interface
+	{
+		c := appcatalogsync.Config{
+			K8sClient: config.K8sClient,
+			Logger:    config.Logger,
+
+			UniqueApp: config.UniqueApp,
+		}
+
+		appCatalogSyncResource, err = appcatalogsync.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	resources := []resource.Interface{
 		appCatalogEntryResource,
+		appCatalogSyncResource,
 	}
 
 	{
