@@ -76,9 +76,8 @@ func (r *Resource) getCatalogForApp(ctx context.Context, customResource v1alpha1
 	}
 
 	var catalog *v1alpha1.Catalog
-	var namespace string
-	for _, namespace := range namespaces {
-		catalog, err = r.g8sClient.ApplicationV1alpha1().Catalogs(namespace).Get(ctx, catalogName, metav1.GetOptions{})
+	for _, ns := range namespaces {
+		catalog, err = r.g8sClient.ApplicationV1alpha1().Catalogs(ns).Get(ctx, catalogName, metav1.GetOptions{})
 		if apierrors.IsNotFound(err) {
 			// no-op
 			continue
@@ -92,7 +91,7 @@ func (r *Resource) getCatalogForApp(ctx context.Context, customResource v1alpha1
 		return microerror.Maskf(notFoundError, "catalog %#q", catalogName)
 	}
 
-	r.logger.Debugf(ctx, "found catalog %#q in namespace %#q", catalogName, namespace)
+	r.logger.Debugf(ctx, "found catalog %#q in namespace %#q", catalogName, catalog.GetNamespace())
 	cc.Catalog = *catalog
 
 	return nil
