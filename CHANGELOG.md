@@ -7,6 +7,9 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Fixed
+- Quote namespace in helm templates to handle numeric workload cluster IDs.
+
 ## [4.4.0] - 2021-05-03
 
 ### Added
