@@ -20,6 +20,7 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 - For the chart CR watcher get the kubeconfig secret from the chart-operator app
 CR to avoid hardcoding it.
+- Quote namespace in helm templates to handle numeric workload cluster IDs.
 
 ## [4.4.0] - 2021-05-03
 
