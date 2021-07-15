@@ -24,7 +24,7 @@ room for such suffix.
 {{- end -}}
 
 {{- define "resource.default.namespace" -}}
-{{-  .Release.Namespace }}
+{{-  .Release.Namespace | quote }}
 {{- end -}}
 
 {{/*
