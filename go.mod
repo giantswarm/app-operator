@@ -1,4 +1,4 @@
-module github.com/giantswarm/app-operator/v4
+module github.com/giantswarm/app-operator/v5
 
 go 1.16
 
@@ -49,6 +49,7 @@ replace (
 	// Use mergo 0.3.11 due to bug in 0.3.9 merging Go structs.
 	github.com/imdario/mergo => github.com/imdario/mergo v0.3.11
 	github.com/opencontainers/runc v0.1.1 => github.com/opencontainers/runc v1.0.0-rc7
+	github.com/ulikunitz/xz => github.com/ulikunitz/xz v0.5.10
 	// Same as go-logr/logr, klog/v2 is using logr v0.2.0
 	k8s.io/klog/v2 v2.2.0 => k8s.io/klog/v2 v2.0.0
 	// Use fork of CAPI with Kubernetes 1.18 support.

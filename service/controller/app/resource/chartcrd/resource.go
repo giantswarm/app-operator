@@ -4,7 +4,7 @@ import (
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 
-	"github.com/giantswarm/app-operator/v4/service/internal/crdcache"
+	"github.com/giantswarm/app-operator/v5/service/internal/crdcache"
 )
 
 const (

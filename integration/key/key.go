@@ -5,7 +5,7 @@ package key
 import (
 	"fmt"
 
-	"github.com/giantswarm/app-operator/v4/pkg/project"
+	"github.com/giantswarm/app-operator/v5/pkg/project"
 )
 
 func CatalogConfigMapName() string {
