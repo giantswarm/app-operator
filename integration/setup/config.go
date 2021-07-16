@@ -12,8 +12,8 @@ import (
 	"github.com/giantswarm/micrologger"
 	"github.com/spf13/afero"
 
-	"github.com/giantswarm/app-operator/v4/integration/env"
-	"github.com/giantswarm/app-operator/v4/integration/release"
+	"github.com/giantswarm/app-operator/v5/integration/env"
+	"github.com/giantswarm/app-operator/v5/integration/release"
 )
 
 type Config struct {

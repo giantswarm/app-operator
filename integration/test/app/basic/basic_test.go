@@ -16,8 +16,8 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/yaml"
 
-	"github.com/giantswarm/app-operator/v4/integration/key"
-	"github.com/giantswarm/app-operator/v4/integration/templates"
+	"github.com/giantswarm/app-operator/v5/integration/key"
+	"github.com/giantswarm/app-operator/v5/integration/templates"
 )
 
 // TestAppLifecycle tests a chart CR can be created, updated and deleted

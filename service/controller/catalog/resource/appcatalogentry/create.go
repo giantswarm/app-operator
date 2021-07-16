@@ -18,8 +18,8 @@ import (
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	pkglabel "github.com/giantswarm/app-operator/v4/pkg/label"
-	"github.com/giantswarm/app-operator/v4/pkg/project"
+	pkglabel "github.com/giantswarm/app-operator/v5/pkg/label"
+	"github.com/giantswarm/app-operator/v5/pkg/project"
 )
 
 // EnsureCreated ensures appcatalogentry CRs are created or updated for this

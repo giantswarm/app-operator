@@ -6,7 +6,7 @@ import (
 	"github.com/giantswarm/app/v5/pkg/key"
 	"github.com/giantswarm/microerror"
 
-	"github.com/giantswarm/app-operator/v4/service/controller/app/controllercontext"
+	"github.com/giantswarm/app-operator/v5/service/controller/app/controllercontext"
 )
 
 func (r Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
