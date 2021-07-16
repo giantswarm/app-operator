@@ -7,6 +7,8 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+## [5.0.0] - 2021-07-16
+
 ### Changed
 
 - Create `AppCatalog` CRs from `Catalog` CRs for compatibility with existing app-operator releases.
@@ -371,7 +373,8 @@ from Helm 2 to Helm 3.
 
 - Flattening operator release structure.
 
-[Unreleased]: https://github.com/giantswarm/app-operator/compare/v4.4.0...HEAD
+[Unreleased]: https://github.com/giantswarm/app-operator/compare/v5.0.0...HEAD
+[5.0.0]: https://github.com/giantswarm/app-operator/compare/v4.4.0...v5.0.0
 [4.4.0]: https://github.com/giantswarm/app-operator/compare/v4.3.2...v4.4.0
 [4.3.2]: https://github.com/giantswarm/app-operator/compare/v4.3.1...v4.3.2
 [4.3.1]: https://github.com/giantswarm/app-operator/compare/v4.3.0...v4.3.1
