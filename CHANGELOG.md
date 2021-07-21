@@ -7,7 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+## [4.4.1] - 2021-07-21
+
 ### Fixed
+
 - Quote namespace in helm templates to handle numeric workload cluster IDs.
 
 ## [4.4.0] - 2021-05-03
@@ -359,7 +362,8 @@ from Helm 2 to Helm 3.
 
 - Flattening operator release structure.
 
-[Unreleased]: https://github.com/giantswarm/app-operator/compare/v4.4.0...HEAD
+[Unreleased]: https://github.com/giantswarm/app-operator/compare/v4.4.1...HEAD
+[4.4.1]: https://github.com/giantswarm/app-operator/compare/v4.4.0...v4.4.1
 [4.4.0]: https://github.com/giantswarm/app-operator/compare/v4.3.2...v4.4.0
 [4.3.2]: https://github.com/giantswarm/app-operator/compare/v4.3.1...v4.3.2
 [4.3.1]: https://github.com/giantswarm/app-operator/compare/v4.3.0...v4.3.1
