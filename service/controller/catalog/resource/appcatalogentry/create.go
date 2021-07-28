@@ -233,8 +233,10 @@ func (r *Resource) getDesiredAppCatalogEntryCR(ctx context.Context, cr *v1alpha1
 				Namespace: cr.Namespace,
 			},
 			Chart: v1alpha1.AppCatalogEntrySpecChart{
-				Home: e.Home,
-				Icon: e.Icon,
+				Description: e.Description,
+				Home:        e.Home,
+				Icon:        e.Icon,
+				Keywords:    e.Keywords,
 			},
 			Version: e.Version,
 		},
