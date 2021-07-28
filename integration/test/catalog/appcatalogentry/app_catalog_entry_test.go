@@ -123,11 +123,11 @@ func TestAppCatalogEntry(t *testing.T) {
 				Namespace: metav1.NamespaceDefault,
 			},
 			Chart: v1alpha1.AppCatalogEntrySpecChart{
-				APIVersion: "v2",
+				APIVersion:  "v2",
 				Description: latestEntry.Description,
-				Home:       latestEntry.Home,
-				Icon:       latestEntry.Icon,
-				Keywords: latestEntry.
+				Home:        latestEntry.Home,
+				Icon:        latestEntry.Icon,
+				Keywords:    latestEntry.Keywords,
 			},
 			DateCreated: nil,
 			DateUpdated: nil,
