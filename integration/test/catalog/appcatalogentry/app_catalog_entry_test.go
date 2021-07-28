@@ -124,8 +124,10 @@ func TestAppCatalogEntry(t *testing.T) {
 			},
 			Chart: v1alpha1.AppCatalogEntrySpecChart{
 				APIVersion: "v2",
+				Description: latestEntry.Description,
 				Home:       latestEntry.Home,
 				Icon:       latestEntry.Icon,
+				Keywords: latestEntry.
 			},
 			DateCreated: nil,
 			DateUpdated: nil,
