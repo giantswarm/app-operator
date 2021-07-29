@@ -205,7 +205,7 @@ func (r *Resource) getDesiredAppCatalogEntryCR(ctx context.Context, cr *v1alpha1
 		},
 		ObjectMeta: metav1.ObjectMeta{
 			Name:        name,
-			Namespace:   metav1.NamespaceDefault,
+			Namespace:   cr.GetNamespace(),
 			Annotations: e.Annotations,
 			Labels: map[string]string{
 				label.AppKubernetesName:    e.Name,
