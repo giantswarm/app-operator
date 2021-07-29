@@ -205,7 +205,7 @@ func (r *Resource) getDesiredAppCatalogEntryCR(ctx context.Context, cr *v1alpha1
 		},
 		ObjectMeta: metav1.ObjectMeta{
 			Name:        name,
-			Namespace:   metav1.NamespaceDefault,
+			Namespace:   cr.GetNamespace(),
 			Annotations: e.Annotations,
 			Labels: map[string]string{
 				label.AppKubernetesName:    e.Name,
@@ -233,8 +233,10 @@ func (r *Resource) getDesiredAppCatalogEntryCR(ctx context.Context, cr *v1alpha1
 				Namespace: cr.Namespace,
 			},
 			Chart: v1alpha1.AppCatalogEntrySpecChart{
-				Home: e.Home,
-				Icon: e.Icon,
+				Description: e.Description,
+				Home:        e.Home,
+				Icon:        e.Icon,
+				Keywords:    e.Keywords,
 			},
 			Version: e.Version,
 		},
@@ -243,6 +245,7 @@ func (r *Resource) getDesiredAppCatalogEntryCR(ctx context.Context, cr *v1alpha1
 	if m != nil {
 		entryCR.Annotations = m.Annotations
 		entryCR.Spec.Chart.APIVersion = m.ChartAPIVersion
+		entryCR.Spec.Chart.UpstreamChartVersion = m.UpstreamChartVersion
 		entryCR.Spec.Restrictions = m.Restrictions
 		entryCR.Spec.DateCreated = m.DataCreated
 		entryCR.Spec.DateUpdated = m.DataCreated
