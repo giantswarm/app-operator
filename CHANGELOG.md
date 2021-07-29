@@ -7,6 +7,11 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Changed
+
+- Create `AppCatalogEntry` CRs into the same namespace of Catalog CR.
+- Include `chart.keywords`, `chart.description` and `chart.upstreamChartVersion` in `AppCatalogEntry` CRs.
+
 ## [5.0.0] - 2021-07-16
 
 ### Changed
