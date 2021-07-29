@@ -245,6 +245,7 @@ func (r *Resource) getDesiredAppCatalogEntryCR(ctx context.Context, cr *v1alpha1
 	if m != nil {
 		entryCR.Annotations = m.Annotations
 		entryCR.Spec.Chart.APIVersion = m.ChartAPIVersion
+		entryCR.Spec.Chart.UpstreamChartVersion = m.UpstreamChartVersion
 		entryCR.Spec.Restrictions = m.Restrictions
 		entryCR.Spec.DateCreated = m.DataCreated
 		entryCR.Spec.DateUpdated = m.DataCreated
