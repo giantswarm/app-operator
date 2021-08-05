@@ -49,9 +49,12 @@ rules:
   resources:
     - appcatalogs
   verbs:
+    - create
+    - delete
     - get
     - list
     - patch
+    - update
     - watch
 - apiGroups:
     - application.giantswarm.io

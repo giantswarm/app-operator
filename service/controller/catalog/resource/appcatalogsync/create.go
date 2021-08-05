@@ -47,7 +47,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	if apierrors.IsNotFound(err) {
 		r.logger.Debugf(ctx, "creating appCatalog %#q for compatibility", cr.GetName())
 
-		_, err = r.k8sClient.G8sClient().ApplicationV1alpha1().AppCatalogs().Create(ctx, appCatalogCR, metav1.CreateOptions{})
+		_, err = r.k8sClient.G8sClient().ApplicationV1alpha1().AppCatalogs().Create(ctx, newAppCatalogCR, metav1.CreateOptions{})
 		if err != nil {
 			return microerror.Mask(err)
 		}
