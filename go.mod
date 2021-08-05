@@ -11,8 +11,8 @@ require (
 	github.com/giantswarm/apptest v0.11.0
 	github.com/giantswarm/backoff v0.2.0
 	github.com/giantswarm/errors v0.3.0
-	github.com/giantswarm/helmclient/v4 v4.6.0
-	github.com/giantswarm/k8sclient/v5 v5.11.0
+	github.com/giantswarm/helmclient/v4 v4.7.0
+	github.com/giantswarm/k8sclient/v5 v5.12.0
 	github.com/giantswarm/k8smetadata v0.3.0
 	github.com/giantswarm/kubeconfig/v4 v4.1.0
 	github.com/giantswarm/microendpoint v0.2.0
@@ -27,10 +27,10 @@ require (
 	github.com/prometheus/client_golang v1.11.0
 	github.com/spf13/afero v1.6.0
 	github.com/spf13/viper v1.8.1
-	k8s.io/api v0.20.4
-	k8s.io/apiextensions-apiserver v0.20.4
-	k8s.io/apimachinery v0.20.4
-	k8s.io/client-go v0.20.4
+	k8s.io/api v0.21.0
+	k8s.io/apiextensions-apiserver v0.21.0
+	k8s.io/apimachinery v0.21.0
+	k8s.io/client-go v0.21.0
 	sigs.k8s.io/controller-runtime v0.6.5
 	sigs.k8s.io/yaml v1.2.0
 )
