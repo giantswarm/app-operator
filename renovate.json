@@ -16,7 +16,7 @@
       "groupName": "etc modules"
     },
     {
-      "matchPackageNames": ["^k8s.io"],
+      "matchPackagePatterns": ["^k8s.io"],
       "allowedVersions": "< 1.21.0"
     },
     {
