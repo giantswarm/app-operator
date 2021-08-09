@@ -9,12 +9,19 @@
     },
     {
       "matchPackagePatterns": ["^k8s.io", "^sigs.k8s.io"],
-      "groupName": "k8s modules",
-      "allowedVersions": "<= 1.20.0"
+      "groupName": "k8s modules"
     },
     {
       "excludePackagePatterns": [".*giantswarm.*" ,"^k8s.io", "^sigs.k8s.io"],
       "groupName": "etc modules"
+    },
+    {
+      "matchPackageNames": ["^k8s.io"],
+      "allowedVersions": "< 1.21.0"
+    },
+    {
+      "matchPackageNames": ["sigs.k8s.io/controller-runtime"],
+      "allowedVersions": "< 0.7.0"
     }
   ],
   "postUpdateOptions": ["gomodTidy", "gomodUpdateImportPaths"],
