@@ -1,6 +1,7 @@
 {
   "extends": [
-    "config:base"
+    "config:base",
+    ":reviewer(team:giantswarm/team-batman-engineers)"
   ],
   "packageRules": [
     {
@@ -17,7 +18,7 @@
     },
     {
       "matchPackagePatterns": ["^k8s.io"],
-      "allowedVersions": "< 1.21.0"
+      "allowedVersions": "< 0.21.0"
     },
     {
       "matchPackageNames": ["sigs.k8s.io/controller-runtime"],
@@ -25,6 +26,6 @@
     }
   ],
   "postUpdateOptions": ["gomodTidy", "gomodUpdateImportPaths"],
-  "schedule": ["after 9am on thursday"]
+  "ignoreDeps": ["zricethezav/gitleaks-action"],
+  "schedule": [ "after 9am on thursday" ]
 }
-
