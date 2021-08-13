@@ -68,7 +68,7 @@ func (r *Resource) getCatalogForApp(ctx context.Context, customResource v1alpha1
 
 	var namespaces []string
 	{
-		if customResource.Spec.CatalogNamespace != "" {
+		if key.CatalogNamespace(customResource) != "" {
 			namespaces = []string{customResource.Spec.CatalogNamespace}
 		} else {
 			namespaces = []string{metav1.NamespaceDefault, "giantswarm"}
