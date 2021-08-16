@@ -9,8 +9,8 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ### Changed
 
-- Reject App CRs with version label with the legacy `1.0.0` value.
-- Validate Catalog CRs instead of AppCatalog CRs.
+- Reject App CRs with version labels with the legacy `1.0.0` value.
+- Validate `.spec.catalog` using Catalog CRs instead of AppCatalog CRs.
 
 ## [5.1.1] - 2021-08-05
 
