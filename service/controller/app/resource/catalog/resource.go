@@ -87,7 +87,7 @@ func (r *Resource) getCatalogForApp(ctx context.Context, customResource v1alpha1
 		break
 	}
 
-	if catalog == nil {
+	if catalog == nil || catalog.Name == "" {
 		return microerror.Maskf(notFoundError, "catalog %#q", catalogName)
 	}
 
