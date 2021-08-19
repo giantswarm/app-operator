@@ -68,7 +68,7 @@ func (r *Resource) getCatalogForApp(ctx context.Context, customResource v1alpha1
 
 	var namespaces []string
 	{
-		if customResource.Spec.CatalogNamespace != "" {
+		if key.CatalogNamespace(customResource) != "" {
 			namespaces = []string{customResource.Spec.CatalogNamespace}
 		} else {
 			namespaces = []string{metav1.NamespaceDefault, "giantswarm"}
@@ -87,7 +87,7 @@ func (r *Resource) getCatalogForApp(ctx context.Context, customResource v1alpha1
 		break
 	}
 
-	if catalog == nil {
+	if catalog == nil || catalog.Name == "" {
 		return microerror.Maskf(notFoundError, "catalog %#q", catalogName)
 	}
 
