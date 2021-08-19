@@ -7,6 +7,8 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+## [5.2.0] - 2021-08-19
+
 ### Changed
 
 - Reject App CRs with version labels with the legacy `1.0.0` value.
@@ -391,7 +393,8 @@ from Helm 2 to Helm 3.
 
 - Flattening operator release structure.
 
-[Unreleased]: https://github.com/giantswarm/app-operator/compare/v5.1.1...HEAD
+[Unreleased]: https://github.com/giantswarm/app-operator/compare/v5.2.0...HEAD
+[5.2.0]: https://github.com/giantswarm/app-operator/compare/v5.1.1...v5.2.0
 [5.1.1]: https://github.com/giantswarm/app-operator/compare/v5.1.0...v5.1.1
 [5.1.0]: https://github.com/giantswarm/app-operator/compare/v5.0.0...v5.1.0
 [5.0.0]: https://github.com/giantswarm/app-operator/compare/v4.4.0...v5.0.0
