@@ -13,6 +13,7 @@ import (
 	"github.com/giantswarm/micrologger"
 	"github.com/google/go-cmp/cmp"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/watch"
 )
 
@@ -90,10 +91,11 @@ func (c *ChartStatusWatcher) Boot(ctx context.Context) {
 // delay of up to 5 minutes until the next resync period.
 func (c *ChartStatusWatcher) watchChartStatus(ctx context.Context) {
 	for {
-		// We need a g8s client to connect to the cluster. For remote clusters
-		// we use the kubeconfig secret but there can be a delay while its
-		// created during cluster creation so we wait till it exists.
-		g8sClient, err := c.waitForG8sClient(ctx)
+		// We need a controller runtime client to connect to the cluster.
+		// For remote clusters we use the kubeconfig secret but there can
+		// be a delay while its created during cluster creation so we wait
+		// till it exists.
+		ctrlClient, err := c.waitForCtrlClient(ctx)
 		if err != nil {
 			c.logger.Errorf(ctx, err, "failed to get g8sclient")
 			continue
@@ -101,7 +103,7 @@ func (c *ChartStatusWatcher) watchChartStatus(ctx context.Context) {
 
 		// The connection to the cluster will sometimes be down. So we
 		// check we can connect and wait with a backoff if it is unavailable.
-		err = c.waitForAvailableConnection(ctx, g8sClient)
+		err = c.waitForAvailableConnection(ctx, ctrlClient)
 		if err != nil {
 			c.logger.Errorf(ctx, err, "failed to get available connection")
 			continue
@@ -141,14 +143,18 @@ func (c *ChartStatusWatcher) watchChartStatus(ctx context.Context) {
 				continue
 			}
 
-			app, err := c.k8sClient.G8sClient().ApplicationV1alpha1().Apps(appNamespace).Get(ctx, chart.Name, metav1.GetOptions{})
+			app := v1alpha1.App{}
+			err = c.k8sClient.CtrlClient().Get(
+				ctx,
+				types.NamespacedName{Name: chart.Name, Namespace: appNamespace},
+				&app)
 			if err != nil {
 				c.logger.Errorf(ctx, err, "failed to get app %#q in namespace %#q", app.Namespace, app.Name)
 				continue
 			}
 
 			desiredStatus := toAppStatus(chart)
-			currentStatus := key.AppStatus(*app)
+			currentStatus := key.AppStatus(app)
 
 			if !equals(currentStatus, desiredStatus) {
 				if diff := cmp.Diff(currentStatus, desiredStatus); diff != "" {
@@ -156,8 +162,7 @@ func (c *ChartStatusWatcher) watchChartStatus(ctx context.Context) {
 				}
 
 				app.Status = desiredStatus
-
-				_, err = c.k8sClient.G8sClient().ApplicationV1alpha1().Apps(app.Namespace).UpdateStatus(ctx, app, metav1.UpdateOptions{})
+				err = c.k8sClient.CtrlClient().Status().Update(ctx, &app)
 				if err != nil {
 					c.logger.Errorf(ctx, err, "failed to update status for app %#q in namespace %#q", app.Name, app.Namespace)
 					continue

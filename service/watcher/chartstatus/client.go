@@ -2,27 +2,32 @@ package chartstatus
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
-	"github.com/giantswarm/apiextensions/v3/pkg/clientset/versioned"
+	applicationv1alpha1 "github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/app/v5/pkg/key"
 	"github.com/giantswarm/backoff"
 	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/microerror"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/rest"
+	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/client/apiutil"
 )
 
-// waitForG8sClient returns a versioned clientset for watching chart CRs.
+// waitForCtrlClient returns a controller runtime client for watching chart CRs.
 // If the target cluster is remote we get this from its kubeconfig secret.
 // We use a backoff because there can be a delay while the secret is created.
-func (c *ChartStatusWatcher) waitForG8sClient(ctx context.Context) (versioned.Interface, error) {
+func (c *ChartStatusWatcher) waitForCtrlClient(ctx context.Context) (client.Client, error) {
 	var err error
 
 	if c.uniqueApp {
-		return c.k8sClient.G8sClient(), nil
+		return c.k8sClient.CtrlClient(), nil
 	}
 
 	var chartOperatorAppCR *v1alpha1.App
@@ -43,29 +48,50 @@ func (c *ChartStatusWatcher) waitForG8sClient(ctx context.Context) (versioned.In
 		}
 	}
 
-	var g8sClient versioned.Interface
+	var ctrlClient client.Client
 	{
-		c := rest.CopyConfig(restConfig)
+		// Extend the global client-go scheme which is used by all the tools under
+		// the hood. The scheme is required for the controller-runtime controller to
+		// be able to watch for runtime objects of a certain type.
+		appSchemeBuilder := runtime.SchemeBuilder(schemeBuilder{
+			applicationv1alpha1.AddToScheme,
+		})
+		err = appSchemeBuilder.AddToScheme(scheme.Scheme)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
 
-		g8sClient, err = versioned.NewForConfig(c)
+		mapper, err := apiutil.NewDynamicRESTMapper(rest.CopyConfig(restConfig))
+		if errors.Is(err, context.DeadlineExceeded) {
+			return nil, microerror.Mask(timeoutError)
+		} else if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		ctrlClient, err = client.New(rest.CopyConfig(restConfig), client.Options{Scheme: scheme.Scheme, Mapper: mapper})
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
 	}
 
-	return g8sClient, nil
+	return ctrlClient, nil
 }
 
 // waitForAvailableConnection ensures we can connect to the target cluster if it
 // is remote. Sometimes the connection will be unavailable so we list all chart
 // CRs to confirm the connection is active.
-func (c *ChartStatusWatcher) waitForAvailableConnection(ctx context.Context, g8sClient versioned.Interface) error {
+func (c *ChartStatusWatcher) waitForAvailableConnection(ctx context.Context, ctrlClient client.Client) error {
 	var err error
 
 	o := func() error {
 		// List all chart CRs in the target cluster to confirm the connection
 		// is active and the chart CRD is installed.
-		_, err = g8sClient.ApplicationV1alpha1().Charts(c.chartNamespace).List(ctx, metav1.ListOptions{})
+		chartList := &applicationv1alpha1.ChartList{}
+		err := ctrlClient.List(
+			ctx,
+			chartList,
+			client.InNamespace(c.chartNamespace),
+		)
 		if err != nil {
 			return microerror.Mask(err)
 		}
@@ -94,11 +120,14 @@ func (c *ChartStatusWatcher) waitForAvailableConnection(ctx context.Context, g8s
 // waitForChartOperator waits until the app CR is created. We use this app
 // CR to get the kubeconfig secret we use to access the remote cluster
 func (c *ChartStatusWatcher) waitForChartOperator(ctx context.Context) (*v1alpha1.App, error) {
-	var chartOperatorAppCR *v1alpha1.App
+	var chartOperatorAppCR v1alpha1.App
 	var err error
 
 	o := func() error {
-		chartOperatorAppCR, err = c.k8sClient.G8sClient().ApplicationV1alpha1().Apps(c.appNamespace).Get(ctx, chartOperatorAppName, metav1.GetOptions{})
+		err = c.k8sClient.CtrlClient().Get(
+			ctx,
+			types.NamespacedName{Name: chartOperatorAppName, Namespace: c.appNamespace},
+			&chartOperatorAppCR)
 		if err != nil {
 			return microerror.Mask(err)
 		}
@@ -119,5 +148,8 @@ func (c *ChartStatusWatcher) waitForChartOperator(ctx context.Context) (*v1alpha
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
-	return chartOperatorAppCR, nil
+	return &chartOperatorAppCR, nil
 }
+
+// schemeBuilder is used to extend the known types of the client-go scheme.
+type schemeBuilder []func(*runtime.Scheme) error
