@@ -227,6 +227,6 @@ func (s *Service) Boot(ctx context.Context) {
 
 		// Start the watchers.
 		go s.appValueWatcher.Boot(ctx)
-		go s.chartStatusWatcher.Boot(ctx)
+		// go s.chartStatusWatcher.Boot(ctx)
 	})
 }
