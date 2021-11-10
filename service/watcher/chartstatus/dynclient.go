@@ -5,24 +5,24 @@ import (
 	"time"
 
 	"github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
-	"github.com/giantswarm/apiextensions/v3/pkg/clientset/versioned"
 	"github.com/giantswarm/app/v5/pkg/key"
 	"github.com/giantswarm/backoff"
 	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/microerror"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/rest"
 )
 
-// waitForG8sClient returns a versioned clientset for watching chart CRs.
+// waitForDynClient returns a dynamic clientset for watching chart CRs.
 // If the target cluster is remote we get this from its kubeconfig secret.
 // We use a backoff because there can be a delay while the secret is created.
-func (c *ChartStatusWatcher) waitForG8sClient(ctx context.Context) (versioned.Interface, error) {
+func (c *ChartStatusWatcher) waitForDynClient(ctx context.Context) (dynamic.Interface, error) {
 	var err error
 
 	if c.uniqueApp {
-		return c.k8sClient.G8sClient(), nil
+		return c.k8sClient.DynClient(), nil
 	}
 
 	var chartOperatorAppCR *v1alpha1.App
@@ -43,29 +43,29 @@ func (c *ChartStatusWatcher) waitForG8sClient(ctx context.Context) (versioned.In
 		}
 	}
 
-	var g8sClient versioned.Interface
+	var dynClient dynamic.Interface
 	{
 		c := rest.CopyConfig(restConfig)
 
-		g8sClient, err = versioned.NewForConfig(c)
+		dynClient, err = dynamic.NewForConfig(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
 	}
 
-	return g8sClient, nil
+	return dynClient, nil
 }
 
 // waitForAvailableConnection ensures we can connect to the target cluster if it
 // is remote. Sometimes the connection will be unavailable so we list all chart
 // CRs to confirm the connection is active.
-func (c *ChartStatusWatcher) waitForAvailableConnection(ctx context.Context, g8sClient versioned.Interface) error {
+func (c *ChartStatusWatcher) waitForAvailableConnection(ctx context.Context, dynClient dynamic.Interface) error {
 	var err error
 
 	o := func() error {
 		// List all chart CRs in the target cluster to confirm the connection
 		// is active and the chart CRD is installed.
-		_, err = g8sClient.ApplicationV1alpha1().Charts(c.chartNamespace).List(ctx, metav1.ListOptions{})
+		_, err = dynClient.Resource(chartResource).Namespace(c.chartNamespace).List(ctx, metav1.ListOptions{})
 		if err != nil {
 			return microerror.Mask(err)
 		}
