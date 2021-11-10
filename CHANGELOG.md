@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Changed
+
+- Use dynamic client instead of generated client for watching chart CRs.
+
 ## [5.2.0] - 2021-08-19
 
 ### Changed

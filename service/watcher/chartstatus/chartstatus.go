@@ -13,10 +13,15 @@ import (
 	"github.com/giantswarm/micrologger"
 	"github.com/google/go-cmp/cmp"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/watch"
 )
 
 const chartOperatorAppName = "chart-operator"
+
+var chartResource = schema.GroupVersionResource{Group: "application.giantswarm.io", Version: "v1alpha1", Resource: "charts"}
 
 type ChartStatusWatcherConfig struct {
 	K8sClient k8sclient.Interface
@@ -90,10 +95,10 @@ func (c *ChartStatusWatcher) Boot(ctx context.Context) {
 // delay of up to 5 minutes until the next resync period.
 func (c *ChartStatusWatcher) watchChartStatus(ctx context.Context) {
 	for {
-		// We need a g8s client to connect to the cluster. For remote clusters
+		// We need a dynamic client to connect to the cluster. For remote clusters
 		// we use the kubeconfig secret but there can be a delay while its
 		// created during cluster creation so we wait till it exists.
-		g8sClient, err := c.waitForG8sClient(ctx)
+		dynClient, err := c.waitForDynClient(ctx)
 		if err != nil {
 			c.logger.Errorf(ctx, err, "failed to get g8sclient")
 			continue
@@ -101,14 +106,14 @@ func (c *ChartStatusWatcher) watchChartStatus(ctx context.Context) {
 
 		// The connection to the cluster will sometimes be down. So we
 		// check we can connect and wait with a backoff if it is unavailable.
-		err = c.waitForAvailableConnection(ctx, g8sClient)
+		err = c.waitForAvailableConnection(ctx, dynClient)
 		if err != nil {
 			c.logger.Errorf(ctx, err, "failed to get available connection")
 			continue
 		}
 
 		// We watch all chart CRs to check for status changes.
-		res, err := g8sClient.ApplicationV1alpha1().Charts(c.chartNamespace).Watch(ctx, metav1.ListOptions{})
+		res, err := dynClient.Resource(chartResource).Namespace(c.chartNamespace).Watch(ctx, metav1.ListOptions{})
 		if err != nil {
 			c.logger.Errorf(ctx, err, "failed to watch charts in %#q namespace", c.chartNamespace)
 			continue
@@ -127,9 +132,16 @@ func (c *ChartStatusWatcher) watchChartStatus(ctx context.Context) {
 				continue
 			}
 
-			chart, err := key.ToChart(r.Object)
+			unstructuredObj, err := runtime.DefaultUnstructuredConverter.ToUnstructured(r.Object)
 			if err != nil {
-				c.logger.Errorf(ctx, err, "failed to convert %#q to chart", r.Object)
+				c.logger.Errorf(ctx, err, "failed to convert %#v to unstructured object", r.Object)
+				continue
+			}
+
+			chart := &v1alpha1.Chart{}
+			err = runtime.DefaultUnstructuredConverter.FromUnstructured(unstructuredObj, chart)
+			if err != nil {
+				c.logger.Errorf(ctx, err, "failed to convert unstructured object %#v to chart", unstructuredObj)
 				continue
 			}
 
@@ -141,29 +153,31 @@ func (c *ChartStatusWatcher) watchChartStatus(ctx context.Context) {
 				continue
 			}
 
-			app, err := c.k8sClient.G8sClient().ApplicationV1alpha1().Apps(appNamespace).Get(ctx, chart.Name, metav1.GetOptions{})
+			app := v1alpha1.App{}
+			err = c.k8sClient.CtrlClient().Get(ctx,
+				types.NamespacedName{Name: chart.Name, Namespace: appNamespace},
+				&app)
 			if err != nil {
-				c.logger.Errorf(ctx, err, "failed to get app %#q in namespace %#q", app.Namespace, app.Name)
+				c.logger.Errorf(ctx, err, "failed to get app '%s/%s'", app.Namespace, app.Name)
 				continue
 			}
 
-			desiredStatus := toAppStatus(chart)
-			currentStatus := key.AppStatus(*app)
+			desiredStatus := toAppStatus(*chart)
+			currentStatus := key.AppStatus(app)
 
 			if !equals(currentStatus, desiredStatus) {
 				if diff := cmp.Diff(currentStatus, desiredStatus); diff != "" {
-					c.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("status for app %#q in %#q namespace has to be updated", app.Name, app.Namespace), "diff", fmt.Sprintf("(-current +desired):\n%s", diff))
+					c.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("status for app '%s/%s' has to be updated", app.Namespace, app.Name), "diff", fmt.Sprintf("(-current +desired):\n%s", diff))
 				}
 
 				app.Status = desiredStatus
-
-				_, err = c.k8sClient.G8sClient().ApplicationV1alpha1().Apps(app.Namespace).UpdateStatus(ctx, app, metav1.UpdateOptions{})
+				err = c.k8sClient.CtrlClient().Status().Update(ctx, &app)
 				if err != nil {
-					c.logger.Errorf(ctx, err, "failed to update status for app %#q in namespace %#q", app.Name, app.Namespace)
+					c.logger.Errorf(ctx, err, "failed to update status for app '%s/%s'", app.Namespace, app.Name)
 					continue
 				}
 
-				c.logger.Debugf(ctx, "status set for app %#q in namespace %#q", app.Name, app.Namespace)
+				c.logger.Debugf(ctx, "status set for app '%s/%s'", app.Namespace, app.Name)
 			}
 		}
 
