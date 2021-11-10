@@ -10,6 +10,7 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 ### Changed
 
 - Use dynamic client instead of generated client for watching chart CRs.
+- Validate `.spec.kubeConfig.secret.name` in validation resource.
 
 ## [5.2.0] - 2021-08-19
 

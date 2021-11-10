@@ -310,8 +310,8 @@ github.com/giantswarm/apiextensions/v3 v3.32.0/go.mod h1:PcU7LAi0E8lOXoPp2wD7AY/
 github.com/giantswarm/apiextensions/v3 v3.35.0 h1:qD6snPvoj/8ri/fP+6NDi5SckKBobL/2LemBAt8wMV4=
 github.com/giantswarm/apiextensions/v3 v3.35.0/go.mod h1:uV8pzwVdUlzvrC9WZGb6z0koSNSampo3nLFSDW3mukA=
 github.com/giantswarm/app/v5 v5.2.2/go.mod h1:2JiVuuz/uQ+L33nxmyAv+PJanq8oeEGuVA6mA0396Fk=
-github.com/giantswarm/app/v5 v5.3.0 h1:bzTAa0Rk7lBkK0QNib9FdnueoTFnZib+FWPp+IFojkg=
-github.com/giantswarm/app/v5 v5.3.0/go.mod h1:c3yCsjG/ltKJ0wPc3g5iwQc6dRre1zkpJDlUbAg8DtM=
+github.com/giantswarm/app/v5 v5.4.0 h1:H2wY3SMMKp2ivrt5FtOzd8nQiA2Jq7YwJWfdmvQybUk=
+github.com/giantswarm/app/v5 v5.4.0/go.mod h1:xnbfQm/H5zlY813NGMyzj3h4/TlAvpDyJYioYd2b1PI=
 github.com/giantswarm/appcatalog v0.6.0 h1:lJMmiPK2pyWQtOaLlBwq0Ut1XrMhcnGeA+3j4OMHyfU=
 github.com/giantswarm/appcatalog v0.6.0/go.mod h1:MaglaykZAeFukjpD/jVHrm/zZFwa9uusuN6BgT4NXpY=
 github.com/giantswarm/apptest v0.12.0 h1:iKqUuhUamy9SaONo18/9J+dcuxg3qr3Y/UfXeVv3uMk=
@@ -520,8 +520,7 @@ github.com/google/go-cmp v0.5.6/go.mod h1:v8dTdLbMG2kIc/vJvl+f65V22dbkXbowE6jgT/
 github.com/google/go-github v17.0.0+incompatible h1:N0LgJ1j65A7kfXrZnUDaYCs/Sf4rEjNlfyDHW9dolSY=
 github.com/google/go-github v17.0.0+incompatible/go.mod h1:zLgOLi98H3fifZn+44m+umXrS52loVEgC2AApnigrVQ=
 github.com/google/go-github/v35 v35.2.0/go.mod h1:s0515YVTI+IMrDoy9Y4pHt9ShGpzHvHO8rZ7L7acgvs=
-github.com/google/go-github/v35 v35.3.0 h1:fU+WBzuukn0VssbayTT+Zo3/ESKX9JYWjbZTLOTEyho=
-github.com/google/go-github/v35 v35.3.0/go.mod h1:yWB7uCcVWaUbUP74Aq3whuMySRMatyRmq5U9FTNlbio=
+github.com/google/go-github/v39 v39.2.0 h1:rNNM311XtPOz5rDdsJXAp2o8F67X9FnROXTvto3aSnQ=
 github.com/google/go-github/v39 v39.2.0/go.mod h1:C1s8C5aCC9L+JXIYpJM5GYytdX52vC1bLvHEF1IhBrE=
 github.com/google/go-querystring v1.0.0/go.mod h1:odCYkC5MyYFN7vkCjXpyrEuKhc/BUO6wN/zVPAxq5ck=
 github.com/google/go-querystring v1.1.0 h1:AnCroh3fv4ZBgVIf1Iwtovgjaw/GiKJo8M8yD/fhyJ8=
