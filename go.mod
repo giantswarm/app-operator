@@ -5,7 +5,7 @@ go 1.16
 require (
 	github.com/Masterminds/semver/v3 v3.1.1
 	github.com/ghodss/yaml v1.0.0
-	github.com/giantswarm/apiextensions/v3 v3.35.0
+	github.com/giantswarm/apiextensions/v3 v3.36.0
 	github.com/giantswarm/app/v5 v5.4.0
 	github.com/giantswarm/appcatalog v0.6.0
 	github.com/giantswarm/apptest v0.12.0
