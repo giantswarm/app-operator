@@ -5,5 +5,5 @@ name: app-operator
 appVersion: [[ .AppVersion ]]
 version: [[ .Version ]]
 annotations:
-  application.giantswarm.io/team: "batman"
+  application.giantswarm.io/team: "honeybadger"
   config.giantswarm.io/version: 1.x.x
