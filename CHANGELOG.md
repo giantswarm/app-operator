@@ -7,6 +7,8 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+## [5.3.0] - 2021-11-11
+
 ### Changed
 
 - Use dynamic client instead of generated client for watching chart CRs.
@@ -398,7 +400,8 @@ from Helm 2 to Helm 3.
 
 - Flattening operator release structure.
 
-[Unreleased]: https://github.com/giantswarm/app-operator/compare/v5.2.0...HEAD
+[Unreleased]: https://github.com/giantswarm/app-operator/compare/v5.3.0...HEAD
+[5.3.0]: https://github.com/giantswarm/app-operator/compare/v5.2.0...v5.3.0
 [5.2.0]: https://github.com/giantswarm/app-operator/compare/v5.1.1...v5.2.0
 [5.1.1]: https://github.com/giantswarm/app-operator/compare/v5.1.0...v5.1.1
 [5.1.0]: https://github.com/giantswarm/app-operator/compare/v5.0.0...v5.1.0
