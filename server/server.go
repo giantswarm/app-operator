@@ -18,6 +18,17 @@ import (
 	"github.com/giantswarm/app-operator/v3/service"
 )
 
+type contextKey string
+
+func (c contextKey) String() string {
+	return string(c)
+}
+
+var (
+	appName      = contextKey("app_name")
+	appNamespace = contextKey("app_namespace")
+)
+
 // Config represents the configuration used to construct server object.
 type Config struct {
 	K8sClient k8sclient.Interface
@@ -126,12 +137,12 @@ func newRequestFuncs() []kithttp.RequestFunc {
 		// This request function puts the App Name URL parameter into the request
 		// context, if any.
 		func(ctx context.Context, r *http.Request) context.Context {
-			return context.WithValue(ctx, "app_name", mux.Vars(r)["app_name"]) // nolint:nostaticcheck
+			return context.WithValue(ctx, appName, mux.Vars(r)["app_name"])
 		},
 		// This request function puts the App Namespace URL parameter into the request
 		// context, if any.
 		func(ctx context.Context, r *http.Request) context.Context {
-			return context.WithValue(ctx, "app_namespace", mux.Vars(r)["app_namespace"]) // nolint:nostaticcheck
+			return context.WithValue(ctx, appNamespace, mux.Vars(r)["app_namespace"])
 		},
 	}
 }
