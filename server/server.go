@@ -126,12 +126,12 @@ func newRequestFuncs() []kithttp.RequestFunc {
 		// This request function puts the App Name URL parameter into the request
 		// context, if any.
 		func(ctx context.Context, r *http.Request) context.Context {
-			return context.WithValue(ctx, "app_name", mux.Vars(r)["app_name"])
+			return context.WithValue(ctx, "app_name", mux.Vars(r)["app_name"]) // nolint:nostaticcheck
 		},
 		// This request function puts the App Namespace URL parameter into the request
 		// context, if any.
 		func(ctx context.Context, r *http.Request) context.Context {
-			return context.WithValue(ctx, "app_namespace", mux.Vars(r)["app_namespace"])
+			return context.WithValue(ctx, "app_namespace", mux.Vars(r)["app_namespace"]) // nolint:nostaticcheck
 		},
 	}
 }
