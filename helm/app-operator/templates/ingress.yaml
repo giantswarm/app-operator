@@ -1,5 +1,8 @@
-{{- if not (hasSuffix "-unique" .Release.Name) }}
-apiVersion: extensions/v1beta1
+{{ if .Capabilities.APIVersions.Has "networking.k8s.io/v1/Ingress" }}
+apiVersion: networking.k8s.io/v1
+{{ else }}
+apiVersion: networking.k8s.io/v1beta1
+{{ end }}
 kind: Ingress
 metadata:
   name: {{ include "resource.default.name" . }}
@@ -7,9 +10,9 @@ metadata:
   labels:
     {{- include "labels.common" . | nindent 4 }}
   annotations:
-    kubernetes.io/ingress.class: "nginx"
     kubernetes.io/tls-acme: "true"
 spec:
+  ingressClassName: nginx
   tls:
     - hosts:
       - {{ include "resource.default.name" . }}.{{ .Values.chart.webhook.baseURL }}
@@ -22,4 +25,3 @@ spec:
             backend:
               serviceName: {{ include "resource.default.name" . }}
               servicePort: {{ .Values.port }}
-{{- end }}
