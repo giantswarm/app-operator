@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Changed
+
+- Use `config` repository not draughtsman values configmap.
+
 ## [3.2.1] - 2021-03-05
 
 ### Security
