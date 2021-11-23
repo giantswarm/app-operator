@@ -12,10 +12,10 @@ metadata:
 spec:
   tls:
     - hosts:
-      - {{ include "resource.default.name" . }}.{{ .Values.Installation.V1.Kubernetes.API.Address }}
+      - {{ include "resource.default.name" . }}.{{ .Values.chart.webhook.baseURL }}
       secretName: {{ include "resource.default.name" . }}-ingress
   rules:
-    - host: {{ include "resource.default.name" . }}.{{ .Values.Installation.V1.Kubernetes.API.Address }}
+    - host: {{ include "resource.default.name" . }}.{{ .Values.chart.webhook.baseURL }}
       http:
         paths:
           - path: /status
