@@ -1,3 +1,4 @@
+//go:build k8srequired
 package env
 
 import (
