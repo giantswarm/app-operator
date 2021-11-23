@@ -5,4 +5,4 @@ name: app-operator
 appVersion: [[ .AppVersion ]]
 version: [[ .Version ]]
 annotations:
-  config.giantswarm.io/version: 1.x.x
+  config.giantswarm.io/version: app-operator-webhook
