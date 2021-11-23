@@ -4,3 +4,5 @@ home: https://github.com/giantswarm/app-operator
 name: app-operator
 appVersion: [[ .AppVersion ]]
 version: [[ .Version ]]
+annotations:
+  config.giantswarm.io/version: 1.x.x

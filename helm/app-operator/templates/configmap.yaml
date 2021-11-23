@@ -17,17 +17,13 @@ data:
       app:
         unique: {{ include "resource.app.unique" . }}
       chart:
-        webhookAuthToken: '{{ .Values.Installation.V1.Secret.AppOperator.WebhookAuthToken }}'
-        {{- if hasSuffix "-unique" .Release.Name }}
-        webhookBaseURL: 'http://{{ include "resource.default.name" . }}.{{ include "resource.default.namespace" . }}.svc.cluster.local:{{ .Values.port }}'
-        {{- else }}
-        webhookBaseURL: 'https://{{ include "resource.default.name" . }}.{{ .Values.Installation.V1.Kubernetes.API.Address }}'
-        {{- end }}
+        webhookAuthToken: '{{ .Values.chart.webhook.authToken }}'
+        webhookBaseURL: 'https://{{ include "resource.default.name" . }}.{{ .Values.chart.webhook.baseURL }}'
       helm:
         http:
-          clientTimeout: '{{ .Values.Installation.V1.Helm.HTTP.ClientTimeout }}'
+          clientTimeout: '{{ .Values.helm.http.clientTimeout }}'
       image:
-        registry: '{{ .Values.Installation.V1.Registry.Domain }}' 
+        registry: '{{ .Values.registry.domain }}' 
       kubernetes:
         incluster: true
       operatorkit:

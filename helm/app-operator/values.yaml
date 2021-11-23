@@ -16,23 +16,6 @@ image:
   repository: giantswarm/app-operator
   tag: [[ .Version ]]
 
-Installation:
-  V1:
-    Helm:
-      HTTP:
-        ClientTimeout: "5s"
-    Kubernetes:
-      API:
-        Address: ""
-    Registry:
-      Domain: quay.io
-    Secret:
-      AppOperator:
-        WebhookAuthToken: ""
-
-operatorkit:
-  resyncPeriod: "5m"
-
 project:
   branch: "[[ .Branch ]]"
   commit: "[[ .SHA ]]"
@@ -41,3 +24,18 @@ deployment:
   requests:
     cpu: 250m
     memory: 250Mi
+
+chart:
+  webhook:
+    authToken: ""
+    baseURL: ""
+
+helm:
+  http:
+    clientTimeout: "5s"
+
+registry:
+  domain: docker.io
+
+operatorkit:
+  resyncPeriod: "5m"
