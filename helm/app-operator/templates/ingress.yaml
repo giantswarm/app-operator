@@ -24,5 +24,12 @@ spec:
           - path: /status
             pathType: Prefix
             backend:
+{{ if .Capabilities.APIVersions.Has "networking.k8s.io/v1/Ingress" }}
+              service:
+                name:  {{ include "resource.default.name" . }}
+                port:
+                  number: {{ .Values.port }}
+{{ else }}
               serviceName: {{ include "resource.default.name" . }}
               servicePort: {{ .Values.port }}
+{{ end }}
