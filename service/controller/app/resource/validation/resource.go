@@ -18,7 +18,8 @@ type Config struct {
 	K8sClient kubernetes.Interface
 	Logger    micrologger.Logger
 
-	Provider string
+	ProjectName string
+	Provider    string
 }
 
 // Resource implements the chartstatus resource.
@@ -39,6 +40,9 @@ func New(config Config) (*Resource, error) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
 
+	if config.ProjectName == "" {
+		return nil, microerror.Maskf(invalidConfigError, "%T.ProjectName must not be empty", config)
+	}
 	if config.Provider == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Provider must not be empty", config)
 	}
@@ -52,7 +56,8 @@ func New(config Config) (*Resource, error) {
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
 
-			Provider: config.Provider,
+			ProjectName: config.ProjectName,
+			Provider:    config.Provider,
 		}
 		appValidator, err = validation.NewValidator(c)
 		if err != nil {

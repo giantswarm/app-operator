@@ -101,6 +101,7 @@ func NewApp(config Config) (*App, error) {
 			ChartNamespace:    config.ChartNamespace,
 			HTTPClientTimeout: config.HTTPClientTimeout,
 			ImageRegistry:     config.ImageRegistry,
+			ProjectName:       project.Name(),
 			Provider:          config.Provider,
 			UniqueApp:         config.UniqueApp,
 		}
