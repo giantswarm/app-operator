@@ -12,9 +12,9 @@ import (
 	"github.com/giantswarm/operatorkit/v5/pkg/controller"
 	"github.com/giantswarm/operatorkit/v5/pkg/resource"
 	"github.com/spf13/afero"
-	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime"
 
+	"github.com/giantswarm/app-operator/v5/pkg/label"
 	"github.com/giantswarm/app-operator/v5/pkg/project"
 	"github.com/giantswarm/app-operator/v5/service/controller/app/controllercontext"
 	"github.com/giantswarm/app-operator/v5/service/internal/clientcache"
@@ -112,7 +112,6 @@ func NewApp(config Config) (*App, error) {
 		}
 	}
 
-	selector, _ := labels.Parse("app-operator.giantswarm.io/test=prefix")
 	var appController *controller.Controller
 	{
 		c := controller.Config{
@@ -124,7 +123,7 @@ func NewApp(config Config) (*App, error) {
 				annotation.AppOperatorPaused: "true",
 			},
 			Resources: resources,
-			Selector:  selector, //label.AppVersionSelector(config.UniqueApp),
+			Selector:  label.AppVersionSelector(config.UniqueApp),
 			NewRuntimeObjectFunc: func() runtime.Object {
 				return new(v1alpha1.App)
 			},
