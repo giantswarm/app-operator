@@ -17,6 +17,9 @@ import (
 	"github.com/giantswarm/microerror"
 	"github.com/google/go-cmp/cmp"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/labels"
+	"k8s.io/apimachinery/pkg/types"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/giantswarm/app-operator/v5/integration/key"
 	pkglabel "github.com/giantswarm/app-operator/v5/pkg/label"
@@ -35,14 +38,16 @@ import (
 func TestAppCatalogEntry(t *testing.T) {
 	ctx := context.Background()
 
+	var catalogCR v1alpha1.Catalog
 	var err error
 
 	{
 		config.Logger.Debugf(ctx, "creating %#q catalog cr", key.StableCatalogName())
 
-		catalogCR := &v1alpha1.Catalog{
+		catalogCR := v1alpha1.Catalog{
 			ObjectMeta: metav1.ObjectMeta{
-				Name: key.StableCatalogName(),
+				Name:      key.StableCatalogName(),
+				Namespace: metav1.NamespaceDefault,
 				Labels: map[string]string{
 					label.AppOperatorVersion: project.Version(),
 					label.CatalogType:        "stable",
@@ -58,7 +63,7 @@ func TestAppCatalogEntry(t *testing.T) {
 				},
 			},
 		}
-		_, err = config.K8sClients.G8sClient().ApplicationV1alpha1().Catalogs(metav1.NamespaceDefault).Create(ctx, catalogCR, metav1.CreateOptions{})
+		err = config.K8sClients.CtrlClient().Create(ctx, &catalogCR)
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
@@ -74,12 +79,16 @@ func TestAppCatalogEntry(t *testing.T) {
 		}
 	}
 
-	var entryCR *v1alpha1.AppCatalogEntry
+	var entryCR v1alpha1.AppCatalogEntry
 	{
 		appCatalogEntryName := fmt.Sprintf("%s-%s-%s", key.GiantSwarmNamespace(), latestEntry.Name, latestEntry.Version)
 
 		o := func() error {
-			entryCR, err = config.K8sClients.G8sClient().ApplicationV1alpha1().AppCatalogEntries(metav1.NamespaceDefault).Get(ctx, appCatalogEntryName, metav1.GetOptions{})
+			err = config.K8sClients.CtrlClient().Get(
+				ctx,
+				types.NamespacedName{Name: appCatalogEntryName, Namespace: metav1.NamespaceDefault},
+				&entryCR,
+			)
 			if err != nil {
 				return microerror.Mask(err)
 			}
@@ -145,16 +154,20 @@ func TestAppCatalogEntry(t *testing.T) {
 	}
 
 	{
-		err = config.K8sClients.G8sClient().ApplicationV1alpha1().Catalogs(metav1.NamespaceDefault).Delete(ctx, key.StableCatalogName(), metav1.DeleteOptions{})
+		err = config.K8sClients.CtrlClient().Delete(ctx, &catalogCR)
+		if err != nil {
+			t.Fatalf("expected %#v got %#v", nil, err)
+		}
+
+		entryCRs := v1alpha1.AppCatalogEntryList{}
+
+		catalogLabels, err := labels.Parse(fmt.Sprintf("%s=%s,%s=%s", label.ManagedBy, project.Name(), label.CatalogName, key.StableCatalogName()))
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
 
 		o := func() error {
-			lo := metav1.ListOptions{
-				LabelSelector: fmt.Sprintf("%s=%s,%s=%s", label.ManagedBy, project.Name(), label.CatalogName, key.StableCatalogName()),
-			}
-			entryCRs, err := config.K8sClients.G8sClient().ApplicationV1alpha1().AppCatalogEntries(metav1.NamespaceDefault).List(ctx, lo)
+			err = config.K8sClients.CtrlClient().List(ctx, &entryCRs, &client.ListOptions{LabelSelector: catalogLabels})
 			if err != nil {
 				return microerror.Mask(err)
 			}
@@ -170,7 +183,7 @@ func TestAppCatalogEntry(t *testing.T) {
 		}
 
 		b := backoff.NewMaxRetries(10, 15*time.Second)
-		err := backoff.RetryNotify(o, b, n)
+		err = backoff.RetryNotify(o, b, n)
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}

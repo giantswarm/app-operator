@@ -7,10 +7,8 @@ import (
 	"context"
 	"os"
 	"testing"
-	"time"
 
 	"github.com/giantswarm/appcatalog"
-	"github.com/giantswarm/backoff"
 	"github.com/giantswarm/helmclient/v4/pkg/helmclient"
 	"github.com/giantswarm/microerror"
 	"github.com/spf13/afero"
@@ -61,10 +59,8 @@ func installResources(ctx context.Context, config Config) error {
 	// for the kubeconfig test that bootstraps chart-operator.
 	crds := []string{
 		"App",
-		"AppCatalog",
 		"AppCatalogEntry",
 		"Catalog",
-		"Chart",
 	}
 
 	{
@@ -76,7 +72,7 @@ func installResources(ctx context.Context, config Config) error {
 				return microerror.Mask(err)
 			}
 
-			err = config.K8sClients.CRDClient().EnsureCreated(ctx, crd, backoff.NewMaxRetries(7, 1*time.Second))
+			err = config.K8sClients.CtrlClient().Create(ctx, crd)
 			if err != nil {
 				return microerror.Mask(err)
 			}

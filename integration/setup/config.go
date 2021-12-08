@@ -4,6 +4,7 @@
 package setup
 
 import (
+	"github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/app/v5/pkg/crd"
 	"github.com/giantswarm/apptest"
 	"github.com/giantswarm/helmclient/v4/pkg/helmclient"
@@ -70,6 +71,9 @@ func NewConfig() (Config, error) {
 	{
 		c := k8sclient.ClientsConfig{
 			Logger: logger,
+			SchemeBuilder: k8sclient.SchemeBuilder{
+				v1alpha1.AddToScheme,
+			},
 
 			KubeConfigPath: env.KubeConfigPath(),
 		}
