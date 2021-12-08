@@ -45,7 +45,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		return nil, microerror.Mask(err)
 	}
 
-	tarballURL, err := appcatalog.NewTarballURL(key.CatalogStorageURL(cc.Catalog), key.AppName(cr), strings.TrimPrefix(key.Version(cr), "v"))
+	tarballURL, err := appcatalog.NewTarballURL(key.CatalogStorageURL(cc.Catalog), key.AppName(cr), key.Version(cr))
 	if err != nil {
 		r.logger.Errorf(ctx, err, "failed to generated tarball")
 	}
@@ -71,7 +71,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 				Labels:      cr.Spec.NamespaceConfig.Labels,
 			},
 			TarballURL: tarballURL,
-			Version:    strings.TrimPrefix(key.Version(cr), "v"),
+			Version:    key.Version(cr),
 		},
 	}
 
