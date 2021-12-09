@@ -14,7 +14,6 @@ import (
 	"github.com/giantswarm/k8smetadata/pkg/label"
 	"github.com/spf13/afero"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/yaml"
 
@@ -38,6 +37,7 @@ import (
 func TestAppLifecycle(t *testing.T) {
 	ctx := context.Background()
 
+	var chart v1alpha1.Chart
 	var cr v1alpha1.App
 	var err error
 
@@ -136,7 +136,11 @@ func TestAppLifecycle(t *testing.T) {
 		config.Logger.Debugf(ctx, "checking tarball URL in chart spec")
 
 		tarballURL := "https://giantswarm.github.io/default-catalog/test-app-0.1.0.tgz"
-		chart, err := config.K8sClients.G8sClient().ApplicationV1alpha1().Charts(key.GiantSwarmNamespace()).Get(ctx, key.TestAppName(), metav1.GetOptions{})
+		err = config.K8sClients.CtrlClient().Get(
+			ctx,
+			types.NamespacedName{Name: key.TestAppName(), Namespace: key.GiantSwarmNamespace()},
+			&chart,
+		)
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
@@ -178,8 +182,6 @@ func TestAppLifecycle(t *testing.T) {
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
-
-		var chart v1alpha1.Chart
 
 		err = config.K8sClients.CtrlClient().Get(
 			ctx,
