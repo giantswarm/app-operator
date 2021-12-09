@@ -63,6 +63,7 @@ func installResources(ctx context.Context, config Config) error {
 		"AppCatalog",
 		"AppCatalogEntry",
 		"Catalog",
+		"Chart",
 	}
 
 	{
