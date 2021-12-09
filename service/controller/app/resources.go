@@ -23,7 +23,6 @@ import (
 	"github.com/giantswarm/app-operator/v5/service/controller/app/resource/chartoperator"
 	"github.com/giantswarm/app-operator/v5/service/controller/app/resource/clients"
 	"github.com/giantswarm/app-operator/v5/service/controller/app/resource/configmap"
-	"github.com/giantswarm/app-operator/v5/service/controller/app/resource/releasemigration"
 	"github.com/giantswarm/app-operator/v5/service/controller/app/resource/secret"
 	"github.com/giantswarm/app-operator/v5/service/controller/app/resource/status"
 	"github.com/giantswarm/app-operator/v5/service/controller/app/resource/tcnamespace"
@@ -249,21 +248,6 @@ func newAppResources(config appResourcesConfig) ([]resource.Interface, error) {
 		}
 	}
 
-	var releaseMigrationResource resource.Interface
-	{
-		c := releasemigration.Config{
-			Logger: config.Logger,
-
-			ChartNamespace: config.ChartNamespace,
-			ImageRegistry:  config.ImageRegistry,
-		}
-
-		releaseMigrationResource, err = releasemigration.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
 	var secretResource resource.Interface
 	{
 		c := secret.Config{
@@ -348,7 +332,6 @@ func newAppResources(config appResourcesConfig) ([]resource.Interface, error) {
 		tcNamespaceResource,
 		chartCRDResource,
 		chartOperatorResource,
-		releaseMigrationResource,
 
 		// Following resources process app CRs.
 		configMapResource,
