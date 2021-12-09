@@ -11,6 +11,7 @@ import (
 	"github.com/giantswarm/microerror"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/rest"
 )
@@ -94,11 +95,15 @@ func (c *ChartStatusWatcher) waitForAvailableConnection(ctx context.Context, dyn
 // waitForChartOperator waits until the app CR is created. We use this app
 // CR to get the kubeconfig secret we use to access the remote cluster
 func (c *ChartStatusWatcher) waitForChartOperator(ctx context.Context) (*v1alpha1.App, error) {
-	var chartOperatorAppCR *v1alpha1.App
+	var chartOperatorAppCR v1alpha1.App
 	var err error
 
 	o := func() error {
-		chartOperatorAppCR, err = c.k8sClient.G8sClient().ApplicationV1alpha1().Apps(c.appNamespace).Get(ctx, chartOperatorAppName, metav1.GetOptions{})
+		err = c.k8sClient.CtrlClient().Get(
+			ctx,
+			types.NamespacedName{Name: chartOperatorAppName, Namespace: c.appNamespace},
+			&chartOperatorAppCR,
+		)
 		if err != nil {
 			return microerror.Mask(err)
 		}
@@ -119,5 +124,5 @@ func (c *ChartStatusWatcher) waitForChartOperator(ctx context.Context) (*v1alpha
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
-	return chartOperatorAppCR, nil
+	return &chartOperatorAppCR, nil
 }

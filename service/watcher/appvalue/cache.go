@@ -243,7 +243,11 @@ func (c *AppValueWatcher) findCatalog(ctx context.Context, cr v1alpha1.App) (*v1
 
 	var catalog *v1alpha1.Catalog
 	for _, namespace := range namespaces {
-		catalog, err = c.k8sClient.G8sClient().ApplicationV1alpha1().Catalogs(namespace).Get(ctx, key.CatalogName(cr), metav1.GetOptions{})
+		err = c.k8sClient.CtrlClient().Get(
+			ctx,
+			types.NamespacedName{Name: key.CatalogName(cr), Namespace: namespace},
+			catalog,
+		)
 		if apierrors.IsNotFound(err) {
 			// no-op
 			continue

@@ -4,10 +4,12 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/k8smetadata/pkg/label"
 	"github.com/giantswarm/microerror"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/watch"
 )
 
@@ -96,10 +98,17 @@ func (c *AppValueWatcher) watchSecret(ctx context.Context) {
 			}
 
 			c.logger.Debugf(ctx, "listing apps depends on %#q secret in namespace %#q", secret.Name, secret.Namespace)
+
+			var currentApp *v1alpha1.App
+
 			for app := range storedIndex {
 				c.logger.Debugf(ctx, "triggering %#q app update in namespace %#q", app.Name, app.Namespace)
 
-				currentApp, err := c.k8sClient.G8sClient().ApplicationV1alpha1().Apps(app.Namespace).Get(ctx, app.Name, metav1.GetOptions{})
+				err = c.k8sClient.CtrlClient().Get(
+					ctx,
+					types.NamespacedName{Name: app.Name, Namespace: app.Namespace},
+					currentApp,
+				)
 				if err != nil {
 					c.logger.Errorf(ctx, err, "cannot fetch app CR %s/%s", app.Namespace, app.Name)
 					continue
