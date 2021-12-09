@@ -13,9 +13,13 @@ import (
 	"github.com/giantswarm/microerror"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/watch"
 )
+
+var appResource = schema.GroupVersionResource{Group: "application.giantswarm.io", Version: "v1alpha1", Resource: "apps"}
 
 func (c *AppValueWatcher) buildCache(ctx context.Context) {
 	for {
@@ -23,22 +27,29 @@ func (c *AppValueWatcher) buildCache(ctx context.Context) {
 			LabelSelector: c.selector.String(),
 		}
 
-		res, err := c.k8sClient.G8sClient().ApplicationV1alpha1().Apps("").Watch(ctx, lo)
+		res, err := c.k8sClient.DynClient().Resource(appResource).Namespace(metav1.NamespaceAll).Watch(ctx, lo)
 		if err != nil {
 			c.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("failed to get apps with label %#q", c.selector.String()), "stack", fmt.Sprintf("%#v", err))
 			continue
 		}
 
 		for r := range res.ResultChan() {
-			cr, err := key.ToApp(r.Object)
+			unstructuredObj, err := runtime.DefaultUnstructuredConverter.ToUnstructured(r.Object)
 			if err != nil {
-				c.logger.LogCtx(ctx, "level", "info", "message", "failed to convert app object", "stack", fmt.Sprintf("%#v", err))
+				c.logger.Errorf(ctx, err, "failed to convert %#v to unstructured object", r.Object)
 				continue
 			}
 
-			err = c.addCache(ctx, cr, r.Type)
+			app := &v1alpha1.App{}
+			err = runtime.DefaultUnstructuredConverter.FromUnstructured(unstructuredObj, app)
 			if err != nil {
-				c.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("failed to reconcile app CR %#q", cr.Name), "stack", fmt.Sprintf("%#v", err))
+				c.logger.Errorf(ctx, err, "failed to convert unstructured object %#v to app", unstructuredObj)
+				continue
+			}
+
+			err = c.addCache(ctx, *app, r.Type)
+			if err != nil {
+				c.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("failed to reconcile app CR %#q", app.Name), "stack", fmt.Sprintf("%#v", err))
 			}
 		}
 
