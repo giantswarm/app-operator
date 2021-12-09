@@ -76,13 +76,13 @@ func (r *Resource) getCatalogForApp(ctx context.Context, customResource v1alpha1
 		}
 	}
 
-	var catalog *v1alpha1.Catalog
+	var catalog v1alpha1.Catalog
 
 	for _, ns := range namespaces {
 		err = r.ctrlClient.Get(
 			ctx,
 			types.NamespacedName{Name: catalogName, Namespace: ns},
-			catalog,
+			&catalog,
 		)
 		if apierrors.IsNotFound(err) {
 			// no-op
@@ -93,12 +93,12 @@ func (r *Resource) getCatalogForApp(ctx context.Context, customResource v1alpha1
 		break
 	}
 
-	if catalog == nil || catalog.Name == "" {
+	if catalog.Name == "" {
 		return microerror.Maskf(notFoundError, "catalog %#q", catalogName)
 	}
 
 	r.logger.Debugf(ctx, "found catalog %#q in namespace %#q", catalogName, catalog.GetNamespace())
-	cc.Catalog = *catalog
+	cc.Catalog = catalog
 
 	return nil
 }

@@ -58,12 +58,11 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 
 	r.logger.Debugf(ctx, "finding chart %#q", name)
 
-	var chart v1alpha1.Chart
-
+	chart := &v1alpha1.Chart{}
 	err = cc.Clients.K8s.CtrlClient().Get(
 		ctx,
 		types.NamespacedName{Name: name, Namespace: r.chartNamespace},
-		&chart,
+		chart,
 	)
 	if apierrors.IsNotFound(err) {
 		r.logger.Debugf(ctx, "did not find chart %#q in namespace %#q", name, r.chartNamespace)

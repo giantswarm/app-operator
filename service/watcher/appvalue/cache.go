@@ -252,7 +252,8 @@ func (c *AppValueWatcher) findCatalog(ctx context.Context, cr v1alpha1.App) (*v1
 		}
 	}
 
-	var catalog *v1alpha1.Catalog
+	catalog := &v1alpha1.Catalog{}
+
 	for _, namespace := range namespaces {
 		err = c.k8sClient.CtrlClient().Get(
 			ctx,
