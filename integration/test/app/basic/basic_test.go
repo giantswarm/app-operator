@@ -13,6 +13,7 @@ import (
 	"github.com/giantswarm/helmclient/v4/pkg/helmclient"
 	"github.com/giantswarm/k8smetadata/pkg/label"
 	"github.com/spf13/afero"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/yaml"
@@ -51,7 +52,9 @@ func TestAppLifecycle(t *testing.T) {
 			}
 
 			err = config.K8sClients.CtrlClient().Create(ctx, crd)
-			if err != nil {
+			if apierrors.IsAlreadyExists(err) {
+				// no-op
+			} else if err != nil {
 				t.Fatalf("expected %#v got %#v", nil, err)
 			}
 

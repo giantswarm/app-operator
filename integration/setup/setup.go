@@ -12,6 +12,7 @@ import (
 	"github.com/giantswarm/helmclient/v4/pkg/helmclient"
 	"github.com/giantswarm/microerror"
 	"github.com/spf13/afero"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"sigs.k8s.io/yaml"
 
 	"github.com/giantswarm/app-operator/v5/integration/env"
@@ -59,6 +60,7 @@ func installResources(ctx context.Context, config Config) error {
 	// for the kubeconfig test that bootstraps chart-operator.
 	crds := []string{
 		"App",
+		"AppCatalog",
 		"AppCatalogEntry",
 		"Catalog",
 	}
@@ -73,7 +75,10 @@ func installResources(ctx context.Context, config Config) error {
 			}
 
 			err = config.K8sClients.CtrlClient().Create(ctx, crd)
-			if err != nil {
+			if apierrors.IsAlreadyExists(err) {
+				config.Logger.Debugf(ctx, "CRD %#q already exists", crdName)
+				continue
+			} else if err != nil {
 				return microerror.Mask(err)
 			}
 
