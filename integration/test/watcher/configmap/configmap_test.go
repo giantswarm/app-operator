@@ -16,6 +16,7 @@ import (
 	"github.com/giantswarm/microerror"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
 
 	"github.com/giantswarm/app-operator/v5/integration/key"
 )
@@ -38,6 +39,7 @@ import (
 func TestWatchingConfigMap(t *testing.T) {
 	ctx := context.Background()
 
+	var cr v1alpha1.App
 	var err error
 
 	{
@@ -87,7 +89,7 @@ func TestWatchingConfigMap(t *testing.T) {
 				},
 			},
 		}
-		_, err = config.K8sClients.G8sClient().ApplicationV1alpha1().Catalogs(key.GiantSwarmNamespace()).Create(ctx, catalogCR, metav1.CreateOptions{})
+		err = config.K8sClients.CtrlClient().Create(ctx, catalogCR)
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
@@ -144,7 +146,7 @@ func TestWatchingConfigMap(t *testing.T) {
 			},
 		}
 
-		_, err = config.K8sClients.G8sClient().ApplicationV1alpha1().Apps(key.GiantSwarmNamespace()).Create(ctx, appCR, metav1.CreateOptions{})
+		err = config.K8sClients.CtrlClient().Create(ctx, appCR)
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
@@ -236,7 +238,11 @@ func TestWatchingConfigMap(t *testing.T) {
 		config.Logger.Debugf(ctx, "waiting until app CR is annotated with user configmap's resourceVersion")
 
 		o := func() error {
-			cr, err := config.K8sClients.G8sClient().ApplicationV1alpha1().Apps(key.GiantSwarmNamespace()).Get(ctx, key.TestAppName(), metav1.GetOptions{})
+			err = config.K8sClients.CtrlClient().Get(
+				ctx,
+				types.NamespacedName{Name: key.TestAppName(), Namespace: key.GiantSwarmNamespace()},
+				&cr,
+			)
 			if err != nil {
 				return microerror.Mask(err)
 			}
@@ -286,7 +292,11 @@ func TestWatchingConfigMap(t *testing.T) {
 		config.Logger.Debugf(ctx, "waiting until app CR annotate by appcatalog configmap's resourceVersion")
 
 		o := func() error {
-			cr, err := config.K8sClients.G8sClient().ApplicationV1alpha1().Apps(key.GiantSwarmNamespace()).Get(ctx, key.TestAppName(), metav1.GetOptions{})
+			err = config.K8sClients.CtrlClient().Get(
+				ctx,
+				types.NamespacedName{Name: key.TestAppName(), Namespace: key.GiantSwarmNamespace()},
+				&cr,
+			)
 			if err != nil {
 				return microerror.Mask(err)
 			}
@@ -301,7 +311,7 @@ func TestWatchingConfigMap(t *testing.T) {
 		}
 
 		n := func(err error, t time.Duration) {
-			config.Logger.Errorf(ctx, err, "failed to get an annotation; retrying in %d", t)
+			config.Logger.Errorf(ctx, err, "failed to get an annotation; retrying in %s", t)
 		}
 
 		b := backoff.NewMaxRetries(5, backoff.ShortMaxInterval)
@@ -316,7 +326,7 @@ func TestWatchingConfigMap(t *testing.T) {
 	{
 		config.Logger.Debugf(ctx, "deleting app CR %#q", key.TestAppName())
 
-		err = config.K8sClients.G8sClient().ApplicationV1alpha1().Apps(key.GiantSwarmNamespace()).Delete(ctx, key.TestAppName(), metav1.DeleteOptions{})
+		err = config.K8sClients.CtrlClient().Delete(ctx, &cr)
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
@@ -341,7 +351,7 @@ func TestWatchingConfigMap(t *testing.T) {
 		}
 
 		n := func(err error, t time.Duration) {
-			config.Logger.Errorf(ctx, err, "still getting label; retrying in %d", t)
+			config.Logger.Errorf(ctx, err, "still getting label; retrying in %s", t)
 		}
 
 		b := backoff.NewMaxRetries(5, backoff.ShortMaxInterval)
