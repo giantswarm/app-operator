@@ -3,12 +3,13 @@ package chart
 import (
 	"context"
 
+	"github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/app/v5/pkg/key"
 	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/v5/pkg/controller/context/resourcecanceledcontext"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
 
 	"github.com/giantswarm/app-operator/v5/pkg/status"
 	"github.com/giantswarm/app-operator/v5/service/controller/app/controllercontext"
@@ -57,7 +58,13 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 
 	r.logger.Debugf(ctx, "finding chart %#q", name)
 
-	chart, err := cc.Clients.K8s.G8sClient().ApplicationV1alpha1().Charts(r.chartNamespace).Get(ctx, name, metav1.GetOptions{})
+	var chart v1alpha1.Chart
+
+	err = cc.Clients.K8s.CtrlClient().Get(
+		ctx,
+		types.NamespacedName{Name: name, Namespace: r.chartNamespace},
+		&chart,
+	)
 	if apierrors.IsNotFound(err) {
 		r.logger.Debugf(ctx, "did not find chart %#q in namespace %#q", name, r.chartNamespace)
 		return nil, nil

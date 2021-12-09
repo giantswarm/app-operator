@@ -101,8 +101,8 @@ func newAppResources(config appResourcesConfig) ([]resource.Interface, error) {
 	var catalogResource resource.Interface
 	{
 		c := catalog.Config{
-			G8sClient: config.K8sClient.G8sClient(),
-			Logger:    config.Logger,
+			CtrlClient: config.K8sClient.CtrlClient(),
+			Logger:     config.Logger,
 		}
 		catalogResource, err = catalog.New(c)
 		if err != nil {
@@ -150,7 +150,7 @@ func newAppResources(config appResourcesConfig) ([]resource.Interface, error) {
 	{
 		c := chartoperator.Config{
 			FileSystem: config.FileSystem,
-			G8sClient:  config.K8sClient.G8sClient(),
+			CtrlClient: config.K8sClient.CtrlClient(),
 			K8sClient:  config.K8sClient.K8sClient(),
 			Logger:     config.Logger,
 			Values:     valuesService,
@@ -271,8 +271,8 @@ func newAppResources(config appResourcesConfig) ([]resource.Interface, error) {
 	var statusResource resource.Interface
 	{
 		c := status.Config{
-			G8sClient: config.K8sClient.G8sClient(),
-			Logger:    config.Logger,
+			CtrlClient: config.K8sClient.CtrlClient(),
+			Logger:     config.Logger,
 
 			ChartNamespace: config.ChartNamespace,
 		}

@@ -4,12 +4,13 @@ import (
 	"context"
 
 	"github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
-	"github.com/giantswarm/apiextensions/v3/pkg/clientset/versioned"
 	"github.com/giantswarm/app/v5/pkg/key"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/giantswarm/app-operator/v5/service/controller/app/controllercontext"
 )
@@ -22,21 +23,21 @@ const (
 // Config represents the configuration used to create a new catalog resource.
 type Config struct {
 	// Dependencies.
-	G8sClient versioned.Interface
-	Logger    micrologger.Logger
+	CtrlClient client.Client
+	Logger     micrologger.Logger
 }
 
 // Resource implements the catalog resource.
 type Resource struct {
 	// Dependencies.
-	g8sClient versioned.Interface
-	logger    micrologger.Logger
+	ctrlClient client.Client
+	logger     micrologger.Logger
 }
 
 // New creates a new configured catalog resource.
 func New(config Config) (*Resource, error) {
-	if config.G8sClient == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.G8sClient must not be empty", config)
+	if config.CtrlClient == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.CtrlClient must not be empty", config)
 	}
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
@@ -44,8 +45,8 @@ func New(config Config) (*Resource, error) {
 
 	r := &Resource{
 		// Dependencies.
-		g8sClient: config.G8sClient,
-		logger:    config.Logger,
+		ctrlClient: config.CtrlClient,
+		logger:     config.Logger,
 	}
 
 	return r, nil
@@ -76,8 +77,13 @@ func (r *Resource) getCatalogForApp(ctx context.Context, customResource v1alpha1
 	}
 
 	var catalog *v1alpha1.Catalog
+
 	for _, ns := range namespaces {
-		catalog, err = r.g8sClient.ApplicationV1alpha1().Catalogs(ns).Get(ctx, catalogName, metav1.GetOptions{})
+		err = r.ctrlClient.Get(
+			ctx,
+			types.NamespacedName{Name: catalogName, Namespace: ns},
+			catalog,
+		)
 		if apierrors.IsNotFound(err) {
 			// no-op
 			continue

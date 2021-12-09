@@ -6,7 +6,6 @@ import (
 	"github.com/giantswarm/app/v5/pkg/key"
 	"github.com/giantswarm/microerror"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 // EnsureDeleted ensures appcatalogentry CRs are deleted for this catalog CR.
@@ -29,7 +28,7 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 	r.logger.Debugf(ctx, "deleting %d appcatalogentry CR %#q in namespace %#q", len(entryCRs), cr.Name, cr.Namespace)
 
 	for _, entryCR := range entryCRs {
-		err := r.k8sClient.G8sClient().ApplicationV1alpha1().AppCatalogEntries(entryCR.Namespace).Delete(ctx, entryCR.Name, metav1.DeleteOptions{})
+		err := r.k8sClient.CtrlClient().Delete(ctx, entryCR)
 		if apierrors.IsNotFound(err) {
 			r.logger.Debugf(ctx, "already deleted appcatalogentry CR %#q in namespace %#q", entryCR.Name, entryCR.Namespace)
 			continue

@@ -6,7 +6,6 @@ import (
 	"testing"
 
 	"github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
-	"github.com/giantswarm/apiextensions/v3/pkg/clientset/versioned/fake"
 	"github.com/giantswarm/k8sclient/v5/pkg/k8sclienttest"
 	"github.com/giantswarm/micrologger/microloggertest"
 	"github.com/google/go-cmp/cmp"
@@ -14,6 +13,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	clientgofake "k8s.io/client-go/kubernetes/fake"
+	"sigs.k8s.io/controller-runtime/pkg/client/fake" //nolint:staticcheck
 
 	"github.com/giantswarm/app-operator/v5/service/controller/app/controllercontext"
 )
@@ -390,8 +390,8 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 			var ctx context.Context
 			{
 				config := k8sclienttest.ClientsConfig{
-					G8sClient: fake.NewSimpleClientset(),
-					K8sClient: clientgofake.NewSimpleClientset(objs...),
+					CtrlClient: fake.NewFakeClient(), //nolint:staticcheck
+					K8sClient:  clientgofake.NewSimpleClientset(objs...),
 				}
 				client := k8sclienttest.NewClients(config)
 
