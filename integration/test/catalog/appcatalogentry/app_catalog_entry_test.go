@@ -44,7 +44,7 @@ func TestAppCatalogEntry(t *testing.T) {
 	{
 		config.Logger.Debugf(ctx, "creating %#q catalog cr", key.StableCatalogName())
 
-		catalogCR := v1alpha1.Catalog{
+		catalogCR = v1alpha1.Catalog{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      key.StableCatalogName(),
 				Namespace: metav1.NamespaceDefault,
