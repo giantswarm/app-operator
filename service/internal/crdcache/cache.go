@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/giantswarm/app/v5/pkg/crd"
+	"github.com/giantswarm/app/v6/pkg/crd"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	gocache "github.com/patrickmn/go-cache"

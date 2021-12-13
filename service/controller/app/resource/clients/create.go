@@ -3,7 +3,7 @@ package clients
 import (
 	"context"
 
-	"github.com/giantswarm/app/v5/pkg/key"
+	"github.com/giantswarm/app/v6/pkg/key"
 	"github.com/giantswarm/microerror"
 )
 

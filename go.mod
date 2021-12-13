@@ -5,21 +5,21 @@ go 1.16
 require (
 	github.com/Masterminds/semver/v3 v3.1.1
 	github.com/ghodss/yaml v1.0.0
-	github.com/giantswarm/apiextensions/v3 v3.39.0
-	github.com/giantswarm/app/v5 v5.6.1
+	github.com/giantswarm/apiextensions-application v0.1.0
+	github.com/giantswarm/app/v6 v6.1.0
 	github.com/giantswarm/appcatalog v0.6.0
-	github.com/giantswarm/apptest v0.12.0
+	github.com/giantswarm/apptest v1.0.0
 	github.com/giantswarm/backoff v0.2.0
 	github.com/giantswarm/errors v0.3.0
-	github.com/giantswarm/helmclient/v4 v4.8.0
-	github.com/giantswarm/k8sclient/v5 v5.12.0
+	github.com/giantswarm/helmclient/v4 v4.8.1-0.20211202155511-0bfbea24b901
+	github.com/giantswarm/k8sclient/v6 v6.0.0
 	github.com/giantswarm/k8smetadata v0.7.1
 	github.com/giantswarm/kubeconfig/v4 v4.1.0
 	github.com/giantswarm/microendpoint v0.2.0
 	github.com/giantswarm/microerror v0.3.0
 	github.com/giantswarm/microkit v0.2.2
 	github.com/giantswarm/micrologger v0.5.0
-	github.com/giantswarm/operatorkit/v5 v5.0.0
+	github.com/giantswarm/operatorkit/v6 v6.0.0
 	github.com/giantswarm/to v0.4.0
 	github.com/giantswarm/versionbundle v0.2.0
 	github.com/google/go-cmp v0.5.6
@@ -27,11 +27,11 @@ require (
 	github.com/prometheus/client_golang v1.11.0
 	github.com/spf13/afero v1.6.0
 	github.com/spf13/viper v1.9.0
-	k8s.io/api v0.20.13
-	k8s.io/apiextensions-apiserver v0.20.13
-	k8s.io/apimachinery v0.20.13
-	k8s.io/client-go v0.20.13
-	sigs.k8s.io/controller-runtime v0.6.5
+	k8s.io/api v0.21.4
+	k8s.io/apiextensions-apiserver v0.21.4
+	k8s.io/apimachinery v0.21.4
+	k8s.io/client-go v0.21.4
+	sigs.k8s.io/controller-runtime v0.9.7
 	sigs.k8s.io/yaml v1.3.0
 )
 
@@ -52,6 +52,4 @@ replace (
 	github.com/ulikunitz/xz => github.com/ulikunitz/xz v0.5.10
 	// Same as go-logr/logr, klog/v2 is using logr v0.2.0
 	k8s.io/klog/v2 v2.2.0 => k8s.io/klog/v2 v2.0.0
-	// Use fork of CAPI with Kubernetes 1.18 support.
-	sigs.k8s.io/cluster-api => github.com/giantswarm/cluster-api v0.3.10-gs
 )

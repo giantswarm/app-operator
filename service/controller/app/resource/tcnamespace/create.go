@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/giantswarm/app/v5/pkg/key"
+	"github.com/giantswarm/app/v6/pkg/key"
 	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/k8smetadata/pkg/label"
 	"github.com/giantswarm/microerror"

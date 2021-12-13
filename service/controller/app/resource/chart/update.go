@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
+	"github.com/giantswarm/apiextensions-application/api/v1alpha1"
 	"github.com/giantswarm/microerror"
-	"github.com/giantswarm/operatorkit/v5/pkg/resource/crud"
+	"github.com/giantswarm/operatorkit/v6/pkg/resource/crud"
 	"github.com/google/go-cmp/cmp"
 
 	"github.com/giantswarm/app-operator/v5/service/controller/app/controllercontext"
