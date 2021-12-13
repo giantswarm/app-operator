@@ -99,7 +99,7 @@ func (c *AppValueWatcher) watchSecret(ctx context.Context) {
 
 			c.logger.Debugf(ctx, "listing apps depends on %#q secret in namespace %#q", secret.Name, secret.Namespace)
 
-			var currentApp *v1alpha1.App
+			var currentApp v1alpha1.App
 
 			for app := range storedIndex {
 				c.logger.Debugf(ctx, "triggering %#q app update in namespace %#q", app.Name, app.Namespace)
@@ -107,14 +107,14 @@ func (c *AppValueWatcher) watchSecret(ctx context.Context) {
 				err = c.k8sClient.CtrlClient().Get(
 					ctx,
 					types.NamespacedName{Name: app.Name, Namespace: app.Namespace},
-					currentApp,
+					&currentApp,
 				)
 				if err != nil {
 					c.logger.Errorf(ctx, err, "cannot fetch app CR %s/%s", app.Namespace, app.Name)
 					continue
 				}
 
-				err = c.addAnnotation(ctx, currentApp, secret.GetResourceVersion(), secretType)
+				err = c.addAnnotation(ctx, &currentApp, secret.GetResourceVersion(), secretType)
 				if err != nil {
 					c.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("failed to add annotation to app %#q in namespace %#q", app.Name, app.Namespace), "stack", fmt.Sprintf("%#v", err))
 					continue
@@ -122,7 +122,7 @@ func (c *AppValueWatcher) watchSecret(ctx context.Context) {
 
 				c.logger.Debugf(ctx, "triggered %#q app update in namespace %#q", app.Name, app.Namespace)
 
-				c.event.Emit(ctx, currentApp, "AppUpdated", "change to secret %s/%s triggered an update", secret.Namespace, secret.Name)
+				c.event.Emit(ctx, &currentApp, "AppUpdated", "change to secret %s/%s triggered an update", secret.Namespace, secret.Name)
 			}
 			c.logger.Debugf(ctx, "listed apps depends on %#q secret in namespace %#q", secret.Name, secret.Namespace)
 		}
