@@ -4,12 +4,12 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
-	"github.com/giantswarm/app/v5/pkg/key"
-	"github.com/giantswarm/app/v5/pkg/validation"
+	"github.com/giantswarm/apiextensions-application/api/v1alpha1"
+	"github.com/giantswarm/app/v6/pkg/key"
+	"github.com/giantswarm/app/v6/pkg/validation"
 	"github.com/giantswarm/microerror"
-	"github.com/giantswarm/operatorkit/v5/pkg/controller/context/reconciliationcanceledcontext"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"github.com/giantswarm/operatorkit/v6/pkg/controller/context/reconciliationcanceledcontext"
+	"k8s.io/apimachinery/pkg/types"
 
 	"github.com/giantswarm/app-operator/v5/pkg/status"
 )
@@ -42,8 +42,14 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 func (r *Resource) updateAppStatus(ctx context.Context, cr v1alpha1.App, reason string) error {
 	r.logger.Debugf(ctx, "setting status for app %#q in namespace %#q", cr.Name, cr.Namespace)
 
+	var currentCR v1alpha1.App
+
 	// Get app CR again to ensure the resource version is correct.
-	currentCR, err := r.g8sClient.ApplicationV1alpha1().Apps(cr.Namespace).Get(ctx, cr.Name, metav1.GetOptions{})
+	err := r.k8sClient.CtrlClient().Get(
+		ctx,
+		types.NamespacedName{Name: cr.Name, Namespace: cr.Namespace},
+		&currentCR,
+	)
 	if err != nil {
 		return microerror.Mask(err)
 	}
@@ -55,7 +61,7 @@ func (r *Resource) updateAppStatus(ctx context.Context, cr v1alpha1.App, reason 
 		},
 	}
 
-	_, err = r.g8sClient.ApplicationV1alpha1().Apps(cr.Namespace).UpdateStatus(ctx, currentCR, metav1.UpdateOptions{})
+	err = r.k8sClient.CtrlClient().Status().Update(ctx, &currentCR)
 	if err != nil {
 		return microerror.Mask(err)
 	}

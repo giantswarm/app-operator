@@ -1,11 +1,10 @@
 package validation
 
 import (
-	"github.com/giantswarm/apiextensions/v3/pkg/clientset/versioned"
-	"github.com/giantswarm/app/v5/pkg/validation"
+	"github.com/giantswarm/app/v6/pkg/validation"
+	"github.com/giantswarm/k8sclient/v6/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
-	"k8s.io/client-go/kubernetes"
 )
 
 const (
@@ -14,8 +13,7 @@ const (
 
 // Config represents the configuration used to create a new chartstatus resource.
 type Config struct {
-	G8sClient versioned.Interface
-	K8sClient kubernetes.Interface
+	K8sClient k8sclient.Interface
 	Logger    micrologger.Logger
 
 	ProjectName string
@@ -25,14 +23,11 @@ type Config struct {
 // Resource implements the chartstatus resource.
 type Resource struct {
 	appValidator *validation.Validator
-	g8sClient    versioned.Interface
+	k8sClient    k8sclient.Interface
 	logger       micrologger.Logger
 }
 
 func New(config Config) (*Resource, error) {
-	if config.G8sClient == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.G8sClient must not be empty", config)
-	}
 	if config.K8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
 	}
@@ -52,8 +47,8 @@ func New(config Config) (*Resource, error) {
 	var appValidator *validation.Validator
 	{
 		c := validation.Config{
-			G8sClient: config.G8sClient,
-			K8sClient: config.K8sClient,
+			G8sClient: config.K8sClient.CtrlClient(),
+			K8sClient: config.K8sClient.K8sClient(),
 			Logger:    config.Logger,
 
 			ProjectName: config.ProjectName,
@@ -68,7 +63,7 @@ func New(config Config) (*Resource, error) {
 	r := &Resource{
 		// Dependencies.
 		appValidator: appValidator,
-		g8sClient:    config.G8sClient,
+		k8sClient:    config.K8sClient,
 		logger:       config.Logger,
 	}
 
