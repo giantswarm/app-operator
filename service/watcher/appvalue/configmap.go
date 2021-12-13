@@ -144,12 +144,12 @@ func (c *AppValueWatcher) addAnnotation(ctx context.Context, app *v1alpha1.App, 
 		}
 	}
 
-	var modifiedApp *v1alpha1.App
+	var modifiedApp v1alpha1.App
 
 	err := c.k8sClient.CtrlClient().Get(
 		ctx,
 		types.NamespacedName{Name: app.Name, Namespace: app.Namespace},
-		modifiedApp,
+		&modifiedApp,
 	)
 	if err != nil {
 		return microerror.Mask(err)
@@ -163,7 +163,7 @@ func (c *AppValueWatcher) addAnnotation(ctx context.Context, app *v1alpha1.App, 
 	annotations[versionAnnotation] = latestResourceVersion
 	modifiedApp.Annotations = annotations
 
-	err = c.k8sClient.CtrlClient().Patch(ctx, modifiedApp, client.MergeFrom(app))
+	err = c.k8sClient.CtrlClient().Patch(ctx, &modifiedApp, client.MergeFrom(app))
 	if err != nil {
 		return microerror.Mask(err)
 	}
