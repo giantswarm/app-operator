@@ -4,8 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/giantswarm/app/v5/pkg/key"
-	"github.com/giantswarm/backoff"
+	"github.com/giantswarm/app/v6/pkg/key"
 	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/microerror"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -53,7 +52,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	}
 
 	go func() {
-		err = cc.Clients.K8s.CRDClient().EnsureCreated(ctx, crdResource, backoff.NewMaxRetries(7, 1*time.Second))
+		err = cc.Clients.K8s.CtrlClient().Create(ctx, crdResource)
 
 		close(ch)
 	}()
