@@ -13,7 +13,6 @@ import (
 	"github.com/giantswarm/helmclient/v4/pkg/helmclient"
 	"github.com/giantswarm/k8smetadata/pkg/label"
 	"github.com/spf13/afero"
-	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/yaml"
 
