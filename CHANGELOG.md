@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Removed
+
+- Remove `releasemigration` resource now migration to Helm 3 is complete.
+
 ## [5.3.1] - 2021-12-08
 
 ### Added
