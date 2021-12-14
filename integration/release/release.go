@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/backoff"
 	"github.com/giantswarm/helmclient/v4/pkg/helmclient"
 	"github.com/giantswarm/k8sclient/v5/pkg/k8sclient"
@@ -16,6 +17,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
 )
 
 type Config struct {
@@ -51,8 +53,15 @@ func New(config Config) (*Release, error) {
 }
 
 func (r *Release) WaitForDeletedApp(ctx context.Context, namespace, appName string) error {
+	var app v1alpha1.App
+	var err error
+
 	o := func() error {
-		_, err := r.k8sClient.G8sClient().ApplicationV1alpha1().Apps(namespace).Get(ctx, appName, metav1.GetOptions{})
+		err = r.k8sClient.CtrlClient().Get(
+			ctx,
+			types.NamespacedName{Namespace: namespace, Name: appName},
+			&app,
+		)
 		if apierrors.IsNotFound(err) {
 			// Fall through.
 			return nil
@@ -68,7 +77,7 @@ func (r *Release) WaitForDeletedApp(ctx context.Context, namespace, appName stri
 	}
 
 	b := backoff.NewExponential(10*time.Minute, 60*time.Second)
-	err := backoff.RetryNotify(o, b, n)
+	err = backoff.RetryNotify(o, b, n)
 	if err != nil {
 		return microerror.Mask(err)
 	}
@@ -76,8 +85,15 @@ func (r *Release) WaitForDeletedApp(ctx context.Context, namespace, appName stri
 }
 
 func (r *Release) WaitForDeletedChart(ctx context.Context, namespace, chartName string) error {
+	var chart v1alpha1.Chart
+	var err error
+
 	o := func() error {
-		_, err := r.k8sClient.G8sClient().ApplicationV1alpha1().Charts(namespace).Get(ctx, chartName, metav1.GetOptions{})
+		err = r.k8sClient.CtrlClient().Get(
+			ctx,
+			types.NamespacedName{Namespace: namespace, Name: chartName},
+			&chart,
+		)
 		if apierrors.IsNotFound(err) {
 			// Fall through.
 			return nil
@@ -93,7 +109,7 @@ func (r *Release) WaitForDeletedChart(ctx context.Context, namespace, chartName 
 	}
 
 	b := backoff.NewExponential(10*time.Minute, 60*time.Second)
-	err := backoff.RetryNotify(o, b, n)
+	err = backoff.RetryNotify(o, b, n)
 	if err != nil {
 		return microerror.Mask(err)
 	}

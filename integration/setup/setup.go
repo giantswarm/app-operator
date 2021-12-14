@@ -7,13 +7,12 @@ import (
 	"context"
 	"os"
 	"testing"
-	"time"
 
 	"github.com/giantswarm/appcatalog"
-	"github.com/giantswarm/backoff"
 	"github.com/giantswarm/helmclient/v4/pkg/helmclient"
 	"github.com/giantswarm/microerror"
 	"github.com/spf13/afero"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"sigs.k8s.io/yaml"
 
 	"github.com/giantswarm/app-operator/v5/integration/env"
@@ -64,7 +63,6 @@ func installResources(ctx context.Context, config Config) error {
 		"AppCatalog",
 		"AppCatalogEntry",
 		"Catalog",
-		"Chart",
 	}
 
 	{
@@ -76,8 +74,11 @@ func installResources(ctx context.Context, config Config) error {
 				return microerror.Mask(err)
 			}
 
-			err = config.K8sClients.CRDClient().EnsureCreated(ctx, crd, backoff.NewMaxRetries(7, 1*time.Second))
-			if err != nil {
+			err = config.K8sClients.CtrlClient().Create(ctx, crd)
+			if apierrors.IsAlreadyExists(err) {
+				config.Logger.Debugf(ctx, "CRD %#q already exists", crdName)
+				continue
+			} else if err != nil {
 				return microerror.Mask(err)
 			}
 

@@ -6,15 +6,15 @@ package basic
 import (
 	"context"
 	"testing"
-	"time"
 
+	"github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/appcatalog"
 	"github.com/giantswarm/apptest"
-	"github.com/giantswarm/backoff"
 	"github.com/giantswarm/helmclient/v4/pkg/helmclient"
 	"github.com/giantswarm/k8smetadata/pkg/label"
 	"github.com/spf13/afero"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/yaml"
 
 	"github.com/giantswarm/app-operator/v5/integration/key"
@@ -36,6 +36,9 @@ import (
 //
 func TestAppLifecycle(t *testing.T) {
 	ctx := context.Background()
+
+	var chart v1alpha1.Chart
+	var cr v1alpha1.App
 	var err error
 
 	{
@@ -48,8 +51,10 @@ func TestAppLifecycle(t *testing.T) {
 				t.Fatalf("expected %#v got %#v", nil, err)
 			}
 
-			err = config.K8sClients.CRDClient().EnsureCreated(ctx, crd, backoff.NewMaxRetries(7, 1*time.Second))
-			if err != nil {
+			err = config.K8sClients.CtrlClient().Create(ctx, crd)
+			if apierrors.IsAlreadyExists(err) {
+				// no-op
+			} else if err != nil {
 				t.Fatalf("expected %#v got %#v", nil, err)
 			}
 
@@ -131,7 +136,11 @@ func TestAppLifecycle(t *testing.T) {
 		config.Logger.Debugf(ctx, "checking tarball URL in chart spec")
 
 		tarballURL := "https://giantswarm.github.io/default-catalog/test-app-0.1.0.tgz"
-		chart, err := config.K8sClients.G8sClient().ApplicationV1alpha1().Charts(key.GiantSwarmNamespace()).Get(ctx, key.TestAppName(), metav1.GetOptions{})
+		err = config.K8sClients.CtrlClient().Get(
+			ctx,
+			types.NamespacedName{Name: key.TestAppName(), Namespace: key.GiantSwarmNamespace()},
+			&chart,
+		)
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
@@ -148,13 +157,17 @@ func TestAppLifecycle(t *testing.T) {
 	{
 		config.Logger.Debugf(ctx, "updating app %#q", key.TestAppName())
 
-		cr, err := config.K8sClients.G8sClient().ApplicationV1alpha1().Apps(key.GiantSwarmNamespace()).Get(ctx, key.TestAppName(), metav1.GetOptions{})
+		err = config.K8sClients.CtrlClient().Get(
+			ctx,
+			types.NamespacedName{Name: key.TestAppName(), Namespace: key.GiantSwarmNamespace()},
+			&cr,
+		)
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
 
 		cr.Spec.Version = "0.1.1"
-		_, err = config.K8sClients.G8sClient().ApplicationV1alpha1().Apps(key.GiantSwarmNamespace()).Update(ctx, cr, metav1.UpdateOptions{})
+		err = config.K8sClients.CtrlClient().Update(ctx, &cr)
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
@@ -170,7 +183,11 @@ func TestAppLifecycle(t *testing.T) {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
 
-		chart, err := config.K8sClients.G8sClient().ApplicationV1alpha1().Charts(key.GiantSwarmNamespace()).Get(ctx, key.TestAppName(), metav1.GetOptions{})
+		err = config.K8sClients.CtrlClient().Get(
+			ctx,
+			types.NamespacedName{Name: key.TestAppName(), Namespace: key.GiantSwarmNamespace()},
+			&chart,
+		)
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
@@ -186,7 +203,11 @@ func TestAppLifecycle(t *testing.T) {
 	{
 		config.Logger.Debugf(ctx, "checking status for app CR %#q", key.TestAppName())
 
-		cr, err := config.K8sClients.G8sClient().ApplicationV1alpha1().Apps(key.GiantSwarmNamespace()).Get(ctx, key.TestAppName(), metav1.GetOptions{})
+		err = config.K8sClients.CtrlClient().Get(
+			ctx,
+			types.NamespacedName{Name: key.TestAppName(), Namespace: key.GiantSwarmNamespace()},
+			&cr,
+		)
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
@@ -200,7 +221,7 @@ func TestAppLifecycle(t *testing.T) {
 	{
 		config.Logger.Debugf(ctx, "deleting app CR %#q", key.TestAppName())
 
-		err = config.K8sClients.G8sClient().ApplicationV1alpha1().Apps(key.GiantSwarmNamespace()).Delete(ctx, key.TestAppName(), metav1.DeleteOptions{})
+		err = config.K8sClients.CtrlClient().Delete(ctx, &cr)
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
