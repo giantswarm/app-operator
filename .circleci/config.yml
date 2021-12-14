@@ -54,6 +54,7 @@ workflows:
       - architect/integration-test:
           context: architect
           name: basic-integration-test
+          setup-script: "integration/setup/setup.sh"
           test-dir: "integration/test/app/basic"
           requires:
             - go-build
@@ -62,6 +63,7 @@ workflows:
       - architect/integration-test:
           context: architect
           name: appcatalogentry-integration-test
+          setup-script: "integration/setup/setup.sh"
           test-dir: "integration/test/catalog/appcatalogentry"
           requires:
             - go-build
@@ -70,6 +72,7 @@ workflows:
       - architect/integration-test:
           context: architect
           name: watching-configmap-integration-test
+          setup-script: "integration/setup/setup.sh"
           test-dir: "integration/test/watcher/configmap"
           requires:
             - go-build
@@ -78,6 +81,7 @@ workflows:
       - architect/integration-test:
           context: architect
           name: workload-cluster-integration-test
+          setup-script: "integration/setup/setup.sh"
           test-dir: "integration/test/app/workload"
           requires:
             - go-build
