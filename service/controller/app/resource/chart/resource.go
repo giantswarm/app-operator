@@ -2,7 +2,6 @@ package chart
 
 import (
 	"context"
-	"encoding/json"
 	"strings"
 
 	"github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
@@ -10,7 +9,7 @@ import (
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/types"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/giantswarm/app-operator/v5/service/controller/app/controllercontext"
 )
@@ -76,22 +75,15 @@ func (r *Resource) removeFinalizer(ctx context.Context, chart *v1alpha1.Chart) e
 		return nil
 	}
 
-	// `chart-operator` helm release is already deleted by the `chartoperator` resource at this point.
-	// So app-operator needs to remove finalizers so the chart-operator chart CR is deleted.
-	patch := []patch{
-		{
-			Op:   "remove",
-			Path: "/metadata/finalizers",
-		},
-	}
-	bytes, err := json.Marshal(patch)
-	if err != nil {
-		return microerror.Mask(err)
-	}
-
 	r.logger.Debugf(ctx, "deleting finalizers on Chart CR %#q in namespace %#q", chart.Name, chart.Namespace)
 
-	_, err = cc.Clients.K8s.G8sClient().ApplicationV1alpha1().Charts(chart.Namespace).Patch(ctx, chart.Name, types.JSONPatchType, bytes, metav1.PatchOptions{})
+	modifiedChart := chart.DeepCopy()
+
+	// `chart-operator` helm release is already deleted by the `chartoperator` resource at this point.
+	// So app-operator needs to remove finalizers so the chart-operator chart CR is deleted.
+	modifiedChart.Finalizers = []string{}
+
+	err = cc.Clients.K8s.CtrlClient().Patch(ctx, modifiedChart, client.MergeFrom(chart))
 	if err != nil {
 		return microerror.Mask(err)
 	}

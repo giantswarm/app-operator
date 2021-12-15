@@ -8,7 +8,7 @@ import (
 	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/microerror"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
 
 	"github.com/giantswarm/app-operator/v5/service/controller/app/controllercontext"
 )
@@ -30,6 +30,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return nil
 	}
 
+	var chart v1alpha1.Chart
 	var desiredStatus v1alpha1.AppStatus
 
 	if cc.Status.ChartStatus.Status != "" {
@@ -48,7 +49,11 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 		r.logger.Debugf(ctx, "finding status for chart %#q in namespace %#q", cr.Name, r.chartNamespace)
 
-		chart, err := cc.Clients.K8s.G8sClient().ApplicationV1alpha1().Charts(r.chartNamespace).Get(ctx, cr.Name, metav1.GetOptions{})
+		err = cc.Clients.K8s.CtrlClient().Get(
+			ctx,
+			types.NamespacedName{Name: cr.Name, Namespace: r.chartNamespace},
+			&chart,
+		)
 		if apierrors.IsNotFound(err) {
 			r.logger.Debugf(ctx, "did not find chart %#q in namespace %#q", cr.Name, r.chartNamespace)
 			r.logger.Debugf(ctx, "canceling resource")
@@ -65,7 +70,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 		r.logger.Debugf(ctx, "found status for chart %#q in namespace %#q", cr.Name, r.chartNamespace)
 
-		chartStatus := key.ChartStatus(*chart)
+		chartStatus := key.ChartStatus(chart)
 		desiredStatus = v1alpha1.AppStatus{
 			AppVersion: chartStatus.AppVersion,
 			Release: v1alpha1.AppStatusRelease{
@@ -83,14 +88,20 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		r.logger.Debugf(ctx, "setting status for app %#q in namespace %#q", cr.Name, cr.Namespace)
 
 		// Get app CR again to ensure the resource version is correct.
-		currentCR, err := r.g8sClient.ApplicationV1alpha1().Apps(cr.Namespace).Get(ctx, cr.Name, metav1.GetOptions{})
+		var currentCR v1alpha1.App
+
+		err = r.ctrlClient.Get(
+			ctx,
+			types.NamespacedName{Name: cr.Name, Namespace: cr.Namespace},
+			&currentCR,
+		)
 		if err != nil {
 			return microerror.Mask(err)
 		}
 
 		currentCR.Status = desiredStatus
 
-		_, err = r.g8sClient.ApplicationV1alpha1().Apps(cr.Namespace).UpdateStatus(ctx, currentCR, metav1.UpdateOptions{})
+		err = r.ctrlClient.Status().Update(ctx, &currentCR)
 		if err != nil {
 			return microerror.Mask(err)
 		}

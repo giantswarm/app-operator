@@ -17,6 +17,7 @@ import (
 	"github.com/google/go-cmp/cmp"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
 
 	pkglabel "github.com/giantswarm/app-operator/v5/pkg/label"
 	"github.com/giantswarm/app-operator/v5/pkg/project"
@@ -125,7 +126,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 func (r *Resource) createAppCatalogEntry(ctx context.Context, entryCR *v1alpha1.AppCatalogEntry) error {
 	r.logger.Debugf(ctx, "creating appcatalogentry CR %#q in namespace %#q", entryCR.Name, entryCR.Namespace)
 
-	_, err := r.k8sClient.G8sClient().ApplicationV1alpha1().AppCatalogEntries(entryCR.Namespace).Create(ctx, entryCR, metav1.CreateOptions{})
+	err := r.k8sClient.CtrlClient().Create(ctx, entryCR)
 	if apierrors.IsAlreadyExists(err) {
 		r.logger.Debugf(ctx, "already created appcatalogentry CR %#q in namespace %#q", entryCR.Name, entryCR.Namespace)
 		return nil
@@ -141,7 +142,7 @@ func (r *Resource) createAppCatalogEntry(ctx context.Context, entryCR *v1alpha1.
 func (r *Resource) deleteAppCatalogEntry(ctx context.Context, entryCR *v1alpha1.AppCatalogEntry) error {
 	r.logger.Debugf(ctx, "deleting appcatalogentry CR %#q in namespace %#q", entryCR.Name, entryCR.Namespace)
 
-	err := r.k8sClient.G8sClient().ApplicationV1alpha1().AppCatalogEntries(entryCR.Namespace).Delete(ctx, entryCR.Name, metav1.DeleteOptions{})
+	err := r.k8sClient.CtrlClient().Delete(ctx, entryCR)
 	if err != nil {
 		return microerror.Mask(err)
 	}
@@ -154,13 +155,19 @@ func (r *Resource) deleteAppCatalogEntry(ctx context.Context, entryCR *v1alpha1.
 func (r *Resource) updateAppCatalogEntry(ctx context.Context, entryCR *v1alpha1.AppCatalogEntry) error {
 	r.logger.Debugf(ctx, "updating appcatalogentry CR %#q in namespace %#q", entryCR.Name, entryCR.Namespace)
 
-	currentCR, err := r.k8sClient.G8sClient().ApplicationV1alpha1().AppCatalogEntries(entryCR.Namespace).Get(ctx, entryCR.Name, metav1.GetOptions{})
+	var currentCR v1alpha1.AppCatalogEntry
+
+	err := r.k8sClient.CtrlClient().Get(
+		ctx,
+		types.NamespacedName{Name: entryCR.Name, Namespace: entryCR.Namespace},
+		&currentCR,
+	)
 	if err != nil {
 		return microerror.Mask(err)
 	}
 
 	entryCR.ResourceVersion = currentCR.ResourceVersion
-	_, err = r.k8sClient.G8sClient().ApplicationV1alpha1().AppCatalogEntries(entryCR.Namespace).Update(ctx, entryCR, metav1.UpdateOptions{})
+	err = r.k8sClient.CtrlClient().Update(ctx, entryCR)
 	if err != nil {
 		return microerror.Mask(err)
 	}

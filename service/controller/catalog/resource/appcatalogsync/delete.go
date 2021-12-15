@@ -3,10 +3,12 @@ package appcatalogsync
 import (
 	"context"
 
+	"github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/app/v5/pkg/key"
 	"github.com/giantswarm/microerror"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
 )
 
 // EnsureDeleted ensures appcatalog CRs are deleted when catalog CRs are deleted.
@@ -26,7 +28,13 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 		return nil
 	}
 
-	_, err = r.k8sClient.G8sClient().ApplicationV1alpha1().AppCatalogs().Get(ctx, cr.GetName(), metav1.GetOptions{})
+	var appCatalogCR v1alpha1.AppCatalog
+
+	err = r.k8sClient.CtrlClient().Get(
+		ctx,
+		types.NamespacedName{Name: cr.Name},
+		&appCatalogCR,
+	)
 	if apierrors.IsNotFound(err) {
 		//no-op
 		return nil
@@ -34,7 +42,7 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 
 	r.logger.Debugf(ctx, "deleting appCatalog %#q which had been created for compatibility", cr.GetName())
 
-	err = r.k8sClient.G8sClient().ApplicationV1alpha1().AppCatalogs().Delete(ctx, cr.GetName(), metav1.DeleteOptions{})
+	err = r.k8sClient.CtrlClient().Delete(ctx, &appCatalogCR)
 	if apierrors.IsNotFound(err) {
 		// no-op
 		return nil

@@ -51,7 +51,7 @@ func (r Resource) Name() string {
 
 // equals asseses the equality of AppCatalog with regards to distinguishing
 // fields.
-func equals(a, b *v1alpha1.AppCatalog) bool {
+func equals(a, b v1alpha1.AppCatalog) bool {
 	if a.Name != b.Name {
 		return false
 	}

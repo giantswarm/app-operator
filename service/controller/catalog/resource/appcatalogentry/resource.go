@@ -15,6 +15,8 @@ import (
 	"github.com/giantswarm/micrologger"
 	"github.com/prometheus/client_golang/prometheus"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/labels"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/yaml"
 
 	"github.com/giantswarm/app-operator/v5/pkg/project"
@@ -79,10 +81,13 @@ func (r *Resource) getCurrentEntryCRs(ctx context.Context, cr v1alpha1.Catalog) 
 
 	currentEntryCRs := map[string]*v1alpha1.AppCatalogEntry{}
 
-	lo := metav1.ListOptions{
-		LabelSelector: fmt.Sprintf("%s=%s,%s=%s", label.ManagedBy, key.AppCatalogEntryManagedBy(project.Name()), label.CatalogName, cr.Name),
+	entryLabels, err := labels.Parse(fmt.Sprintf("%s=%s,%s=%s", label.ManagedBy, key.AppCatalogEntryManagedBy(project.Name()), label.CatalogName, cr.Name))
+	if err != nil {
+		return nil, microerror.Mask(err)
 	}
-	entries, err := r.k8sClient.G8sClient().ApplicationV1alpha1().AppCatalogEntries(metav1.NamespaceAll).List(ctx, lo)
+
+	entries := &v1alpha1.AppCatalogEntryList{}
+	err = r.k8sClient.CtrlClient().List(ctx, entries, &client.ListOptions{LabelSelector: entryLabels})
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}

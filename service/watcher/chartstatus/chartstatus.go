@@ -100,7 +100,7 @@ func (c *ChartStatusWatcher) watchChartStatus(ctx context.Context) {
 		// created during cluster creation so we wait till it exists.
 		dynClient, err := c.waitForDynClient(ctx)
 		if err != nil {
-			c.logger.Errorf(ctx, err, "failed to get g8sclient")
+			c.logger.Errorf(ctx, err, "failed to get dyn client")
 			continue
 		}
 
