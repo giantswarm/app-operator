@@ -9,8 +9,13 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ### Changed
 
-- Update Helm to v3.6.3.
+- Update Helm to `v3.6.3`.
 - Use controller-runtime client to remove CAPI dependency.
+- Use `apptestctl` to install CRDs in integration tests to avoid hitting GitHub rate limits.
+
+### Removed
+
+- Remove `releasemigration` resource now migration to Helm 3 is complete.
 
 ## [5.3.1] - 2021-12-08
 

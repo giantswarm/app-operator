@@ -12,7 +12,6 @@ import (
 	"github.com/giantswarm/helmclient/v4/pkg/helmclient"
 	"github.com/giantswarm/microerror"
 	"github.com/spf13/afero"
-	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"sigs.k8s.io/yaml"
 
 	"github.com/giantswarm/app-operator/v5/integration/env"
@@ -54,36 +53,6 @@ func installResources(ctx context.Context, config Config) error {
 		err = config.K8s.EnsureNamespaceCreated(ctx, key.GiantSwarmNamespace())
 		if err != nil {
 			return microerror.Mask(err)
-		}
-	}
-
-	// for the kubeconfig test that bootstraps chart-operator.
-	crds := []string{
-		"App",
-		"AppCatalog",
-		"AppCatalogEntry",
-		"Catalog",
-		"Chart",
-	}
-
-	{
-		for _, crdName := range crds {
-			config.Logger.Debugf(ctx, "ensuring %#q CRD exists", crdName)
-
-			crd, err := config.CRDGetter.LoadCRD(ctx, "application.giantswarm.io", crdName)
-			if err != nil {
-				return microerror.Mask(err)
-			}
-
-			err = config.K8sClients.CtrlClient().Create(ctx, crd)
-			if apierrors.IsAlreadyExists(err) {
-				config.Logger.Debugf(ctx, "CRD %#q already exists", crdName)
-				continue
-			} else if err != nil {
-				return microerror.Mask(err)
-			}
-
-			config.Logger.Debugf(ctx, "ensured %#q CRD exists", crdName)
 		}
 	}
 
