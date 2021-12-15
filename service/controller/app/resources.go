@@ -298,8 +298,9 @@ func newAppResources(config appResourcesConfig) ([]resource.Interface, error) {
 	var validationResource resource.Interface
 	{
 		c := validation.Config{
-			K8sClient: config.K8sClient,
-			Logger:    config.Logger,
+			CtrlClient: config.K8sClient.CtrlClient(),
+			K8sClient:  config.K8sClient.K8sClient(),
+			Logger:     config.Logger,
 
 			ProjectName: config.ProjectName,
 			Provider:    config.Provider,

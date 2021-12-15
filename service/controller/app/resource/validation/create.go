@@ -45,7 +45,7 @@ func (r *Resource) updateAppStatus(ctx context.Context, cr v1alpha1.App, reason 
 	var currentCR v1alpha1.App
 
 	// Get app CR again to ensure the resource version is correct.
-	err := r.k8sClient.CtrlClient().Get(
+	err := r.ctrlClient.Get(
 		ctx,
 		types.NamespacedName{Name: cr.Name, Namespace: cr.Namespace},
 		&currentCR,
@@ -61,7 +61,7 @@ func (r *Resource) updateAppStatus(ctx context.Context, cr v1alpha1.App, reason 
 		},
 	}
 
-	err = r.k8sClient.CtrlClient().Status().Update(ctx, &currentCR)
+	err = r.ctrlClient.Status().Update(ctx, &currentCR)
 	if err != nil {
 		return microerror.Mask(err)
 	}

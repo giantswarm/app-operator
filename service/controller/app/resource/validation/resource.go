@@ -2,9 +2,10 @@ package validation
 
 import (
 	"github.com/giantswarm/app/v6/pkg/validation"
-	"github.com/giantswarm/k8sclient/v6/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
+	"k8s.io/client-go/kubernetes"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 const (
@@ -13,8 +14,9 @@ const (
 
 // Config represents the configuration used to create a new chartstatus resource.
 type Config struct {
-	K8sClient k8sclient.Interface
-	Logger    micrologger.Logger
+	CtrlClient client.Client
+	K8sClient  kubernetes.Interface
+	Logger     micrologger.Logger
 
 	ProjectName string
 	Provider    string
@@ -23,7 +25,7 @@ type Config struct {
 // Resource implements the chartstatus resource.
 type Resource struct {
 	appValidator *validation.Validator
-	k8sClient    k8sclient.Interface
+	ctrlClient   client.Client
 	logger       micrologger.Logger
 }
 
@@ -47,8 +49,8 @@ func New(config Config) (*Resource, error) {
 	var appValidator *validation.Validator
 	{
 		c := validation.Config{
-			G8sClient: config.K8sClient.CtrlClient(),
-			K8sClient: config.K8sClient.K8sClient(),
+			G8sClient: config.CtrlClient,
+			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
 
 			ProjectName: config.ProjectName,
@@ -63,7 +65,7 @@ func New(config Config) (*Resource, error) {
 	r := &Resource{
 		// Dependencies.
 		appValidator: appValidator,
-		k8sClient:    config.K8sClient,
+		ctrlClient:   config.CtrlClient,
 		logger:       config.Logger,
 	}
 
