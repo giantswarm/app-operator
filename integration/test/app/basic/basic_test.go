@@ -13,7 +13,6 @@ import (
 	"github.com/giantswarm/helmclient/v4/pkg/helmclient"
 	"github.com/giantswarm/k8smetadata/pkg/label"
 	"github.com/spf13/afero"
-	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/yaml"
 
@@ -42,25 +41,6 @@ func TestAppLifecycle(t *testing.T) {
 	var err error
 
 	{
-		{
-			crdName := "Chart"
-			config.Logger.Debugf(ctx, "ensuring %#q CRD exists", crdName)
-
-			crd, err := config.CRDGetter.LoadCRD(ctx, "application.giantswarm.io", crdName)
-			if err != nil {
-				t.Fatalf("expected %#v got %#v", nil, err)
-			}
-
-			err = config.K8sClients.CtrlClient().Create(ctx, crd)
-			if apierrors.IsAlreadyExists(err) {
-				// no-op
-			} else if err != nil {
-				t.Fatalf("expected %#v got %#v", nil, err)
-			}
-
-			config.Logger.Debugf(ctx, "ensured %#q CRD exists", crdName)
-		}
-
 		var tarballPath string
 		{
 			config.Logger.Debugf(ctx, "installing %#q", key.ChartOperatorName())

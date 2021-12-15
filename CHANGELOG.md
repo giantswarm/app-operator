@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Changed
+
+- Use `apptestctl` to install CRDs in integration tests to avoid hitting GitHub rate limits.
+
 ### Removed
 
 - Remove `releasemigration` resource now migration to Helm 3 is complete.
