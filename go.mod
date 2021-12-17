@@ -12,14 +12,14 @@ require (
 	github.com/giantswarm/backoff v0.2.0
 	github.com/giantswarm/errors v0.3.0
 	github.com/giantswarm/helmclient/v4 v4.9.0
-	github.com/giantswarm/k8sclient/v6 v6.0.1-0.20211216105926-ea56d139d1fe
+	github.com/giantswarm/k8sclient/v6 v6.1.0
 	github.com/giantswarm/k8smetadata v0.7.1
 	github.com/giantswarm/kubeconfig/v4 v4.1.0
 	github.com/giantswarm/microendpoint v0.3.0
 	github.com/giantswarm/microerror v0.4.0
 	github.com/giantswarm/microkit v0.2.2
 	github.com/giantswarm/micrologger v0.6.0
-	github.com/giantswarm/operatorkit/v6 v6.0.1-0.20211216110045-41c3087cf2db
+	github.com/giantswarm/operatorkit/v6 v6.1.0
 	github.com/giantswarm/to v0.4.0
 	github.com/google/go-cmp v0.5.6
 	github.com/patrickmn/go-cache v2.1.0+incompatible
