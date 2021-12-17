@@ -5,7 +5,7 @@ package label
 import (
 	"fmt"
 
-	"github.com/giantswarm/app/v5/pkg/key"
+	"github.com/giantswarm/app/v6/pkg/key"
 	"github.com/giantswarm/k8smetadata/pkg/label"
 	k8smetadatalabel "github.com/giantswarm/k8smetadata/pkg/label"
 	"k8s.io/apimachinery/pkg/labels"

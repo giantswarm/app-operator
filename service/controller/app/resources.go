@@ -3,15 +3,15 @@ package app
 import (
 	"time"
 
-	"github.com/giantswarm/app/v5/pkg/values"
+	"github.com/giantswarm/app/v6/pkg/values"
 	"github.com/giantswarm/helmclient/v4/pkg/helmclient"
-	"github.com/giantswarm/k8sclient/v5/pkg/k8sclient"
+	"github.com/giantswarm/k8sclient/v6/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
-	"github.com/giantswarm/operatorkit/v5/pkg/resource"
-	"github.com/giantswarm/operatorkit/v5/pkg/resource/crud"
-	"github.com/giantswarm/operatorkit/v5/pkg/resource/wrapper/metricsresource"
-	"github.com/giantswarm/operatorkit/v5/pkg/resource/wrapper/retryresource"
+	"github.com/giantswarm/operatorkit/v6/pkg/resource"
+	"github.com/giantswarm/operatorkit/v6/pkg/resource/crud"
+	"github.com/giantswarm/operatorkit/v6/pkg/resource/wrapper/metricsresource"
+	"github.com/giantswarm/operatorkit/v6/pkg/resource/wrapper/retryresource"
 	"github.com/spf13/afero"
 
 	"github.com/giantswarm/app-operator/v5/service/controller/app/resource/appfinalizermigration"
@@ -298,9 +298,9 @@ func newAppResources(config appResourcesConfig) ([]resource.Interface, error) {
 	var validationResource resource.Interface
 	{
 		c := validation.Config{
-			G8sClient: config.K8sClient.G8sClient(),
-			K8sClient: config.K8sClient.K8sClient(),
-			Logger:    config.Logger,
+			CtrlClient: config.K8sClient.CtrlClient(),
+			K8sClient:  config.K8sClient.K8sClient(),
+			Logger:     config.Logger,
 
 			ProjectName: config.ProjectName,
 			Provider:    config.Provider,
