@@ -347,8 +347,6 @@ github.com/giantswarm/exporterkit v0.2.1/go.mod h1:LkZNK+2qTcbHspbizA6JBBXpQW99u
 github.com/giantswarm/helmclient/v4 v4.9.0 h1:s9mXKg+iNys8WeQZ89WT79arEiafhD0WASaTFdU27gc=
 github.com/giantswarm/helmclient/v4 v4.9.0/go.mod h1:wGzGTuAzRAhptjQnRpjXWiTPyMZyTA+fv34gUf48pN4=
 github.com/giantswarm/k8sclient/v6 v6.0.0/go.mod h1:mF0FgQHqCrAhk5EGiyN7RfgMMsz7CP3GoaFsfZ5KHps=
-github.com/giantswarm/k8sclient/v6 v6.0.1-0.20211216105926-ea56d139d1fe h1:1kefW5ZuSmVYQyTUVc+JInF6r+QtDDFh3rN2X2vHvUY=
-github.com/giantswarm/k8sclient/v6 v6.0.1-0.20211216105926-ea56d139d1fe/go.mod h1:mF0FgQHqCrAhk5EGiyN7RfgMMsz7CP3GoaFsfZ5KHps=
 github.com/giantswarm/k8sclient/v6 v6.1.0 h1:UdIh2P4LeFz+PDxprwNbV7Nic2q7YAAAtKdv4Ov+v1s=
 github.com/giantswarm/k8sclient/v6 v6.1.0/go.mod h1:mF0FgQHqCrAhk5EGiyN7RfgMMsz7CP3GoaFsfZ5KHps=
 github.com/giantswarm/k8smetadata v0.5.0/go.mod h1:k3DYCMdspxhk7efLkQdX1b8UZ71ijOCG3ZoIU8+5xgw=
@@ -371,8 +369,6 @@ github.com/giantswarm/micrologger v0.5.0/go.mod h1:J/jbt7A8eixqE40yq4JY8Hdbs/qeb
 github.com/giantswarm/micrologger v0.6.0 h1:FBI0YXBwvJ6Djmgk7TUjXXTu2/3Pdy6B7BpbNdLG4SE=
 github.com/giantswarm/micrologger v0.6.0/go.mod h1:/qEWo7q9w+yiD2H6E1DKbErcBQ1bAjXErVIkQYFas14=
 github.com/giantswarm/operatorkit/v6 v6.0.0/go.mod h1:6VuuSTYD0CIAPKf2D4ici179FhB8s4Zq+F+exb6iVYI=
-github.com/giantswarm/operatorkit/v6 v6.0.1-0.20211216110045-41c3087cf2db h1:mUU7HqZTZuGbTCUF/i13Rbf8a2hUBkEny4n38UtFfHE=
-github.com/giantswarm/operatorkit/v6 v6.0.1-0.20211216110045-41c3087cf2db/go.mod h1:IU29W+KIM9MSOHnEeSIY2bY1H2q5GwzjSOMOw9F4XWM=
 github.com/giantswarm/operatorkit/v6 v6.1.0 h1:RyiBSgC+5zFSMynHeCTl5Bpc4TZErke34oj2O7NqWDg=
 github.com/giantswarm/operatorkit/v6 v6.1.0/go.mod h1:IR6g8cRtYdT5hyuXq3/vfX5Bp95MvUQl4+wUezjBK7w=
 github.com/giantswarm/silence-operator v0.4.0/go.mod h1:BIOvMB3TfQj0TSb+aOREkqpfCOeoo7Cy4dnfAtyswEo=
