@@ -36,6 +36,33 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
+	var currentCR v1alpha1.App
+
+	err = r.ctrlClient.Get(
+		ctx,
+		types.NamespacedName{Name: cr.Name, Namespace: cr.Namespace},
+		&currentCR,
+	)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
+	_, err = r.appValidator.ValidateAppUpdate(ctx, cr, currentCR)
+	if validation.IsValidationError(err) {
+		r.logger.LogCtx(ctx, "level", "warning", "message", fmt.Sprintf("update validation error %s", err.Error()))
+
+		err = r.updateAppStatus(ctx, cr, err.Error())
+		if err != nil {
+			return microerror.Mask(err)
+		}
+
+		r.logger.Debugf(ctx, "canceling reconciliation")
+		reconciliationcanceledcontext.SetCanceled(ctx)
+		return nil
+	} else if err != nil {
+		return microerror.Mask(err)
+	}
+
 	return nil
 }
 

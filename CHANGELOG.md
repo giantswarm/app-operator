@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Added
+
+- Ensure `.spec.Namespace` in App CRs is immutable.
+
 ## [5.4.0] - 2021-12-17
 
 ### Changed
