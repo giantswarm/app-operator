@@ -38,6 +38,17 @@ func ChartOperatorAppSelector(unique bool) string {
 		key.ChartOperatorAppName)
 }
 
+func ClusterSelector(clusterID string) labels.Selector {
+	s := fmt.Sprintf("%s=%s", label.Cluster, clusterID)
+
+	selector, err := labels.Parse(s)
+	if err != nil {
+		panic(fmt.Sprintf("failed to parse selector %#q with error %#q", s, err))
+	}
+
+	return selector
+}
+
 func GetProjectVersion(unique bool) string {
 	if unique {
 		// When app-operator is deployed as a unique app it only processes

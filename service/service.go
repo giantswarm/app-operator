@@ -129,6 +129,8 @@ func New(config Config) (*Service, error) {
 			Provider:          config.Viper.GetString(config.Flag.Service.Provider.Kind),
 			ResyncPeriod:      config.Viper.GetDuration(config.Flag.Service.Operatorkit.ResyncPeriod),
 			UniqueApp:         config.Viper.GetBool(config.Flag.Service.App.Unique),
+			WatchNamespace:    config.Viper.GetString(config.Flag.Service.App.WatchNamespace),
+			WorkloadClusterID: config.Viper.GetString(config.Flag.Service.App.WorkloadClusterID),
 		}
 
 		appController, err = app.NewApp(c)

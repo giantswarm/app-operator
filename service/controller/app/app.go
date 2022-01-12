@@ -37,6 +37,8 @@ type Config struct {
 	Provider          string
 	ResyncPeriod      time.Duration
 	UniqueApp         bool
+	WatchNamespace    string
+	WorkloadClusterID string
 }
 
 type App struct {
@@ -78,6 +80,17 @@ func NewApp(config Config) (*App, error) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ResyncPeriod must not be empty", config)
 	}
 
+	// For non-unique instances the watch namespace and cluster ID must
+	// provided so the correct app CRs are watched
+	if !config.UniqueApp {
+		if config.WatchNamespace == "" {
+			return nil, microerror.Maskf(invalidConfigError, "%T.WatchNamespace must not be empty for non-unique instance", config)
+		}
+		if config.WorkloadClusterID == "" {
+			return nil, microerror.Maskf(invalidConfigError, "%T.WorkloadClusterID must not be empty for non-unique instance", config)
+		}
+	}
+
 	// TODO: Remove usage of deprecated controller context.
 	//
 	//	https://github.com/giantswarm/giantswarm/issues/12324
@@ -104,6 +117,7 @@ func NewApp(config Config) (*App, error) {
 			ProjectName:       project.Name(),
 			Provider:          config.Provider,
 			UniqueApp:         config.UniqueApp,
+			WorkloadClusterID: config.WorkloadClusterID,
 		}
 
 		resources, err = newAppResources(c)
@@ -123,7 +137,7 @@ func NewApp(config Config) (*App, error) {
 				annotation.AppOperatorPaused: "true",
 			},
 			Resources: resources,
-			Selector:  label.AppVersionSelector(config.UniqueApp),
+			Selector:  label.ClusterSelector(config.WorkloadClusterID),
 			NewRuntimeObjectFunc: func() client.Object {
 				return new(v1alpha1.App)
 			},
@@ -132,9 +146,7 @@ func NewApp(config Config) (*App, error) {
 		}
 
 		if !config.UniqueApp {
-			// Only watch app CRs in the current namespace. The label selector
-			// excludes the operator's own app CR which has the unique version.
-			c.Namespace = config.PodNamespace
+			c.Namespace = config.WatchNamespace
 		}
 
 		appController, err = controller.New(c)

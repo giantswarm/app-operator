@@ -7,6 +7,10 @@ namespace: giantswarm
 port: 8000
 protocol: "TCP"
 
+app:
+  watchNamespace: "org-ross"
+  workloadClusterID: "av3a9"
+
 helm:
   http:
     clientTimeout: "5s"

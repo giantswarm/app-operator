@@ -1,5 +1,7 @@
 package app
 
 type App struct {
-	Unique string
+	Unique            string
+	WatchNamespace    string
+	WorkloadClusterID string
 }

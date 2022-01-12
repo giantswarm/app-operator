@@ -16,6 +16,8 @@ data:
     service:
       app:
         unique: {{ include "resource.app.unique" . }}
+        watchNamespace: '{{ .Values.app.watchNamespace }}'
+        workloadClusterID: '{{ .Values.app.workloadClusterID }}'
       helm:
         http:
           clientTimeout: '{{ .Values.helm.http.clientTimeout }}'

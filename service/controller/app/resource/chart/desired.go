@@ -2,6 +2,7 @@ package chart
 
 import (
 	"context"
+	"fmt"
 	"strings"
 
 	"github.com/giantswarm/apiextensions-application/api/v1alpha1"
@@ -56,9 +57,9 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 			APIVersion: chartAPIVersion,
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			Annotations: generateAnnotations(cr.GetAnnotations(), cr.Namespace),
-			Name:        cr.GetName(),
+			Name:        formatChartName(cr, r.workloadClusterID),
 			Namespace:   r.chartNamespace,
+			Annotations: generateAnnotations(cr.GetAnnotations(), cr.Namespace),
 			Labels:      processLabels(project.Name(), cr.GetLabels()),
 		},
 		Spec: v1alpha1.ChartSpec{
@@ -76,6 +77,19 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 	}
 
 	return chartCR, nil
+}
+
+func formatChartName(app v1alpha1.App, clusterID string) string {
+	// Chart CR name should match the app CR name when installed in the
+	// same cluster.
+	if key.InCluster(app) {
+		return app.Name
+	}
+
+	// If the app CR has the cluster ID as a prefix or suffix we remove it
+	// as its redundant in the remote cluster.
+	chartName := strings.TrimPrefix(app.Name, fmt.Sprintf("%s-", clusterID))
+	return strings.TrimSuffix(chartName, fmt.Sprintf("-%s", clusterID))
 }
 
 func generateAnnotations(input map[string]string, appNamespace string) map[string]string {

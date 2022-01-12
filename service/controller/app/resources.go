@@ -46,6 +46,7 @@ type appResourcesConfig struct {
 	ProjectName       string
 	Provider          string
 	UniqueApp         bool
+	WorkloadClusterID string
 }
 
 func newAppResources(config appResourcesConfig) ([]resource.Interface, error) {
@@ -168,7 +169,8 @@ func newAppResources(config appResourcesConfig) ([]resource.Interface, error) {
 		c := chart.Config{
 			Logger: config.Logger,
 
-			ChartNamespace: config.ChartNamespace,
+			ChartNamespace:    config.ChartNamespace,
+			WorkloadClusterID: config.WorkloadClusterID,
 		}
 
 		ops, err := chart.New(c)
