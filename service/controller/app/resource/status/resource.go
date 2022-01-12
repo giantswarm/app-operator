@@ -16,7 +16,8 @@ type Config struct {
 	CtrlClient client.Client
 	Logger     micrologger.Logger
 
-	ChartNamespace string
+	ChartNamespace    string
+	WorkloadClusterID string
 }
 
 // Resource implements the chartstatus resource.
@@ -24,7 +25,8 @@ type Resource struct {
 	ctrlClient client.Client
 	logger     micrologger.Logger
 
-	chartNamespace string
+	chartNamespace    string
+	workloadClusterID string
 }
 
 func New(config Config) (*Resource, error) {
@@ -40,7 +42,8 @@ func New(config Config) (*Resource, error) {
 		ctrlClient: config.CtrlClient,
 		logger:     config.Logger,
 
-		chartNamespace: config.ChartNamespace,
+		chartNamespace:    config.ChartNamespace,
+		workloadClusterID: config.WorkloadClusterID,
 	}
 
 	return r, nil

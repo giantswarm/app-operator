@@ -2,6 +2,8 @@ package status
 
 import (
 	"context"
+	"fmt"
+	"strings"
 
 	"github.com/giantswarm/apiextensions-application/api/v1alpha1"
 	"github.com/giantswarm/app/v6/pkg/key"
@@ -49,9 +51,11 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 		r.logger.Debugf(ctx, "finding status for chart %#q in namespace %#q", cr.Name, r.chartNamespace)
 
+		chartName := formatChartName(cr, r.workloadClusterID)
+
 		err = cc.Clients.K8s.CtrlClient().Get(
 			ctx,
-			types.NamespacedName{Name: cr.Name, Namespace: r.chartNamespace},
+			types.NamespacedName{Name: chartName, Namespace: r.chartNamespace},
 			&chart,
 		)
 		if apierrors.IsNotFound(err) {
@@ -112,4 +116,17 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	}
 
 	return nil
+}
+
+func formatChartName(app v1alpha1.App, clusterID string) string {
+	// Chart CR name should match the app CR name when installed in the
+	// same cluster.
+	if key.InCluster(app) {
+		return app.Name
+	}
+
+	// If the app CR has the cluster ID as a prefix or suffix we remove it
+	// as its redundant in the remote cluster.
+	chartName := strings.TrimPrefix(app.Name, fmt.Sprintf("%s-", clusterID))
+	return strings.TrimSuffix(chartName, fmt.Sprintf("-%s", clusterID))
 }

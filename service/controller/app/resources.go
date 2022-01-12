@@ -276,7 +276,8 @@ func newAppResources(config appResourcesConfig) ([]resource.Interface, error) {
 			CtrlClient: config.K8sClient.CtrlClient(),
 			Logger:     config.Logger,
 
-			ChartNamespace: config.ChartNamespace,
+			ChartNamespace:    config.ChartNamespace,
+			WorkloadClusterID: config.WorkloadClusterID,
 		}
 
 		statusResource, err = status.New(c)
