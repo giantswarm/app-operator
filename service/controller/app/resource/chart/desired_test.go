@@ -96,6 +96,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					Name:      "my-cool-prometheus",
 					Namespace: "giantswarm",
 					Annotations: map[string]string{
+						"chart-operator.giantswarm.io/app-name":      "my-cool-prometheus",
 						"chart-operator.giantswarm.io/app-namespace": "default",
 					},
 					Labels: map[string]string{
@@ -187,6 +188,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					Name:      "my-cool-prometheus",
 					Namespace: "giantswarm",
 					Annotations: map[string]string{
+						"chart-operator.giantswarm.io/app-name":      "my-cool-prometheus",
 						"chart-operator.giantswarm.io/app-namespace": "default",
 					},
 					Labels: map[string]string{
@@ -253,6 +255,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 				},
 				ObjectMeta: metav1.ObjectMeta{
 					Annotations: map[string]string{
+						"chart-operator.giantswarm.io/app-name":           "my-cool-prometheus",
 						"chart-operator.giantswarm.io/app-namespace":      "default",
 						"chart-operator.giantswarm.io/force-helm-upgrade": "true",
 					},
@@ -341,6 +344,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					Name:      "my-cool-prometheus",
 					Namespace: "giantswarm",
 					Annotations: map[string]string{
+						"chart-operator.giantswarm.io/app-name":      "my-cool-prometheus",
 						"chart-operator.giantswarm.io/app-namespace": "default",
 					},
 					Labels: map[string]string{
