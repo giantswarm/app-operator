@@ -59,7 +59,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		ObjectMeta: metav1.ObjectMeta{
 			Name:        formatChartName(cr, r.workloadClusterID),
 			Namespace:   r.chartNamespace,
-			Annotations: generateAnnotations(cr.GetAnnotations(), cr.Namespace),
+			Annotations: generateAnnotations(cr.GetAnnotations(), cr.Namespace, cr.Name),
 			Labels:      processLabels(project.Name(), cr.GetLabels()),
 		},
 		Spec: v1alpha1.ChartSpec{
@@ -92,9 +92,10 @@ func formatChartName(app v1alpha1.App, clusterID string) string {
 	return strings.TrimSuffix(chartName, fmt.Sprintf("-%s", clusterID))
 }
 
-func generateAnnotations(input map[string]string, appNamespace string) map[string]string {
+func generateAnnotations(input map[string]string, appNamespace, appName string) map[string]string {
 	annotations := map[string]string{
-		annotation.AppNamespace: appNamespace,
+		annotation.AppNamespace:                 appNamespace,
+		"chart-operator.giantswarm.io/app-name": appName,
 	}
 
 	for k, v := range input {

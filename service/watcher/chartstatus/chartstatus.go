@@ -149,8 +149,13 @@ func (c *ChartStatusWatcher) watchChartStatus(ctx context.Context) {
 			}
 
 			// The chart CR is always in the giantswarm namespace so the
-			// chart CR is annotated with the app CR namespace.
+			// chart CR is annotated with the app CR name and namespace.
 			appNamespace, ok := chart.Annotations[annotation.AppNamespace]
+			if !ok {
+				c.logger.Debugf(ctx, "failed to get annotation %#q for chart %#q", annotation.AppNamespace, chart.Name)
+				continue
+			}
+			appName, ok := chart.Annotations["chart-operator.giantswarm.io/app-name"]
 			if !ok {
 				c.logger.Debugf(ctx, "failed to get annotation %#q for chart %#q", annotation.AppNamespace, chart.Name)
 				continue
@@ -158,7 +163,7 @@ func (c *ChartStatusWatcher) watchChartStatus(ctx context.Context) {
 
 			app := v1alpha1.App{}
 			err = c.k8sClient.CtrlClient().Get(ctx,
-				types.NamespacedName{Name: chart.Name, Namespace: appNamespace},
+				types.NamespacedName{Name: appName, Namespace: appNamespace},
 				&app)
 			if err != nil {
 				c.logger.Errorf(ctx, err, "failed to get app '%s/%s'", app.Namespace, app.Name)
