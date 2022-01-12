@@ -19,17 +19,16 @@ import (
 	"k8s.io/apimachinery/pkg/watch"
 )
 
-const chartOperatorAppName = "chart-operator"
-
 var chartResource = schema.GroupVersionResource{Group: "application.giantswarm.io", Version: "v1alpha1", Resource: "charts"}
 
 type ChartStatusWatcherConfig struct {
 	K8sClient k8sclient.Interface
 	Logger    micrologger.Logger
 
-	ChartNamespace string
-	PodNamespace   string
-	UniqueApp      bool
+	ChartNamespace    string
+	UniqueApp         bool
+	WatchNamespace    string
+	WorkloadClusterID string
 }
 
 type ChartStatusWatcher struct {
@@ -37,9 +36,10 @@ type ChartStatusWatcher struct {
 	kubeConfig kubeconfig.Interface
 	logger     micrologger.Logger
 
-	appNamespace   string
-	chartNamespace string
-	uniqueApp      bool
+	chartNamespace    string
+	uniqueApp         bool
+	watchNamespace    string
+	workloadClusterID string
 }
 
 func NewChartStatusWatcher(config ChartStatusWatcherConfig) (*ChartStatusWatcher, error) {
@@ -53,8 +53,11 @@ func NewChartStatusWatcher(config ChartStatusWatcherConfig) (*ChartStatusWatcher
 	if config.ChartNamespace == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ChartNamespace must not be empty", config)
 	}
-	if config.PodNamespace == "" {
-		return nil, microerror.Maskf(invalidConfigError, "%T.PodNamespace must not be empty", config)
+	if config.WatchNamespace == "" {
+		return nil, microerror.Maskf(invalidConfigError, "%T.WatchNamespace must not be empty", config)
+	}
+	if config.WorkloadClusterID == "" {
+		return nil, microerror.Maskf(invalidConfigError, "%T.WorkloadClusterID must not be empty", config)
 	}
 
 	var kubeConfig kubeconfig.Interface
@@ -76,11 +79,11 @@ func NewChartStatusWatcher(config ChartStatusWatcherConfig) (*ChartStatusWatcher
 		kubeConfig: kubeConfig,
 		logger:     config.Logger,
 
-		// We get a kubeconfig for the cluster from the chart-operator app CR
-		// which is in the same namespace as this instance of app-operator.
-		appNamespace:   config.PodNamespace,
-		chartNamespace: config.ChartNamespace,
-		uniqueApp:      config.UniqueApp,
+		// We get a kubeconfig for the cluster from the chart-operator app CR.
+		chartNamespace:    config.ChartNamespace,
+		uniqueApp:         config.UniqueApp,
+		watchNamespace:    config.WatchNamespace,
+		workloadClusterID: config.WorkloadClusterID,
 	}
 
 	return c, nil

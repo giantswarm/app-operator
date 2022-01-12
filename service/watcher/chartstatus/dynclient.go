@@ -2,6 +2,7 @@ package chartstatus
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/giantswarm/apiextensions-application/api/v1alpha1"
@@ -98,10 +99,12 @@ func (c *ChartStatusWatcher) waitForChartOperator(ctx context.Context) (*v1alpha
 	var chartOperatorAppCR v1alpha1.App
 	var err error
 
+	chartOperatorAppName := fmt.Sprintf("%s-chart-operator", c.workloadClusterID)
+
 	o := func() error {
 		err = c.k8sClient.CtrlClient().Get(
 			ctx,
-			types.NamespacedName{Name: chartOperatorAppName, Namespace: c.appNamespace},
+			types.NamespacedName{Name: chartOperatorAppName, Namespace: c.watchNamespace},
 			&chartOperatorAppCR,
 		)
 		if err != nil {
@@ -113,9 +116,9 @@ func (c *ChartStatusWatcher) waitForChartOperator(ctx context.Context) (*v1alpha
 
 	n := func(err error, t time.Duration) {
 		if apierrors.IsNotFound(err) {
-			c.logger.Debugf(ctx, "'%s/%s' app CR does not exist yet: retrying in %s", c.appNamespace, chartOperatorAppName, t)
+			c.logger.Debugf(ctx, "'%s/%s' app CR does not exist yet: retrying in %s", c.watchNamespace, chartOperatorAppName, t)
 		} else if err != nil {
-			c.logger.Errorf(ctx, err, "failed to get '%s/%s' app CR: retrying in %s", c.appNamespace, chartOperatorAppName, t)
+			c.logger.Errorf(ctx, err, "failed to get '%s/%s' app CR: retrying in %s", c.watchNamespace, chartOperatorAppName, t)
 		}
 	}
 

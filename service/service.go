@@ -172,9 +172,10 @@ func New(config Config) (*Service, error) {
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
 
-			ChartNamespace: config.Viper.GetString(config.Flag.Service.Chart.Namespace),
-			PodNamespace:   podNamespace,
-			UniqueApp:      config.Viper.GetBool(config.Flag.Service.App.Unique),
+			ChartNamespace:    config.Viper.GetString(config.Flag.Service.Chart.Namespace),
+			UniqueApp:         config.Viper.GetBool(config.Flag.Service.App.Unique),
+			WatchNamespace:    config.Viper.GetString(config.Flag.Service.App.WatchNamespace),
+			WorkloadClusterID: config.Viper.GetString(config.Flag.Service.App.WorkloadClusterID),
 		}
 
 		chartStatusWatcher, err = chartstatus.NewChartStatusWatcher(c)
