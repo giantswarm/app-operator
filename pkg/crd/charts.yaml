@@ -1,0 +1,216 @@
+
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.7.0
+  creationTimestamp: null
+  name: charts.application.giantswarm.io
+spec:
+  group: application.giantswarm.io
+  names:
+    categories:
+    - common
+    - giantswarm
+    kind: Chart
+    listKind: ChartList
+    plural: charts
+    singular: chart
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - description: Version of the app
+      jsonPath: .spec.version
+      name: Version
+      type: string
+    - description: Time since last deployment
+      jsonPath: .status.release.lastDeployed
+      name: Last Deployed
+      type: date
+    - description: Deployment status of the app
+      jsonPath: .status.release.status
+      name: Status
+      type: string
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: Chart represents a Helm chart to be deployed as a Helm release.
+          It is reconciled by chart-operator.
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            properties:
+              config:
+                description: Config is the config to be applied when the chart is
+                  deployed.
+                nullable: true
+                properties:
+                  configMap:
+                    description: ConfigMap references a config map containing values
+                      that should be applied to the chart.
+                    nullable: true
+                    properties:
+                      name:
+                        description: Name is the name of the config map containing
+                          chart values to apply, e.g. prometheus-chart-values.
+                        type: string
+                      namespace:
+                        description: Namespace is the namespace of the values config
+                          map, e.g. monitoring.
+                        type: string
+                      resourceVersion:
+                        description: ResourceVersion is the Kubernetes resource version
+                          of the configmap. Used to detect if the configmap has changed,
+                          e.g. 12345.
+                        type: string
+                    required:
+                    - name
+                    - namespace
+                    - resourceVersion
+                    type: object
+                  secret:
+                    description: Secret references a secret containing secret values
+                      that should be applied to the chart.
+                    nullable: true
+                    properties:
+                      name:
+                        description: Name is the name of the secret containing chart
+                          values to apply, e.g. prometheus-chart-secret.
+                        type: string
+                      namespace:
+                        description: Namespace is the namespace of the secret, e.g.
+                          kube-system.
+                        type: string
+                      resourceVersion:
+                        description: ResourceVersion is the Kubernetes resource version
+                          of the secret. Used to detect if the secret has changed,
+                          e.g. 12345.
+                        type: string
+                    required:
+                    - name
+                    - namespace
+                    - resourceVersion
+                    type: object
+                type: object
+              install:
+                description: Install is the config used to deploy the app and is passed
+                  to Helm.
+                nullable: true
+                properties:
+                  skipCRDs:
+                    description: 'SkipCRDs when true decides that CRDs which are supplied
+                      with the chart are not installed. Default: false.'
+                    nullable: true
+                    type: boolean
+                type: object
+              name:
+                description: Name is the name of the Helm chart to be deployed. e.g.
+                  kubernetes-prometheus
+                type: string
+              namespace:
+                description: Namespace is the namespace where the chart should be
+                  deployed. e.g. monitoring
+                type: string
+              namespaceConfig:
+                description: NamespaceConfig is the namespace config to be applied
+                  to the target namespace when the chart is deployed.
+                nullable: true
+                properties:
+                  annotations:
+                    additionalProperties:
+                      type: string
+                    description: Annotations is a string map of annotations to apply
+                      to the target namespace.
+                    nullable: true
+                    type: object
+                  labels:
+                    additionalProperties:
+                      type: string
+                    description: Labels is a string map of labels to apply to the
+                      target namespace.
+                    nullable: true
+                    type: object
+                type: object
+              tarballURL:
+                description: TarballURL is the URL for the Helm chart tarball to be
+                  deployed. e.g. https://example.com/path/to/prom-1-0-0.tgz
+                type: string
+              version:
+                description: Version is the version of the chart that should be deployed.
+                  e.g. 1.0.0
+                type: string
+            required:
+            - name
+            - namespace
+            - tarballURL
+            - version
+            type: object
+          status:
+            properties:
+              appVersion:
+                description: AppVersion is the value of the AppVersion field in the
+                  Chart.yaml of the deployed chart. This is an optional field with
+                  the version of the component being deployed. e.g. 0.21.0. https://helm.sh/docs/topics/charts/#the-chartyaml-file
+                type: string
+              reason:
+                description: Reason is the description of the last status of helm
+                  release when the chart is not installed successfully, e.g. deploy
+                  resource already exists.
+                type: string
+              release:
+                description: Release is the status of the Helm release for the deployed
+                  chart.
+                properties:
+                  lastDeployed:
+                    description: LastDeployed is the time when the deployed chart
+                      was last deployed.
+                    format: date-time
+                    nullable: true
+                    type: string
+                  revision:
+                    description: Revision is the revision number for this deployed
+                      chart.
+                    nullable: true
+                    type: integer
+                  status:
+                    description: Status is the status of the deployed chart, e.g.
+                      DEPLOYED.
+                    type: string
+                required:
+                - status
+                type: object
+              version:
+                description: Version is the value of the Version field in the Chart.yaml
+                  of the deployed chart. e.g. 1.0.0.
+                type: string
+            required:
+            - appVersion
+            - release
+            - version
+            type: object
+        required:
+        - metadata
+        - spec
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []

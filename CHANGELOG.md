@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Fixed
+
+- Embed Chart CRD in app-operator to prevent hitting GitHub API rate limits.
+
 ## [5.4.0] - 2021-12-17
 
 ### Changed
