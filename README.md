@@ -69,6 +69,16 @@ Build it using the standard `go build` command.
 go build github.com/giantswarm/app-operator
 ```
 
+### Updating Chart CRD
+
+- For workload clusters app-operator manages the chart CRD.
+- When changes are made in [apiextensions-application](https://github.com/giantswarm/apiextensions-application)
+they need to be synced here.
+
+```sh
+$ make sync-chart-crd
+```
+
 ## Contact
 
 - Mailing list: [giantswarm](https://groups.google.com/forum/!forum/giantswarm)
