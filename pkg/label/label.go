@@ -39,7 +39,7 @@ func ChartOperatorAppSelector(unique bool) string {
 }
 
 func ClusterSelector(clusterID string) labels.Selector {
-	s := fmt.Sprintf("%s=%s", label.Cluster, clusterID)
+	s := fmt.Sprintf("%s=%s,%s!=%s", label.Cluster, clusterID, label.AppOperatorVersion, project.ManagementClusterAppVersion())
 
 	selector, err := labels.Parse(s)
 	if err != nil {
