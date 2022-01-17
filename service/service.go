@@ -18,7 +18,6 @@ import (
 	"github.com/giantswarm/app-operator/v5/service/controller/app"
 	"github.com/giantswarm/app-operator/v5/service/controller/catalog"
 	"github.com/giantswarm/app-operator/v5/service/internal/clientcache"
-	"github.com/giantswarm/app-operator/v5/service/internal/crdcache"
 	"github.com/giantswarm/app-operator/v5/service/internal/recorder"
 	"github.com/giantswarm/app-operator/v5/service/watcher/appvalue"
 	"github.com/giantswarm/app-operator/v5/service/watcher/chartstatus"
@@ -101,23 +100,10 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
-	var crdCache *crdcache.Resource
-	{
-		c := crdcache.Config{
-			Logger: config.Logger,
-		}
-
-		crdCache, err = crdcache.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
 	var appController *app.App
 	{
 		c := app.Config{
 			ClientCache: clientCache,
-			CRDCache:    crdCache,
 			Fs:          fs,
 			Logger:      config.Logger,
 			K8sClient:   config.K8sClient,

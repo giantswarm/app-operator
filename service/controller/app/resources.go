@@ -28,13 +28,11 @@ import (
 	"github.com/giantswarm/app-operator/v5/service/controller/app/resource/tcnamespace"
 	"github.com/giantswarm/app-operator/v5/service/controller/app/resource/validation"
 	"github.com/giantswarm/app-operator/v5/service/internal/clientcache"
-	"github.com/giantswarm/app-operator/v5/service/internal/crdcache"
 )
 
 type appResourcesConfig struct {
 	// Dependencies.
 	ClientCache *clientcache.Resource
-	CRDCache    *crdcache.Resource
 	FileSystem  afero.Fs
 	K8sClient   k8sclient.Interface
 	Logger      micrologger.Logger
@@ -61,9 +59,6 @@ func newAppResources(config appResourcesConfig) ([]resource.Interface, error) {
 	}
 	if config.ClientCache == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.CachedK8sClient must not be empty", config)
-	}
-	if config.CRDCache == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.CRDCache must not be empty", config)
 	}
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
@@ -187,8 +182,7 @@ func newAppResources(config appResourcesConfig) ([]resource.Interface, error) {
 	var chartCRDResource resource.Interface
 	{
 		c := chartcrd.Config{
-			CRDCache: config.CRDCache,
-			Logger:   config.Logger,
+			Logger: config.Logger,
 		}
 
 		chartCRDResource, err = chartcrd.New(c)
