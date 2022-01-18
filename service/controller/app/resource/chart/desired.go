@@ -2,7 +2,6 @@ package chart
 
 import (
 	"context"
-	"fmt"
 	"strings"
 
 	"github.com/giantswarm/apiextensions-application/api/v1alpha1"
@@ -41,7 +40,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		return chartCR, nil
 	}
 
-	chartName := formatChartName(cr, r.workloadClusterID)
+	chartName := key.ChartName(cr, r.workloadClusterID)
 
 	config, err := generateConfig(ctx, cc.Clients.K8s.K8sClient(), cr, cc.Catalog, r.chartNamespace)
 	if err != nil {
@@ -79,19 +78,6 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 	}
 
 	return chartCR, nil
-}
-
-func formatChartName(app v1alpha1.App, clusterID string) string {
-	// Chart CR name should match the app CR name when installed in the
-	// same cluster.
-	if key.InCluster(app) {
-		return app.Name
-	}
-
-	// If the app CR has the cluster ID as a prefix or suffix we remove it
-	// as its redundant in the remote cluster.
-	chartName := strings.TrimPrefix(app.Name, fmt.Sprintf("%s-", clusterID))
-	return strings.TrimSuffix(chartName, fmt.Sprintf("-%s", clusterID))
 }
 
 func generateAnnotations(input map[string]string, appNamespace, appName string) map[string]string {
