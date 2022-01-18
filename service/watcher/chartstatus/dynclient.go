@@ -97,14 +97,19 @@ func (c *ChartStatusWatcher) waitForAvailableConnection(ctx context.Context, dyn
 // CR to get the kubeconfig secret we use to access the remote cluster
 func (c *ChartStatusWatcher) waitForChartOperator(ctx context.Context) (*v1alpha1.App, error) {
 	var chartOperatorAppCR v1alpha1.App
+	var chartOperatorAppName string
 	var err error
 
-	chartOperatorAppName := fmt.Sprintf("%s-chart-operator", c.workloadClusterID)
+	if c.workloadClusterID != "" {
+		chartOperatorAppName = fmt.Sprintf("%s-chart-operator", c.workloadClusterID)
+	} else {
+		chartOperatorAppName = "chart-operator"
+	}
 
 	o := func() error {
 		err = c.k8sClient.CtrlClient().Get(
 			ctx,
-			types.NamespacedName{Name: chartOperatorAppName, Namespace: c.watchNamespace},
+			types.NamespacedName{Name: chartOperatorAppName, Namespace: c.podNamespace},
 			&chartOperatorAppCR,
 		)
 		if err != nil {
@@ -116,9 +121,9 @@ func (c *ChartStatusWatcher) waitForChartOperator(ctx context.Context) (*v1alpha
 
 	n := func(err error, t time.Duration) {
 		if apierrors.IsNotFound(err) {
-			c.logger.Debugf(ctx, "'%s/%s' app CR does not exist yet: retrying in %s", c.watchNamespace, chartOperatorAppName, t)
+			c.logger.Debugf(ctx, "'%s/%s' app CR does not exist yet: retrying in %s", c.podNamespace, chartOperatorAppName, t)
 		} else if err != nil {
-			c.logger.Errorf(ctx, err, "failed to get '%s/%s' app CR: retrying in %s", c.watchNamespace, chartOperatorAppName, t)
+			c.logger.Errorf(ctx, err, "failed to get '%s/%s' app CR: retrying in %s", c.podNamespace, chartOperatorAppName, t)
 		}
 	}
 
