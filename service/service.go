@@ -159,8 +159,8 @@ func New(config Config) (*Service, error) {
 			Logger:    config.Logger,
 
 			ChartNamespace:    config.Viper.GetString(config.Flag.Service.Chart.Namespace),
+			PodNamespace:      podNamespace,
 			UniqueApp:         config.Viper.GetBool(config.Flag.Service.App.Unique),
-			WatchNamespace:    config.Viper.GetString(config.Flag.Service.App.WatchNamespace),
 			WorkloadClusterID: config.Viper.GetString(config.Flag.Service.App.WorkloadClusterID),
 		}
 

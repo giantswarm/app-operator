@@ -12,6 +12,7 @@ import (
 	"github.com/giantswarm/operatorkit/v6/pkg/controller"
 	"github.com/giantswarm/operatorkit/v6/pkg/resource"
 	"github.com/spf13/afero"
+	"k8s.io/apimachinery/pkg/labels"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/giantswarm/app-operator/v5/pkg/label"
@@ -75,14 +76,14 @@ func NewApp(config Config) (*App, error) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ResyncPeriod must not be empty", config)
 	}
 
-	// For non-unique instances the watch namespace and cluster ID must
-	// provided so the correct app CRs are watched
-	if !config.UniqueApp {
+	// For non-unique instances if either watch namespace or cluster ID are
+	// provided both must be set.
+	if !config.UniqueApp && (config.WatchNamespace != "" || config.WorkloadClusterID != "") {
 		if config.WatchNamespace == "" {
-			return nil, microerror.Maskf(invalidConfigError, "%T.WatchNamespace must not be empty for non-unique instance", config)
+			return nil, microerror.Maskf(invalidConfigError, "%T.WatchNamespace must not be empty", config)
 		}
 		if config.WorkloadClusterID == "" {
-			return nil, microerror.Maskf(invalidConfigError, "%T.WorkloadClusterID must not be empty for non-unique instance", config)
+			return nil, microerror.Maskf(invalidConfigError, "%T.WorkloadClusterID must not be empty", config)
 		}
 	}
 
@@ -120,6 +121,24 @@ func NewApp(config Config) (*App, error) {
 		}
 	}
 
+	var selector labels.Selector
+	{
+		if config.WorkloadClusterID != "" {
+			selector = label.ClusterSelector(config.WorkloadClusterID)
+		} else {
+			selector = label.AppVersionSelector(config.UniqueApp)
+		}
+	}
+
+	var watchNamespace string
+	{
+		if config.WatchNamespace != "" {
+			watchNamespace = config.WatchNamespace
+		} else {
+			watchNamespace = config.PodNamespace
+		}
+	}
+
 	var appController *controller.Controller
 	{
 		c := controller.Config{
@@ -131,7 +150,7 @@ func NewApp(config Config) (*App, error) {
 				annotation.AppOperatorPaused: "true",
 			},
 			Resources: resources,
-			Selector:  label.ClusterSelector(config.WorkloadClusterID),
+			Selector:  selector,
 			NewRuntimeObjectFunc: func() client.Object {
 				return new(v1alpha1.App)
 			},
@@ -140,7 +159,7 @@ func NewApp(config Config) (*App, error) {
 		}
 
 		if !config.UniqueApp {
-			c.Namespace = config.WatchNamespace
+			c.Namespace = watchNamespace
 		}
 
 		appController, err = controller.New(c)

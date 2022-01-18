@@ -8,8 +8,8 @@ port: 8000
 protocol: "TCP"
 
 app:
-  watchNamespace: "org-ross"
-  workloadClusterID: "ke8e3"
+  watchNamespace: ""
+  workloadClusterID: ""
 
 helm:
   http:

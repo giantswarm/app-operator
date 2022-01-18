@@ -26,8 +26,8 @@ type ChartStatusWatcherConfig struct {
 	Logger    micrologger.Logger
 
 	ChartNamespace    string
+	PodNamespace      string
 	UniqueApp         bool
-	WatchNamespace    string
 	WorkloadClusterID string
 }
 
@@ -37,8 +37,8 @@ type ChartStatusWatcher struct {
 	logger     micrologger.Logger
 
 	chartNamespace    string
+	podNamespace      string
 	uniqueApp         bool
-	watchNamespace    string
 	workloadClusterID string
 }
 
@@ -53,11 +53,8 @@ func NewChartStatusWatcher(config ChartStatusWatcherConfig) (*ChartStatusWatcher
 	if config.ChartNamespace == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ChartNamespace must not be empty", config)
 	}
-	if config.WatchNamespace == "" {
+	if config.PodNamespace == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.WatchNamespace must not be empty", config)
-	}
-	if config.WorkloadClusterID == "" {
-		return nil, microerror.Maskf(invalidConfigError, "%T.WorkloadClusterID must not be empty", config)
 	}
 
 	var kubeConfig kubeconfig.Interface
@@ -81,8 +78,8 @@ func NewChartStatusWatcher(config ChartStatusWatcherConfig) (*ChartStatusWatcher
 
 		// We get a kubeconfig for the cluster from the chart-operator app CR.
 		chartNamespace:    config.ChartNamespace,
+		podNamespace:      config.PodNamespace,
 		uniqueApp:         config.UniqueApp,
-		watchNamespace:    config.WatchNamespace,
 		workloadClusterID: config.WorkloadClusterID,
 	}
 
