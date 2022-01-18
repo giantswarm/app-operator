@@ -155,7 +155,7 @@ func (c *ChartStatusWatcher) watchChartStatus(ctx context.Context) {
 				c.logger.Debugf(ctx, "failed to get annotation %#q for chart %#q", annotation.AppNamespace, chart.Name)
 				continue
 			}
-			appName, ok := chart.Annotations["chart-operator.giantswarm.io/app-name"]
+			appName, ok := chart.Annotations[annotation.AppName]
 			if !ok {
 				c.logger.Debugf(ctx, "failed to get annotation %#q for chart %#q", annotation.AppNamespace, chart.Name)
 				continue

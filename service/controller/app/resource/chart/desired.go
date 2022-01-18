@@ -96,8 +96,8 @@ func formatChartName(app v1alpha1.App, clusterID string) string {
 
 func generateAnnotations(input map[string]string, appNamespace, appName string) map[string]string {
 	annotations := map[string]string{
-		annotation.AppNamespace:                 appNamespace,
-		"chart-operator.giantswarm.io/app-name": appName,
+		annotation.AppNamespace: appNamespace,
+		annotation.AppName:      appName,
 	}
 
 	for k, v := range input {
