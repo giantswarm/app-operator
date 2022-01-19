@@ -29,7 +29,8 @@ type Config struct {
 	Logger micrologger.Logger
 
 	// Settings.
-	ChartNamespace string
+	ChartNamespace    string
+	WorkloadClusterID string
 }
 
 // Resource implements the chart resource.
@@ -38,7 +39,8 @@ type Resource struct {
 	logger micrologger.Logger
 
 	// Settings.
-	chartNamespace string
+	chartNamespace    string
+	workloadClusterID string
 }
 
 // New creates a new configured chart resource.
@@ -54,7 +56,8 @@ func New(config Config) (*Resource, error) {
 	r := &Resource{
 		logger: config.Logger,
 
-		chartNamespace: config.ChartNamespace,
+		chartNamespace:    config.ChartNamespace,
+		workloadClusterID: config.WorkloadClusterID,
 	}
 
 	return r, nil

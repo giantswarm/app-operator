@@ -5,9 +5,7 @@ package label
 import (
 	"fmt"
 
-	"github.com/giantswarm/app/v6/pkg/key"
 	"github.com/giantswarm/k8smetadata/pkg/label"
-	k8smetadatalabel "github.com/giantswarm/k8smetadata/pkg/label"
 	"k8s.io/apimachinery/pkg/labels"
 
 	"github.com/giantswarm/app-operator/v5/pkg/project"
@@ -31,11 +29,18 @@ func AppVersionSelector(unique bool) labels.Selector {
 	return selector
 }
 
-func ChartOperatorAppSelector(unique bool) string {
-	return fmt.Sprintf("%s=%s,%s=%s", k8smetadatalabel.AppOperatorVersion,
-		GetProjectVersion(unique),
-		k8smetadatalabel.AppKubernetesName,
-		key.ChartOperatorAppName)
+// ClusterSelector selects all apps with the specified cluster ID. Unless they
+// use the special version `0.0.0` and are processed by the management cluster
+// instance of app-operator.
+func ClusterSelector(clusterID string) labels.Selector {
+	s := fmt.Sprintf("%s=%s,%s!=%s", label.Cluster, clusterID, label.AppOperatorVersion, project.ManagementClusterAppVersion())
+
+	selector, err := labels.Parse(s)
+	if err != nil {
+		panic(fmt.Sprintf("failed to parse selector %#q with error %#q", s, err))
+	}
+
+	return selector
 }
 
 func GetProjectVersion(unique bool) string {

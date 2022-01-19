@@ -115,6 +115,8 @@ func New(config Config) (*Service, error) {
 			Provider:          config.Viper.GetString(config.Flag.Service.Provider.Kind),
 			ResyncPeriod:      config.Viper.GetDuration(config.Flag.Service.Operatorkit.ResyncPeriod),
 			UniqueApp:         config.Viper.GetBool(config.Flag.Service.App.Unique),
+			WatchNamespace:    config.Viper.GetString(config.Flag.Service.App.WatchNamespace),
+			WorkloadClusterID: config.Viper.GetString(config.Flag.Service.App.WorkloadClusterID),
 		}
 
 		appController, err = app.NewApp(c)
@@ -156,9 +158,10 @@ func New(config Config) (*Service, error) {
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
 
-			ChartNamespace: config.Viper.GetString(config.Flag.Service.Chart.Namespace),
-			PodNamespace:   podNamespace,
-			UniqueApp:      config.Viper.GetBool(config.Flag.Service.App.Unique),
+			ChartNamespace:    config.Viper.GetString(config.Flag.Service.Chart.Namespace),
+			PodNamespace:      podNamespace,
+			UniqueApp:         config.Viper.GetBool(config.Flag.Service.App.Unique),
+			WorkloadClusterID: config.Viper.GetString(config.Flag.Service.App.WorkloadClusterID),
 		}
 
 		chartStatusWatcher, err = chartstatus.NewChartStatusWatcher(c)

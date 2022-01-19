@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Added
+
+- Support watching app CRs in organization namespace with cluster label selector.
+
 ## [5.4.1] - 2022-01-14
 
 ### Fixed

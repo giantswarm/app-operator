@@ -12,6 +12,7 @@ import (
 	"github.com/giantswarm/operatorkit/v6/pkg/controller"
 	"github.com/giantswarm/operatorkit/v6/pkg/resource"
 	"github.com/spf13/afero"
+	"k8s.io/apimachinery/pkg/labels"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/giantswarm/app-operator/v5/pkg/label"
@@ -35,6 +36,8 @@ type Config struct {
 	Provider          string
 	ResyncPeriod      time.Duration
 	UniqueApp         bool
+	WatchNamespace    string
+	WorkloadClusterID string
 }
 
 type App struct {
@@ -73,6 +76,17 @@ func NewApp(config Config) (*App, error) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ResyncPeriod must not be empty", config)
 	}
 
+	// For non-unique instances if either watch namespace or cluster ID are
+	// provided both must be set.
+	if !config.UniqueApp && (config.WatchNamespace != "" || config.WorkloadClusterID != "") {
+		if config.WatchNamespace == "" {
+			return nil, microerror.Maskf(invalidConfigError, "%T.WatchNamespace must not be empty", config)
+		}
+		if config.WorkloadClusterID == "" {
+			return nil, microerror.Maskf(invalidConfigError, "%T.WorkloadClusterID must not be empty", config)
+		}
+	}
+
 	// TODO: Remove usage of deprecated controller context.
 	//
 	//	https://github.com/giantswarm/giantswarm/issues/12324
@@ -98,11 +112,30 @@ func NewApp(config Config) (*App, error) {
 			ProjectName:       project.Name(),
 			Provider:          config.Provider,
 			UniqueApp:         config.UniqueApp,
+			WorkloadClusterID: config.WorkloadClusterID,
 		}
 
 		resources, err = newAppResources(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
+		}
+	}
+
+	var selector labels.Selector
+	{
+		if config.WorkloadClusterID != "" {
+			selector = label.ClusterSelector(config.WorkloadClusterID)
+		} else {
+			selector = label.AppVersionSelector(config.UniqueApp)
+		}
+	}
+
+	var watchNamespace string
+	{
+		if config.WatchNamespace != "" {
+			watchNamespace = config.WatchNamespace
+		} else {
+			watchNamespace = config.PodNamespace
 		}
 	}
 
@@ -117,7 +150,7 @@ func NewApp(config Config) (*App, error) {
 				annotation.AppOperatorPaused: "true",
 			},
 			Resources: resources,
-			Selector:  label.AppVersionSelector(config.UniqueApp),
+			Selector:  selector,
 			NewRuntimeObjectFunc: func() client.Object {
 				return new(v1alpha1.App)
 			},
@@ -126,9 +159,7 @@ func NewApp(config Config) (*App, error) {
 		}
 
 		if !config.UniqueApp {
-			// Only watch app CRs in the current namespace. The label selector
-			// excludes the operator's own app CR which has the unique version.
-			c.Namespace = config.PodNamespace
+			c.Namespace = watchNamespace
 		}
 
 		appController, err = controller.New(c)

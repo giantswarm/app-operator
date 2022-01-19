@@ -49,9 +49,11 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 		r.logger.Debugf(ctx, "finding status for chart %#q in namespace %#q", cr.Name, r.chartNamespace)
 
+		chartName := key.ChartName(cr, r.workloadClusterID)
+
 		err = cc.Clients.K8s.CtrlClient().Get(
 			ctx,
-			types.NamespacedName{Name: cr.Name, Namespace: r.chartNamespace},
+			types.NamespacedName{Name: chartName, Namespace: r.chartNamespace},
 			&chart,
 		)
 		if apierrors.IsNotFound(err) {

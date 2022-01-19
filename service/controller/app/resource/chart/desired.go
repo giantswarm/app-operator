@@ -40,6 +40,8 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		return chartCR, nil
 	}
 
+	chartName := key.ChartName(cr, r.workloadClusterID)
+
 	config, err := generateConfig(ctx, cc.Clients.K8s.K8sClient(), cr, cc.Catalog, r.chartNamespace)
 	if err != nil {
 		return nil, microerror.Mask(err)
@@ -56,15 +58,15 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 			APIVersion: chartAPIVersion,
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			Annotations: generateAnnotations(cr.GetAnnotations(), cr.Namespace),
-			Name:        cr.GetName(),
+			Name:        chartName,
 			Namespace:   r.chartNamespace,
+			Annotations: generateAnnotations(cr.GetAnnotations(), cr.Namespace, cr.Name),
 			Labels:      processLabels(project.Name(), cr.GetLabels()),
 		},
 		Spec: v1alpha1.ChartSpec{
 			Config:    config,
 			Install:   generateInstall(cr),
-			Name:      cr.GetName(),
+			Name:      chartName,
 			Namespace: key.Namespace(cr),
 			NamespaceConfig: v1alpha1.ChartSpecNamespaceConfig{
 				Annotations: cr.Spec.NamespaceConfig.Annotations,
@@ -78,9 +80,10 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 	return chartCR, nil
 }
 
-func generateAnnotations(input map[string]string, appNamespace string) map[string]string {
+func generateAnnotations(input map[string]string, appNamespace, appName string) map[string]string {
 	annotations := map[string]string{
 		annotation.AppNamespace: appNamespace,
+		annotation.AppName:      appName,
 	}
 
 	for k, v := range input {
