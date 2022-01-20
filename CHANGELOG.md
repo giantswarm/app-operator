@@ -7,6 +7,8 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+## [5.5.1] - 2022-01-20
+
 ### Fixed
 
 - When bootstrapping chart-operator the helm release should not include the cluster ID.
@@ -434,7 +436,8 @@ from Helm 2 to Helm 3.
 
 - Flattening operator release structure.
 
-[Unreleased]: https://github.com/giantswarm/app-operator/compare/v5.5.0...HEAD
+[Unreleased]: https://github.com/giantswarm/app-operator/compare/v5.5.1...HEAD
+[5.5.1]: https://github.com/giantswarm/app-operator/compare/v5.5.0...v5.5.1
 [5.5.0]: https://github.com/giantswarm/app-operator/compare/v5.4.1...v5.5.0
 [5.4.1]: https://github.com/giantswarm/app-operator/compare/v5.4.0...v5.4.1
 [5.4.0]: https://github.com/giantswarm/app-operator/compare/v5.3.1...v5.4.0
