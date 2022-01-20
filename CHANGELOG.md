@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Fixed
+
+- When bootstrapping chart-operator the helm release should not include the cluster ID.
+
 ## [5.5.0] - 2022-01-19
 
 ### Added

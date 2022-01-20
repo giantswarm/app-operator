@@ -125,7 +125,7 @@ func (r Resource) installChartOperator(ctx context.Context, cr v1alpha1.App) err
 
 	{
 		opts := helmclient.InstallOptions{
-			ReleaseName: cr.Name,
+			ReleaseName: key.AppName(cr),
 		}
 		err = cc.Clients.Helm.InstallReleaseFromTarball(ctx,
 			tarballPath,
@@ -182,7 +182,7 @@ func (r Resource) updateChartOperator(ctx context.Context, cr v1alpha1.App) erro
 		err = cc.Clients.Helm.UpdateReleaseFromTarball(ctx,
 			tarballPath,
 			key.Namespace(cr),
-			cr.Name,
+			key.AppName(cr),
 			chartOperatorValues,
 			opts)
 		if err != nil {
@@ -199,7 +199,7 @@ func (r Resource) uninstallChartOperator(ctx context.Context, cr v1alpha1.App) e
 		return microerror.Mask(err)
 	}
 
-	err = cc.Clients.Helm.DeleteRelease(ctx, key.Namespace(cr), cr.Name)
+	err = cc.Clients.Helm.DeleteRelease(ctx, key.Namespace(cr), key.AppName(cr))
 	if helmclient.IsReleaseNotFound(err) {
 		// no-op
 	} else if err != nil {
@@ -219,7 +219,7 @@ func (r Resource) deleteFinalizers(ctx context.Context, cr v1alpha1.App) error {
 
 	err = cc.Clients.K8s.CtrlClient().Get(
 		ctx,
-		types.NamespacedName{Name: cr.Name, Namespace: r.chartNamespace},
+		types.NamespacedName{Name: key.AppName(cr), Namespace: r.chartNamespace},
 		&chart,
 	)
 	if apierrors.IsNotFound(err) {
