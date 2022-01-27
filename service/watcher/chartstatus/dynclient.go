@@ -26,9 +26,9 @@ func (c *ChartStatusWatcher) waitForDynClient(ctx context.Context) (dynamic.Inte
 		return c.k8sClient.DynClient(), nil
 	}
 
-	var chartOperatorAppCR *v1alpha1.App
+	var kubeConfigSecret *corev1.Secret
 	{
-		chartOperatorAppCR, err = c.waitForChartOperator(ctx)
+		kubeConfigSecret, err = c.waitForKubeConfig(ctx)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -36,9 +36,7 @@ func (c *ChartStatusWatcher) waitForDynClient(ctx context.Context) (dynamic.Inte
 
 	var restConfig *rest.Config
 	{
-		secretName := key.KubeConfigSecretName(*chartOperatorAppCR)
-		secretNamespace := key.KubeConfigSecretNamespace(*chartOperatorAppCR)
-		restConfig, err = c.kubeConfig.NewRESTConfigForApp(ctx, secretName, secretNamespace)
+		restConfig, err = c.kubeConfig.NewRESTConfigForApp(ctx, kubeConfigSecret.GetName(), kubeConfigSecret.GetNamespace())
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -87,9 +85,9 @@ func (c *ChartStatusWatcher) waitForAvailableConnection(ctx context.Context, dyn
 	return nil
 }
 
-// waitForChartOperator waits until the app CR is created and its kubeconfig
+// waitForKubeConfig waits until the chart-operator app CR is created and its kubeconfig
 // secret exists. We use this to access the remote cluster.
-func (c *ChartStatusWatcher) waitForChartOperator(ctx context.Context) (*v1alpha1.App, error) {
+func (c *ChartStatusWatcher) waitForKubeConfig(ctx context.Context) (*corev1.Secret, error) {
 	var chartOperatorAppCR v1alpha1.App
 	var chartOperatorAppName string
 	var kubeConfigSecret corev1.Secret
@@ -127,7 +125,7 @@ func (c *ChartStatusWatcher) waitForChartOperator(ctx context.Context) (*v1alpha
 	}
 
 	n := func(err error, t time.Duration) {
-		c.logger.Debugf(ctx, "failed to get chart-operator app CR: %#v retrying in %s", err, t)
+		c.logger.Debugf(ctx, "failed to get kubeconfig: %#v retrying in %s", err, t)
 	}
 
 	b := backoff.NewExponential(5*time.Minute, 30*time.Second)
@@ -135,5 +133,5 @@ func (c *ChartStatusWatcher) waitForChartOperator(ctx context.Context) (*v1alpha
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
-	return &chartOperatorAppCR, nil
+	return &kubeConfigSecret, nil
 }
