@@ -8,8 +8,8 @@ import (
 	"github.com/giantswarm/apiextensions-application/api/v1alpha1"
 	"github.com/giantswarm/app/v6/pkg/key"
 	"github.com/giantswarm/backoff"
-	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/microerror"
+	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/dynamic"
@@ -67,11 +67,7 @@ func (c *ChartStatusWatcher) waitForAvailableConnection(ctx context.Context, dyn
 		// List all chart CRs in the target cluster to confirm the connection
 		// is active and the chart CRD is installed.
 		_, err = dynClient.Resource(chartResource).Namespace(c.chartNamespace).List(ctx, metav1.ListOptions{})
-		if tenant.IsAPINotAvailable(err) {
-			// At times the cluster API may be unavailable so we will retry.
-			c.logger.Debugf(ctx, "cluster is not available")
-			return microerror.Mask(err)
-		} else if err != nil {
+		if err != nil {
 			return microerror.Mask(err)
 		}
 
@@ -91,11 +87,12 @@ func (c *ChartStatusWatcher) waitForAvailableConnection(ctx context.Context, dyn
 	return nil
 }
 
-// waitForChartOperator waits until the app CR is created. We use this app
-// CR to get the kubeconfig secret we use to access the remote cluster
+// waitForChartOperator waits until the app CR is created and its kubeconfig
+// secret exists. We use this to access the remote cluster.
 func (c *ChartStatusWatcher) waitForChartOperator(ctx context.Context) (*v1alpha1.App, error) {
 	var chartOperatorAppCR v1alpha1.App
 	var chartOperatorAppName string
+	var kubeConfigSecret corev1.Secret
 	var err error
 
 	if c.workloadClusterID != "" {
@@ -109,6 +106,18 @@ func (c *ChartStatusWatcher) waitForChartOperator(ctx context.Context) (*v1alpha
 			ctx,
 			types.NamespacedName{Name: chartOperatorAppName, Namespace: c.podNamespace},
 			&chartOperatorAppCR,
+		)
+		if err != nil {
+			return microerror.Mask(err)
+		}
+
+		err = c.k8sClient.CtrlClient().Get(
+			ctx,
+			types.NamespacedName{
+				Name:      key.KubeConfigSecretName(chartOperatorAppCR),
+				Namespace: key.KubeConfigSecretNamespace(chartOperatorAppCR),
+			},
+			&kubeConfigSecret,
 		)
 		if err != nil {
 			return microerror.Mask(err)
