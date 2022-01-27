@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Fixed
+
+- Fix getting kubeconfig in chart CR watcher.
+
 ## [5.5.1] - 2022-01-20
 
 ### Fixed
