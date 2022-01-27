@@ -10,7 +10,6 @@ import (
 	"github.com/giantswarm/backoff"
 	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/microerror"
-	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/dynamic"
@@ -68,7 +67,11 @@ func (c *ChartStatusWatcher) waitForAvailableConnection(ctx context.Context, dyn
 		// List all chart CRs in the target cluster to confirm the connection
 		// is active and the chart CRD is installed.
 		_, err = dynClient.Resource(chartResource).Namespace(c.chartNamespace).List(ctx, metav1.ListOptions{})
-		if err != nil {
+		if tenant.IsAPINotAvailable(err) {
+			// At times the cluster API may be unavailable so we will retry.
+			c.logger.Debugf(ctx, "cluster is not available")
+			return microerror.Mask(err)
+		} else if err != nil {
 			return microerror.Mask(err)
 		}
 
@@ -76,12 +79,7 @@ func (c *ChartStatusWatcher) waitForAvailableConnection(ctx context.Context, dyn
 	}
 
 	n := func(err error, t time.Duration) {
-		if tenant.IsAPINotAvailable(err) {
-			// At times the cluster API may be unavailable so we will retry.
-			c.logger.Debugf(ctx, "cluster is not available: retrying in %s", t)
-		} else {
-			c.logger.Errorf(ctx, err, "failed to get available g8s client: retrying in %s", t)
-		}
+		c.logger.Debugf(ctx, "failed to get available connection: %#v retrying in %s", err, t)
 	}
 
 	b := backoff.NewExponential(5*time.Minute, 30*time.Second)
@@ -120,11 +118,7 @@ func (c *ChartStatusWatcher) waitForChartOperator(ctx context.Context) (*v1alpha
 	}
 
 	n := func(err error, t time.Duration) {
-		if apierrors.IsNotFound(err) {
-			c.logger.Debugf(ctx, "'%s/%s' app CR does not exist yet: retrying in %s", c.podNamespace, chartOperatorAppName, t)
-		} else if err != nil {
-			c.logger.Errorf(ctx, err, "failed to get '%s/%s' app CR: retrying in %s", c.podNamespace, chartOperatorAppName, t)
-		}
+		c.logger.Debugf(ctx, "failed to get chart-operator app CR: %#v retrying in %s", err, t)
 	}
 
 	b := backoff.NewExponential(5*time.Minute, 30*time.Second)
