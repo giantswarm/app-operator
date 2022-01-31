@@ -47,9 +47,16 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		return nil, microerror.Mask(err)
 	}
 
-	tarballURL, err := appcatalog.NewTarballURL(key.CatalogStorageURL(cc.Catalog), key.AppName(cr), key.Version(cr))
+	/*
+		tarballURL, err := appcatalog.NewTarballURL(key.CatalogStorageURL(cc.Catalog), key.AppName(cr), key.Version(cr))
+		if err != nil {
+			r.logger.Errorf(ctx, err, "failed to generated tarball")
+		}
+	*/
+
+	tarballURL, err := appcatalog.GetTarballURL(ctx, key.CatalogStorageURL(cc.Catalog), key.AppName(cr), cr.Spec.Version)
 	if err != nil {
-		r.logger.Errorf(ctx, err, "failed to generated tarball")
+		r.logger.Errorf(ctx, err, "failed to get tarball URL")
 	}
 
 	chartCR := &v1alpha1.Chart{
