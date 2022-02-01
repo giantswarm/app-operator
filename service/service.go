@@ -101,7 +101,7 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
-	var indexCache *indexcache.Resource
+	var indexCache indexcache.Interface
 	{
 		c := indexcache.Config{
 			Logger: config.Logger,

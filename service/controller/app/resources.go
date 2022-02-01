@@ -35,7 +35,7 @@ type appResourcesConfig struct {
 	// Dependencies.
 	ClientCache *clientcache.Resource
 	FileSystem  afero.Fs
-	IndexCache  *indexcache.Resource
+	IndexCache  indexcache.Interface
 	K8sClient   k8sclient.Interface
 	Logger      micrologger.Logger
 

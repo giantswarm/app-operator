@@ -25,12 +25,9 @@ type Config struct {
 }
 
 type Resource struct {
-	// Dependencies.
-	cache  *gocache.Cache
-	logger micrologger.Logger
-
-	// Settings.
-	httpClientTimeout time.Duration
+	cache      *gocache.Cache
+	httpClient *http.Client
+	logger     micrologger.Logger
 }
 
 func New(config Config) (*Resource, error) {
@@ -42,20 +39,24 @@ func New(config Config) (*Resource, error) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.HTTPClientTimeout must not be empty", config)
 	}
 
-	r := &Resource{
-		cache:  gocache.New(expiration, expiration/2),
-		logger: config.Logger,
+	// Set client timeout to prevent leakages.
+	httpClient := &http.Client{
+		Timeout: time.Second * time.Duration(config.HTTPClientTimeout),
+	}
 
-		httpClientTimeout: config.HTTPClientTimeout,
+	r := &Resource{
+		cache:      gocache.New(expiration, expiration/2),
+		httpClient: httpClient,
+		logger:     config.Logger,
 	}
 
 	return r, nil
 }
 
 func (r *Resource) GetIndex(ctx context.Context, storageURL string) (*Index, error) {
-	k := fmt.Sprintf("%s/index.yaml", strings.TrimRight(storageURL, "/"))
+	indexURL := fmt.Sprintf("%s/index.yaml", strings.TrimRight(storageURL, "/"))
 
-	if v, ok := r.cache.Get(k); ok {
+	if v, ok := r.cache.Get(indexURL); ok {
 		i, ok := v.(Index)
 		if !ok {
 			return nil, microerror.Maskf(wrongTypeError, "expected '%T', got '%T'", Index{}, v)
@@ -64,8 +65,10 @@ func (r *Resource) GetIndex(ctx context.Context, storageURL string) (*Index, err
 		return &i, nil
 	}
 
+	r.logger.Debugf(ctx, "getting index %#q", indexURL)
+
 	// We use https in catalog URLs so we can disable the linter in this case.
-	resp, err := http.Get(k) // #nosec
+	resp, err := r.httpClient.Get(indexURL) // #nosec
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
@@ -82,7 +85,9 @@ func (r *Resource) GetIndex(ctx context.Context, storageURL string) (*Index, err
 		return nil, microerror.Mask(err)
 	}
 
-	r.cache.SetDefault(k, i)
+	r.cache.SetDefault(indexURL, i)
+
+	r.logger.Debugf(ctx, "got index %#q", indexURL)
 
 	return &i, nil
 }

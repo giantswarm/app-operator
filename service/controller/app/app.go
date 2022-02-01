@@ -28,7 +28,7 @@ type Config struct {
 	Fs          afero.Fs
 	K8sClient   k8sclient.Interface
 	ClientCache *clientcache.Resource
-	IndexCache  *indexcache.Resource
+	IndexCache  indexcache.Interface
 	Logger      micrologger.Logger
 
 	ChartNamespace    string

@@ -153,16 +153,7 @@ func generateInstall(cr v1alpha1.App) v1alpha1.ChartSpecInstall {
 	return v1alpha1.ChartSpecInstall{}
 }
 
-func getTarballURL(index *indexcache.Index, app, version string) (string, error) {
-	if index == nil || len(index.Entries) == 0 {
-		return "", microerror.Maskf(notFoundError, "no entries in index %#v", index)
-	}
-
-	entries, ok := index.Entries[app]
-	if !ok {
-		return "", microerror.Maskf(notFoundError, "no entry for app %#q in index.yaml", app)
-	}
-
+func getEntryURL(entries []indexcache.Entry, app, version string) (string, error) {
 	for _, e := range entries {
 		if e.Version == version {
 			if len(e.Urls) == 0 {
@@ -174,6 +165,27 @@ func getTarballURL(index *indexcache.Index, app, version string) (string, error)
 	}
 
 	return "", microerror.Maskf(notFoundError, "no app %#q in index.yaml with given version %#q", app, version)
+}
+
+func getTarballURL(index *indexcache.Index, app, version string) (string, error) {
+	if index == nil || len(index.Entries) == 0 {
+		return "", microerror.Maskf(notFoundError, "no entries in index %#v", index)
+	}
+
+	entries, ok := index.Entries[app]
+	if !ok {
+		return "", microerror.Maskf(notFoundError, "no entries for app %#q in index.yaml", app)
+	}
+
+	// We first try with the full version set in .spec.version of the app CR.
+	url, err := getEntryURL(entries, app, version)
+	if err != nil {
+		// We try again without the `v` prefix. This enables us to use the
+		// Flux Image Automation controller to automatically update apps.
+		return getEntryURL(entries, app, strings.TrimPrefix(version, "v"))
+	}
+
+	return url, nil
 }
 
 func hasConfigMap(cr v1alpha1.App, catalog v1alpha1.Catalog) bool {
