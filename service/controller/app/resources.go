@@ -28,12 +28,14 @@ import (
 	"github.com/giantswarm/app-operator/v5/service/controller/app/resource/tcnamespace"
 	"github.com/giantswarm/app-operator/v5/service/controller/app/resource/validation"
 	"github.com/giantswarm/app-operator/v5/service/internal/clientcache"
+	"github.com/giantswarm/app-operator/v5/service/internal/indexcache"
 )
 
 type appResourcesConfig struct {
 	// Dependencies.
 	ClientCache *clientcache.Resource
 	FileSystem  afero.Fs
+	IndexCache  *indexcache.Resource
 	K8sClient   k8sclient.Interface
 	Logger      micrologger.Logger
 
@@ -51,14 +53,17 @@ func newAppResources(config appResourcesConfig) ([]resource.Interface, error) {
 	var err error
 
 	// Dependencies.
+	if config.ClientCache == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.ClientCache must not be empty", config)
+	}
 	if config.FileSystem == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Fs must not be empty", config)
 	}
+	if config.IndexCache == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.IndexCache must not be empty", config)
+	}
 	if config.K8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
-	}
-	if config.ClientCache == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.CachedK8sClient must not be empty", config)
 	}
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
@@ -162,7 +167,8 @@ func newAppResources(config appResourcesConfig) ([]resource.Interface, error) {
 	var chartResource resource.Interface
 	{
 		c := chart.Config{
-			Logger: config.Logger,
+			IndexCache: config.IndexCache,
+			Logger:     config.Logger,
 
 			ChartNamespace:    config.ChartNamespace,
 			WorkloadClusterID: config.WorkloadClusterID,

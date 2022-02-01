@@ -6,7 +6,6 @@ import (
 
 	"github.com/giantswarm/apiextensions-application/api/v1alpha1"
 	"github.com/giantswarm/app/v6/pkg/key"
-	"github.com/giantswarm/appcatalog"
 	"github.com/giantswarm/k8smetadata/pkg/annotation"
 	"github.com/giantswarm/k8smetadata/pkg/label"
 	"github.com/giantswarm/microerror"
@@ -16,6 +15,7 @@ import (
 
 	"github.com/giantswarm/app-operator/v5/pkg/project"
 	"github.com/giantswarm/app-operator/v5/service/controller/app/controllercontext"
+	"github.com/giantswarm/app-operator/v5/service/internal/indexcache"
 )
 
 func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interface{}, error) {
@@ -47,14 +47,12 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		return nil, microerror.Mask(err)
 	}
 
-	/*
-		tarballURL, err := appcatalog.NewTarballURL(key.CatalogStorageURL(cc.Catalog), key.AppName(cr), key.Version(cr))
-		if err != nil {
-			r.logger.Errorf(ctx, err, "failed to generated tarball")
-		}
-	*/
+	index, err := r.indexCache.GetIndex(ctx, key.CatalogStorageURL(cc.Catalog))
+	if err != nil {
+		r.logger.Errorf(ctx, err, "failed to get index.yaml")
+	}
 
-	tarballURL, err := appcatalog.GetTarballURL(ctx, key.CatalogStorageURL(cc.Catalog), key.AppName(cr), cr.Spec.Version)
+	tarballURL, err := getTarballURL(index, key.AppName(cr), cr.Spec.Version)
 	if err != nil {
 		r.logger.Errorf(ctx, err, "failed to get tarball URL")
 	}
@@ -153,6 +151,29 @@ func generateInstall(cr v1alpha1.App) v1alpha1.ChartSpecInstall {
 	}
 
 	return v1alpha1.ChartSpecInstall{}
+}
+
+func getTarballURL(index *indexcache.Index, app, version string) (string, error) {
+	if index == nil || len(index.Entries) == 0 {
+		return "", microerror.Maskf(notFoundError, "no entries in index %#v", index)
+	}
+
+	entries, ok := index.Entries[app]
+	if !ok {
+		return "", microerror.Maskf(notFoundError, "no entry for app %#q in index.yaml", app)
+	}
+
+	for _, e := range entries {
+		if e.Version == version {
+			if len(e.Urls) == 0 {
+				return "", microerror.Maskf(notFoundError, "no URL in index.yaml for app %#q version %#q", app, version)
+			}
+
+			return e.Urls[0], nil
+		}
+	}
+
+	return "", microerror.Maskf(notFoundError, "no app %#q in index.yaml with given version %#q", app, version)
 }
 
 func hasConfigMap(cr v1alpha1.App, catalog v1alpha1.Catalog) bool {

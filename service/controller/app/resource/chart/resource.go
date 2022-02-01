@@ -12,6 +12,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/giantswarm/app-operator/v5/service/controller/app/controllercontext"
+	"github.com/giantswarm/app-operator/v5/service/internal/indexcache"
 )
 
 const (
@@ -26,7 +27,8 @@ const (
 // Config represents the configuration used to create a new chart resource.
 type Config struct {
 	// Dependencies.
-	Logger micrologger.Logger
+	IndexCache *indexcache.Resource
+	Logger     micrologger.Logger
 
 	// Settings.
 	ChartNamespace    string
@@ -36,7 +38,8 @@ type Config struct {
 // Resource implements the chart resource.
 type Resource struct {
 	// Dependencies.
-	logger micrologger.Logger
+	indexCache *indexcache.Resource
+	logger     micrologger.Logger
 
 	// Settings.
 	chartNamespace    string
@@ -45,6 +48,9 @@ type Resource struct {
 
 // New creates a new configured chart resource.
 func New(config Config) (*Resource, error) {
+	if config.IndexCache == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.IndexCache$ must not be empty", config)
+	}
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
@@ -54,7 +60,8 @@ func New(config Config) (*Resource, error) {
 	}
 
 	r := &Resource{
-		logger: config.Logger,
+		indexCache: config.IndexCache,
+		logger:     config.Logger,
 
 		chartNamespace:    config.ChartNamespace,
 		workloadClusterID: config.WorkloadClusterID,
