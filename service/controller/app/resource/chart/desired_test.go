@@ -79,7 +79,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					Description: "Catalog of Apps by Giant Swarm",
 					Storage: v1alpha1.CatalogSpecStorage{
 						Type: "helm",
-						URL:  "https://giantswarm.github.io/giantswarm-catalog/",
+						URL:  "https://giantswarm.github.io/app-catalog/",
 					},
 					LogoURL: "https://s.giantswarm.io/...",
 				},
@@ -90,7 +90,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					Namespace: "giantswarm",
 				},
 			},
-			index: newIndex("prometheus", "1.0.0", "https://giantswarm.github.io/giantswarm-catalog/prometheus-1.0.0.tgz"),
+			index: newIndexWithApp("prometheus", "1.0.0", "https://giantswarm.github.io/giantswarm-catalog/prometheus-1.0.0.tgz"),
 			expectedChart: &v1alpha1.Chart{
 				TypeMeta: metav1.TypeMeta{
 					Kind:       "Chart",
@@ -252,7 +252,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					},
 				},
 			},
-			index: newIndex("prometheus", "1.0.0", "https://giantswarm.github.io/giantswarm-catalog/prometheus-1.0.0.tgz"),
+			index: newIndexWithApp("prometheus", "1.0.0", "https://giantswarm.github.io/giantswarm-catalog/prometheus-1.0.0.tgz"),
 			expectedChart: &v1alpha1.Chart{
 				TypeMeta: metav1.TypeMeta{
 					Kind:       "Chart",
@@ -329,7 +329,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					Description: "Catalog of Apps by Giant Swarm",
 					Storage: v1alpha1.CatalogSpecStorage{
 						Type: "helm",
-						URL:  "https://giantswarm.github.io/giantswarm-catalog/",
+						URL:  "https://giantswarm.github.io/app-catalog/",
 					},
 					LogoURL: "https://s.giantswarm.io/...",
 				},
@@ -340,7 +340,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					Namespace: "giantswarm",
 				},
 			},
-			index: newIndex("prometheus", "1.0.0", "https://giantswarm.github.io/giantswarm-catalog/prometheus-1.0.0.tgz"),
+			index: newIndexWithApp("prometheus", "1.0.0", "https://giantswarm.github.io/giantswarm-catalog/prometheus-1.0.0.tgz"),
 			expectedChart: &v1alpha1.Chart{
 				TypeMeta: metav1.TypeMeta{
 					Kind:       "Chart",
@@ -781,7 +781,7 @@ func Test_processLabels(t *testing.T) {
 	}
 }
 
-func newIndex(app, version, url string) *indexcache.Index {
+func newIndexWithApp(app, version, url string) *indexcache.Index {
 	index := &indexcache.Index{
 		Entries: map[string][]indexcache.Entry{
 			app: {
