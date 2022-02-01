@@ -27,7 +27,7 @@ const (
 // Config represents the configuration used to create a new chart resource.
 type Config struct {
 	// Dependencies.
-	IndexCache *indexcache.Resource
+	IndexCache indexcache.Interface
 	Logger     micrologger.Logger
 
 	// Settings.
@@ -38,7 +38,7 @@ type Config struct {
 // Resource implements the chart resource.
 type Resource struct {
 	// Dependencies.
-	indexCache *indexcache.Resource
+	indexCache indexcache.Interface
 	logger     micrologger.Logger
 
 	// Settings.
