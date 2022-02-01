@@ -82,5 +82,7 @@ func (r *Resource) GetIndex(ctx context.Context, storageURL string) (*Index, err
 		return nil, microerror.Mask(err)
 	}
 
+	r.cache.SetDefault(k, i)
+
 	return &i, nil
 }
