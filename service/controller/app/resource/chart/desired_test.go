@@ -37,9 +37,9 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					Name:      "my-cool-prometheus",
 					Namespace: "default",
 					Labels: map[string]string{
-						"app":                                  "prometheus",
-						"chart-operator.giantswarm.io/version": "1.0.0",
-						"giantswarm.io/managed-by":             "cluster-operator",
+						"app":                                "prometheus",
+						"app-operator.giantswarm.io/version": "1.0.0",
+						"giantswarm.io/managed-by":           "cluster-operator",
 					},
 				},
 				Spec: v1alpha1.AppSpec{
