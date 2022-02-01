@@ -15,6 +15,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client/fake" //nolint:staticcheck
 
 	"github.com/giantswarm/app-operator/v5/service/controller/app/controllercontext"
+	"github.com/giantswarm/app-operator/v5/service/internal/indexcache/indexcachetest"
 )
 
 func Test_Resource_newUpdateChange(t *testing.T) {
@@ -193,7 +194,8 @@ func Test_Resource_newUpdateChange(t *testing.T) {
 			objs := make([]runtime.Object, 0)
 
 			c := Config{
-				Logger: microloggertest.New(),
+				IndexCache: indexcachetest.New(indexcachetest.Config{}),
+				Logger:     microloggertest.New(),
 
 				ChartNamespace: "giantswarm",
 			}
