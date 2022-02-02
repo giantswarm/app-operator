@@ -8,6 +8,7 @@ import (
 	"github.com/giantswarm/apiextensions-application/api/v1alpha1"
 	"github.com/giantswarm/app/v6/pkg/key"
 	"github.com/giantswarm/backoff"
+	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/microerror"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -65,8 +66,12 @@ func (c *ChartStatusWatcher) waitForAvailableConnection(ctx context.Context, dyn
 		// List all chart CRs in the target cluster to confirm the connection
 		// is active and the chart CRD is installed.
 		_, err = dynClient.Resource(chartResource).Namespace(c.chartNamespace).List(ctx, metav1.ListOptions{})
-		if IsResourceNotFound(err) {
-			return microerror.Maskf(resourceNotFoundError, "chart CRD not found")
+		if tenant.IsAPINotAvailable(err) {
+			c.logger.Debugf(ctx, "workload cluster is not available")
+			return microerror.Mask(err)
+		} else if IsResourceNotFound(err) {
+			c.logger.Debugf(ctx, "chart CRD is not installed")
+			return microerror.Mask(err)
 		} else if err != nil {
 			return microerror.Mask(err)
 		}
