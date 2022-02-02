@@ -65,7 +65,9 @@ func (c *ChartStatusWatcher) waitForAvailableConnection(ctx context.Context, dyn
 		// List all chart CRs in the target cluster to confirm the connection
 		// is active and the chart CRD is installed.
 		_, err = dynClient.Resource(chartResource).Namespace(c.chartNamespace).List(ctx, metav1.ListOptions{})
-		if err != nil {
+		if IsResourceNotFound(err) {
+			return microerror.Maskf(resourceNotFoundError, "chart CRD not found")
+		} else if err != nil {
 			return microerror.Mask(err)
 		}
 
