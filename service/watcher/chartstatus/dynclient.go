@@ -83,7 +83,8 @@ func (c *ChartStatusWatcher) waitForAvailableConnection(ctx context.Context, dyn
 		c.logger.Debugf(ctx, "failed to get available connection: %#v retrying in %s", err, t)
 	}
 
-	b := backoff.NewExponential(5*time.Minute, 30*time.Second)
+	// maxWait is 0 since cluster creation may fail.
+	b := backoff.NewExponential(0, 30*time.Second)
 	err = backoff.RetryNotify(o, b, n)
 	if err != nil {
 		return microerror.Mask(err)
@@ -135,7 +136,8 @@ func (c *ChartStatusWatcher) waitForKubeConfig(ctx context.Context) (*corev1.Sec
 		c.logger.Debugf(ctx, "failed to get kubeconfig: %#v retrying in %s", err, t)
 	}
 
-	b := backoff.NewExponential(5*time.Minute, 30*time.Second)
+	// maxWait is 0 since kubeconfig creation may fail.
+	b := backoff.NewExponential(0, 30*time.Second)
 	err = backoff.RetryNotify(o, b, n)
 	if err != nil {
 		return nil, microerror.Mask(err)
