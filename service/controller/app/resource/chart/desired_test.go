@@ -90,7 +90,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					Namespace: "giantswarm",
 				},
 			},
-			index: newIndexWithApp("prometheus", "1.0.0", "https://giantswarm.github.io/giantswarm-catalog/prometheus-1.0.0.tgz"),
+			index: newIndexWithApp("prometheus", "1.0.0", "https://giantswarm.github.io/app-catalog/prometheus-1.0.0.tgz"),
 			expectedChart: &v1alpha1.Chart{
 				TypeMeta: metav1.TypeMeta{
 					Kind:       "Chart",
@@ -123,7 +123,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 							"linkerd.io/inject": "enabled",
 						},
 					},
-					TarballURL: "https://giantswarm.github.io/giantswarm-catalog/prometheus-1.0.0.tgz",
+					TarballURL: "https://giantswarm.github.io/app-catalog/prometheus-1.0.0.tgz",
 					Version:    "1.0.0",
 				},
 			},
@@ -248,11 +248,11 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					Title: "Giant Swarm",
 					Storage: v1alpha1.CatalogSpecStorage{
 						Type: "helm",
-						URL:  "https://giantswarm.github.io/giantswarm-catalog/",
+						URL:  "https://giantswarm.github.io/app-catalog/",
 					},
 				},
 			},
-			index: newIndexWithApp("prometheus", "1.0.0", "https://giantswarm.github.io/giantswarm-catalog/prometheus-1.0.0.tgz"),
+			index: newIndexWithApp("prometheus", "1.0.0", "https://giantswarm.github.io/app-catalog/prometheus-1.0.0.tgz"),
 			expectedChart: &v1alpha1.Chart{
 				TypeMeta: metav1.TypeMeta{
 					Kind:       "Chart",
@@ -275,7 +275,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 				Spec: v1alpha1.ChartSpec{
 					Name:       "my-cool-prometheus",
 					Namespace:  "monitoring",
-					TarballURL: "https://giantswarm.github.io/giantswarm-catalog/prometheus-1.0.0.tgz",
+					TarballURL: "https://giantswarm.github.io/app-catalog/prometheus-1.0.0.tgz",
 					Version:    "1.0.0",
 				},
 			},
@@ -340,7 +340,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					Namespace: "giantswarm",
 				},
 			},
-			index: newIndexWithApp("prometheus", "1.0.0", "https://giantswarm.github.io/giantswarm-catalog/prometheus-1.0.0.tgz"),
+			index: newIndexWithApp("prometheus", "1.0.0", "https://giantswarm.github.io/app-catalog/prometheus-1.0.0.tgz"),
 			expectedChart: &v1alpha1.Chart{
 				TypeMeta: metav1.TypeMeta{
 					Kind:       "Chart",
@@ -373,7 +373,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 							"linkerd.io/inject": "enabled",
 						},
 					},
-					TarballURL: "https://giantswarm.github.io/giantswarm-catalog/prometheus-1.0.0.tgz",
+					TarballURL: "https://giantswarm.github.io/app-catalog/prometheus-1.0.0.tgz",
 					Version:    "1.0.0",
 				},
 			},
