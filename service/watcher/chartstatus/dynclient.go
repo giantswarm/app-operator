@@ -8,6 +8,7 @@ import (
 	"github.com/giantswarm/apiextensions-application/api/v1alpha1"
 	"github.com/giantswarm/app/v6/pkg/key"
 	"github.com/giantswarm/backoff"
+	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/microerror"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -65,7 +66,13 @@ func (c *ChartStatusWatcher) waitForAvailableConnection(ctx context.Context, dyn
 		// List all chart CRs in the target cluster to confirm the connection
 		// is active and the chart CRD is installed.
 		_, err = dynClient.Resource(chartResource).Namespace(c.chartNamespace).List(ctx, metav1.ListOptions{})
-		if err != nil {
+		if tenant.IsAPINotAvailable(err) {
+			c.logger.Debugf(ctx, "workload cluster is not available")
+			return microerror.Mask(err)
+		} else if IsResourceNotFound(err) {
+			c.logger.Debugf(ctx, "chart CRD is not installed")
+			return microerror.Mask(err)
+		} else if err != nil {
 			return microerror.Mask(err)
 		}
 
@@ -76,7 +83,8 @@ func (c *ChartStatusWatcher) waitForAvailableConnection(ctx context.Context, dyn
 		c.logger.Debugf(ctx, "failed to get available connection: %#v retrying in %s", err, t)
 	}
 
-	b := backoff.NewExponential(5*time.Minute, 30*time.Second)
+	// maxWait is 0 since cluster creation may fail.
+	b := backoff.NewExponential(0, 30*time.Second)
 	err = backoff.RetryNotify(o, b, n)
 	if err != nil {
 		return microerror.Mask(err)
@@ -128,7 +136,8 @@ func (c *ChartStatusWatcher) waitForKubeConfig(ctx context.Context) (*corev1.Sec
 		c.logger.Debugf(ctx, "failed to get kubeconfig: %#v retrying in %s", err, t)
 	}
 
-	b := backoff.NewExponential(5*time.Minute, 30*time.Second)
+	// maxWait is 0 since kubeconfig creation may fail.
+	b := backoff.NewExponential(0, 30*time.Second)
 	err = backoff.RetryNotify(o, b, n)
 	if err != nil {
 		return nil, microerror.Mask(err)

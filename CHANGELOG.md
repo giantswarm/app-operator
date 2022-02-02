@@ -11,6 +11,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 - Get tarball URL for chart CRs from index.yaml for better community app catalog support.
 
+### Fixed
+
+- Fix error handling in chart CR watcher when chart CRD not installed.
+
 ## [5.5.2] - 2022-01-28
 
 ### Fixed
