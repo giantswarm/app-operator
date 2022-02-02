@@ -52,7 +52,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		r.logger.Errorf(ctx, err, "failed to get index.yaml")
 	}
 
-	tarballURL, err := getTarballURL(index, key.AppName(cr), cr.Spec.Version)
+	version, tarballURL, err := getVersionAndTarballURL(index, key.AppName(cr), cr.Spec.Version)
 	if err != nil {
 		r.logger.Errorf(ctx, err, "failed to get tarball URL")
 	}
@@ -78,7 +78,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 				Labels:      cr.Spec.NamespaceConfig.Labels,
 			},
 			TarballURL: tarballURL,
-			Version:    key.Version(cr),
+			Version:    version,
 		},
 	}
 
@@ -167,14 +167,14 @@ func getEntryURL(entries []indexcache.Entry, app, version string) (string, error
 	return "", microerror.Maskf(notFoundError, "no app %#q in index.yaml with given version %#q", app, version)
 }
 
-func getTarballURL(index *indexcache.Index, app, version string) (string, error) {
+func getVersionAndTarballURL(index *indexcache.Index, app, version string) (string, string, error) {
 	if index == nil || len(index.Entries) == 0 {
-		return "", microerror.Maskf(notFoundError, "no entries in index %#v", index)
+		return "", "", microerror.Maskf(notFoundError, "no entries in index %#v", index)
 	}
 
 	entries, ok := index.Entries[app]
 	if !ok {
-		return "", microerror.Maskf(notFoundError, "no entries for app %#q in index.yaml", app)
+		return "", "", microerror.Maskf(notFoundError, "no entries for app %#q in index.yaml", app)
 	}
 
 	// We first try with the full version set in .spec.version of the app CR.
@@ -182,10 +182,15 @@ func getTarballURL(index *indexcache.Index, app, version string) (string, error)
 	if err != nil {
 		// We try again without the `v` prefix. This enables us to use the
 		// Flux Image Automation controller to automatically update apps.
-		return getEntryURL(entries, app, strings.TrimPrefix(version, "v"))
+		version = strings.TrimPrefix(version, "v")
+
+		url, err = getEntryURL(entries, app, version)
+		if err != nil {
+			return "", "", microerror.Mask(err)
+		}
 	}
 
-	return url, nil
+	return version, url, nil
 }
 
 func hasConfigMap(cr v1alpha1.App, catalog v1alpha1.Catalog) bool {

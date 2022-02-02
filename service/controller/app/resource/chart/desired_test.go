@@ -211,7 +211,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					Name:       "my-cool-prometheus",
 					Namespace:  "monitoring",
 					TarballURL: "",
-					Version:    "1.0.0",
+					Version:    "",
 				},
 			},
 		},
