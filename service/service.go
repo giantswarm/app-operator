@@ -18,6 +18,7 @@ import (
 	"github.com/giantswarm/app-operator/v5/service/controller/app"
 	"github.com/giantswarm/app-operator/v5/service/controller/catalog"
 	"github.com/giantswarm/app-operator/v5/service/internal/clientcache"
+	"github.com/giantswarm/app-operator/v5/service/internal/indexcache"
 	"github.com/giantswarm/app-operator/v5/service/internal/recorder"
 	"github.com/giantswarm/app-operator/v5/service/watcher/appvalue"
 	"github.com/giantswarm/app-operator/v5/service/watcher/chartstatus"
@@ -100,11 +101,26 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
+	var indexCache indexcache.Interface
+	{
+		c := indexcache.Config{
+			Logger: config.Logger,
+
+			HTTPClientTimeout: config.Viper.GetDuration(config.Flag.Service.Helm.HTTP.ClientTimeout),
+		}
+
+		indexCache, err = indexcache.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var appController *app.App
 	{
 		c := app.Config{
 			ClientCache: clientCache,
 			Fs:          fs,
+			IndexCache:  indexCache,
 			Logger:      config.Logger,
 			K8sClient:   config.K8sClient,
 

@@ -16,6 +16,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client/fake" //nolint:staticcheck
 
 	"github.com/giantswarm/app-operator/v5/service/controller/app/controllercontext"
+	"github.com/giantswarm/app-operator/v5/service/internal/indexcache"
+	"github.com/giantswarm/app-operator/v5/service/internal/indexcache/indexcachetest"
 )
 
 func Test_Resource_GetDesiredState(t *testing.T) {
@@ -24,6 +26,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 		obj           *v1alpha1.App
 		catalog       v1alpha1.Catalog
 		configMap     *corev1.ConfigMap
+		index         *indexcache.Index
 		expectedChart *v1alpha1.Chart
 		error         bool
 	}{
@@ -87,6 +90,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					Namespace: "giantswarm",
 				},
 			},
+			index: newIndexWithApp("prometheus", "1.0.0", "https://giantswarm.github.io/app-catalog/prometheus-1.0.0.tgz"),
 			expectedChart: &v1alpha1.Chart{
 				TypeMeta: metav1.TypeMeta{
 					Kind:       "Chart",
@@ -207,7 +211,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					Name:       "my-cool-prometheus",
 					Namespace:  "monitoring",
 					TarballURL: "",
-					Version:    "1.0.0",
+					Version:    "",
 				},
 			},
 		},
@@ -248,6 +252,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					},
 				},
 			},
+			index: newIndexWithApp("prometheus", "1.0.0", "https://giantswarm.github.io/app-catalog/prometheus-1.0.0.tgz"),
 			expectedChart: &v1alpha1.Chart{
 				TypeMeta: metav1.TypeMeta{
 					Kind:       "Chart",
@@ -276,7 +281,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 			},
 		},
 		{
-			name: "case 2: flawless flow with prefixed version",
+			name: "case 3: flawless flow with prefixed version",
 			obj: &v1alpha1.App{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "my-cool-prometheus",
@@ -335,6 +340,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					Namespace: "giantswarm",
 				},
 			},
+			index: newIndexWithApp("prometheus", "1.0.0", "https://giantswarm.github.io/app-catalog/prometheus-1.0.0.tgz"),
 			expectedChart: &v1alpha1.Chart{
 				TypeMeta: metav1.TypeMeta{
 					Kind:       "Chart",
@@ -382,6 +388,9 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 			}
 
 			c := Config{
+				IndexCache: indexcachetest.New(indexcachetest.Config{
+					GetIndexResponse: tc.index,
+				}),
 				Logger: microloggertest.New(),
 
 				ChartNamespace: "giantswarm",
@@ -770,4 +779,21 @@ func Test_processLabels(t *testing.T) {
 			}
 		})
 	}
+}
+
+func newIndexWithApp(app, version, url string) *indexcache.Index {
+	index := &indexcache.Index{
+		Entries: map[string][]indexcache.Entry{
+			app: {
+				{
+					Urls: []string{
+						url,
+					},
+					Version: version,
+				},
+			},
+		},
+	}
+
+	return index
 }

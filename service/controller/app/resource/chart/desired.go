@@ -6,7 +6,6 @@ import (
 
 	"github.com/giantswarm/apiextensions-application/api/v1alpha1"
 	"github.com/giantswarm/app/v6/pkg/key"
-	"github.com/giantswarm/appcatalog"
 	"github.com/giantswarm/k8smetadata/pkg/annotation"
 	"github.com/giantswarm/k8smetadata/pkg/label"
 	"github.com/giantswarm/microerror"
@@ -16,6 +15,7 @@ import (
 
 	"github.com/giantswarm/app-operator/v5/pkg/project"
 	"github.com/giantswarm/app-operator/v5/service/controller/app/controllercontext"
+	"github.com/giantswarm/app-operator/v5/service/internal/indexcache"
 )
 
 func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interface{}, error) {
@@ -47,9 +47,14 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		return nil, microerror.Mask(err)
 	}
 
-	tarballURL, err := appcatalog.NewTarballURL(key.CatalogStorageURL(cc.Catalog), key.AppName(cr), key.Version(cr))
+	index, err := r.indexCache.GetIndex(ctx, key.CatalogStorageURL(cc.Catalog))
 	if err != nil {
-		r.logger.Errorf(ctx, err, "failed to generated tarball")
+		r.logger.Errorf(ctx, err, "failed to get index.yaml")
+	}
+
+	version, tarballURL, err := getVersionAndTarballURL(index, key.AppName(cr), cr.Spec.Version)
+	if err != nil {
+		r.logger.Errorf(ctx, err, "failed to get tarball URL")
 	}
 
 	chartCR := &v1alpha1.Chart{
@@ -73,7 +78,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 				Labels:      cr.Spec.NamespaceConfig.Labels,
 			},
 			TarballURL: tarballURL,
-			Version:    key.Version(cr),
+			Version:    version,
 		},
 	}
 
@@ -146,6 +151,46 @@ func generateInstall(cr v1alpha1.App) v1alpha1.ChartSpecInstall {
 	}
 
 	return v1alpha1.ChartSpecInstall{}
+}
+
+func getEntryURL(entries []indexcache.Entry, app, version string) (string, error) {
+	for _, e := range entries {
+		if e.Version == version {
+			if len(e.Urls) == 0 {
+				return "", microerror.Maskf(notFoundError, "no URL in index.yaml for app %#q version %#q", app, version)
+			}
+
+			return e.Urls[0], nil
+		}
+	}
+
+	return "", microerror.Maskf(notFoundError, "no app %#q in index.yaml with given version %#q", app, version)
+}
+
+func getVersionAndTarballURL(index *indexcache.Index, app, version string) (string, string, error) {
+	if index == nil || len(index.Entries) == 0 {
+		return "", "", microerror.Maskf(notFoundError, "no entries in index %#v", index)
+	}
+
+	entries, ok := index.Entries[app]
+	if !ok {
+		return "", "", microerror.Maskf(notFoundError, "no entries for app %#q in index.yaml", app)
+	}
+
+	// We first try with the full version set in .spec.version of the app CR.
+	url, err := getEntryURL(entries, app, version)
+	if err != nil {
+		// We try again without the `v` prefix. This enables us to use the
+		// Flux Image Automation controller to automatically update apps.
+		version = strings.TrimPrefix(version, "v")
+
+		url, err = getEntryURL(entries, app, version)
+		if err != nil {
+			return "", "", microerror.Mask(err)
+		}
+	}
+
+	return version, url, nil
 }
 
 func hasConfigMap(cr v1alpha1.App, catalog v1alpha1.Catalog) bool {
