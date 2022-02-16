@@ -6,7 +6,6 @@ import (
 	"testing"
 
 	"github.com/giantswarm/apiextensions-application/api/v1alpha1"
-	"github.com/giantswarm/app/v6/pkg/key"
 	"github.com/giantswarm/app/v6/pkg/values"
 	"github.com/giantswarm/k8sclient/v6/pkg/k8sclienttest"
 	"github.com/giantswarm/k8smetadata/pkg/annotation"
@@ -90,11 +89,6 @@ func Test_Resource_triggerReconciliation(t *testing.T) {
 		t.Run(fmt.Sprintf("%d: %s", i, tc.name), func(t *testing.T) {
 			var err error
 
-			cr, err := key.ToApp(tc.chartoperator)
-			if err != nil {
-				t.Fatalf("error == %#v, want nil", err)
-			}
-
 			schemeBuilder := runtime.SchemeBuilder{
 				v1alpha1.AddToScheme,
 			}
@@ -177,7 +171,7 @@ func Test_Resource_triggerReconciliation(t *testing.T) {
 				ctx = controllercontext.NewContext(context.Background(), c)
 			}
 
-			err = r.triggerReconciliation(ctx, cr)
+			err = r.triggerReconciliation(ctx, *tc.chartoperator)
 			if err != nil {
 				t.Fatalf("error == %#v, want nil", err)
 			}
