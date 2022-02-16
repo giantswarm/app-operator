@@ -179,7 +179,7 @@ func (r Resource) triggerReconciliation(ctx context.Context, operatorApp v1alpha
 
 	// For each App, check if the corresponding Chart CR exists.
 	// If not, annotate the App to trigger the reconciliation.
-	for _, app := range appList.Items {
+	for i, app := range appList.Items {
 		// Skip for in-cluster apps and the chart-operator app itself.
 		if key.InCluster(app) || app.ObjectMeta.Name == operatorApp.ObjectMeta.Name {
 			continue
@@ -206,7 +206,8 @@ func (r Resource) triggerReconciliation(ctx context.Context, operatorApp v1alpha
 			modifiedApp := app.DeepCopy()
 			modifiedApp.Annotations[AppOperatorTriggerReconciliation] = metav1.Now().String()
 
-			err = r.ctrlClient.Patch(ctx, modifiedApp, client.MergeFrom(&app))
+			// Using indexing to fix the `G601: Implicit memory aliasing in for loop.`
+			err = r.ctrlClient.Patch(ctx, modifiedApp, client.MergeFrom(&appList.Items[i]))
 			if err != nil {
 				return microerror.Mask(err)
 			}
