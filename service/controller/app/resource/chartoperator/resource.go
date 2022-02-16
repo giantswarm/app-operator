@@ -3,6 +3,7 @@ package chartoperator
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/giantswarm/apiextensions-application/api/v1alpha1"
 	"github.com/giantswarm/app/v6/pkg/key"
@@ -204,7 +205,7 @@ func (r Resource) triggerReconciliation(ctx context.Context, operatorApp v1alpha
 			}
 
 			modifiedApp := app.DeepCopy()
-			modifiedApp.Annotations[AppOperatorTriggerReconciliation] = metav1.Now().String()
+			modifiedApp.Annotations[AppOperatorTriggerReconciliation] = metav1.Now().Format(time.RFC3339)
 
 			// Using indexing to fix the `G601: Implicit memory aliasing in for loop.`
 			err = r.ctrlClient.Patch(ctx, modifiedApp, client.MergeFrom(&appList.Items[i]))
