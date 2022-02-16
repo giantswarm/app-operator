@@ -181,6 +181,20 @@ func Test_Resource_EnsureCreated(t *testing.T) {
 			if err != nil {
 				t.Fatalf("error == %#v, want nil", err)
 			}
+
+			var appList v1alpha1.AppList
+			err = r.ctrlClient.List(ctx, &appList)
+			if err != nil {
+				t.Fatalf("error == %#v, want nil", err)
+			}
+
+			for _, a := range appList.Items {
+				_, ok := a.GetAnnotations()[AppOperatorTriggerReconciliation]
+				expected := tc.expectAnnotation[a.ObjectMeta.Name]
+				if expected != ok {
+					t.Fatalf("%s: expected %t, got %t", a.ObjectMeta.Name, expected, ok)
+				}
+			}
 		})
 	}
 }
