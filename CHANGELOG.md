@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+## Added
+
+- Annotate App CRs after bootstrapping chart-operator to trigger reconciliation.
+
 ## [5.6.0] - 2022-02-02
 
 ### Changed
