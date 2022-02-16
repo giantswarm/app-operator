@@ -98,8 +98,6 @@ func Test_Resource_triggerReconciliation(t *testing.T) {
 				t.Fatalf("error == %#v, want nil", err)
 			}
 
-			fakeLogger := microloggertest.New()
-
 			var r *Resource
 			{
 				var objs []runtime.Object
@@ -114,6 +112,7 @@ func Test_Resource_triggerReconciliation(t *testing.T) {
 					Build()
 
 				fakeK8sClient := clientgofake.NewSimpleClientset()
+				fakeLogger := microloggertest.New()
 
 				var valuesService *values.Values
 				{
