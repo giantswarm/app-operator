@@ -136,6 +136,8 @@ func (r Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			r.logger.Debugf(ctx, "release %#q deployed", releaseName)
 			r.logger.Debugf(ctx, "triggering charts reconciliation")
 
+			// Checks for App CRs without corresponding Chart CRs in the workload cluster,
+			// and then annotate them to trigger reconciliation and speed up bootstrapping.
 			err = r.triggerReconciliation(ctx, cr)
 			if err != nil {
 				return microerror.Mask(err)

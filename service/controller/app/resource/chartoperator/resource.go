@@ -2,6 +2,7 @@ package chartoperator
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"time"
 
@@ -10,6 +11,7 @@ import (
 	"github.com/giantswarm/app/v6/pkg/values"
 	"github.com/giantswarm/appcatalog"
 	"github.com/giantswarm/helmclient/v4/pkg/helmclient"
+	"github.com/giantswarm/k8smetadata/pkg/annotation"
 	"github.com/giantswarm/k8smetadata/pkg/label"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
@@ -25,8 +27,7 @@ import (
 )
 
 const (
-	Name                             = "chartoperator"
-	AppOperatorTriggerReconciliation = "app-operator.giantswarm.io/trigger-reconciliation"
+	Name = "chartoperator"
 )
 
 // Config represents the configuration used to create a new clients resource.
@@ -149,7 +150,11 @@ func (r Resource) installChartOperator(ctx context.Context, cr v1alpha1.App) err
 	return nil
 }
 
-func (r Resource) triggerReconciliation(ctx context.Context, operatorApp v1alpha1.App) error {
+// The `triggerReconciliation` gets executed upon successfull installation of
+// the chart-operator in the workload cluster. It checks for App CRs without
+// corresponding Chart CRs in the workload cluster, and then annotates them
+// to trigger reconciliation and speed up bootstrapping.
+func (r Resource) triggerReconciliation(ctx context.Context, chartOperatorApp v1alpha1.App) error {
 	cc, err := controllercontext.FromContext(ctx)
 	if err != nil {
 		return microerror.Mask(err)
@@ -163,8 +168,8 @@ func (r Resource) triggerReconciliation(ctx context.Context, operatorApp v1alpha
 
 		var selector k8slabels.Selector
 
-		if key.IsInOrgNamespace(operatorApp) {
-			selector, err = k8slabels.Parse(fmt.Sprintf("%s=%s", label.Cluster, key.ClusterLabel(operatorApp)))
+		if key.IsInOrgNamespace(chartOperatorApp) {
+			selector, err = k8slabels.Parse(fmt.Sprintf("%s=%s", label.Cluster, key.ClusterLabel(chartOperatorApp)))
 			if err != nil {
 				return microerror.Mask(err)
 			}
@@ -180,9 +185,9 @@ func (r Resource) triggerReconciliation(ctx context.Context, operatorApp v1alpha
 
 	// For each App, check if the corresponding Chart CR exists.
 	// If not, annotate the App to trigger the reconciliation.
-	for i, app := range appList.Items {
+	for _, app := range appList.Items {
 		// Skip for in-cluster apps and the chart-operator app itself.
-		if key.InCluster(app) || app.ObjectMeta.Name == operatorApp.ObjectMeta.Name {
+		if key.InCluster(app) || app.ObjectMeta.Name == chartOperatorApp.ObjectMeta.Name {
 			continue
 		}
 
@@ -204,11 +209,18 @@ func (r Resource) triggerReconciliation(ctx context.Context, operatorApp v1alpha
 				app.Annotations = map[string]string{}
 			}
 
-			modifiedApp := app.DeepCopy()
-			modifiedApp.Annotations[AppOperatorTriggerReconciliation] = metav1.Now().Format(time.RFC3339)
+			bytes, err := json.Marshal(v1alpha1.App{
+				ObjectMeta: metav1.ObjectMeta{
+					Annotations: map[string]string{
+						annotation.AppOperatorTriggerReconciliation: metav1.Now().Format(time.RFC3339),
+					},
+				},
+			})
+			if err != nil {
+				return microerror.Mask(err)
+			}
 
-			// Using indexing to fix the `G601: Implicit memory aliasing in for loop.`
-			err = r.ctrlClient.Patch(ctx, modifiedApp, client.MergeFrom(&appList.Items[i]))
+			err = r.ctrlClient.Patch(ctx, &app, client.RawPatch(types.MergePatchType, bytes))
 			if err != nil {
 				return microerror.Mask(err)
 			}
