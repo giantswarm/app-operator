@@ -132,6 +132,16 @@ func (r Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			}
 
 			r.logger.Debugf(ctx, "deleted release %#q", releaseName)
+		case helmclient.StatusDeployed:
+			r.logger.Debugf(ctx, "release %#q deployed", releaseName)
+			r.logger.Debugf(ctx, "triggering charts reconciliation")
+
+			err = r.triggerReconciliation(ctx, cr)
+			if err != nil {
+				return microerror.Mask(err)
+			}
+
+			r.logger.Debugf(ctx, "triggered charts reconciliation")
 		}
 	}
 

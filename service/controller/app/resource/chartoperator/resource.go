@@ -2,16 +2,20 @@ package chartoperator
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/giantswarm/apiextensions-application/api/v1alpha1"
 	"github.com/giantswarm/app/v6/pkg/key"
 	"github.com/giantswarm/app/v6/pkg/values"
 	"github.com/giantswarm/appcatalog"
 	"github.com/giantswarm/helmclient/v4/pkg/helmclient"
+	"github.com/giantswarm/k8smetadata/pkg/label"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/spf13/afero"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	k8slabels "k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/kubernetes"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -20,7 +24,8 @@ import (
 )
 
 const (
-	Name = "chartoperator"
+	Name                             = "chartoperator"
+	AppOperatorTriggerReconciliation = "app-operator.giantswarm.io/trigger-reconciliation"
 )
 
 // Config represents the configuration used to create a new clients resource.
@@ -33,7 +38,8 @@ type Config struct {
 	Values     *values.Values
 
 	// Settings.
-	ChartNamespace string
+	ChartNamespace    string
+	WorkloadClusterID string
 }
 
 type Resource struct {
@@ -45,7 +51,8 @@ type Resource struct {
 	values     *values.Values
 
 	// Settings.
-	chartNamespace string
+	chartNamespace    string
+	workloadClusterID string
 }
 
 // New creates a new configured chartoperator resource.
@@ -78,7 +85,8 @@ func New(config Config) (*Resource, error) {
 		logger:     config.Logger,
 		values:     config.Values,
 
-		chartNamespace: config.ChartNamespace,
+		chartNamespace:    config.ChartNamespace,
+		workloadClusterID: config.WorkloadClusterID,
 	}
 
 	return r, nil
@@ -133,6 +141,78 @@ func (r Resource) installChartOperator(ctx context.Context, cr v1alpha1.App) err
 			chartOperatorValues,
 			opts)
 		if err != nil {
+			return microerror.Mask(err)
+		}
+	}
+
+	return nil
+}
+
+func (r Resource) triggerReconciliation(ctx context.Context, operatorApp v1alpha1.App) error {
+	cc, err := controllercontext.FromContext(ctx)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
+	// Find all the Apps CR for a given cluster.
+	// If `operatorApp` is an org-namespaced App use the cluster label selector.
+	var appList v1alpha1.AppList
+	{
+		o := client.ListOptions{}
+
+		var selector k8slabels.Selector
+
+		if key.IsInOrgNamespace(operatorApp) {
+			selector, err = k8slabels.Parse(fmt.Sprintf("%s=%s", label.Cluster, key.ClusterLabel(operatorApp)))
+			if err != nil {
+				return microerror.Mask(err)
+			}
+
+			o.LabelSelector = selector
+		}
+
+		err = r.ctrlClient.List(ctx, &appList, &o)
+		if err != nil {
+			return microerror.Mask(err)
+		}
+	}
+
+	// For each App, check if the corresponding Chart CR exists.
+	// If not, annotate the App to trigger the reconciliation.
+	for _, app := range appList.Items {
+		// Skip for in-cluster apps and the chart-operator app itself.
+		if key.InCluster(app) || app.ObjectMeta.Name == operatorApp.ObjectMeta.Name {
+			continue
+		}
+
+		name := key.ChartName(app, r.workloadClusterID)
+
+		var chart v1alpha1.Chart
+		err = cc.Clients.K8s.CtrlClient().Get(
+			ctx,
+			types.NamespacedName{Name: name, Namespace: r.chartNamespace},
+			&chart,
+		)
+
+		// if chart CR is not found, trigger sync
+		if apierrors.IsNotFound(err) {
+			r.logger.Debugf(ctx, "did not find chart %#q in namespace %#q", name, r.chartNamespace)
+			r.logger.Debugf(ctx, "annotating %#q app", app.ObjectMeta.Name)
+
+			if len(app.GetAnnotations()) == 0 {
+				app.Annotations = map[string]string{}
+			}
+
+			modifiedApp := app.DeepCopy()
+			modifiedApp.Annotations[AppOperatorTriggerReconciliation] = metav1.Now().String()
+
+			err = r.ctrlClient.Patch(ctx, modifiedApp, client.MergeFrom(&app))
+			if err != nil {
+				return microerror.Mask(err)
+			}
+
+			r.logger.Debugf(ctx, "annotated %#q app", app.ObjectMeta.Name)
+		} else if err != nil {
 			return microerror.Mask(err)
 		}
 	}
