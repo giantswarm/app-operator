@@ -31,16 +31,16 @@ func Test_Resource_triggerReconciliation(t *testing.T) {
 	}{
 		{
 			name:          "flawless cluster namespace",
-			chartoperator: newV1alpha1App("chart-operator", "chart-operator", "1abc2", "", false),
+			chartoperator: newApp("chart-operator", "chart-operator", "1abc2", "", false),
 			apps: []*v1alpha1.App{
-				newV1alpha1App("app-operator-1abc2", "app-operator", "1abc2", "", true),
-				newV1alpha1App("cert-exporter", "cert-exporter", "1abc2", "", false),
-				newV1alpha1App("cert-operator", "cert-operator", "1abc2", "", false),
-				newV1alpha1App("cluster-autoscaler", "cluster-autoscaler", "1abc2", "", false),
-				newV1alpha1App("kiam", "kiam", "1abc2", "", false),
+				newApp("app-operator-1abc2", "app-operator", "1abc2", "", true),
+				newApp("cert-exporter", "cert-exporter", "1abc2", "", false),
+				newApp("cert-operator", "cert-operator", "1abc2", "", false),
+				newApp("cluster-autoscaler", "cluster-autoscaler", "1abc2", "", false),
+				newApp("kiam", "kiam", "1abc2", "", false),
 			},
 			charts: []*v1alpha1.Chart{
-				newV1alpha1Chart("kiam", "giantswarm"),
+				newChart("kiam", "giantswarm"),
 			},
 			expectAnnotation: map[string]bool{
 				"app-operator-1abc2": false,
@@ -52,22 +52,22 @@ func Test_Resource_triggerReconciliation(t *testing.T) {
 		},
 		{
 			name:          "flawless organization namespace",
-			chartoperator: newV1alpha1App("chart-operator", "chart-operator", "1abc2", "org-acme", false),
+			chartoperator: newApp("chart-operator", "chart-operator", "1abc2", "org-acme", false),
 			apps: []*v1alpha1.App{
-				newV1alpha1App("1abc2-app-operator", "app-operator", "1abc2", "org-acme", true),
-				newV1alpha1App("1abc2-cert-exporter", "cert-exporter", "1abc2", "org-acme", false),
-				newV1alpha1App("1abc2-cert-operator", "cert-operator", "1abc2", "org-acme", false),
-				newV1alpha1App("1abc2-cluster-autoscaler", "cluster-autoscaler", "1abc2", "org-acme", false),
-				newV1alpha1App("1abc2-kiam", "kiam", "1abc2", "org-acme", false),
+				newApp("1abc2-app-operator", "app-operator", "1abc2", "org-acme", true),
+				newApp("1abc2-cert-exporter", "cert-exporter", "1abc2", "org-acme", false),
+				newApp("1abc2-cert-operator", "cert-operator", "1abc2", "org-acme", false),
+				newApp("1abc2-cluster-autoscaler", "cluster-autoscaler", "1abc2", "org-acme", false),
+				newApp("1abc2-kiam", "kiam", "1abc2", "org-acme", false),
 				// different cluster
-				newV1alpha1App("3def4-app-operator", "app-operator", "3def4", "org-acme", true),
-				newV1alpha1App("3def4-cert-exporter", "cert-exporter", "3def4", "org-acme", false),
-				newV1alpha1App("3def4-cert-operator", "cert-operator", "3def4", "org-acme", false),
-				newV1alpha1App("3def4-cluster-autoscaler", "cluster-autoscaler", "3def4", "org-acme", false),
-				newV1alpha1App("3def4-kiam", "kiam", "3def4", "org-acme", false),
+				newApp("3def4-app-operator", "app-operator", "3def4", "org-acme", true),
+				newApp("3def4-cert-exporter", "cert-exporter", "3def4", "org-acme", false),
+				newApp("3def4-cert-operator", "cert-operator", "3def4", "org-acme", false),
+				newApp("3def4-cluster-autoscaler", "cluster-autoscaler", "3def4", "org-acme", false),
+				newApp("3def4-kiam", "kiam", "3def4", "org-acme", false),
 			},
 			charts: []*v1alpha1.Chart{
-				newV1alpha1Chart("kiam", "giantswarm"),
+				newChart("kiam", "giantswarm"),
 			},
 			expectAnnotation: map[string]bool{
 				"1abc2-app-operator":       false,
@@ -201,7 +201,7 @@ func Test_Resource_triggerReconciliation(t *testing.T) {
 	}
 }
 
-func newV1alpha1App(crName, appName, cluster, organization string, inCluster bool) *v1alpha1.App {
+func newApp(crName, appName, cluster, organization string, inCluster bool) *v1alpha1.App {
 	metaLabels := map[string]string{}
 	namespace := cluster
 
@@ -234,7 +234,7 @@ func newV1alpha1App(crName, appName, cluster, organization string, inCluster boo
 	return c
 }
 
-func newV1alpha1Chart(name, namespace string) *v1alpha1.Chart {
+func newChart(name, namespace string) *v1alpha1.Chart {
 	c := &v1alpha1.Chart{
 		TypeMeta: metav1.TypeMeta{
 			APIVersion: "application.giantswarm.io/v1alpha1",
