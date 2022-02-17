@@ -2,16 +2,23 @@ package chartoperator
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
+	"time"
 
 	"github.com/giantswarm/apiextensions-application/api/v1alpha1"
 	"github.com/giantswarm/app/v6/pkg/key"
 	"github.com/giantswarm/app/v6/pkg/values"
 	"github.com/giantswarm/appcatalog"
 	"github.com/giantswarm/helmclient/v4/pkg/helmclient"
+	"github.com/giantswarm/k8smetadata/pkg/annotation"
+	"github.com/giantswarm/k8smetadata/pkg/label"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/spf13/afero"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	k8slabels "k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/kubernetes"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -33,7 +40,8 @@ type Config struct {
 	Values     *values.Values
 
 	// Settings.
-	ChartNamespace string
+	ChartNamespace    string
+	WorkloadClusterID string
 }
 
 type Resource struct {
@@ -45,7 +53,8 @@ type Resource struct {
 	values     *values.Values
 
 	// Settings.
-	chartNamespace string
+	chartNamespace    string
+	workloadClusterID string
 }
 
 // New creates a new configured chartoperator resource.
@@ -78,7 +87,8 @@ func New(config Config) (*Resource, error) {
 		logger:     config.Logger,
 		values:     config.Values,
 
-		chartNamespace: config.ChartNamespace,
+		chartNamespace:    config.ChartNamespace,
+		workloadClusterID: config.WorkloadClusterID,
 	}
 
 	return r, nil
@@ -133,6 +143,91 @@ func (r Resource) installChartOperator(ctx context.Context, cr v1alpha1.App) err
 			chartOperatorValues,
 			opts)
 		if err != nil {
+			return microerror.Mask(err)
+		}
+	}
+
+	return nil
+}
+
+// The `triggerReconciliation` gets executed upon successfull installation of
+// the chart-operator in the workload cluster. It checks for App CRs without
+// corresponding Chart CRs in the workload cluster, and then annotates them
+// to trigger reconciliation and speed up bootstrapping.
+func (r Resource) triggerReconciliation(ctx context.Context, chartOperatorApp v1alpha1.App) error {
+	cc, err := controllercontext.FromContext(ctx)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
+	// Find all the Apps CR for a given cluster.
+	// If `operatorApp` is an org-namespaced App use the cluster label selector.
+	var appList v1alpha1.AppList
+	{
+		o := client.ListOptions{}
+
+		var selector k8slabels.Selector
+
+		if key.IsInOrgNamespace(chartOperatorApp) {
+			selector, err = k8slabels.Parse(fmt.Sprintf("%s=%s", label.Cluster, key.ClusterLabel(chartOperatorApp)))
+			if err != nil {
+				return microerror.Mask(err)
+			}
+
+			o.LabelSelector = selector
+		}
+
+		err = r.ctrlClient.List(ctx, &appList, &o)
+		if err != nil {
+			return microerror.Mask(err)
+		}
+	}
+
+	// For each App, check if the corresponding Chart CR exists.
+	// If not, annotate the App to trigger the reconciliation.
+	for i, app := range appList.Items {
+		// Skip for in-cluster apps and the chart-operator app itself.
+		if key.InCluster(app) || app.ObjectMeta.Name == chartOperatorApp.ObjectMeta.Name {
+			continue
+		}
+
+		name := key.ChartName(app, r.workloadClusterID)
+
+		var chart v1alpha1.Chart
+		err = cc.Clients.K8s.CtrlClient().Get(
+			ctx,
+			types.NamespacedName{Name: name, Namespace: r.chartNamespace},
+			&chart,
+		)
+
+		// if chart CR is not found, trigger sync
+		if apierrors.IsNotFound(err) {
+			r.logger.Debugf(ctx, "did not find chart %#q in namespace %#q", name, r.chartNamespace)
+			r.logger.Debugf(ctx, "annotating %#q app", app.ObjectMeta.Name)
+
+			if len(app.GetAnnotations()) == 0 {
+				app.Annotations = map[string]string{}
+			}
+
+			bytes, err := json.Marshal(v1alpha1.App{
+				ObjectMeta: metav1.ObjectMeta{
+					Annotations: map[string]string{
+						annotation.AppOperatorTriggerReconciliation: metav1.Now().Format(time.RFC3339),
+					},
+				},
+			})
+			if err != nil {
+				return microerror.Mask(err)
+			}
+
+			// Indexing is used to fix the `G601: Implicit memory aliasing in for loop`
+			err = r.ctrlClient.Patch(ctx, &appList.Items[i], client.RawPatch(types.MergePatchType, bytes))
+			if err != nil {
+				return microerror.Mask(err)
+			}
+
+			r.logger.Debugf(ctx, "annotated %#q app", app.ObjectMeta.Name)
+		} else if err != nil {
 			return microerror.Mask(err)
 		}
 	}

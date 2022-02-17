@@ -156,7 +156,8 @@ func newAppResources(config appResourcesConfig) ([]resource.Interface, error) {
 			Logger:     config.Logger,
 			Values:     valuesService,
 
-			ChartNamespace: config.ChartNamespace,
+			ChartNamespace:    config.ChartNamespace,
+			WorkloadClusterID: config.WorkloadClusterID,
 		}
 		chartOperatorResource, err = chartoperator.New(c)
 		if err != nil {
