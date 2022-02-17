@@ -7,6 +7,8 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+## [5.7.0] - 2022-02-17
+
 ## Added
 
 - Annotate App CRs after bootstrapping chart-operator to trigger reconciliation.
@@ -456,7 +458,8 @@ from Helm 2 to Helm 3.
 
 - Flattening operator release structure.
 
-[Unreleased]: https://github.com/giantswarm/giantswarm/compare/v5.6.0...HEAD
+[Unreleased]: https://github.com/giantswarm/giantswarm/compare/v5.7.0...HEAD
+[5.7.0]: https://github.com/giantswarm/giantswarm/compare/v5.6.0...v5.7.0
 [5.6.0]: https://github.com/giantswarm/giantswarm/compare/v5.5.2...v5.6.0
 [5.5.2]: https://github.com/giantswarm/giantswarm/compare/v5.5.1...v5.5.2
 [5.5.1]: https://github.com/giantswarm/app-operator/compare/v5.5.0...v5.5.1
