@@ -1,9 +1,14 @@
-[![CircleCI](https://circleci.com/gh/giantswarm/app-operator.svg?style=shield)](https://circleci.com/gh/giantswarm/app-operator) 
+[![CircleCI](https://circleci.com/gh/giantswarm/app-operator.svg?style=shield)](https://circleci.com/gh/giantswarm/app-operator)
 
 # app-operator
 
 The app-operator manages apps in Kubernetes clusters. It is implemented
-using [operatorkit]. 
+using [operatorkit].
+
+## Important Notes
+
+* starting from the `v5.7.0` version, when deployed for a workload cluster, app operator looks for App CRs without matching Chart CRs in the workload, and then annotate each with the `app-operator.giantswarm.io/trigger-reconciliation` annotation to trigger sync. The rationale behind this
+is to speed up the cluster bootstrapping, otherwise App CRs would need to wait for another reconciliation loop in order to be picked up and installed.
 
 ## Branches
 
