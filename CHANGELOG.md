@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Fixed
+
+- Restrict PSP usage to only named resource.
+
 ## [5.7.0] - 2022-02-17
 
 ## Added
