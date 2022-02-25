@@ -9,6 +9,7 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ### Fixed
 
+- Remove compatible providers validation for `AppCatalogEntry` as its overly strict.
 - Push image to Docker Hub to not rely on crsync.
 
 ## [5.7.1] - 2022-02-22
