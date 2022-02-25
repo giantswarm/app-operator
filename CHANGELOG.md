@@ -7,6 +7,8 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+## [5.7.2] - 2022-02-25
+
 ### Fixed
 
 - Remove compatible providers validation for `AppCatalogEntry` as its overly strict.
@@ -469,7 +471,8 @@ from Helm 2 to Helm 3.
 
 - Flattening operator release structure.
 
-[Unreleased]: https://github.com/giantswarm/app-operator/compare/v5.7.1...HEAD
+[Unreleased]: https://github.com/giantswarm/app-operator/compare/v5.7.2...HEAD
+[5.7.2]: https://github.com/giantswarm/app-operator/compare/v5.7.1...v5.7.2
 [5.7.1]: https://github.com/giantswarm/app-operator/compare/v5.7.0...v5.7.1
 [5.7.0]: https://github.com/giantswarm/app-operator/compare/v5.6.0...v5.7.0
 [5.6.0]: https://github.com/giantswarm/app-operator/compare/v5.5.2...v5.6.0
