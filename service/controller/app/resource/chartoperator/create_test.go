@@ -3,6 +3,7 @@ package chartoperator
 import (
 	"context"
 	"fmt"
+	"reflect"
 	"testing"
 
 	"github.com/giantswarm/apiextensions-application/api/v1alpha1"
@@ -11,6 +12,7 @@ import (
 	"github.com/giantswarm/k8smetadata/pkg/annotation"
 	"github.com/giantswarm/k8smetadata/pkg/label"
 	"github.com/giantswarm/micrologger/microloggertest"
+	"github.com/google/go-cmp/cmp"
 	"github.com/spf13/afero"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -28,6 +30,7 @@ func Test_Resource_triggerReconciliation(t *testing.T) {
 		chartoperator    *v1alpha1.App
 		charts           []*v1alpha1.Chart
 		expectAnnotation map[string]bool
+		expectApp        map[string]*v1alpha1.App
 	}{
 		{
 			name:          "flawless cluster namespace",
@@ -48,6 +51,11 @@ func Test_Resource_triggerReconciliation(t *testing.T) {
 				"cert-operator":      true,
 				"cluster-autoscaler": true,
 				"kiam":               false,
+			},
+			expectApp: map[string]*v1alpha1.App{
+				"cert-exporter":      newApp("cert-exporter", "cert-exporter", "1abc2", "", false),
+				"cert-operator":      newApp("cert-operator", "cert-operator", "1abc2", "", false),
+				"cluster-autoscaler": newApp("cluster-autoscaler", "cluster-autoscaler", "1abc2", "", false),
 			},
 		},
 		{
@@ -81,6 +89,11 @@ func Test_Resource_triggerReconciliation(t *testing.T) {
 				"3def4-cert-operator":      false,
 				"3def4-cluster-autoscaler": false,
 				"3def4-kiam":               false,
+			},
+			expectApp: map[string]*v1alpha1.App{
+				"1abc2-cert-exporter":      newApp("1abc2-cert-exporter", "cert-exporter", "1abc2", "org-acme", false),
+				"1abc2-cert-operator":      newApp("1abc2-cert-operator", "cert-operator", "1abc2", "org-acme", false),
+				"1abc2-cluster-autoscaler": newApp("1abc2-cluster-autoscaler", "cluster-autoscaler", "1abc2", "org-acme", false),
 			},
 		},
 	}
@@ -196,6 +209,15 @@ func Test_Resource_triggerReconciliation(t *testing.T) {
 				if expectedNum != len(a.GetAnnotations()) {
 					t.Fatalf("%s: expected %d, got %d", a.ObjectMeta.Name, expectedNum, len(a.GetAnnotations()))
 				}
+
+				expectedApp, ok := tc.expectApp[a.ObjectMeta.Name]
+				if !ok {
+					continue
+				}
+
+				if !reflect.DeepEqual(a.Spec, expectedApp.Spec) {
+					t.Fatalf("want matching spec \n %s", cmp.Diff(a.Spec, expectedApp.Spec))
+				}
 			}
 		})
 	}
@@ -227,7 +249,8 @@ func newApp(crName, appName, cluster, organization string, inCluster bool) *v1al
 			KubeConfig: v1alpha1.AppSpecKubeConfig{
 				InCluster: inCluster,
 			},
-			Name: appName,
+			Name:      appName,
+			Namespace: "giantswarm",
 		},
 	}
 
