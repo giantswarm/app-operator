@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Fixed
+
+- Fixing patch to not reset fields.
+
 ## [5.7.2] - 2022-02-25
 
 ### Fixed
