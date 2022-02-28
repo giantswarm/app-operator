@@ -209,9 +209,9 @@ func (r Resource) triggerReconciliation(ctx context.Context, chartOperatorApp v1
 				app.Annotations = map[string]string{}
 			}
 
-			bytes, err := json.Marshal(v1alpha1.App{
-				ObjectMeta: metav1.ObjectMeta{
-					Annotations: map[string]string{
+			bytes, err := json.Marshal(map[string]interface{}{
+				"metadata": map[string]interface{}{
+					"annotations": map[string]string{
 						annotation.AppOperatorTriggerReconciliation: metav1.Now().Format(time.RFC3339),
 					},
 				},
