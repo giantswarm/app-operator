@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Fixed
+
+- Fix label selector in app values watcher so it supports CAPI clusters.
+
 ## [5.7.4] - 2022-03-01
 
 ### Fixed
