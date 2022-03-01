@@ -8,7 +8,7 @@ require (
 	github.com/giantswarm/apiextensions-application v0.3.1
 	github.com/giantswarm/app/v6 v6.8.1
 	github.com/giantswarm/appcatalog v0.6.0
-	github.com/giantswarm/apptest v1.0.1
+	github.com/giantswarm/apptest v1.1.1
 	github.com/giantswarm/backoff v1.0.0
 	github.com/giantswarm/errors v0.3.0
 	github.com/giantswarm/helmclient/v4 v4.9.0
@@ -30,6 +30,7 @@ require (
 	k8s.io/apiextensions-apiserver v0.21.4
 	k8s.io/apimachinery v0.21.4
 	k8s.io/client-go v0.21.4
+	rsc.io/letsencrypt v0.0.3 // indirect
 	sigs.k8s.io/controller-runtime v0.9.7
 	sigs.k8s.io/yaml v1.3.0
 )
