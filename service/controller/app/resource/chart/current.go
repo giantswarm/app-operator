@@ -21,7 +21,7 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 		return nil, microerror.Mask(err)
 	}
 
-	name := cr.GetName()
+	chartName := key.ChartName(cr, r.workloadClusterID)
 
 	cc, err := controllercontext.FromContext(ctx)
 	if err != nil {
@@ -56,16 +56,16 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 		return nil, nil
 	}
 
-	r.logger.Debugf(ctx, "finding chart %#q", name)
+	r.logger.Debugf(ctx, "finding chart %#q", chartName)
 
 	chart := &v1alpha1.Chart{}
 	err = cc.Clients.K8s.CtrlClient().Get(
 		ctx,
-		types.NamespacedName{Name: name, Namespace: r.chartNamespace},
+		types.NamespacedName{Name: chartName, Namespace: r.chartNamespace},
 		chart,
 	)
 	if apierrors.IsNotFound(err) {
-		r.logger.Debugf(ctx, "did not find chart %#q in namespace %#q", name, r.chartNamespace)
+		r.logger.Debugf(ctx, "did not find chart %#q in namespace %#q", chartName, r.chartNamespace)
 		return nil, nil
 	} else if tenant.IsAPINotAvailable(err) {
 		// We should not hammer workload API if it is not available, the workload cluster
@@ -78,7 +78,7 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 		return nil, microerror.Mask(err)
 	}
 
-	r.logger.Debugf(ctx, "found chart %#q", name)
+	r.logger.Debugf(ctx, "found chart %#q", chartName)
 
 	return chart, nil
 }
