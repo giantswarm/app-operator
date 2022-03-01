@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Fixed
+
+- Strip cluster name from App CR name to determine Chart CR name in `chart/current.go` resource to fix WC app updates.
+
 ## [5.7.4] - 2022-03-01
 
 ### Fixed
