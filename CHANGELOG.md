@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Fixed
+
+- Allow usage of chart-operator PSP so it can be bootstrapped.
+
 ## [5.7.3] - 2022-02-28
 
 ### Fixed

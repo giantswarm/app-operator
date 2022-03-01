@@ -110,6 +110,7 @@ rules:
     - use
   resourceNames:
     - {{ include  "resource.psp.name" . }}
+    - chart-operator-psp
 - apiGroups:
     - rbac.authorization.k8s.io
   resources:
