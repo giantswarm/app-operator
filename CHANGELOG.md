@@ -7,6 +7,8 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+## [5.7.5] - 2022-03-01
+
 ### Fixed
 
 - Strip cluster name from App CR name to determine Chart CR name in `chart/current.go` resource to fix WC app updates.
@@ -487,7 +489,8 @@ from Helm 2 to Helm 3.
 
 - Flattening operator release structure.
 
-[Unreleased]: https://github.com/giantswarm/app-operator/compare/v5.7.4...HEAD
+[Unreleased]: https://github.com/giantswarm/app-operator/compare/v5.7.5...HEAD
+[5.7.5]: https://github.com/giantswarm/app-operator/compare/v5.7.4...v5.7.5
 [5.7.4]: https://github.com/giantswarm/app-operator/compare/v5.7.3...v5.7.4
 [5.7.3]: https://github.com/giantswarm/app-operator/compare/v5.7.2...v5.7.3
 [5.7.2]: https://github.com/giantswarm/app-operator/compare/v5.7.1...v5.7.2
