@@ -18,7 +18,8 @@ type AppValueWatcherConfig struct {
 	K8sClient k8sclient.Interface
 	Logger    micrologger.Logger
 
-	UniqueApp bool
+	UniqueApp         bool
+	WorkloadClusterID string
 }
 
 type AppValueWatcher struct {
@@ -28,7 +29,6 @@ type AppValueWatcher struct {
 
 	resourcesToApps sync.Map
 	selector        labels.Selector
-	unique          bool
 }
 
 func NewAppValueWatcher(config AppValueWatcherConfig) (*AppValueWatcher, error) {
@@ -42,14 +42,22 @@ func NewAppValueWatcher(config AppValueWatcherConfig) (*AppValueWatcher, error) 
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
 
+	var selector labels.Selector
+	{
+		if config.WorkloadClusterID != "" {
+			selector = label.ClusterSelector(config.WorkloadClusterID)
+		} else {
+			selector = label.AppVersionSelector(config.UniqueApp)
+		}
+	}
+
 	c := &AppValueWatcher{
 		event:     config.Event,
 		k8sClient: config.K8sClient,
 		logger:    config.Logger,
 
 		resourcesToApps: sync.Map{},
-		selector:        label.AppVersionSelector(config.UniqueApp),
-		unique:          config.UniqueApp,
+		selector:        selector,
 	}
 
 	return c, nil
