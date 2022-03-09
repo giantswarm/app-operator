@@ -7,6 +7,11 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Changed
+
+- Set App CR status to `pending` if the kubeconfig or the cluster values configmap
+does not exist yet.
+
 ## [5.7.5] - 2022-03-01
 
 ### Fixed

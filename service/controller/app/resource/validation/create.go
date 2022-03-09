@@ -21,10 +21,22 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	}
 
 	_, err = r.appValidator.ValidateApp(ctx, cr)
-	if validation.IsValidationError(err) {
+
+	if validation.IsAppConfigMapNotFound(err) || validation.IsKubeConfigNotFound(err) {
+		r.logger.LogCtx(ctx, "level", "warning", "message", fmt.Sprintf("app is pending due to %s", err.Error()))
+
+		err = r.updateAppStatus(ctx, cr, status.PendingStatus, err.Error())
+		if err != nil {
+			return microerror.Mask(err)
+		}
+
+		r.logger.Debugf(ctx, "canceling reconciliation")
+		reconciliationcanceledcontext.SetCanceled(ctx)
+		return nil
+	} else if validation.IsValidationError(err) {
 		r.logger.LogCtx(ctx, "level", "warning", "message", fmt.Sprintf("validation error %s", err.Error()))
 
-		err = r.updateAppStatus(ctx, cr, err.Error())
+		err = r.updateAppStatus(ctx, cr, status.ValidationFailedStatus, err.Error())
 		if err != nil {
 			return microerror.Mask(err)
 		}
@@ -39,7 +51,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	return nil
 }
 
-func (r *Resource) updateAppStatus(ctx context.Context, cr v1alpha1.App, reason string) error {
+func (r *Resource) updateAppStatus(ctx context.Context, cr v1alpha1.App, appStatus, reason string) error {
 	r.logger.Debugf(ctx, "setting status for app %#q in namespace %#q", cr.Name, cr.Namespace)
 
 	var currentCR v1alpha1.App
@@ -57,7 +69,7 @@ func (r *Resource) updateAppStatus(ctx context.Context, cr v1alpha1.App, reason 
 	currentCR.Status = v1alpha1.AppStatus{
 		Release: v1alpha1.AppStatusRelease{
 			Reason: reason,
-			Status: status.ResourceNotFoundStatus,
+			Status: appStatus,
 		},
 	}
 
