@@ -8,12 +8,12 @@ require (
 	github.com/giantswarm/apiextensions-application v0.3.1
 	github.com/giantswarm/app/v6 v6.8.1
 	github.com/giantswarm/appcatalog v0.6.0
-	github.com/giantswarm/apptest v1.1.1
+	github.com/giantswarm/apptest v1.2.0
 	github.com/giantswarm/backoff v1.0.0
 	github.com/giantswarm/errors v0.3.0
 	github.com/giantswarm/helmclient/v4 v4.9.0
 	github.com/giantswarm/k8sclient/v6 v6.1.0
-	github.com/giantswarm/k8smetadata v0.9.3
+	github.com/giantswarm/k8smetadata v0.9.4
 	github.com/giantswarm/kubeconfig/v4 v4.1.0
 	github.com/giantswarm/microendpoint v1.0.0
 	github.com/giantswarm/microerror v0.4.0
@@ -24,7 +24,7 @@ require (
 	github.com/google/go-cmp v0.5.7
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/prometheus/client_golang v1.12.1
-	github.com/spf13/afero v1.8.0
+	github.com/spf13/afero v1.8.1
 	github.com/spf13/viper v1.10.1
 	k8s.io/api v0.21.4
 	k8s.io/apiextensions-apiserver v0.21.4
