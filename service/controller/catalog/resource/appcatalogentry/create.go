@@ -91,7 +91,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			err := r.updateAppCatalogEntry(ctx, desiredEntryCR)
 			if err != nil {
 				// Log error but continue processing other CRs.
-				r.logger.Errorf(ctx, err, "failed to create appCatalogEntry %#q", currentEntryCR.Name)
+				r.logger.Errorf(ctx, err, "failed to update appCatalogEntry %#q", desiredEntryCR.Name)
 				errored++
 			}
 
@@ -100,7 +100,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			err := r.createAppCatalogEntry(ctx, desiredEntryCR)
 			if err != nil {
 				// Log error but continue processing other CRs.
-				r.logger.Errorf(ctx, err, "failed to update appCatalogEntry %#q", currentEntryCR.Name)
+				r.logger.Errorf(ctx, err, "failed to create appCatalogEntry %#q", desiredEntryCR.Name)
 				errored++
 			}
 
@@ -116,7 +116,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			err := r.deleteAppCatalogEntry(ctx, currentEntryCR)
 			if err != nil {
 				// Log error but continue processing other CRs.
-				r.logger.Errorf(ctx, err, "failed to update appCatalogEntry %#q", currentEntryCR.Name)
+				r.logger.Errorf(ctx, err, "failed to delete appCatalogEntry %#q", currentEntryCR.Name)
 				errored++
 			}
 
