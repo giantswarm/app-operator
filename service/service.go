@@ -73,6 +73,7 @@ func New(config Config) (*Service, error) {
 			K8sClient: config.K8sClient,
 
 			MaxEntriesPerApp: config.Viper.GetInt(config.Flag.Service.AppCatalog.MaxEntriesPerApp),
+			Provider:         config.Viper.GetString(config.Flag.Service.Provider.Kind),
 			UniqueApp:        config.Viper.GetBool(config.Flag.Service.App.Unique),
 		}
 

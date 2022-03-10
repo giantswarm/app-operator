@@ -19,6 +19,7 @@ type catalogResourcesConfig struct {
 
 	// Settings.
 	MaxEntriesPerApp int
+	Provider         string
 	UniqueApp        bool
 }
 
@@ -38,6 +39,7 @@ func newCatalogResources(config catalogResourcesConfig) ([]resource.Interface, e
 			Logger:    config.Logger,
 
 			MaxEntriesPerApp: config.MaxEntriesPerApp,
+			Provider:         config.Provider,
 			UniqueApp:        config.UniqueApp,
 		}
 

@@ -19,6 +19,7 @@ type Config struct {
 	Logger    micrologger.Logger
 
 	MaxEntriesPerApp int
+	Provider         string
 	UniqueApp        bool
 }
 

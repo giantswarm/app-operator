@@ -355,7 +355,10 @@ func (r *Resource) newAppCatalogEntries(ctx context.Context, cr v1alpha1.Catalog
 				return nil, microerror.Mask(err)
 			}
 
-			entryCRs[entryCR.Name] = entryCR
+			// We filter by provider to only show compatible apps.
+			if isCompatibleProvider(entryCR, r.provider) {
+				entryCRs[entryCR.Name] = entryCR
+			}
 		}
 
 		// If the latest entry is not included in the desired CRs, we add it so users can always see the latest CR.
@@ -366,4 +369,19 @@ func (r *Resource) newAppCatalogEntries(ctx context.Context, cr v1alpha1.Catalog
 	}
 
 	return entryCRs, nil
+}
+
+func isCompatibleProvider(entry *v1alpha1.AppCatalogEntry, provider string) bool {
+	// If compatible providers is empty then all are supported.
+	if len(entry.Spec.Restrictions.CompatibleProviders) == 0 {
+		return true
+	}
+
+	for _, p := range entry.Spec.Restrictions.CompatibleProviders {
+		if p == provider {
+			return true
+		}
+	}
+
+	return false
 }
