@@ -12,6 +12,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 - Set App CR status to `pending` if the kubeconfig or the cluster values configmap
 does not exist yet.
 
+### Fixed
+
+- Continue processing `AppCatalogEntry` CRs if an error occurs.
+
 ## [5.7.5] - 2022-03-01
 
 ### Fixed
