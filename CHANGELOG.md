@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Added
+
+- Add support for relative URLs in catalog indexes.
+
 ### Changed
 
 - Set App CR status to `pending` if the kubeconfig or the cluster values configmap

@@ -2,6 +2,8 @@ package chart
 
 import (
 	"context"
+	"net/url"
+	"path"
 	"strings"
 
 	"github.com/giantswarm/apiextensions-application/api/v1alpha1"
@@ -55,6 +57,14 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 	version, tarballURL, err := getVersionAndTarballURL(index, key.AppName(cr), cr.Spec.Version)
 	if err != nil {
 		r.logger.Errorf(ctx, err, "failed to get tarball URL")
+	}
+
+	if !isValidURL(tarballURL) {
+		// URL may be relative. If so we join it to the Catalog Storage URL.
+		tarballURL, err = joinRelativeURL(cc.Catalog, tarballURL)
+		if err != nil {
+			r.logger.Errorf(ctx, err, "failed to join relative URL")
+		}
 	}
 
 	chartCR := &v1alpha1.Chart{
@@ -207,6 +217,31 @@ func hasSecret(cr v1alpha1.App, catalog v1alpha1.Catalog) bool {
 	}
 
 	return false
+}
+
+func isValidURL(input string) bool {
+	_, err := url.ParseRequestURI(input)
+	if err != nil {
+		return false
+	}
+
+	u, err := url.Parse(input)
+	if err != nil || u.Scheme == "" || u.Host == "" {
+		return false
+	}
+
+	return true
+}
+
+func joinRelativeURL(catalog v1alpha1.Catalog, relativeURL string) (string, error) {
+	baseURL := key.CatalogStorageURL(catalog)
+	u, err := url.Parse(baseURL)
+	if err != nil {
+		return "", microerror.Mask(err)
+	}
+
+	u.Path = path.Join(u.Path, relativeURL)
+	return u.String(), nil
 }
 
 // processLabels ensures the chart-operator.giantswarm.io/version label is
