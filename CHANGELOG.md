@@ -14,6 +14,8 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 ### Fixed
 
 - Continue processing `AppCatalogEntry` CRs if an error occurs.
+- For internal catalogs generate tarball URLs instead of checking `index.yaml`
+to prevent chicken egg problems in new clusters. 
 
 ## [5.7.5] - 2022-03-01
 

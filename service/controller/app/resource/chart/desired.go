@@ -8,6 +8,7 @@ import (
 
 	"github.com/giantswarm/apiextensions-application/api/v1alpha1"
 	"github.com/giantswarm/app/v6/pkg/key"
+	"github.com/giantswarm/appcatalog"
 	"github.com/giantswarm/k8smetadata/pkg/annotation"
 	"github.com/giantswarm/k8smetadata/pkg/label"
 	"github.com/giantswarm/microerror"
@@ -49,21 +50,36 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		return nil, microerror.Mask(err)
 	}
 
-	index, err := r.indexCache.GetIndex(ctx, key.CatalogStorageURL(cc.Catalog))
-	if err != nil {
-		r.logger.Errorf(ctx, err, "failed to get index.yaml")
-	}
+	var tarballURL, version string
 
-	version, tarballURL, err := getVersionAndTarballURL(index, key.AppName(cr), cr.Spec.Version)
-	if err != nil {
-		r.logger.Errorf(ctx, err, "failed to get tarball URL")
-	}
-
-	if !isValidURL(tarballURL) {
-		// URL may be relative. If so we join it to the Catalog Storage URL.
-		tarballURL, err = joinRelativeURL(cc.Catalog, tarballURL)
+	if key.CatalogVisibility(cc.Catalog) == "internal" {
+		// For internal catalogs we generate the URL as its predicatable
+		// and to avoid having chicken egg problems.
+		tarballURL, err = appcatalog.NewTarballURL(key.CatalogStorageURL(cc.Catalog), key.AppName(cr), key.Version(cr))
 		if err != nil {
-			r.logger.Errorf(ctx, err, "failed to join relative URL")
+			r.logger.Errorf(ctx, err, "failed to generated tarball")
+		}
+
+		version = key.Version(cr)
+	} else {
+		// For all other catalogs we check the index.yaml for compatbility
+		// with community catalogs.
+		index, err := r.indexCache.GetIndex(ctx, key.CatalogStorageURL(cc.Catalog))
+		if err != nil {
+			r.logger.Errorf(ctx, err, "failed to get index.yaml")
+		}
+
+		version, tarballURL, err = getVersionAndTarballURL(index, key.AppName(cr), cr.Spec.Version)
+		if err != nil {
+			r.logger.Errorf(ctx, err, "failed to get tarball URL")
+		}
+
+		if !isValidURL(tarballURL) {
+			// URL may be relative. If so we join it to the Catalog Storage URL.
+			tarballURL, err = joinRelativeURL(cc.Catalog, tarballURL)
+			if err != nil {
+				r.logger.Errorf(ctx, err, "failed to join relative URL")
+			}
 		}
 	}
 
