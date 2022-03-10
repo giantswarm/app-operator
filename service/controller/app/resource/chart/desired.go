@@ -53,7 +53,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 	var tarballURL, version string
 
 	if key.CatalogVisibility(cc.Catalog) == "internal" {
-		// For internal catalogs we generate the URL as its predicatable
+		// For internal catalogs we generate the URL as its predictable
 		// and to avoid having chicken egg problems.
 		tarballURL, err = appcatalog.NewTarballURL(key.CatalogStorageURL(cc.Catalog), key.AppName(cr), key.Version(cr))
 		if err != nil {
@@ -62,7 +62,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 
 		version = key.Version(cr)
 	} else {
-		// For all other catalogs we check the index.yaml for compatbility
+		// For all other catalogs we check the index.yaml for compatibility
 		// with community catalogs.
 		index, err := r.indexCache.GetIndex(ctx, key.CatalogStorageURL(cc.Catalog))
 		if err != nil {
