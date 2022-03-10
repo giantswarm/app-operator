@@ -11,6 +11,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 - Add support for relative URLs in catalog indexes.
 
+### Fixed
+
+- Continue processing `AppCatalogEntry` CRs if an error occurs.
+
 ## [5.7.5] - 2022-03-01
 
 ### Fixed

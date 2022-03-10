@@ -58,7 +58,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
-	var created, updated, deleted int
+	var created, updated, deleted, errored int
 
 	r.logger.Debugf(ctx, "finding out changes to appcatalogentries for catalog %#q", cr.Name)
 
@@ -90,14 +90,18 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("appCatalogEntry %#q has to be updated", currentEntryCR.Name), "diff", fmt.Sprintf("(-current +desired):\n%s", diff))
 			err := r.updateAppCatalogEntry(ctx, desiredEntryCR)
 			if err != nil {
-				return microerror.Mask(err)
+				// Log error but continue processing other CRs.
+				r.logger.Errorf(ctx, err, "failed to update appCatalogEntry %#q", desiredEntryCR.Name)
+				errored++
 			}
 
 			updated++
 		} else {
 			err := r.createAppCatalogEntry(ctx, desiredEntryCR)
 			if err != nil {
-				return microerror.Mask(err)
+				// Log error but continue processing other CRs.
+				r.logger.Errorf(ctx, err, "failed to create appCatalogEntry %#q", desiredEntryCR.Name)
+				errored++
 			}
 
 			created++
@@ -111,7 +115,9 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		if !ok {
 			err := r.deleteAppCatalogEntry(ctx, currentEntryCR)
 			if err != nil {
-				return microerror.Mask(err)
+				// Log error but continue processing other CRs.
+				r.logger.Errorf(ctx, err, "failed to delete appCatalogEntry %#q", currentEntryCR.Name)
+				errored++
 			}
 
 			deleted++
@@ -119,6 +125,9 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	}
 
 	r.logger.Debugf(ctx, "created %d updated %d deleted %d appcatalogentries for catalog %#q", created, updated, deleted, cr.Name)
+	if errored > 0 {
+		r.logger.Debugf(ctx, "failed to process %d appcatalogentries for catalog %#q", errored, cr.Name)
+	}
 
 	return nil
 }
