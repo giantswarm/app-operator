@@ -20,6 +20,7 @@ spec:
       annotations:
         app.giantswarm.io/config-checksum: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum | quote }}
     spec:
+      dnsPolicy: Default
       volumes:
       - name: {{ include "name" . }}-configmap
         configMap:
