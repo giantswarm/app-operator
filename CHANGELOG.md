@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Added
+
+- Add support for relative URLs in catalog indexes.
+
 ## [5.7.5] - 2022-03-01
 
 ### Fixed
