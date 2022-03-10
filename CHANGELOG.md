@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Changed
+
+- Use `Default` dnsPolicy in order to make `AppOperator` work even on clusters with no coredns.
+
 ### Added
 
 - Add support for relative URLs in catalog indexes.
