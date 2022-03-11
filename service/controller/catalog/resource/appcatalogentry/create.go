@@ -347,6 +347,12 @@ func (r *Resource) newAppCatalogEntries(ctx context.Context, cr v1alpha1.Catalog
 			}
 		}
 
+		// If the latest entry isn't compatible with the current provider
+		// we don't create any entries for this app
+		if !isCompatibleProvider(*latestEntryCR, r.provider) {
+			continue
+		}
+
 		for i := 0; i < maxEntries; i++ {
 			e := entries[i]
 
@@ -355,18 +361,13 @@ func (r *Resource) newAppCatalogEntries(ctx context.Context, cr v1alpha1.Catalog
 				return nil, microerror.Mask(err)
 			}
 
-			// We filter by provider to only show compatible apps.
-			if isCompatibleProvider(*entryCR, r.provider) {
-				entryCRs[entryCR.Name] = entryCR
-			}
+			entryCRs[entryCR.Name] = entryCR
 		}
 
 		// If the latest entry is not included in the desired CRs, we add it so users can always see the latest CR.
 		_, ok := entryCRs[latestEntryCR.Name]
 		if !ok {
-			if isCompatibleProvider(*latestEntryCR, r.provider) {
-				entryCRs[latestEntryCR.Name] = latestEntryCR
-			}
+			entryCRs[latestEntryCR.Name] = latestEntryCR
 		}
 	}
 
