@@ -7,6 +7,8 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+## [5.8.0] - 2022-03-11
+
 ### Added
 
 - Add support for relative URLs in catalog indexes.
@@ -501,7 +503,8 @@ from Helm 2 to Helm 3.
 
 - Flattening operator release structure.
 
-[Unreleased]: https://github.com/giantswarm/app-operator/compare/v5.7.5...HEAD
+[Unreleased]: https://github.com/giantswarm/app-operator/compare/v5.8.0...HEAD
+[5.8.0]: https://github.com/giantswarm/app-operator/compare/v5.7.5...v5.8.0
 [5.7.5]: https://github.com/giantswarm/app-operator/compare/v5.7.4...v5.7.5
 [5.7.4]: https://github.com/giantswarm/app-operator/compare/v5.7.3...v5.7.4
 [5.7.3]: https://github.com/giantswarm/app-operator/compare/v5.7.2...v5.7.3
