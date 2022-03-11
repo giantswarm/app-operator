@@ -347,6 +347,12 @@ func (r *Resource) newAppCatalogEntries(ctx context.Context, cr v1alpha1.Catalog
 			}
 		}
 
+		// If the latest entry isn't compatible with the current provider
+		// we don't create any entries for this app.
+		if !isCompatibleProvider(*latestEntryCR, r.provider) {
+			continue
+		}
+
 		for i := 0; i < maxEntries; i++ {
 			e := entries[i]
 
@@ -366,4 +372,21 @@ func (r *Resource) newAppCatalogEntries(ctx context.Context, cr v1alpha1.Catalog
 	}
 
 	return entryCRs, nil
+}
+
+func isCompatibleProvider(entry v1alpha1.AppCatalogEntry, provider string) bool {
+	providers := key.AppCatalogEntryCompatibleProviders(entry)
+
+	// If compatible providers is empty then all are supported.
+	if len(providers) == 0 {
+		return true
+	}
+
+	for _, p := range providers {
+		if p == provider {
+			return true
+		}
+	}
+
+	return false
 }

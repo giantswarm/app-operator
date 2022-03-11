@@ -37,6 +37,7 @@ type Config struct {
 	Logger    micrologger.Logger
 
 	MaxEntriesPerApp int
+	Provider         string
 	UniqueApp        bool
 }
 
@@ -45,6 +46,7 @@ type Resource struct {
 	logger    micrologger.Logger
 
 	maxEntriesPerApp int
+	provider         string
 	uniqueApp        bool
 }
 
@@ -60,12 +62,16 @@ func New(config Config) (*Resource, error) {
 	if config.MaxEntriesPerApp == 0 {
 		config.MaxEntriesPerApp = maxEntriesPerApp
 	}
+	if config.Provider == "" {
+		return nil, microerror.Maskf(invalidConfigError, "%T.Provider must not be empty", config)
+	}
 
 	r := &Resource{
 		k8sClient: config.K8sClient,
 		logger:    config.Logger,
 
 		maxEntriesPerApp: config.MaxEntriesPerApp,
+		provider:         config.Provider,
 		uniqueApp:        config.UniqueApp,
 	}
 
