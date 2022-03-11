@@ -364,7 +364,9 @@ func (r *Resource) newAppCatalogEntries(ctx context.Context, cr v1alpha1.Catalog
 		// If the latest entry is not included in the desired CRs, we add it so users can always see the latest CR.
 		_, ok := entryCRs[latestEntryCR.Name]
 		if !ok {
-			entryCRs[latestEntryCR.Name] = latestEntryCR
+			if isCompatibleProvider(*latestEntryCR, r.provider) {
+				entryCRs[latestEntryCR.Name] = latestEntryCR
+			}
 		}
 	}
 
