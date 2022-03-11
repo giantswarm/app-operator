@@ -348,7 +348,7 @@ func (r *Resource) newAppCatalogEntries(ctx context.Context, cr v1alpha1.Catalog
 		}
 
 		// If the latest entry isn't compatible with the current provider
-		// we don't create any entries for this app
+		// we don't create any entries for this app.
 		if !isCompatibleProvider(*latestEntryCR, r.provider) {
 			continue
 		}
