@@ -22,10 +22,10 @@ data:
         http:
           clientTimeout: '{{ .Values.helm.http.clientTimeout }}'
       image:
-        registry: '{{ .Values.registry.domain }}' 
+        registry: '{{ .Values.registry.domain }}'
       kubernetes:
         incluster: true
       operatorkit:
-        resyncPeriod: '{{ .Values.operatorkit.resyncPeriod }}' 
+        resyncPeriod: '{{ .Values.operatorkit.resyncPeriod }}'
       provider:
         kind: '{{ .Values.provider.kind }}'
