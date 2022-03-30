@@ -334,7 +334,8 @@ func newAppResources(config appResourcesConfig) ([]resource.Interface, error) {
 		// validationResource checks CRs for validation errors and sets the CR status.
 		validationResource,
 
-		// childAppsResource keeps finalizers until all child apps have been deleted.
+		// childAppsResource keeps finalizers for app bundles until all
+		// child apps have been deleted.
 		childAppsResource,
 
 		// appFinalizerResource check CRs for legacy finalizers and removes them.
