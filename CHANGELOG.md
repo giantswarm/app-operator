@@ -7,6 +7,11 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Added
+
+- Add `childapps` resource that keeps finalizers for app bundles until all
+child apps have been deleted.
+
 ## [5.8.0] - 2022-03-11
 
 ### Added

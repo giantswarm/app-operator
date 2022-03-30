@@ -21,6 +21,7 @@ import (
 	"github.com/giantswarm/app-operator/v5/service/controller/app/resource/chart"
 	"github.com/giantswarm/app-operator/v5/service/controller/app/resource/chartcrd"
 	"github.com/giantswarm/app-operator/v5/service/controller/app/resource/chartoperator"
+	"github.com/giantswarm/app-operator/v5/service/controller/app/resource/childapps"
 	"github.com/giantswarm/app-operator/v5/service/controller/app/resource/clients"
 	"github.com/giantswarm/app-operator/v5/service/controller/app/resource/configmap"
 	"github.com/giantswarm/app-operator/v5/service/controller/app/resource/secret"
@@ -198,6 +199,19 @@ func newAppResources(config appResourcesConfig) ([]resource.Interface, error) {
 		}
 	}
 
+	var childAppsResource resource.Interface
+	{
+		c := childapps.Config{
+			CtrlClient: config.K8sClient.CtrlClient(),
+			Logger:     config.Logger,
+		}
+
+		childAppsResource, err = childapps.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var helmClient helmclient.Interface
 	{
 		c := helmclient.Config{
@@ -319,6 +333,9 @@ func newAppResources(config appResourcesConfig) ([]resource.Interface, error) {
 	resources := []resource.Interface{
 		// validationResource checks CRs for validation errors and sets the CR status.
 		validationResource,
+
+		// childAppsResource keeps finalizers until all child apps have been deleted.
+		childAppsResource,
 
 		// appFinalizerResource check CRs for legacy finalizers and removes them.
 		appFinalizerResource,
