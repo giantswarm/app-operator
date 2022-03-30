@@ -9,7 +9,6 @@ import (
 	"github.com/giantswarm/k8smetadata/pkg/label"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/v6/pkg/controller/context/finalizerskeptcontext"
-	"github.com/giantswarm/operatorkit/v6/pkg/controller/context/reconciliationcanceledcontext"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -65,8 +64,6 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 		finalizerskeptcontext.SetKept(ctx)
 		r.logger.Debugf(ctx, "keeping finalizers")
 
-		r.logger.Debugf(ctx, "canceling reconciliation")
-		reconciliationcanceledcontext.SetCanceled(ctx)
 		return nil
 	}
 
