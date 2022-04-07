@@ -7,6 +7,8 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+## [5.9.0] - 2022-04-07
+
 ### Changed
 
 - Update `helmclient` to v4.10.0.
@@ -507,7 +509,8 @@ from Helm 2 to Helm 3.
 
 - Flattening operator release structure.
 
-[Unreleased]: https://github.com/giantswarm/app-operator/compare/v5.8.0...HEAD
+[Unreleased]: https://github.com/giantswarm/app-operator/compare/v5.9.0...HEAD
+[5.9.0]: https://github.com/giantswarm/app-operator/compare/v5.8.0...v5.9.0
 [5.8.0]: https://github.com/giantswarm/app-operator/compare/v5.7.5...v5.8.0
 [5.7.5]: https://github.com/giantswarm/app-operator/compare/v5.7.4...v5.7.5
 [5.7.4]: https://github.com/giantswarm/app-operator/compare/v5.7.3...v5.7.4
