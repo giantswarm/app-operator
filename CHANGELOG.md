@@ -12,6 +12,8 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 ### Changed
 
 - Update `helmclient` to v4.10.0.
+- Update giantswarm/appcatalog to `v0.7.0`, adding support for internal OCI chart catalogs.
+
 
 ## [5.8.0] - 2022-03-11
 
