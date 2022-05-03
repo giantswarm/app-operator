@@ -7,6 +7,16 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+## [6.0.0]
+
+### Added
+
+- Added PodMonitor to the Helm chart to collect metrics from the running operator pod (instead of via the Service)
+
+### Removed
+
+- Removed Service from the Helm chart
+
 ## [5.9.0] - 2022-04-07
 
 ### Changed
