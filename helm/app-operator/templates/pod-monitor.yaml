@@ -11,6 +11,6 @@ spec:
       - {{ include "resource.default.namespace" . }}
   selector:
     matchLabels:
-      {{- include "labels.common" . | nindent 6 }}
+      {{- include "labels.selector" . | nindent 6 }}
   podMetricsEndpoints:
     - targetPort: {{ .Values.port }}
