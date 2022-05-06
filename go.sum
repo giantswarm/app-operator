@@ -497,8 +497,8 @@ github.com/giantswarm/app/v6 v6.9.0/go.mod h1:rA4lfo+7X3vv3I3gpsvedlmwlFIskHV2TS
 github.com/giantswarm/appcatalog v0.6.0/go.mod h1:MaglaykZAeFukjpD/jVHrm/zZFwa9uusuN6BgT4NXpY=
 github.com/giantswarm/appcatalog v0.7.0 h1:/fWzFtCdo/7VyHrtCfMbnV8YJrFCRWIgOi0UZMZJsWY=
 github.com/giantswarm/appcatalog v0.7.0/go.mod h1:+x2lS326P9kn9JqAUdAZMzj1hOoMGSs5sUd/aOHYykI=
-github.com/giantswarm/apptest v1.1.1 h1:TpCvX0xQDV7rZUTZa4q6h/9GFSp0w6qIk4KuF6OCfJU=
-github.com/giantswarm/apptest v1.1.1/go.mod h1:5qAl1TqlRBg6I0pYMpN0x7wkLRNb6zF838x1Ahooya0=
+github.com/giantswarm/apptest v1.2.0 h1:k9xOE5cZ6sZEVwSOuyyRFV8xyLMmaW0XtzX46vnClPM=
+github.com/giantswarm/apptest v1.2.0/go.mod h1:5qAl1TqlRBg6I0pYMpN0x7wkLRNb6zF838x1Ahooya0=
 github.com/giantswarm/backoff v0.2.0/go.mod h1:Z3WRsFilSJ5H5VlFa4XhraoPr+9pmZgYasoY2OSfNOk=
 github.com/giantswarm/backoff v1.0.0 h1:1oeTvyPsm1tJrHlSmfxbIWuoCNWPOkWJCb8kfLvE2T0=
 github.com/giantswarm/backoff v1.0.0/go.mod h1:l/WqbggvG5Ndxxws0LUgVEvP5E82Qj5/PF8SMip/1QM=
@@ -514,8 +514,8 @@ github.com/giantswarm/k8sclient/v6 v6.1.0/go.mod h1:mF0FgQHqCrAhk5EGiyN7RfgMMsz7
 github.com/giantswarm/k8smetadata v0.5.0/go.mod h1:k3DYCMdspxhk7efLkQdX1b8UZ71ijOCG3ZoIU8+5xgw=
 github.com/giantswarm/k8smetadata v0.6.0/go.mod h1:k3DYCMdspxhk7efLkQdX1b8UZ71ijOCG3ZoIU8+5xgw=
 github.com/giantswarm/k8smetadata v0.9.2/go.mod h1:k3DYCMdspxhk7efLkQdX1b8UZ71ijOCG3ZoIU8+5xgw=
-github.com/giantswarm/k8smetadata v0.9.3 h1:YJJ5NJzjIQImNZc96ia2zh1PEkMt9+G+HalA8ZL8qxQ=
-github.com/giantswarm/k8smetadata v0.9.3/go.mod h1:k3DYCMdspxhk7efLkQdX1b8UZ71ijOCG3ZoIU8+5xgw=
+github.com/giantswarm/k8smetadata v0.11.0 h1:XWcN0b6yBm2eH2Ael5SFFR87iRIigI+SRIfuiQBsxZ4=
+github.com/giantswarm/k8smetadata v0.11.0/go.mod h1:k3DYCMdspxhk7efLkQdX1b8UZ71ijOCG3ZoIU8+5xgw=
 github.com/giantswarm/kubeconfig/v4 v4.1.0 h1:Ziq60FDlbigxRVJ47wLTdF3fx/Ao8gppe4CPmnEO6HM=
 github.com/giantswarm/kubeconfig/v4 v4.1.0/go.mod h1:cc01+1DLSnZh8csr33fPIWY/C97bXKMAL5k0Y1jpyYQ=
 github.com/giantswarm/microendpoint v0.2.0/go.mod h1:SSkSp4Q4iSW7vwkil+/E3IXy9Q8To8vXmT5VCg24RDg=
