@@ -160,6 +160,7 @@ func New(config Config) (*Service, error) {
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
 
+			SecretNamespace:   podNamespace,
 			UniqueApp:         config.Viper.GetBool(config.Flag.Service.App.Unique),
 			WorkloadClusterID: config.Viper.GetString(config.Flag.Service.App.WorkloadClusterID),
 		}

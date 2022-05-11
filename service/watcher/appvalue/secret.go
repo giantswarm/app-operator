@@ -20,7 +20,7 @@ func (c *AppValueWatcher) watchSecret(ctx context.Context) {
 		}
 
 		// Find the highest resourceVersion for each secret.
-		secrets, err := c.k8sClient.K8sClient().CoreV1().Secrets("").List(ctx, lo)
+		secrets, err := c.k8sClient.K8sClient().CoreV1().Secrets(c.secretNamespace).List(ctx, lo)
 		if err != nil {
 			c.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("failed to get secrets with label %#q", label.AppOperatorWatching), "stack", fmt.Sprintf("%#v", err))
 			continue
@@ -41,7 +41,7 @@ func (c *AppValueWatcher) watchSecret(ctx context.Context) {
 
 		c.logger.LogCtx(ctx, "debug", fmt.Sprintf("starting ResourceVersion is %d", highestResourceVersion))
 
-		res, err := c.k8sClient.K8sClient().CoreV1().Secrets("").Watch(ctx, lo)
+		res, err := c.k8sClient.K8sClient().CoreV1().Secrets(c.secretNamespace).Watch(ctx, lo)
 		if err != nil {
 			c.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("failed to get secrets with label %#q", label.AppOperatorWatching), "stack", fmt.Sprintf("%#v", err))
 			continue
