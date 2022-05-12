@@ -186,7 +186,7 @@ roleRef:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: {{ include "resource.default.name" . }}
+  name: {{ include "resource.default.name" . }}-catalog
   namespace: giantswarm
   labels:
     {{- include "labels.common" . | nindent 4 }}
