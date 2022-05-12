@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Fixed
+
+- Fix `app-operator` RBAC to avoid granting excessive permissions to its `ServiceAccount`.
+
 ## [5.9.0] - 2022-04-07
 
 ### Changed
