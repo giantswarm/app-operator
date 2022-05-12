@@ -65,6 +65,21 @@ rules:
   verbs:
     - list
     - watch
+{{- if eq .Release.Namespace "giantswarm" }}
+- apiGroups:
+    - ""
+  resources:
+    - namespaces
+  verbs:
+    - get
+- apiGroups:
+    - ""
+  resources:
+    - configmaps
+    - secrets
+  verbs:
+    - "*"
+{{- end }}
 - nonResourceURLs:
   - "/"
   - "/healthz"
