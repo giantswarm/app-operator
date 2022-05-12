@@ -1,7 +1,7 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: {{ include "resource.id.name" . }}
+  name: {{ include "resource.default.name" . }}
   labels:
     {{- include "labels.common" . | nindent 4 }}
 rules:
@@ -94,7 +94,7 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  name: {{ include "resource.id.name" . }}
+  name: {{ include "resource.default.name" . }}
   namespace: giantswarm
   labels:
     {{- include "labels.common" . | nindent 4 }}
@@ -110,7 +110,7 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  name: {{ include "resource.id.name" }}
+  name: {{ include "resource.default.name" }}
   namespace: {{ include "resource.default.namespace" . }}
   labels:
     {{- include "labels.common" . | nindent 4 }}
@@ -149,7 +149,7 @@ subjects:
     namespace: {{ include "resource.default.namespace" . }}
 roleRef:
   kind: ClusterRole
-  name: {{ include "resource.id.name" . }}
+  name: {{ include "resource.default.name" . }}
   apiGroup: rbac.authorization.k8s.io
 ---
 apiVersion: rbac.authorization.k8s.io/v1
@@ -180,13 +180,13 @@ subjects:
     namespace: {{ include "resource.default.namespace" . }}
 roleRef:
   kind: Role
-  name: {{ include "resource.id.name" . }}
+  name: {{ include "resource.default.name" . }}
   apiGroup: rbac.authorization.k8s.io
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: {{ include "resource.id.name" . }}
+  name: {{ include "resource.default.name" . }}
   namespace: giantswarm
   labels:
     {{- include "labels.common" . | nindent 4 }}
@@ -196,7 +196,7 @@ subjects:
     namespace: {{ include "resource.default.namespace" . }}
 roleRef:
   kind: Role
-  name: {{ include "resource.id.name" . }}
+  name: {{ include "resource.default.name" . }}
   apiGroup: rbac.authorization.k8s.io
 ---
 apiVersion: rbac.authorization.k8s.io/v1

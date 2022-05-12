@@ -15,10 +15,6 @@ room for such suffix.
 {{- include "resource.default.name" . -}}-chart
 {{- end -}}
 
-{{- define "resource.id.name" -}}
-{{- .Release.Name | replace "." "-" | trunc 47 | trimSuffix "-" -}}-{{- .Release.Namespace -}}
-{{- end -}}
-
 {{- define "resource.psp.name" -}}
 {{- include "resource.default.name" . -}}-psp
 {{- end -}}
