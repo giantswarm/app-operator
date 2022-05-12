@@ -94,8 +94,8 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  name: {{ include "resource.catalog.name" . }}
-  namespace: {{ include "resource.default.namespace" . }}
+  name: {{ include "resource.id.name" . }}
+  namespace: giantswarm
   labels:
     {{- include "labels.common" . | nindent 4 }}
 rules:
@@ -186,8 +186,8 @@ roleRef:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: {{ include "resource.default.name" . }}
-  namespace: {{ include "resource.default.namespace" . }}
+  name: {{ include "resource.id.name" . }}
+  namespace: giantswarm
   labels:
     {{- include "labels.common" . | nindent 4 }}
 subjects:
@@ -196,7 +196,7 @@ subjects:
     namespace: {{ include "resource.default.namespace" . }}
 roleRef:
   kind: Role
-  name: {{ include "resource.catalog.name" . }}
+  name: {{ include "resource.id.name" . }}
   apiGroup: rbac.authorization.k8s.io
 ---
 apiVersion: rbac.authorization.k8s.io/v1
