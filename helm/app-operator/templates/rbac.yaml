@@ -1,7 +1,7 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: {{ include "resource.default.name" . }}-{{ .Release.Namespace }}
+  name: {{ include "resource.id.name" . }}
   labels:
     {{- include "labels.common" . | nindent 4 }}
 rules:
@@ -94,8 +94,8 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  name: {{ include "resource.name.default" }}-catalog
-  namespace: {{ .Release.Namespace }}
+  name: {{ include "resource.catalog.name" }}
+  namespace: {{ include "resource.default.namespace" . }}
   labels:
     {{- include "labels.common" . | nindent 4 }}
 rules:
@@ -110,8 +110,8 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  name: {{ include "resource.name.default" }}-{{ .Release.Namespace }}
-  namespace: {{ .Release.Namespace }}
+  name: {{ include "resource.id.name" }}
+  namespace: {{ include "resource.default.namespace" . }}
   labels:
     {{- include "labels.common" . | nindent 4 }}
 rules:
@@ -149,7 +149,7 @@ subjects:
     namespace: {{ include "resource.default.namespace" . }}
 roleRef:
   kind: ClusterRole
-  name: {{ include "resource.default.name" . }}-{{ .Release.Namespace }}
+  name: {{ include "resource.id.name" . }}
   apiGroup: rbac.authorization.k8s.io
 ---
 apiVersion: rbac.authorization.k8s.io/v1
@@ -180,7 +180,7 @@ subjects:
     namespace: {{ include "resource.default.namespace" . }}
 roleRef:
   kind: Role
-  name: {{ include "resource.default.name" . }}-{{ .Release.Namespace }}
+  name: {{ include "resource.id.name" . }}
   apiGroup: rbac.authorization.k8s.io
 ---
 apiVersion: rbac.authorization.k8s.io/v1
@@ -196,7 +196,7 @@ subjects:
     namespace: {{ include "resource.default.namespace" . }}
 roleRef:
   kind: Role
-  name: {{ include "resource.default.name" . }}-catalog
+  name: {{ include "resource.catalog.name" . }}
   apiGroup: rbac.authorization.k8s.io
 ---
 apiVersion: rbac.authorization.k8s.io/v1
