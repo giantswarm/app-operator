@@ -269,7 +269,7 @@ func (c *AppValueWatcher) findCatalog(ctx context.Context, cr v1alpha1.App) (*v1
 		break
 	}
 
-	if catalog == nil {
+	if catalog.GetName() == "" {
 		return nil, microerror.Maskf(notFoundError, "catalog %#q", key.CatalogName(cr))
 	}
 
