@@ -7,6 +7,8 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+## [6.0.0] - 2022-05-16
+
 ### Fixed
 
 - Fix `app-operator` RBAC to avoid granting excessive permissions to its `ServiceAccount`.
@@ -519,7 +521,8 @@ from Helm 2 to Helm 3.
 
 - Flattening operator release structure.
 
-[Unreleased]: https://github.com/giantswarm/app-operator/compare/v5.9.0...HEAD
+[Unreleased]: https://github.com/giantswarm/app-operator/compare/v6.0.0...HEAD
+[6.0.0]: https://github.com/giantswarm/app-operator/compare/v5.9.0...v6.0.0
 [5.9.0]: https://github.com/giantswarm/app-operator/compare/v5.8.0...v5.9.0
 [5.8.0]: https://github.com/giantswarm/app-operator/compare/v5.7.5...v5.8.0
 [5.7.5]: https://github.com/giantswarm/app-operator/compare/v5.7.4...v5.7.5
