@@ -2,6 +2,7 @@ package secret
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/giantswarm/app/v6/pkg/key"
 	"github.com/giantswarm/errors/tenant"
@@ -48,6 +49,11 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 	}
 
 	r.logger.Debugf(ctx, "finding secret %#q in namespace %#q", name, r.chartNamespace)
+	r.logger.Errorf(ctx, fmt.Errorf("KUBA STOP"), "KUBA: chartNamespace=%q, name=%q, cr=%+v", r.chartNamespace, name, cr)
+	kubaCm, _ := cc.Clients.K8s.K8sClient().CoreV1().ConfigMaps("giantswarm").List(ctx, metav1.ListOptions{LabelSelector: "kuba=debug"})
+	if len(kubaCm.Items) > 0 {
+		r.logger.Errorf(ctx, fmt.Errorf("KUBA STOP"), "KUBA: len=%v, kubaCm=%q", len(kubaCm.Items), kubaCm.Items[0].Name)
+	}
 
 	secret, err := cc.Clients.K8s.K8sClient().CoreV1().Secrets(r.chartNamespace).Get(ctx, name, metav1.GetOptions{})
 	if apierrors.IsNotFound(err) {
