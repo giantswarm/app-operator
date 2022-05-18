@@ -7,6 +7,8 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+## [5.10.2] - 2022-05-18
+
 ### Fixed
 
 - Add missing permissions for `apps/deployments`.
@@ -531,7 +533,8 @@ from Helm 2 to Helm 3.
 
 - Flattening operator release structure.
 
-[Unreleased]: https://github.com/giantswarm/app-operator/compare/v5.10.1...HEAD
+[Unreleased]: https://github.com/giantswarm/app-operator/compare/v5.10.2...HEAD
+[5.10.2]: https://github.com/giantswarm/app-operator/compare/v5.10.1...v5.10.2
 [5.10.1]: https://github.com/giantswarm/app-operator/compare/v5.10.0...v5.10.1
 [5.10.0]: https://github.com/giantswarm/app-operator/compare/v5.9.0...v5.10.0
 [5.9.0]: https://github.com/giantswarm/app-operator/compare/v5.8.0...v5.9.0
