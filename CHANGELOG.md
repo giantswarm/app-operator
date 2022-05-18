@@ -7,6 +7,8 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+## [5.10.1] - 2022-05-18
+
 ### Fixed
 
 - Limit `*-chart` `ClusterRole` and `ClusterRoleBinding` to `giantswarm` namespace deployment.
@@ -525,7 +527,8 @@ from Helm 2 to Helm 3.
 
 - Flattening operator release structure.
 
-[Unreleased]: https://github.com/giantswarm/app-operator/compare/v5.10.0...HEAD
+[Unreleased]: https://github.com/giantswarm/app-operator/compare/v5.10.1...HEAD
+[5.10.1]: https://github.com/giantswarm/app-operator/compare/v5.10.0...v5.10.1
 [5.10.0]: https://github.com/giantswarm/app-operator/compare/v5.9.0...v5.10.0
 [5.9.0]: https://github.com/giantswarm/app-operator/compare/v5.8.0...v5.9.0
 [5.8.0]: https://github.com/giantswarm/app-operator/compare/v5.7.5...v5.8.0
