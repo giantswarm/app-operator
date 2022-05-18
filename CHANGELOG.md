@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Fixed
+
+- Limit `*-chart` `ClusterRole` and `ClusterRoleBinding` to `giantswarm` namespace deployment.
+
 ## [5.10.0] - 2022-05-16
 
 ### Fixed
