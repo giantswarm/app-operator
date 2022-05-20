@@ -58,7 +58,7 @@ the per workload cluster instances.
 {{- else }}
 {{ toYaml .Values.deployment.workload.requests }}
 {{- if eq (include "resource.vpa.enabled" .) "false" -}}
-{{ toYaml .Values.deployment.workloadg.limits }}
+{{ toYaml .Values.deployment.workload.limits }}
 {{- end -}}
 {{- end -}}
 {{- end -}}
