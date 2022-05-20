@@ -63,3 +63,4 @@ spec:
           timeoutSeconds: 1
         resources:
 {{ include "resource.deployment.resources" . | indent 10 }}
+q
