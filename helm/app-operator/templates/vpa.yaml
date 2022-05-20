@@ -10,7 +10,16 @@ spec:
   resourcePolicy:
     containerPolicies:
     - containerName: {{ include "name" . }}
-      controlledValues: RequestsAndLimits
+      controlledResources:
+        - cpu
+        - memory
+      maxAllowed:
+        cpu: 1
+        memory: 1000Mi
+      minAllowed:
+        cpu: 250m
+        memory: 250Mi
+#      controlledValues: RequestsAndLimits
       mode: Auto
   targetRef:
     apiVersion: apps/v1
