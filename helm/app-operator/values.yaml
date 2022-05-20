@@ -42,13 +42,9 @@ deployment:
     requests:
       cpu: 250m
       memory: 250Mi
-    limits:
-      memory: 280Mi
   workload:
     requests:
       cpu: 100m
-      memory: 50Mi
-    limits:
       memory: 50Mi
 
 verticalPodAutoscaler:

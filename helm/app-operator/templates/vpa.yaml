@@ -19,7 +19,6 @@ spec:
       minAllowed:
         cpu: 250m
         memory: 250Mi
-#      controlledValues: RequestsAndLimits
       mode: Auto
   targetRef:
     apiVersion: apps/v1
