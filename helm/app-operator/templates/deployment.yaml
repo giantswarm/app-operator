@@ -62,4 +62,4 @@ spec:
           initialDelaySeconds: 15
           timeoutSeconds: 1
         resources:
-{{ include "resource.deployment.resources" . | indent 10 }}
+{{- include "resource.deployment.resources" . | indent 10 }}
