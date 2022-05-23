@@ -7,6 +7,11 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Changed
+
+- Only set resource limits on the deployment when the VPA is not available or disabled
+- Increase min / max resource limits on VPA
+
 ## [5.10.2] - 2022-05-18
 
 ### Fixed
