@@ -7,6 +7,8 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+## [5.11.0] - 2022-05-23
+
 ### Changed
 
 - Only set resource limits on the deployment when the VPA is not available or disabled
@@ -538,7 +540,8 @@ from Helm 2 to Helm 3.
 
 - Flattening operator release structure.
 
-[Unreleased]: https://github.com/giantswarm/app-operator/compare/v5.10.2...HEAD
+[Unreleased]: https://github.com/giantswarm/app-operator/compare/v5.11.0...HEAD
+[5.11.0]: https://github.com/giantswarm/app-operator/compare/v5.10.2...v5.11.0
 [5.10.2]: https://github.com/giantswarm/app-operator/compare/v5.10.1...v5.10.2
 [5.10.1]: https://github.com/giantswarm/app-operator/compare/v5.10.0...v5.10.1
 [5.10.0]: https://github.com/giantswarm/app-operator/compare/v5.9.0...v5.10.0
