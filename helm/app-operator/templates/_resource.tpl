@@ -38,14 +38,28 @@ CR version of 0.0.0.
 {{- if eq $.Chart.Name $.Release.Name }}0.0.0{{ else }}{{ .Chart.AppVersion }}{{ end }}
 {{- end -}}
 
+{{- define "resource.vpa.enabled" -}}
+{{- if and (.Capabilities.APIVersions.Has "autoscaling.k8s.io/v1") (.Values.verticalPodAutoscaler.enabled) }}true{{ else }}false{{ end }}
+{{- end -}}
+
 {{/*
 The unique deployment in the management cluster requires more resources than
 the per workload cluster instances.
 */}}
 {{- define "resource.deployment.resources" -}}
 {{- if eq (include "resource.app.unique" .) "true" -}}
-{{ toYaml .Values.deployment.management }}
+requests:
+{{ toYaml .Values.deployment.management.requests | indent 2 -}}
+{{ if eq (include "resource.vpa.enabled" .) "false" }}
+limits:
+{{ toYaml .Values.deployment.management.limits | indent 2 -}}
+{{- end -}}
 {{- else }}
-{{ toYaml .Values.deployment.workload }}
+request:
+{{ toYaml .Values.deployment.workload.requests | indent 2 -}}
+{{ if eq (include "resource.vpa.enabled" .) "false" }}
+limits:
+{{ toYaml .Values.deployment.workload.limits | indent 2 -}}
+{{- end -}}
 {{- end -}}
 {{- end -}}

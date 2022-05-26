@@ -17,6 +17,35 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 - Removed Service from the Helm chart
 
+## [5.11.0] - 2022-05-23
+
+### Changed
+
+- Only set resource limits on the deployment when the VPA is not available or disabled
+- Increase min / max resource limits on VPA
+
+## [5.10.2] - 2022-05-18
+
+### Fixed
+
+- Add missing permissions for `apps/deployments`.
+
+## [5.10.1] - 2022-05-18
+
+### Fixed
+
+- Limit `*-chart` `ClusterRole` and `ClusterRoleBinding` to `giantswarm` namespace deployment.
+
+## [5.10.0] - 2022-05-16
+
+### Fixed
+
+- Fix `app-operator` RBAC to avoid granting excessive permissions to its `ServiceAccount`.
+
+### Removed
+
+- Remove `authtokenmigration` resource.
+
 ## [5.9.0] - 2022-04-07
 
 ### Changed
@@ -521,7 +550,11 @@ from Helm 2 to Helm 3.
 
 - Flattening operator release structure.
 
-[Unreleased]: https://github.com/giantswarm/app-operator/compare/v5.9.0...HEAD
+[Unreleased]: https://github.com/giantswarm/app-operator/compare/v5.11.0...HEAD
+[5.11.0]: https://github.com/giantswarm/app-operator/compare/v5.10.2...v5.11.0
+[5.10.2]: https://github.com/giantswarm/app-operator/compare/v5.10.1...v5.10.2
+[5.10.1]: https://github.com/giantswarm/app-operator/compare/v5.10.0...v5.10.1
+[5.10.0]: https://github.com/giantswarm/app-operator/compare/v5.9.0...v5.10.0
 [5.9.0]: https://github.com/giantswarm/app-operator/compare/v5.8.0...v5.9.0
 [5.8.0]: https://github.com/giantswarm/app-operator/compare/v5.7.5...v5.8.0
 [5.7.5]: https://github.com/giantswarm/app-operator/compare/v5.7.4...v5.7.5

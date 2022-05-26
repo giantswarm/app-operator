@@ -16,7 +16,6 @@ import (
 
 	"github.com/giantswarm/app-operator/v5/service/controller/app/resource/appfinalizermigration"
 	"github.com/giantswarm/app-operator/v5/service/controller/app/resource/appnamespace"
-	"github.com/giantswarm/app-operator/v5/service/controller/app/resource/authtokenmigration"
 	"github.com/giantswarm/app-operator/v5/service/controller/app/resource/catalog"
 	"github.com/giantswarm/app-operator/v5/service/controller/app/resource/chart"
 	"github.com/giantswarm/app-operator/v5/service/controller/app/resource/chartcrd"
@@ -130,18 +129,6 @@ func newAppResources(config appResourcesConfig) ([]resource.Interface, error) {
 			Logger:    config.Logger,
 		}
 		appNamespaceResource, err = appnamespace.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	var authTokenMigrationResource resource.Interface
-	{
-		c := authtokenmigration.Config{
-			K8sClient: config.K8sClient.K8sClient(),
-			Logger:    config.Logger,
-		}
-		authTokenMigrationResource, err = authtokenmigration.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -327,10 +314,6 @@ func newAppResources(config appResourcesConfig) ([]resource.Interface, error) {
 		appNamespaceResource,
 		catalogResource,
 		clientsResource,
-
-		// authTokenMigrationResource deletes auth token secrets that are no
-		// longer used.
-		authTokenMigrationResource,
 
 		// Following resources bootstrap chart-operator in workload clusters.
 		tcNamespaceResource,

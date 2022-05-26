@@ -18,6 +18,9 @@ type AppValueWatcherConfig struct {
 	K8sClient k8sclient.Interface
 	Logger    micrologger.Logger
 
+	// SecretNamespace is used to limit access to secrets to only the
+	// SecretNamespace. No other namespaces will be watched for Secrets.
+	SecretNamespace   string
 	UniqueApp         bool
 	WorkloadClusterID string
 }
@@ -28,6 +31,7 @@ type AppValueWatcher struct {
 	logger    micrologger.Logger
 
 	resourcesToApps sync.Map
+	secretNamespace string
 	selector        labels.Selector
 }
 
@@ -40,6 +44,9 @@ func NewAppValueWatcher(config AppValueWatcherConfig) (*AppValueWatcher, error) 
 	}
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
+	}
+	if config.SecretNamespace == "" {
+		return nil, microerror.Maskf(invalidConfigError, "%T.SecretNamespace must not be empty", config)
 	}
 
 	var selector labels.Selector
@@ -57,6 +64,7 @@ func NewAppValueWatcher(config AppValueWatcherConfig) (*AppValueWatcher, error) 
 		logger:    config.Logger,
 
 		resourcesToApps: sync.Map{},
+		secretNamespace: config.SecretNamespace,
 		selector:        selector,
 	}
 
