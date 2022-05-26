@@ -1,6 +1,8 @@
 # ignore vim swap files
 *.swp
 
+.idea
+
 # build result
 /app-operator
 app-operator-*
