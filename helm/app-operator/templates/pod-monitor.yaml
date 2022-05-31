@@ -14,3 +14,7 @@ spec:
       {{- include "labels.selector" . | nindent 6 }}
   podMetricsEndpoints:
     - targetPort: {{ .Values.port }}
+      relabelings:
+        - replacement: {{ include "name" . }}
+          targetLabel: app
+
