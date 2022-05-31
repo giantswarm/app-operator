@@ -17,4 +17,3 @@ spec:
       relabelings:
         - replacement: {{ include "name" . }}
           targetLabel: app
-
