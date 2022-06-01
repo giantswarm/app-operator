@@ -87,53 +87,62 @@ func (r *Resource) buildTarballURL(ctx context.Context, cc *controllercontext.Co
 	if key.CatalogVisibility(cc.Catalog) == "internal" {
 		// For internal catalogs we generate the URL as its predictable
 		// and to avoid having chicken egg problems.
+
+		// TODO(kuba): key.CatalogStorageURL is gone. Also, we want to rotate
+		// over .spec.repositories and check (HEAD request) if the tarball
+		// exists and is reachable there.
+
 		url, err = appcatalog.NewTarballURL(key.CatalogStorageURL(cc.Catalog), key.AppName(cr), key.Version(cr))
 		if err != nil {
-			return "", "", err
+			return "", "", microerror.Mask(err)
 		}
 		version = key.Version(cr)
-		return
-	} else {
-		// For all other catalogs we check the index.yaml for compatibility
-		// with community catalogs.
-		index, err := r.indexCache.GetIndex(ctx, key.CatalogStorageURL(cc.Catalog))
-		if err != nil {
-			r.logger.Errorf(ctx, err, "failed to get index.yaml")
-		}
+		return url, version, nil
+	}
 
-		if index == nil || len(index.Entries) == 0 {
-			return "", "", microerror.Maskf(notFoundError, "no entries in index %#v", index)
-		}
+	// For all other catalogs we check the index.yaml for compatibility
+	// with community catalogs.
 
-		entries, ok := index.Entries[cr.Spec.Name]
-		if !ok {
-			return "", "", microerror.Maskf(notFoundError, "no entries for app %#q in index.yaml", cr.Spec.Name)
-		}
+	// TODO(kuba): Same for index.yaml - check if it's available for download, iterating over storage
+	index, err := r.indexCache.GetIndex(ctx, key.CatalogStorageURL(cc.Catalog))
+	if err != nil {
+		r.logger.Errorf(ctx, err, "failed to get index.yaml")
+	}
 
-		// We first try with the full version set in .spec.version of the app CR.
+	if index == nil || len(index.Entries) == 0 {
+		return "", "", microerror.Maskf(notFoundError, "no entries in index %#v", index)
+	}
+
+	entries, ok := index.Entries[cr.Spec.Name]
+	if !ok {
+		return "", "", microerror.Maskf(notFoundError, "no entries for app %#q in index.yaml", cr.Spec.Name)
+	}
+
+	// We first try with the full version set in .spec.version of the app CR.
+	url, err = getEntryURL(entries, cr.Spec.Name, version)
+	if err != nil {
+		// We try again without the `v` prefix. This enables us to use the
+		// Flux Image Automation controller to automatically update apps.
+		// TODO(kuba): can we build a list of URLs to try?
+		version = strings.TrimPrefix(version, "v")
+
 		url, err = getEntryURL(entries, cr.Spec.Name, version)
 		if err != nil {
-			// We try again without the `v` prefix. This enables us to use the
-			// Flux Image Automation controller to automatically update apps.
-			version = strings.TrimPrefix(version, "v")
-
-			url, err = getEntryURL(entries, cr.Spec.Name, version)
-			if err != nil {
-				return "", "", microerror.Mask(err)
-			}
+			return "", "", microerror.Mask(err)
 		}
-
-		if !isValidURL(url) {
-			// URL may be relative. If so we join it to the Catalog Storage URL.
-			// TODO (kuba) this is what produces stupid cut-off urls. Fix it in
-			// the process.
-			url, err = joinRelativeURL(cc.Catalog, url)
-			if err != nil {
-				return "", "", microerror.Mask(err)
-			}
-		}
-		return url, version, err
 	}
+
+	if !isValidURL(url) {
+		// URL may be relative. If so we join it to the Catalog Storage URL.
+		// TODO (kuba) this is what produces stupid cut-off urls. Fix it in
+		// the process.
+		url, err = joinRelativeURL(cc.Catalog, url)
+		if err != nil {
+			return "", "", microerror.Mask(err)
+		}
+	}
+
+	return url, version, err
 }
 
 func generateAnnotations(input map[string]string, appNamespace, appName string) map[string]string {
