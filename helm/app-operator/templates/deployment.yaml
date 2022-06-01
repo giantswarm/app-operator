@@ -46,6 +46,9 @@ spec:
         - name: {{ include "name" . }}-configmap
           mountPath: /var/run/{{ include "name" . }}/configmap/
         {{- if not .Values.initialBootstrapMode }}
+        # When initialBootstrapMode is true, this pod runs in `hostNetwork` mode.
+        # This means kubernetes automatically adds an hostPort field in the `ports` section below.
+        # When initialBootstrapMode is set back to false, the hostPort field is not removed and that makes the replicaset to fail.
         ports:
         - name: http
           containerPort: {{ .Values.port }}
