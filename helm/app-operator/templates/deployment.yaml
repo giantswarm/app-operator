@@ -45,9 +45,11 @@ spec:
         volumeMounts:
         - name: {{ include "name" . }}-configmap
           mountPath: /var/run/{{ include "name" . }}/configmap/
+        {{- if not .Values.initialBootstrapMode }}
         ports:
         - name: http
           containerPort: {{ .Values.port }}
+        {{- end }}
         args:
         - daemon
         - --config.dirs=/var/run/{{ include "name" . }}/configmap/

@@ -26,13 +26,6 @@ spec:
     - 'configMap'
     - 'projected'
   allowPrivilegeEscalation: false
-  {{- if .Values.initialBootstrapMode }}
-  hostNetwork: true
-  hostPorts:
-  - min: {{ .Values.port }}
-    max: {{ .Values.port }}
-  {{- else }}
-  hostNetwork: false
-  {{- end }}
+  hostNetwork: {{ .Values.initialBootstrapMode }}
   hostIPC: false
   hostPID: false
