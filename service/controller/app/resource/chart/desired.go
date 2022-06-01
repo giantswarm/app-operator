@@ -91,6 +91,7 @@ func (r *Resource) buildTarballURL(ctx context.Context, cc *controllercontext.Co
 		// TODO(kuba): key.CatalogStorageURL is gone. Also, we want to rotate
 		// over .spec.repositories and check (HEAD request) if the tarball
 		// exists and is reachable there.
+		// TODO(kuba): How to check ORAS registry?
 
 		url, err = appcatalog.NewTarballURL(key.CatalogStorageURL(cc.Catalog), key.AppName(cr), key.Version(cr))
 		if err != nil {
