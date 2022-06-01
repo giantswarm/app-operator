@@ -17,3 +17,8 @@ spec:
       relabelings:
         - replacement: {{ include "name" . }}
           targetLabel: app
+        # The `service_priority` label value should always come from the Cluster CR label,
+        # but in case of app-operators they always run in the Management clusters so which
+        # are always the highest priority clusters, so it is ok for now to hard code it.
+        - replacement: highest
+          targetLabel: service_priority
