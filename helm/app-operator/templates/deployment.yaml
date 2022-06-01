@@ -49,6 +49,8 @@ spec:
         # When initialBootstrapMode is true, this pod runs in `hostNetwork` mode.
         # This means kubernetes automatically adds an hostPort field in the `ports` section below.
         # When initialBootstrapMode is set back to false, the hostPort field is not removed and that makes the replicaset to fail.
+        # By removing the whole `ports` section when `initialBootstrapMode` is true we allow switching between the two modes
+        # without any manual intervention required.
         ports:
         - name: http
           containerPort: {{ .Values.port }}
