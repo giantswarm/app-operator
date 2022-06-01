@@ -24,7 +24,15 @@ spec:
     rule: RunAsAny
   volumes:
     - 'configMap'
+    - 'projected'
   allowPrivilegeEscalation: false
+  {{- if .Values.initialBootstrapMode }}
+  hostNetwork: true
+  hostPorts:
+  - min: {{ .Values.port }}
+    max: {{ .Values.port }}
+  {{- else }}
   hostNetwork: false
+  {{- end }}
   hostIPC: false
   hostPID: false
