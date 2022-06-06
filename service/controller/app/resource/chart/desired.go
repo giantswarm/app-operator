@@ -50,7 +50,19 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		return nil, microerror.Mask(err)
 	}
 
-	tarballURL, version, err := r.buildTarballURL(ctx, cc, cr)
+	// TODO(kuba): Check for chart pull error here. If Chart status has 4xx/5xx
+	// errors accessing the tarball, rotate to another repository.
+	// 1. Try to GET chart
+	//    - if not exists, pick first repository and EXIT
+	// 2. Check status:
+	//    - if no errors are present, keep currently selected repo
+	//    - in case of 4xx/5xx errors rotate repository
+	repositoryURL, err := r.pickRepositoryURL(ctx, cc, r.chartNamespace, chartName)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	tarballURL, version, err := r.buildTarballURL(ctx, cc, cr, repositoryURL)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
@@ -83,7 +95,11 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 	return chartCR, nil
 }
 
-func (r *Resource) buildTarballURL(ctx context.Context, cc *controllercontext.Context, cr v1alpha1.App) (url string, version string, err error) {
+func (r *Resource) pickRepositoryURL(ctx context.Context, cc *controllercontext.Context, chartNamespace, chartName string) (string, error) {
+	return "", nil
+}
+
+func (r *Resource) buildTarballURL(ctx context.Context, cc *controllercontext.Context, cr v1alpha1.App, repositoryURL string) (url string, version string, err error) {
 	if key.CatalogVisibility(cc.Catalog) == "internal" {
 		// For internal catalogs we generate the URL as its predictable
 		// and to avoid having chicken egg problems.
