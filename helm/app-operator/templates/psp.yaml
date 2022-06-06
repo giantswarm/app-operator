@@ -24,7 +24,8 @@ spec:
     rule: RunAsAny
   volumes:
     - 'configMap'
+    - 'projected'
   allowPrivilegeEscalation: false
-  hostNetwork: false
+  hostNetwork: {{ .Values.initialBootstrapMode }}
   hostIPC: false
   hostPID: false

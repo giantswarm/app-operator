@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Added
+
+- Add `initialBootstrapMode` flag to allow deploying CNI as managed apps.
+
 ## [5.11.0] - 2022-05-23
 
 ### Changed
