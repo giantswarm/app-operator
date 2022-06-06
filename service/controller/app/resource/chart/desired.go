@@ -125,7 +125,7 @@ func (r *Resource) pickRepositoryURL(ctx context.Context, cc *controllercontext.
 		// Repositories is guaranteed by Custom Resource Definition to have at least one entry.
 		return cc.Catalog.Spec.Repositories[0].URL, nil
 	} else if err != nil {
-		return nil, microerror.Mask(err)
+		return "", microerror.Mask(err)
 	}
 
 	// Check currently selected repository
@@ -143,7 +143,7 @@ func (r *Resource) pickRepositoryURL(ctx context.Context, cc *controllercontext.
 		return cc.Catalog.Spec.Repositories[0].URL, nil
 	}
 
-	if chartStatus.Status == releaseNotInstalledStatus {
+	if chart.Status.Release.Status == releaseNotInstalledStatus {
 		// chart-operator had trouble pulling the chart -- this includes timeouts and chart not being found (404)
 		// Round-robin the repository.
 		repositoryIndex = repositoryIndex + 1%len(cc.Catalog.Spec.Repositories)
@@ -167,7 +167,7 @@ func (r *Resource) buildTarballURL(ctx context.Context, cc *controllercontext.Co
 	// with community catalogs.
 	index, err := r.indexCache.GetIndex(ctx, repositoryURL)
 	if err != nil {
-		r.logger.Maskf(notFoundError, "failed to get index.yaml from %q: %v", repositoryURL, err)
+		r.logger.Errorf(ctx, err, "failed to get index.yaml from %q: %v", repositoryURL)
 	}
 
 	if index == nil || len(index.Entries) == 0 {
