@@ -7,6 +7,12 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+## [5.12.0] - 2022-06-06
+
+### Added
+
+- Add `initialBootstrapMode` flag to allow deploying CNI as managed apps.
+
 ## [5.11.0] - 2022-05-23
 
 ### Changed
@@ -540,7 +546,8 @@ from Helm 2 to Helm 3.
 
 - Flattening operator release structure.
 
-[Unreleased]: https://github.com/giantswarm/app-operator/compare/v5.11.0...HEAD
+[Unreleased]: https://github.com/giantswarm/app-operator/compare/v5.12.0...HEAD
+[5.12.0]: https://github.com/giantswarm/app-operator/compare/v5.11.0...v5.12.0
 [5.11.0]: https://github.com/giantswarm/app-operator/compare/v5.10.2...v5.11.0
 [5.10.2]: https://github.com/giantswarm/app-operator/compare/v5.10.1...v5.10.2
 [5.10.1]: https://github.com/giantswarm/app-operator/compare/v5.10.0...v5.10.1
