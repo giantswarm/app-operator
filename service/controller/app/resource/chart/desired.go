@@ -24,7 +24,7 @@ import (
 )
 
 const (
-	releaseNotInstalledStatus = "not-installed"
+	chartPullFailedStatus = "chart-pull-failed"
 )
 
 func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interface{}, error) {
@@ -143,7 +143,7 @@ func (r *Resource) pickRepositoryURL(ctx context.Context, cc *controllercontext.
 		return cc.Catalog.Spec.Repositories[0].URL, nil
 	}
 
-	if chart.Status.Release.Status == releaseNotInstalledStatus {
+	if chart.Status.Release.Status == chartPullFailedStatus {
 		// chart-operator had trouble pulling the chart -- this includes timeouts and chart not being found (404)
 		// Round-robin the repository.
 		repositoryIndex = repositoryIndex + 1%len(cc.Catalog.Spec.Repositories)
