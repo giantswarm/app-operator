@@ -12,16 +12,16 @@ import (
 	"github.com/spf13/afero"
 	"github.com/spf13/viper"
 
-	"github.com/giantswarm/app-operator/v5/flag"
-	"github.com/giantswarm/app-operator/v5/pkg/env"
-	"github.com/giantswarm/app-operator/v5/pkg/project"
-	"github.com/giantswarm/app-operator/v5/service/controller/app"
-	"github.com/giantswarm/app-operator/v5/service/controller/catalog"
-	"github.com/giantswarm/app-operator/v5/service/internal/clientcache"
-	"github.com/giantswarm/app-operator/v5/service/internal/indexcache"
-	"github.com/giantswarm/app-operator/v5/service/internal/recorder"
-	"github.com/giantswarm/app-operator/v5/service/watcher/appvalue"
-	"github.com/giantswarm/app-operator/v5/service/watcher/chartstatus"
+	"github.com/giantswarm/app-operator/v6/flag"
+	"github.com/giantswarm/app-operator/v6/pkg/env"
+	"github.com/giantswarm/app-operator/v6/pkg/project"
+	"github.com/giantswarm/app-operator/v6/service/controller/app"
+	"github.com/giantswarm/app-operator/v6/service/controller/catalog"
+	"github.com/giantswarm/app-operator/v6/service/internal/clientcache"
+	"github.com/giantswarm/app-operator/v6/service/internal/indexcache"
+	"github.com/giantswarm/app-operator/v6/service/internal/recorder"
+	"github.com/giantswarm/app-operator/v6/service/watcher/appvalue"
+	"github.com/giantswarm/app-operator/v6/service/watcher/chartstatus"
 )
 
 // Config represents the configuration used to create a new service.
