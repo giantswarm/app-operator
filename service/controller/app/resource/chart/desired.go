@@ -2,6 +2,7 @@ package chart
 
 import (
 	"context"
+	"log"
 	"net/url"
 	"path"
 	"strings"
@@ -65,7 +66,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 	if err != nil && IsNotFound(err) && key.CatalogVisibility(cc.Catalog) != "internal" {
 		// Could not reach custom catalog's index or find app entry in it.
 		// Let's retry using other repositories.
-		r.logger.Errorf(ctx, err, "failed to resolve tarball URL for %#q repository, trying next one")
+		r.logger.Errorf(ctx, err, "failed to resolve tarball URL for %#q repository, trying next one", repositoryURL)
 		for _, fallbackURL := range fallbackRepositories(cc.Catalog, repositoryURL) {
 			tarballURL, version, err = r.buildTarballURL(ctx, cc, cr, fallbackURL)
 			if err == nil {
@@ -174,12 +175,15 @@ func (r *Resource) buildTarballURL(ctx context.Context, cc *controllercontext.Co
 		return "", "", microerror.Maskf(notFoundError, "no entries in index %#v for %q", index, repositoryURL)
 	}
 
+	log.Printf("KUBA INDEX=%+v\n\n", index.Entries)
+
 	entries, ok := index.Entries[cr.Spec.Name]
 	if !ok {
 		return "", "", microerror.Maskf(notFoundError, "no entries for app %#q in index.yaml for %q", cr.Spec.Name, repositoryURL)
 	}
 
 	// We first try with the full version set in .spec.version of the app CR.
+	version = cr.Spec.Version
 	url, err = getEntryURL(entries, cr.Spec.Name, version)
 	if err != nil {
 		// We try again without the `v` prefix. This enables us to use the
