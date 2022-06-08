@@ -81,6 +81,12 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 						Type: "helm",
 						URL:  "https://giantswarm.github.io/app-catalog/",
 					},
+					Repositories: []v1alpha1.CatalogSpecRepository{
+						{
+							Type: "helm",
+							URL:  "https://giantswarm.github.io/app-catalog/",
+						},
+					},
 					LogoURL: "https://s.giantswarm.io/...",
 				},
 			},
@@ -174,6 +180,12 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 						Type: "helm",
 						URL:  "", // Empty baseURL
 					},
+					Repositories: []v1alpha1.CatalogSpecRepository{
+						{
+							Type: "helm",
+							URL:  "", // Empty baseURL
+						},
+					},
 					LogoURL: "https://s.giantswarm.io/...",
 				},
 			},
@@ -249,6 +261,12 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					Storage: v1alpha1.CatalogSpecStorage{
 						Type: "helm",
 						URL:  "https://giantswarm.github.io/app-catalog/",
+					},
+					Repositories: []v1alpha1.CatalogSpecRepository{
+						{
+							Type: "helm",
+							URL:  "https://giantswarm.github.io/app-catalog/",
+						},
 					},
 				},
 			},
@@ -330,6 +348,12 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					Storage: v1alpha1.CatalogSpecStorage{
 						Type: "helm",
 						URL:  "https://giantswarm.github.io/app-catalog/",
+					},
+					Repositories: []v1alpha1.CatalogSpecRepository{
+						{
+							Type: "helm",
+							URL:  "https://giantswarm.github.io/app-catalog/",
+						},
 					},
 					LogoURL: "https://s.giantswarm.io/...",
 				},
@@ -418,6 +442,12 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 						Type: "helm",
 						URL:  "https://giantswarm.github.io/app-catalog/",
 					},
+					Repositories: []v1alpha1.CatalogSpecRepository{
+						{
+							Type: "helm",
+							URL:  "https://giantswarm.github.io/app-catalog/",
+						},
+					},
 					LogoURL: "https://s.giantswarm.io/...",
 				},
 			},
@@ -472,8 +502,10 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 
 			var ctx context.Context
 			{
+				s := runtime.NewScheme()
+				s.AddKnownTypes(v1alpha1.SchemeGroupVersion, &v1alpha1.Chart{}, &v1alpha1.ChartList{})
 				config := k8sclienttest.ClientsConfig{
-					CtrlClient: fake.NewFakeClient(), //nolint:staticcheck
+					CtrlClient: fake.NewFakeClientWithScheme(s), //nolint:staticcheck
 					K8sClient:  clientgofake.NewSimpleClientset(objs...),
 				}
 				client := k8sclienttest.NewClients(config)
