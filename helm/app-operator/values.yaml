@@ -55,3 +55,14 @@ deployment:
 
 verticalPodAutoscaler:
   enabled: true
+
+# When this flag is true, app operator runs in special mode in order to be able to run in partially deployed clusters.
+# Main differences are:
+# - runs on master nodes
+# - runs on hostNetwork
+# - tolerates all taints
+# - uses API hostname to reach the API to support kube-proxy being missing
+# This mode is meant to be used during bootstrap of management clusters to be able to deploy basic system services
+# (such as the CNI or the out-of-tree cloud controller managers) as a managed app.
+# After the cluster is fully deployed, this flag should be switched to false.
+initialBootstrapMode: false
