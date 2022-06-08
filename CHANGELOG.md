@@ -7,6 +7,19 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Added
+
+- Added `PodMonitor` to the Helm chart to collect metrics from the running operator pod (instead of via the Service)
+
+### Changed
+
+- This version requires `prometheus-meta-operator` of `v3.6.0` or later to scrape the metrics from the `PodMinitor`
+- This version requires `kyverno-policies-observability` of `v0.1.2` or later to have proper labels applied to metrics
+
+### Removed
+
+- Removed Service from the Helm chart
+
 ## [5.12.0] - 2022-06-06
 
 ### Added

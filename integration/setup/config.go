@@ -13,6 +13,8 @@ import (
 	"github.com/giantswarm/micrologger"
 	"github.com/spf13/afero"
 
+	prometheusMonitoringV1 "github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring/v1"
+
 	"github.com/giantswarm/app-operator/v5/integration/env"
 	"github.com/giantswarm/app-operator/v5/integration/release"
 )
@@ -61,6 +63,7 @@ func NewConfig() (Config, error) {
 		c := k8sclient.ClientsConfig{
 			Logger: logger,
 			SchemeBuilder: k8sclient.SchemeBuilder{
+				prometheusMonitoringV1.AddToScheme,
 				v1alpha1.AddToScheme,
 			},
 
