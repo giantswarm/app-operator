@@ -111,7 +111,10 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 }
 
 func (r *Resource) pickRepositoryURL(ctx context.Context, cc *controllercontext.Context, cr v1alpha1.App, chartName string) (string, error) {
-	if len(cc.Catalog.Spec.Repositories) == 1 {
+	switch len(cc.Catalog.Spec.Repositories) {
+	case 0:
+		return cc.Catalog.Spec.Storage.URL, nil
+	case 1:
 		return cc.Catalog.Spec.Repositories[0].URL, nil
 	}
 
