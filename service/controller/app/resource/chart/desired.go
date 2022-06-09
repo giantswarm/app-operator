@@ -172,9 +172,11 @@ func (r *Resource) buildTarballURL(ctx context.Context, cc *controllercontext.Co
 	if err != nil {
 		r.logger.Errorf(ctx, err, "failed to get index.yaml from %q", repositoryURL)
 	}
-
-	if index == nil || len(index.Entries) == 0 {
-		return "", "", microerror.Maskf(notFoundError, "no entries in index %#v for %q", index, repositoryURL)
+	if index == nil {
+		return "", "", microerror.Maskf(notFoundError, "index %#v for %q is <nil>", index, repositoryURL)
+	}
+	if len(index.Entries) == 0 {
+		return "", "", microerror.Maskf(notFoundError, "index %#v for %q has no entries", index, repositoryURL)
 	}
 
 	entries, ok := index.Entries[cr.Spec.Name]

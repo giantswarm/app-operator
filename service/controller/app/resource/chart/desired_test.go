@@ -200,7 +200,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 			},
 			expectedChart: nil,
 			error:         true,
-			errorPattern:  regexp.MustCompile(`.*no entries in index.*for "".*`),
+			errorPattern:  regexp.MustCompile(`.*index.*for "" is <nil>.*`),
 		},
 		{
 			name: "case 2: set helm force upgrade annotation",
