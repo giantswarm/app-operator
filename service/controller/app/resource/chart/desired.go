@@ -146,7 +146,7 @@ func (r *Resource) pickRepositoryURL(ctx context.Context, cc *controllercontext.
 	if chart.Status.Release.Status == chartPullFailedStatus {
 		// chart-operator had trouble pulling the chart -- this includes timeouts and chart not being found (404)
 		// Round-robin the repository.
-		repositoryIndex = repositoryIndex + 1%len(cc.Catalog.Spec.Repositories)
+		repositoryIndex = (repositoryIndex + 1) % len(cc.Catalog.Spec.Repositories)
 	}
 	return cc.Catalog.Spec.Repositories[repositoryIndex].URL, nil
 }
