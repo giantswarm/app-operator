@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Added
+
+- Add support for Catalogs that define multiple repository mirrors to be used in case some of them are unreachable.
+
 ## [5.12.0] - 2022-06-06
 
 ### Added
