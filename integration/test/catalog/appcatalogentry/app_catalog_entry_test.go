@@ -61,6 +61,12 @@ func TestAppCatalogEntry(t *testing.T) {
 					Type: "helm",
 					URL:  key.StableCatalogStorageURL(),
 				},
+				Repositories: []v1alpha1.CatalogSpecRepository{
+					{
+						Type: "helm",
+						URL:  key.StableCatalogStorageURL(),
+					},
+				},
 			},
 		}
 		err = config.K8sClients.CtrlClient().Create(ctx, &catalogCR)
