@@ -2,7 +2,6 @@ package chart
 
 import (
 	"context"
-	"log"
 	"net/url"
 	"path"
 	"strings"
@@ -174,8 +173,6 @@ func (r *Resource) buildTarballURL(ctx context.Context, cc *controllercontext.Co
 	if index == nil || len(index.Entries) == 0 {
 		return "", "", microerror.Maskf(notFoundError, "no entries in index %#v for %q", index, repositoryURL)
 	}
-
-	log.Printf("KUBA INDEX=%+v\n\n", index.Entries)
 
 	entries, ok := index.Entries[cr.Spec.Name]
 	if !ok {
