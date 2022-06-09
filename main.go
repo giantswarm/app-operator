@@ -11,13 +11,14 @@ import (
 	"github.com/giantswarm/microkit/command"
 	microserver "github.com/giantswarm/microkit/server"
 	"github.com/giantswarm/micrologger"
+	prometheusMonitoringV1 "github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring/v1"
 	"github.com/spf13/viper"
 	"k8s.io/client-go/rest"
 
-	"github.com/giantswarm/app-operator/v5/flag"
-	"github.com/giantswarm/app-operator/v5/pkg/project"
-	"github.com/giantswarm/app-operator/v5/server"
-	"github.com/giantswarm/app-operator/v5/service"
+	"github.com/giantswarm/app-operator/v6/flag"
+	"github.com/giantswarm/app-operator/v6/pkg/project"
+	"github.com/giantswarm/app-operator/v6/server"
+	"github.com/giantswarm/app-operator/v6/service"
 )
 
 var (
@@ -74,6 +75,7 @@ func mainWithError() (err error) {
 			c := k8sclient.ClientsConfig{
 				Logger: newLogger,
 				SchemeBuilder: k8sclient.SchemeBuilder{
+					prometheusMonitoringV1.AddToScheme,
 					applicationv1alpha1.AddToScheme,
 				},
 

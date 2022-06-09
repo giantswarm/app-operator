@@ -18,9 +18,9 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/kubernetes"
 
-	"github.com/giantswarm/app-operator/v5/pkg/project"
-	"github.com/giantswarm/app-operator/v5/service/controller/app/controllercontext"
-	"github.com/giantswarm/app-operator/v5/service/internal/indexcache"
+	"github.com/giantswarm/app-operator/v6/pkg/project"
+	"github.com/giantswarm/app-operator/v6/service/controller/app/controllercontext"
+	"github.com/giantswarm/app-operator/v6/service/internal/indexcache"
 )
 
 const (
