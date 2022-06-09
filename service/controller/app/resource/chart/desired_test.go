@@ -585,12 +585,48 @@ func Test_Resource_Bulid_TarballURL(t *testing.T) {
 			LogoURL: "https://s.giantswarm.io/...",
 		},
 	}
+	externalCatalog := v1alpha1.Catalog{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "giantswarm",
+			Namespace: "default",
+			Labels: map[string]string{
+				"app-operator.giantswarm.io/version": "1.0.0",
+			},
+		},
+		Spec: v1alpha1.CatalogSpec{
+			Title:       "Giant Swarm",
+			Description: "Catalog of Apps by Giant Swarm",
+			Storage: v1alpha1.CatalogSpecStorage{
+				Type: "oci",
+				URL:  "oci://giantswarmpublic.azurecr.io/app-catalog/",
+			},
+			Repositories: []v1alpha1.CatalogSpecRepository{
+				{
+					Type: "oci",
+					URL:  "oci://giantswarmpublic.azurecr.io/app-catalog/",
+				},
+				{
+					Type: "helm",
+					URL:  "https://giantswarm.github.io/app-catalog-mirror/",
+				},
+				{
+					Type: "helm",
+					URL:  "https://giantswarm.github.io/app-catalog-second-mirror/",
+				},
+				{
+					Type: "helm",
+					URL:  "https://giantswarm.github.io/app-catalog/",
+				},
+			},
+			LogoURL: "https://s.giantswarm.io/...",
+		},
+	}
 
 	tests := []struct {
 		name          string
 		obj           *v1alpha1.App
 		catalog       v1alpha1.Catalog
-		index         *indexcache.Index
+		indices       map[string]indexcachetest.Config
 		existingChart *v1alpha1.Chart
 		expectedChart *v1alpha1.Chart
 		errorPattern  *regexp.Regexp
@@ -600,7 +636,7 @@ func Test_Resource_Bulid_TarballURL(t *testing.T) {
 			name:    "case 0: [internal] chart does not exist yet, pick first repository",
 			obj:     app,
 			catalog: internalCatalog,
-			index:   nil,
+			indices: map[string]indexcachetest.Config{},
 			// index: newIndexWithApp("prometheus", "1.0.0", "https://giantswarm.github.io/app-catalog/prometheus-1.0.0.tgz"),
 			expectedChart: &v1alpha1.Chart{
 				TypeMeta: metav1.TypeMeta{
@@ -638,7 +674,7 @@ func Test_Resource_Bulid_TarballURL(t *testing.T) {
 			name:    "case 1: [internal] chart exists with unknown repository, pick first",
 			obj:     app,
 			catalog: internalCatalog,
-			index:   nil,
+			indices: map[string]indexcachetest.Config{},
 			// index: newIndexWithApp("prometheus", "1.0.0", "https://giantswarm.github.io/app-catalog/prometheus-1.0.0.tgz"),
 			existingChart: &v1alpha1.Chart{
 				TypeMeta: metav1.TypeMeta{
@@ -707,7 +743,7 @@ func Test_Resource_Bulid_TarballURL(t *testing.T) {
 			name:    "case 2: [internal] chart exists with a known repository but chart pull failed, pick next",
 			obj:     app,
 			catalog: internalCatalog,
-			index:   nil,
+			indices: map[string]indexcachetest.Config{},
 			// index: newIndexWithApp("prometheus", "1.0.0", "https://giantswarm.github.io/app-catalog/prometheus-1.0.0.tgz"),
 			existingChart: &v1alpha1.Chart{
 				TypeMeta: metav1.TypeMeta{
@@ -786,7 +822,7 @@ func Test_Resource_Bulid_TarballURL(t *testing.T) {
 			name:    "case 3: [internal] chart exists with a known repository but chart pull failed, pick next (array boundaries)",
 			obj:     app,
 			catalog: internalCatalog,
-			index:   nil,
+			indices: map[string]indexcachetest.Config{},
 			// index: newIndexWithApp("prometheus", "1.0.0", "https://giantswarm.github.io/app-catalog/prometheus-1.0.0.tgz"),
 			existingChart: &v1alpha1.Chart{
 				TypeMeta: metav1.TypeMeta{
@@ -861,6 +897,47 @@ func Test_Resource_Bulid_TarballURL(t *testing.T) {
 				},
 			},
 		},
+		{
+			name:    "case 4: [external] walk through fallback repositories until one works",
+			obj:     app,
+			catalog: externalCatalog,
+			indices: map[string]indexcachetest.Config{
+				"https://giantswarm.github.io/app-catalog/": {
+					GetIndexResponse: newIndexWithApp("prometheus", "1.0.0", "https://giantswarm.github.io/app-catalog/prometheus-1.0.0.tgz"),
+				},
+			},
+			expectedChart: &v1alpha1.Chart{
+				TypeMeta: metav1.TypeMeta{
+					Kind:       "Chart",
+					APIVersion: "application.giantswarm.io",
+				},
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "my-cool-prometheus",
+					Namespace: "giantswarm",
+					Annotations: map[string]string{
+						"chart-operator.giantswarm.io/app-name":      "my-cool-prometheus",
+						"chart-operator.giantswarm.io/app-namespace": "default",
+					},
+					Labels: map[string]string{
+						"app":                                  "prometheus",
+						"chart-operator.giantswarm.io/version": "1.0.0",
+						"giantswarm.io/managed-by":             "app-operator",
+					},
+				},
+				Spec: v1alpha1.ChartSpec{
+					Config:    v1alpha1.ChartSpecConfig{},
+					Name:      "my-cool-prometheus",
+					Namespace: "monitoring",
+					NamespaceConfig: v1alpha1.ChartSpecNamespaceConfig{
+						Annotations: map[string]string{
+							"linkerd.io/inject": "enabled",
+						},
+					},
+					TarballURL: "https://giantswarm.github.io/app-catalog/prometheus-1.0.0.tgz",
+					Version:    "1.0.0",
+				},
+			},
+		},
 	}
 
 	for _, tc := range tests {
@@ -871,10 +948,8 @@ func Test_Resource_Bulid_TarballURL(t *testing.T) {
 			}
 
 			c := Config{
-				IndexCache: indexcachetest.New(indexcachetest.Config{
-					GetIndexResponse: tc.index,
-				}),
-				Logger: microloggertest.New(),
+				IndexCache: indexcachetest.NewMap(tc.indices),
+				Logger:     microloggertest.New(),
 
 				ChartNamespace: "giantswarm",
 			}
