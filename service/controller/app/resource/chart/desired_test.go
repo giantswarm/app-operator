@@ -3,10 +3,12 @@ package chart
 import (
 	"context"
 	"reflect"
+	"regexp"
 	"testing"
 
 	"github.com/giantswarm/apiextensions-application/api/v1alpha1"
 	"github.com/giantswarm/k8sclient/v6/pkg/k8sclienttest"
+	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger/microloggertest"
 	"github.com/google/go-cmp/cmp"
 	corev1 "k8s.io/api/core/v1"
@@ -28,6 +30,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 		configMap     *corev1.ConfigMap
 		index         *indexcache.Index
 		expectedChart *v1alpha1.Chart
+		errorPattern  *regexp.Regexp
 		error         bool
 	}{
 		{
@@ -195,37 +198,9 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					Namespace: "giantswarm",
 				},
 			},
-			expectedChart: &v1alpha1.Chart{
-				TypeMeta: metav1.TypeMeta{
-					Kind:       "Chart",
-					APIVersion: "application.giantswarm.io",
-				},
-				ObjectMeta: metav1.ObjectMeta{
-					Name:      "my-cool-prometheus",
-					Namespace: "giantswarm",
-					Annotations: map[string]string{
-						"chart-operator.giantswarm.io/app-name":      "my-cool-prometheus",
-						"chart-operator.giantswarm.io/app-namespace": "default",
-					},
-					Labels: map[string]string{
-						"app":                                  "prometheus",
-						"chart-operator.giantswarm.io/version": "1.0.0",
-						"giantswarm.io/managed-by":             "app-operator",
-					},
-				},
-				Spec: v1alpha1.ChartSpec{
-					Config: v1alpha1.ChartSpecConfig{
-						ConfigMap: v1alpha1.ChartSpecConfigConfigMap{
-							Name:      "my-cool-prometheus-chart-values",
-							Namespace: "giantswarm",
-						},
-					},
-					Name:       "my-cool-prometheus",
-					Namespace:  "monitoring",
-					TarballURL: "",
-					Version:    "",
-				},
-			},
+			expectedChart: nil,
+			error:         true,
+			errorPattern:  regexp.MustCompile(`.*no entries in index.*for "".*`),
 		},
 		{
 			name: "case 2: set helm force upgrade annotation",
@@ -525,6 +500,8 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 				t.Fatalf("error == %#v, want nil", err)
 			case err == nil && tc.error:
 				t.Fatalf("error == nil, want non-nil")
+			case err != nil && tc.error && !tc.errorPattern.MatchString(microerror.Pretty(err, true)):
+				t.Fatalf("error == %q does not match expected pattern %q", err.Error(), tc.errorPattern.String())
 			}
 
 			if err == nil && !tc.error {
