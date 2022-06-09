@@ -15,8 +15,8 @@ import (
 
 	prometheusMonitoringV1 "github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring/v1"
 
-	"github.com/giantswarm/app-operator/v5/integration/env"
-	"github.com/giantswarm/app-operator/v5/integration/release"
+	"github.com/giantswarm/app-operator/v6/integration/env"
+	"github.com/giantswarm/app-operator/v6/integration/release"
 )
 
 type Config struct {

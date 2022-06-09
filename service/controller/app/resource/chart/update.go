@@ -10,7 +10,7 @@ import (
 	"github.com/giantswarm/operatorkit/v6/pkg/resource/crud"
 	"github.com/google/go-cmp/cmp"
 
-	"github.com/giantswarm/app-operator/v5/service/controller/app/controllercontext"
+	"github.com/giantswarm/app-operator/v6/service/controller/app/controllercontext"
 )
 
 func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange interface{}) error {

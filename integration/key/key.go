@@ -6,7 +6,7 @@ package key
 import (
 	"fmt"
 
-	"github.com/giantswarm/app-operator/v5/pkg/project"
+	"github.com/giantswarm/app-operator/v6/pkg/project"
 )
 
 func CatalogConfigMapName() string {
@@ -26,7 +26,7 @@ func ChartOperatorUniqueName() string {
 }
 
 func ChartOperatorVersion() string {
-	return "2.20.0"
+	return "2.24.0"
 }
 
 func ControlPlaneCatalogName() string {

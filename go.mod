@@ -1,4 +1,4 @@
-module github.com/giantswarm/app-operator/v5
+module github.com/giantswarm/app-operator/v6
 
 go 1.16
 
@@ -62,7 +62,7 @@ require (
 	github.com/spf13/afero v1.8.2
 	github.com/spf13/viper v1.12.0
 	github.com/xeipuuv/gojsonpointer v0.0.0-20190905194746-02993c407bfb // indirect
-	github.com/xlab/treeprint v1.1.0 // indirect; indirectg
+	github.com/xlab/treeprint v1.1.0 // indirect
 	go.starlark.net v0.0.0-20220328144851-d1966c6b9fcd // indirect
 	golang.org/x/crypto v0.0.0-20220525230936-793ad666bf5e // indirect
 	golang.org/x/net v0.0.0-20220607020251-c690dde0001d // indirect
