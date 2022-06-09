@@ -167,7 +167,7 @@ func (r *Resource) buildTarballURL(ctx context.Context, cc *controllercontext.Co
 	// with community catalogs.
 	index, err := r.indexCache.GetIndex(ctx, repositoryURL)
 	if err != nil {
-		r.logger.Errorf(ctx, err, "failed to get index.yaml from %q: %v", repositoryURL)
+		r.logger.Errorf(ctx, err, "failed to get index.yaml from %q", repositoryURL)
 	}
 
 	if index == nil || len(index.Entries) == 0 {
