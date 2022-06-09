@@ -556,44 +556,279 @@ func Test_Resource_Bulid_TarballURL(t *testing.T) {
 			},
 		},
 	}
+	internalCatalog := v1alpha1.Catalog{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "giantswarm",
+			Namespace: "default",
+			Labels: map[string]string{
+				"app-operator.giantswarm.io/version":           "1.0.0",
+				"application.giantswarm.io/catalog-visibility": "internal",
+			},
+		},
+		Spec: v1alpha1.CatalogSpec{
+			Title:       "Giant Swarm",
+			Description: "Catalog of Apps by Giant Swarm",
+			Storage: v1alpha1.CatalogSpecStorage{
+				Type: "helm",
+				URL:  "https://giantswarm.github.io/app-catalog/",
+			},
+			Repositories: []v1alpha1.CatalogSpecRepository{
+				{
+					Type: "helm",
+					URL:  "https://giantswarm.github.io/app-catalog/",
+				},
+				{
+					Type: "oci",
+					URL:  "oci://giantswarmpublic.azurecr.io/app-catalog/",
+				},
+			},
+			LogoURL: "https://s.giantswarm.io/...",
+		},
+	}
 
 	tests := []struct {
 		name          string
 		obj           *v1alpha1.App
 		catalog       v1alpha1.Catalog
 		index         *indexcache.Index
+		existingChart *v1alpha1.Chart
 		expectedChart *v1alpha1.Chart
 		errorPattern  *regexp.Regexp
 		error         bool
 	}{
 		{
-			name: "case 0: flawless flow",
-			obj:  app,
-			catalog: v1alpha1.Catalog{
+			name:    "case 0: [internal] chart does not exist yet, pick first repository",
+			obj:     app,
+			catalog: internalCatalog,
+			index:   nil,
+			// index: newIndexWithApp("prometheus", "1.0.0", "https://giantswarm.github.io/app-catalog/prometheus-1.0.0.tgz"),
+			expectedChart: &v1alpha1.Chart{
+				TypeMeta: metav1.TypeMeta{
+					Kind:       "Chart",
+					APIVersion: "application.giantswarm.io",
+				},
 				ObjectMeta: metav1.ObjectMeta{
-					Name:      "giantswarm",
-					Namespace: "default",
+					Name:      "my-cool-prometheus",
+					Namespace: "giantswarm",
+					Annotations: map[string]string{
+						"chart-operator.giantswarm.io/app-name":      "my-cool-prometheus",
+						"chart-operator.giantswarm.io/app-namespace": "default",
+					},
 					Labels: map[string]string{
-						"app-operator.giantswarm.io/version": "1.0.0",
+						"app":                                  "prometheus",
+						"chart-operator.giantswarm.io/version": "1.0.0",
+						"giantswarm.io/managed-by":             "app-operator",
 					},
 				},
-				Spec: v1alpha1.CatalogSpec{
-					Title:       "Giant Swarm",
-					Description: "Catalog of Apps by Giant Swarm",
-					Storage: v1alpha1.CatalogSpecStorage{
-						Type: "helm",
-						URL:  "https://giantswarm.github.io/app-catalog/",
-					},
-					Repositories: []v1alpha1.CatalogSpecRepository{
-						{
-							Type: "helm",
-							URL:  "https://giantswarm.github.io/app-catalog/",
+				Spec: v1alpha1.ChartSpec{
+					Config:    v1alpha1.ChartSpecConfig{},
+					Name:      "my-cool-prometheus",
+					Namespace: "monitoring",
+					NamespaceConfig: v1alpha1.ChartSpecNamespaceConfig{
+						Annotations: map[string]string{
+							"linkerd.io/inject": "enabled",
 						},
 					},
-					LogoURL: "https://s.giantswarm.io/...",
+					TarballURL: "https://giantswarm.github.io/app-catalog/prometheus-1.0.0.tgz",
+					Version:    "1.0.0",
 				},
 			},
-			index: newIndexWithApp("prometheus", "1.0.0", "https://giantswarm.github.io/app-catalog/prometheus-1.0.0.tgz"),
+		},
+		{
+			name:    "case 1: [internal] chart exists with unknown repository, pick first",
+			obj:     app,
+			catalog: internalCatalog,
+			index:   nil,
+			// index: newIndexWithApp("prometheus", "1.0.0", "https://giantswarm.github.io/app-catalog/prometheus-1.0.0.tgz"),
+			existingChart: &v1alpha1.Chart{
+				TypeMeta: metav1.TypeMeta{
+					Kind:       "Chart",
+					APIVersion: "application.giantswarm.io",
+				},
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "my-cool-prometheus",
+					Namespace: "giantswarm",
+					Annotations: map[string]string{
+						"chart-operator.giantswarm.io/app-name":      "my-cool-prometheus",
+						"chart-operator.giantswarm.io/app-namespace": "default",
+					},
+					Labels: map[string]string{
+						"app":                                  "prometheus",
+						"chart-operator.giantswarm.io/version": "1.0.0",
+						"giantswarm.io/managed-by":             "app-operator",
+					},
+				},
+				Spec: v1alpha1.ChartSpec{
+					Config:    v1alpha1.ChartSpecConfig{},
+					Name:      "my-cool-prometheus",
+					Namespace: "monitoring",
+					NamespaceConfig: v1alpha1.ChartSpecNamespaceConfig{
+						Annotations: map[string]string{
+							"linkerd.io/inject": "enabled",
+						},
+					},
+					TarballURL: "https://THIS.REPO.DOES.NOT.EXIST.IN.CATALOG/prometheus-1.0.0.tgz",
+					Version:    "1.0.0",
+				},
+			},
+			expectedChart: &v1alpha1.Chart{
+				TypeMeta: metav1.TypeMeta{
+					Kind:       "Chart",
+					APIVersion: "application.giantswarm.io",
+				},
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "my-cool-prometheus",
+					Namespace: "giantswarm",
+					Annotations: map[string]string{
+						"chart-operator.giantswarm.io/app-name":      "my-cool-prometheus",
+						"chart-operator.giantswarm.io/app-namespace": "default",
+					},
+					Labels: map[string]string{
+						"app":                                  "prometheus",
+						"chart-operator.giantswarm.io/version": "1.0.0",
+						"giantswarm.io/managed-by":             "app-operator",
+					},
+				},
+				Spec: v1alpha1.ChartSpec{
+					Config:    v1alpha1.ChartSpecConfig{},
+					Name:      "my-cool-prometheus",
+					Namespace: "monitoring",
+					NamespaceConfig: v1alpha1.ChartSpecNamespaceConfig{
+						Annotations: map[string]string{
+							"linkerd.io/inject": "enabled",
+						},
+					},
+					TarballURL: "https://giantswarm.github.io/app-catalog/prometheus-1.0.0.tgz",
+					Version:    "1.0.0",
+				},
+			},
+		},
+		{
+			name:    "case 2: [internal] chart exists with a known repository but chart pull failed, pick next",
+			obj:     app,
+			catalog: internalCatalog,
+			index:   nil,
+			// index: newIndexWithApp("prometheus", "1.0.0", "https://giantswarm.github.io/app-catalog/prometheus-1.0.0.tgz"),
+			existingChart: &v1alpha1.Chart{
+				TypeMeta: metav1.TypeMeta{
+					Kind:       "Chart",
+					APIVersion: "application.giantswarm.io",
+				},
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "my-cool-prometheus",
+					Namespace: "giantswarm",
+					Annotations: map[string]string{
+						"chart-operator.giantswarm.io/app-name":      "my-cool-prometheus",
+						"chart-operator.giantswarm.io/app-namespace": "default",
+					},
+					Labels: map[string]string{
+						"app":                                  "prometheus",
+						"chart-operator.giantswarm.io/version": "1.0.0",
+						"giantswarm.io/managed-by":             "app-operator",
+					},
+				},
+				Spec: v1alpha1.ChartSpec{
+					Config:    v1alpha1.ChartSpecConfig{},
+					Name:      "my-cool-prometheus",
+					Namespace: "monitoring",
+					NamespaceConfig: v1alpha1.ChartSpecNamespaceConfig{
+						Annotations: map[string]string{
+							"linkerd.io/inject": "enabled",
+						},
+					},
+					TarballURL: "https://giantswarm.github.io/app-catalog/prometheus-1.0.0.tgz",
+					Version:    "1.0.0",
+				},
+				Status: v1alpha1.ChartStatus{
+					AppVersion: "1.0.0",
+					Reason:     "Could not pull chart",
+					Release: v1alpha1.ChartStatusRelease{
+						LastDeployed: nil,
+						Revision:     nil,
+						Status:       "chart-pull-failed",
+					},
+					Version: "1.0.0",
+				},
+			},
+			expectedChart: &v1alpha1.Chart{
+				TypeMeta: metav1.TypeMeta{
+					Kind:       "Chart",
+					APIVersion: "application.giantswarm.io",
+				},
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "my-cool-prometheus",
+					Namespace: "giantswarm",
+					Annotations: map[string]string{
+						"chart-operator.giantswarm.io/app-name":      "my-cool-prometheus",
+						"chart-operator.giantswarm.io/app-namespace": "default",
+					},
+					Labels: map[string]string{
+						"app":                                  "prometheus",
+						"chart-operator.giantswarm.io/version": "1.0.0",
+						"giantswarm.io/managed-by":             "app-operator",
+					},
+				},
+				Spec: v1alpha1.ChartSpec{
+					Config:    v1alpha1.ChartSpecConfig{},
+					Name:      "my-cool-prometheus",
+					Namespace: "monitoring",
+					NamespaceConfig: v1alpha1.ChartSpecNamespaceConfig{
+						Annotations: map[string]string{
+							"linkerd.io/inject": "enabled",
+						},
+					},
+					TarballURL: "oci://giantswarmpublic.azurecr.io/app-catalog/prometheus:1.0.0",
+					Version:    "1.0.0",
+				},
+			},
+		},
+		{
+			name:    "case 3: [internal] chart exists with a known repository but chart pull failed, pick next (array boundaries)",
+			obj:     app,
+			catalog: internalCatalog,
+			index:   nil,
+			// index: newIndexWithApp("prometheus", "1.0.0", "https://giantswarm.github.io/app-catalog/prometheus-1.0.0.tgz"),
+			existingChart: &v1alpha1.Chart{
+				TypeMeta: metav1.TypeMeta{
+					Kind:       "Chart",
+					APIVersion: "application.giantswarm.io",
+				},
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "my-cool-prometheus",
+					Namespace: "giantswarm",
+					Annotations: map[string]string{
+						"chart-operator.giantswarm.io/app-name":      "my-cool-prometheus",
+						"chart-operator.giantswarm.io/app-namespace": "default",
+					},
+					Labels: map[string]string{
+						"app":                                  "prometheus",
+						"chart-operator.giantswarm.io/version": "1.0.0",
+						"giantswarm.io/managed-by":             "app-operator",
+					},
+				},
+				Spec: v1alpha1.ChartSpec{
+					Config:    v1alpha1.ChartSpecConfig{},
+					Name:      "my-cool-prometheus",
+					Namespace: "monitoring",
+					NamespaceConfig: v1alpha1.ChartSpecNamespaceConfig{
+						Annotations: map[string]string{
+							"linkerd.io/inject": "enabled",
+						},
+					},
+					TarballURL: "oci://giantswarmpublic.azurecr.io/app-catalog/prometheus:1.0.0",
+					Version:    "1.0.0",
+				},
+				Status: v1alpha1.ChartStatus{
+					AppVersion: "1.0.0",
+					Reason:     "Could not pull chart",
+					Release: v1alpha1.ChartStatusRelease{
+						LastDeployed: nil,
+						Revision:     nil,
+						Status:       "chart-pull-failed",
+					},
+					Version: "1.0.0",
+				},
+			},
 			expectedChart: &v1alpha1.Chart{
 				TypeMeta: metav1.TypeMeta{
 					Kind:       "Chart",
@@ -631,6 +866,9 @@ func Test_Resource_Bulid_TarballURL(t *testing.T) {
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
 			objs := make([]runtime.Object, 0)
+			if tc.existingChart != nil {
+				objs = append(objs, tc.existingChart)
+			}
 
 			c := Config{
 				IndexCache: indexcachetest.New(indexcachetest.Config{
@@ -650,8 +888,8 @@ func Test_Resource_Bulid_TarballURL(t *testing.T) {
 				s := runtime.NewScheme()
 				s.AddKnownTypes(v1alpha1.SchemeGroupVersion, &v1alpha1.Chart{}, &v1alpha1.ChartList{})
 				config := k8sclienttest.ClientsConfig{
-					CtrlClient: fake.NewFakeClientWithScheme(s), //nolint:staticcheck
-					K8sClient:  clientgofake.NewSimpleClientset(objs...),
+					CtrlClient: fake.NewFakeClientWithScheme(s, objs...), //nolint:staticcheck
+					K8sClient:  clientgofake.NewSimpleClientset(),
 				}
 				client := k8sclienttest.NewClients(config)
 
