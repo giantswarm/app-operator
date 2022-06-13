@@ -27,3 +27,7 @@ sonatype-2021-1485 until=2022-12-31
 # pkg:golang/helm.sh/helm/v3@v3.9.0
 # This is the latest release at the moment
 CVE-2018-1714 until=2022-06-30
+
+# pkg:github.com/containerd/containerd@v1.6.4
+# unused dependency of spf13 libraries
+CVE-2022-31030 until=2022-07-01
