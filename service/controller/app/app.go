@@ -24,6 +24,7 @@ import (
 
 const appControllerSuffix = "-app"
 
+//Config This is a dummy change to run my tests
 type Config struct {
 	Fs          afero.Fs
 	K8sClient   k8sclient.Interface
