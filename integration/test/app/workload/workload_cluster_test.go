@@ -111,7 +111,7 @@ func TestWorkloadCluster(t *testing.T) {
 				Name:           project.Name(),
 				Namespace:      key.WorkloadClusterNamespace(),
 				ValuesYAML:     templates.AppOperatorValues,
-				SHA:            env.CircleSHA(),
+				SHA:            key.AppOperatorInTestVersion(),
 				WaitForDeploy:  true,
 			},
 			{
