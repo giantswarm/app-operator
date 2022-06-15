@@ -11,6 +11,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 - Add support for Catalogs that define multiple repository mirrors to be used in case some of them are unreachable.
 
+### Changed
+
+- Only run `PodMonitor` outside of bootstrap mode.
+
 ## [6.0.0] - 2022-06-08
 
 ### Added
