@@ -16,6 +16,8 @@ const (
 	// EnvVarCircleSHA is the process environment variable representing the
 	// CIRCLE_SHA1 env var.
 	EnvVarCircleSHA = "CIRCLE_SHA1"
+	//EnvVarCircleBranch is the branch the build is running against.
+	EnvVarCircleBranch = "CIRCLE_BRANCH"
 	// EnvVarE2EKubeconfig is the process environment variable representing the
 	// E2E_KUBECONFIG env var.
 	EnvVarE2EKubeconfig = "E2E_KUBECONFIG"
@@ -27,6 +29,7 @@ const (
 var (
 	circleCI      string
 	circleSHA     string
+	circleBranch  string
 	keepResources string
 	kubeconfig    string
 )
@@ -38,6 +41,11 @@ func init() {
 	circleSHA = os.Getenv(EnvVarCircleSHA)
 	if circleSHA == "" {
 		panic(fmt.Sprintf("env var '%s' must not be empty", EnvVarCircleSHA))
+	}
+
+	circleBranch = os.Getenv(EnvVarCircleBranch)
+	if circleBranch == "" {
+		panic(fmt.Sprintf("env var '%s' must not be empty", EnvVarCircleBranch))
 	}
 
 	kubeconfig = os.Getenv(EnvVarE2EKubeconfig)
@@ -52,6 +60,14 @@ func CircleCI() bool {
 
 func CircleSHA() string {
 	return circleSHA
+}
+
+func CircleBranch() string {
+	return circleBranch
+}
+
+func IsMainBranch() bool {
+	return CircleBranch() == "master" || CircleBranch() == "main"
 }
 
 func KeepResources() bool {

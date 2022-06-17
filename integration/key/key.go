@@ -5,12 +5,30 @@ package key
 
 import (
 	"fmt"
+	"strings"
+
+	"github.com/giantswarm/app-operator/v6/integration/env"
 
 	"github.com/giantswarm/app-operator/v6/pkg/project"
 )
 
 func CatalogConfigMapName() string {
 	return "catalog-config"
+}
+
+func AppOperatorInTestVersion() string {
+	var version string
+	if strings.HasSuffix(project.Version(), "-dev") || !env.IsMainBranch() {
+		// In case of running the tests against a development version, the artifact is uploaded to the test catalog
+		// with the SHA1 postfixed to the version, e.g. app-operator-5.11.0-19b12a1e4e9ea3e9733ae1d3bb6b33830d8c2738.tgz
+		version = env.CircleSHA()
+	} else {
+		// In case of running the tests against a release it is only uploaded to the test catalog with the project version,
+		// for example: app-operator-6.0.0.tgz (no SHA1 postfixed version is available)
+		version = project.Version()
+	}
+
+	return version
 }
 
 func AppOperatorUniqueName() string {
