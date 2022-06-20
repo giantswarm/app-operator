@@ -7,6 +7,8 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+## [6.0.1] - 2022-06-20
+
 ### Added
 
 - Add support for Catalogs that define multiple repository mirrors to be used in case some of them are unreachable.
@@ -569,7 +571,8 @@ from Helm 2 to Helm 3.
 
 - Flattening operator release structure.
 
-[Unreleased]: https://github.com/giantswarm/app-operator/compare/v6.0.0...HEAD
+[Unreleased]: https://github.com/giantswarm/app-operator/compare/v6.0.1...HEAD
+[6.0.1]: https://github.com/giantswarm/app-operator/compare/v6.0.0...v6.0.1
 [6.0.0]: https://github.com/giantswarm/app-operator/compare/v5.12.0...v6.0.0
 [5.12.0]: https://github.com/giantswarm/app-operator/compare/v5.11.0...v5.12.0
 [5.11.0]: https://github.com/giantswarm/app-operator/compare/v5.10.2...v5.11.0
