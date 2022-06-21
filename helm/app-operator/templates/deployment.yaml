@@ -28,7 +28,7 @@ spec:
           - key: config.yaml
             path: config.yaml
       serviceAccountName: {{ include "resource.default.name"  . }}
-      {{- if .Values.initialBootstrapMode }}
+      {{- if .Values.initialBootstrapMode.enabled }}
       hostNetwork: true
       tolerations:
       - effect: NoSchedule
@@ -45,11 +45,11 @@ spec:
         volumeMounts:
         - name: {{ include "name" . }}-configmap
           mountPath: /var/run/{{ include "name" . }}/configmap/
-        {{- if not .Values.initialBootstrapMode }}
-        # When initialBootstrapMode is true, this pod runs in `hostNetwork` mode.
+        {{- if not .Values.initialBootstrapMode.enabled }}
+        # When `initialBootstrapMode.enabled` is true, this pod runs in `hostNetwork` mode.
         # This means kubernetes automatically adds an hostPort field in the `ports` section below.
-        # When initialBootstrapMode is set back to false, the hostPort field is not removed and that makes the replicaset to fail.
-        # By removing the whole `ports` section when `initialBootstrapMode` is true we allow switching between the two modes
+        # When `initialBootstrapMode.enabled` is set back to false, the hostPort field is not removed and that makes the replicaset to fail.
+        # By removing the whole `ports` section when `initialBootstrapMode.enabled` is true we allow switching between the two modes
         # without any manual intervention required.
         ports:
         - name: http
@@ -64,9 +64,11 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: metadata.namespace
-        {{- if .Values.initialBootstrapMode }}
+        {{- if .Values.initialBootstrapMode.enabled }}
         - name: KUBERNETES_SERVICE_HOST
           value: 127.0.0.1
+        - name: KUBERNETES_SERVICE_PORT
+          value: {{ .Values.initialBootstrapMode.apiServerPodPort | quote }}
         {{- end }}
         livenessProbe:
           httpGet:

@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Added
+
+- Allow to set api server pod port when enabling `initialBootstrapMode`.
+
 ## [6.0.1] - 2022-06-20
 
 ### Added

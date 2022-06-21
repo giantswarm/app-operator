@@ -26,6 +26,6 @@ spec:
     - 'configMap'
     - 'projected'
   allowPrivilegeEscalation: false
-  hostNetwork: {{ .Values.initialBootstrapMode }}
+  hostNetwork: {{ .Values.initialBootstrapMode.enabled }}
   hostIPC: false
   hostPID: false
