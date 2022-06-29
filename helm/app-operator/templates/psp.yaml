@@ -25,6 +25,7 @@ spec:
   volumes:
     - 'configMap'
     - 'projected'
+    - 'secret'
   allowPrivilegeEscalation: false
   hostNetwork: {{ .Values.initialBootstrapMode.enabled }}
   hostIPC: false
