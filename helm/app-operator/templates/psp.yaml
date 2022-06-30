@@ -27,6 +27,6 @@ spec:
     - 'projected'
     - 'secret'
   allowPrivilegeEscalation: false
-  hostNetwork: {{ .Values.initialBootstrapMode.enabled }}
+  hostNetwork: {{ .Values.bootstrapMode.enabled }}
   hostIPC: false
   hostPID: false
