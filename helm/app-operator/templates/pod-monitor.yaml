@@ -1,4 +1,4 @@
-{{- if not .Values.initialBootstrapMode }}
+{{- if not .Values.initialBootstrapMode.enabled }}
 apiVersion: monitoring.coreos.com/v1
 kind: PodMonitor
 metadata:
