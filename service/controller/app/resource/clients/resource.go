@@ -12,8 +12,8 @@ import (
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 
-	"github.com/giantswarm/app-operator/v6/service/controller/app/controllercontext"
-	"github.com/giantswarm/app-operator/v6/service/internal/clientcache"
+	"github.com/giantswarm/app-operator/v7/service/controller/app/controllercontext"
+	"github.com/giantswarm/app-operator/v7/service/internal/clientcache"
 )
 
 const (

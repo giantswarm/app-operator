@@ -8,7 +8,7 @@ import (
 	"github.com/giantswarm/k8smetadata/pkg/label"
 	"k8s.io/apimachinery/pkg/labels"
 
-	"github.com/giantswarm/app-operator/v6/pkg/project"
+	"github.com/giantswarm/app-operator/v7/pkg/project"
 )
 
 const (

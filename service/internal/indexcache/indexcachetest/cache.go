@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/giantswarm/app-operator/v6/service/internal/indexcache"
+	"github.com/giantswarm/app-operator/v7/service/internal/indexcache"
 )
 
 type Config struct {

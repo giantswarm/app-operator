@@ -9,7 +9,7 @@ import (
 	"github.com/giantswarm/micrologger"
 	corev1 "k8s.io/api/core/v1"
 
-	"github.com/giantswarm/app-operator/v6/service/controller/app/controllercontext"
+	"github.com/giantswarm/app-operator/v7/service/controller/app/controllercontext"
 )
 
 const (

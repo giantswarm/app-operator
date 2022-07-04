@@ -8,8 +8,8 @@ import (
 	"github.com/giantswarm/operatorkit/v6/pkg/resource/wrapper/metricsresource"
 	"github.com/giantswarm/operatorkit/v6/pkg/resource/wrapper/retryresource"
 
-	"github.com/giantswarm/app-operator/v6/service/controller/catalog/resource/appcatalogentry"
-	"github.com/giantswarm/app-operator/v6/service/controller/catalog/resource/appcatalogsync"
+	"github.com/giantswarm/app-operator/v7/service/controller/catalog/resource/appcatalogentry"
+	"github.com/giantswarm/app-operator/v7/service/controller/catalog/resource/appcatalogsync"
 )
 
 type catalogResourcesConfig struct {

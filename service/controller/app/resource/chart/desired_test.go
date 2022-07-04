@@ -17,9 +17,9 @@ import (
 	clientgofake "k8s.io/client-go/kubernetes/fake"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake" //nolint:staticcheck
 
-	"github.com/giantswarm/app-operator/v6/service/controller/app/controllercontext"
-	"github.com/giantswarm/app-operator/v6/service/internal/indexcache"
-	"github.com/giantswarm/app-operator/v6/service/internal/indexcache/indexcachetest"
+	"github.com/giantswarm/app-operator/v7/service/controller/app/controllercontext"
+	"github.com/giantswarm/app-operator/v7/service/internal/indexcache"
+	"github.com/giantswarm/app-operator/v7/service/internal/indexcache/indexcachetest"
 )
 
 func Test_Resource_GetDesiredState(t *testing.T) {

@@ -9,7 +9,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 
-	"github.com/giantswarm/app-operator/v6/service/controller/app/controllercontext"
+	"github.com/giantswarm/app-operator/v7/service/controller/app/controllercontext"
 )
 
 const (
