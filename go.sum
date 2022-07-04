@@ -551,6 +551,8 @@ github.com/giantswarm/apiextensions-application v0.3.0/go.mod h1:O6mg+EdXC9CyTLg
 github.com/giantswarm/apiextensions-application v0.3.1/go.mod h1:O6mg+EdXC9CyTLgi0d3rf6QTXrQX/79iw4kjMJRinig=
 github.com/giantswarm/apiextensions-application v0.4.0 h1:7dNG5bdbO6zSNDAbHlJrc3fJ/iXUTlzhLWGhz7tTsPs=
 github.com/giantswarm/apiextensions-application v0.4.0/go.mod h1:O6mg+EdXC9CyTLgi0d3rf6QTXrQX/79iw4kjMJRinig=
+github.com/giantswarm/app-operator/v6 v6.0.1 h1:sppKsGyRwe+t7Mni3jcnkljSpAqH5wNq3DCyPu408ak=
+github.com/giantswarm/app-operator/v6 v6.0.1/go.mod h1:hmkcgEqwa8k9k9WgwVVehuW59U1W0Bo/aHP0srG/Yb4=
 github.com/giantswarm/app/v6 v6.8.0/go.mod h1:m2zl4IQ4T2jGRthVyvgmhYYUFeem50kfJEjvtRGr2CE=
 github.com/giantswarm/app/v6 v6.11.1 h1:UkOrI8nwutorGf6QM8tlmJLeg9Zf73e1t1j4ipM4d5s=
 github.com/giantswarm/app/v6 v6.11.1/go.mod h1:rA4lfo+7X3vv3I3gpsvedlmwlFIskHV2TSa/BNqMQzU=
@@ -567,6 +569,7 @@ github.com/giantswarm/errors v0.3.0/go.mod h1:Oj1LIWs9Uoj6JGtK5HxTb50iZuqe9f60LD
 github.com/giantswarm/exporterkit v0.2.1/go.mod h1:LkZNK+2qTcbHspbizA6JBBXpQW99u7u7UisUaWrSoVY=
 github.com/giantswarm/exporterkit v1.0.0 h1:6TwzJ5UklUp/xajBK3sx4gArFfMAAIEDs4/F1FvOCaE=
 github.com/giantswarm/exporterkit v1.0.0/go.mod h1:XO9HfOOIxcWM+9r8KKIuYHtFGdTbYIjIse2wu8UI4Ts=
+github.com/giantswarm/helmclient/v4 v4.10.0/go.mod h1:JftirWk9qwIZgpBDW5+34Z//M+A04sZlBmGu692fJ7Y=
 github.com/giantswarm/helmclient/v4 v4.10.1 h1:1H+OPN0jmorXgSw5cKZlJWHjcV4Mg5DVu/PxH1AvP8k=
 github.com/giantswarm/helmclient/v4 v4.10.1/go.mod h1:+LRvaXq4eIiwT8HOqR7PeznyBxha1PEveQ9NqCJN0X4=
 github.com/giantswarm/k8sclient/v6 v6.0.0/go.mod h1:mF0FgQHqCrAhk5EGiyN7RfgMMsz7CP3GoaFsfZ5KHps=
