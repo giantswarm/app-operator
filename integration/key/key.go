@@ -7,9 +7,9 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/giantswarm/app-operator/v6/integration/env"
+	"github.com/giantswarm/app-operator/v7/integration/env"
 
-	"github.com/giantswarm/app-operator/v6/pkg/project"
+	"github.com/giantswarm/app-operator/v7/pkg/project"
 )
 
 func CatalogConfigMapName() string {
