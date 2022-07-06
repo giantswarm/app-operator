@@ -19,7 +19,7 @@ require (
 	github.com/getsentry/sentry-go v0.13.0 // indirect
 	github.com/ghodss/yaml v1.0.0
 	github.com/giantswarm/apiextensions-application v0.5.1-0.20220704095320-547adb0ff0b6
-	github.com/giantswarm/app/v6 v6.11.2-0.20220706143229-04d105912b00
+	github.com/giantswarm/app/v6 v6.11.2-0.20220706152644-cba8b24c659e
 	github.com/giantswarm/appcatalog v0.8.0
 	github.com/giantswarm/apptest v1.2.0
 	github.com/giantswarm/backoff v1.0.0
