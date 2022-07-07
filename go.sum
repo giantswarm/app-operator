@@ -555,8 +555,8 @@ github.com/giantswarm/app/v6 v6.8.0/go.mod h1:m2zl4IQ4T2jGRthVyvgmhYYUFeem50kfJE
 github.com/giantswarm/app/v6 v6.11.1 h1:UkOrI8nwutorGf6QM8tlmJLeg9Zf73e1t1j4ipM4d5s=
 github.com/giantswarm/app/v6 v6.11.1/go.mod h1:rA4lfo+7X3vv3I3gpsvedlmwlFIskHV2TSa/BNqMQzU=
 github.com/giantswarm/appcatalog v0.6.0/go.mod h1:MaglaykZAeFukjpD/jVHrm/zZFwa9uusuN6BgT4NXpY=
-github.com/giantswarm/appcatalog v0.8.0 h1:nWeiHDFzTTdqNqXdKFi1Q90NY4WvzpnoabfCTWTfr/I=
-github.com/giantswarm/appcatalog v0.8.0/go.mod h1:+x2lS326P9kn9JqAUdAZMzj1hOoMGSs5sUd/aOHYykI=
+github.com/giantswarm/appcatalog v0.9.1 h1:W2C2FjkF9TrYabQdkcg+L9CPFALsWa7ymnFzq+A2w4U=
+github.com/giantswarm/appcatalog v0.9.1/go.mod h1:+x2lS326P9kn9JqAUdAZMzj1hOoMGSs5sUd/aOHYykI=
 github.com/giantswarm/apptest v1.2.0 h1:k9xOE5cZ6sZEVwSOuyyRFV8xyLMmaW0XtzX46vnClPM=
 github.com/giantswarm/apptest v1.2.0/go.mod h1:5qAl1TqlRBg6I0pYMpN0x7wkLRNb6zF838x1Ahooya0=
 github.com/giantswarm/backoff v0.2.0/go.mod h1:Z3WRsFilSJ5H5VlFa4XhraoPr+9pmZgYasoY2OSfNOk=
