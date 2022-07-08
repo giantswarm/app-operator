@@ -295,7 +295,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 			}
 
 			k8sClient := clientgofake.NewSimpleClientset(objs...)
-			ctrlClient := fake.NewFakeClientWithScheme(s, tc.obj)
+			ctrlClient := fake.NewClientBuilder().WithScheme(s).WithObjects(tc.obj).Build()
 
 			var ctx context.Context
 			{
@@ -370,7 +370,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 			}
 
 			if tc.expectedUserConfig != nil {
-				ctrlClient.Get(ctx, types.NamespacedName{Name: tc.obj.GetName(), Namespace: tc.obj.GetNamespace()}, tc.obj)
+				_ = ctrlClient.Get(ctx, types.NamespacedName{Name: tc.obj.GetName(), Namespace: tc.obj.GetNamespace()}, tc.obj)
 				if !reflect.DeepEqual(&tc.obj.Spec.UserConfig, tc.expectedUserConfig) {
 					t.Fatalf("want matching userconfig \n %s", cmp.Diff(&tc.obj.Spec.UserConfig, tc.expectedUserConfig))
 				}
