@@ -11,6 +11,7 @@ import (
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/v6/pkg/controller/context/resourcecanceledcontext"
 	corev1 "k8s.io/api/core/v1"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/yaml"
 
@@ -39,6 +40,19 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		}
 
 		return secret, nil
+	}
+
+	// If no user-provided secret name is present, check if a *-user-values config map exists and set the reference
+	if key.UserSecretName(cr) == "" {
+		userSec, err := cc.Clients.K8s.K8sClient().CoreV1().Secrets(r.chartNamespace).Get(ctx, fmt.Sprintf("%s-user-secrets", cr.Name), metav1.GetOptions{})
+		if err == nil || !apierrors.IsNotFound(err) {
+			cr.Spec.UserConfig.Secret.Name = userSec.GetName()
+			cr.Spec.UserConfig.Secret.Namespace = userSec.GetNamespace()
+			err = cc.Clients.K8s.CtrlClient().Update(ctx, &cr)
+			if err != nil {
+				return nil, microerror.Mask(err)
+			}
+		}
 	}
 
 	mergedData, err := r.values.MergeSecretData(ctx, cr, cc.Catalog)
