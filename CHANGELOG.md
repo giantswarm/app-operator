@@ -10,6 +10,11 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 ### Added
 
 - If no userconfig configmap or secret reference is specified but one is found following the default naming convention (`*-user-values` / `*-user-secrets`) then the App resource is updated to reference the found configmap/secret.
+- Watch config maps and secrets listed in the `extraConfigs` section of App CR for multi layer configs, see: https://github.com/giantswarm/rfc/tree/main/multi-layer-app-config#enhancing-app-cr
+
+### Changed
+
+- Bump `github.com/giantswarm/app` to `v6.12.0`
 
 ## [6.1.0] - 2022-07-05
 
