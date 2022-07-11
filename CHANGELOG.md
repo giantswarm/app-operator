@@ -7,6 +7,26 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Added
+
+- Watch config maps and secrets listed in the `extraConfigs` section of App CR for multi layer configs, see: https://github.com/giantswarm/rfc/tree/main/multi-layer-app-config#enhancing-app-cr
+
+### Changed
+
+- Bump `github.com/giantswarm/app` to `v6.12.0`
+
+## [6.1.0] - 2022-07-05
+
+### Changed
+
+- Use downward API to set deployment env var `KUBERNETES_SERVICE_HOST` to `status.hostIP`.
+- Change `initialBootstrapMode` configuration value to `bootstrapMode`.
+- Tighten pod and container security contexts for PSS restricted policies.
+
+### Added
+
+- Allow to set api server pod port when enabling `initialBootstrapMode`.
+
 ## [6.0.1] - 2022-06-20
 
 ### Added
@@ -571,7 +591,8 @@ from Helm 2 to Helm 3.
 
 - Flattening operator release structure.
 
-[Unreleased]: https://github.com/giantswarm/app-operator/compare/v6.0.1...HEAD
+[Unreleased]: https://github.com/giantswarm/app-operator/compare/v6.1.0...HEAD
+[6.1.0]: https://github.com/giantswarm/app-operator/compare/v6.0.1...v6.1.0
 [6.0.1]: https://github.com/giantswarm/app-operator/compare/v6.0.0...v6.0.1
 [6.0.0]: https://github.com/giantswarm/app-operator/compare/v5.12.0...v6.0.0
 [5.12.0]: https://github.com/giantswarm/app-operator/compare/v5.11.0...v5.12.0

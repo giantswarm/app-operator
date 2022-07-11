@@ -28,7 +28,7 @@ spec:
           - key: config.yaml
             path: config.yaml
       serviceAccountName: {{ include "resource.default.name"  . }}
-      {{- if .Values.initialBootstrapMode }}
+      {{- if .Values.bootstrapMode.enabled }}
       hostNetwork: true
       tolerations:
       - effect: NoSchedule
@@ -39,17 +39,20 @@ spec:
       securityContext:
         runAsUser: {{ .Values.userID }}
         runAsGroup: {{ .Values.groupID }}
+        {{- with .Values.podSecurityContext }}
+          {{- . | toYaml | nindent 8 }}
+        {{- end }}
       containers:
       - name: {{ include "name" . }}
         image: "{{ .Values.registry.domain }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}"
         volumeMounts:
         - name: {{ include "name" . }}-configmap
           mountPath: /var/run/{{ include "name" . }}/configmap/
-        {{- if not .Values.initialBootstrapMode }}
-        # When initialBootstrapMode is true, this pod runs in `hostNetwork` mode.
+        {{- if not .Values.bootstrapMode.enabled }}
+        # When `bootstrapMode.enabled` is true, this pod runs in `hostNetwork` mode.
         # This means kubernetes automatically adds an hostPort field in the `ports` section below.
-        # When initialBootstrapMode is set back to false, the hostPort field is not removed and that makes the replicaset to fail.
-        # By removing the whole `ports` section when `initialBootstrapMode` is true we allow switching between the two modes
+        # When `bootstrapMode.enabled` is set back to false, the hostPort field is not removed and that makes the replicaset to fail.
+        # By removing the whole `ports` section when `bootstrapMode.enabled` is true we allow switching between the two modes
         # without any manual intervention required.
         ports:
         - name: http
@@ -64,9 +67,13 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: metadata.namespace
-        {{- if .Values.initialBootstrapMode }}
+        {{- if .Values.bootstrapMode.enabled }}
         - name: KUBERNETES_SERVICE_HOST
-          value: 127.0.0.1
+          valueFrom:
+            fieldRef:
+              fieldPath: status.hostIP
+        - name: KUBERNETES_SERVICE_PORT
+          value: {{ .Values.bootstrapMode.apiServerPodPort | quote }}
         {{- end }}
         livenessProbe:
           httpGet:
@@ -82,3 +89,9 @@ spec:
           timeoutSeconds: 1
         resources:
 {{ include "resource.deployment.resources" . | indent 10 }}
+        securityContext:
+          runAsUser: {{ .Values.userID }}
+          runAsGroup: {{ .Values.groupID }}
+          {{- with .Values.securityContext }}
+            {{- . | toYaml | nindent 10 }}
+          {{- end }}
