@@ -11,7 +11,6 @@ import (
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/v6/pkg/controller/context/resourcecanceledcontext"
 	corev1 "k8s.io/api/core/v1"
-	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/yaml"
 
@@ -45,7 +44,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 	// If no user-provided configmap name is present, check if a *-user-values config map exists and set the reference
 	if key.UserConfigMapName(cr) == "" {
 		userCM, err := cc.Clients.K8s.K8sClient().CoreV1().ConfigMaps(r.chartNamespace).Get(ctx, fmt.Sprintf("%s-user-values", cr.Name), metav1.GetOptions{})
-		if err == nil || !apierrors.IsNotFound(err) {
+		if err == nil {
 			cr.Spec.UserConfig.ConfigMap.Name = userCM.GetName()
 			cr.Spec.UserConfig.ConfigMap.Namespace = userCM.GetNamespace()
 			err = cc.Clients.K8s.CtrlClient().Update(ctx, &cr)
