@@ -7,11 +7,16 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
-## [6.2.0] - 2022-07-11
+## [6.3.0] - 2022-07-11
 
 ### Added
 
 - If no userconfig configmap or secret reference is specified but one is found following the default naming convention (`*-user-values` / `*-user-secrets`) then the App resource is updated to reference the found configmap/secret.
+
+## [6.2.0] - 2022-07-11
+
+### Added
+
 - Watch config maps and secrets listed in the `extraConfigs` section of App CR for multi layer configs, see: https://github.com/giantswarm/rfc/tree/main/multi-layer-app-config#enhancing-app-cr
 
 ### Changed
@@ -594,7 +599,8 @@ from Helm 2 to Helm 3.
 
 - Flattening operator release structure.
 
-[Unreleased]: https://github.com/giantswarm/app-operator/compare/v6.2.0...HEAD
+[Unreleased]: https://github.com/giantswarm/app-operator/compare/v6.3.0...HEAD
+[6.3.0]: https://github.com/giantswarm/app-operator/compare/v6.2.0...v6.3.0
 [6.2.0]: https://github.com/giantswarm/app-operator/compare/v6.1.0...v6.2.0
 [6.1.0]: https://github.com/giantswarm/app-operator/compare/v6.0.1...v6.1.0
 [6.0.1]: https://github.com/giantswarm/app-operator/compare/v6.0.0...v6.0.1
