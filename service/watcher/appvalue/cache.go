@@ -120,6 +120,23 @@ func (c *AppValueWatcher) addCache(ctx context.Context, cr v1alpha1.App, eventTy
 		})
 	}
 
+	// Watch extra configs as well
+	for _, extraConfig := range key.ExtraConfigs(cr) {
+		var kind resourceType
+		switch extraConfig.Kind {
+		case "secret":
+			kind = secretType
+		default:
+			kind = configMapType
+		}
+
+		resources = append(resources, resourceIndex{
+			ResourceType: kind,
+			Name:         extraConfig.Name,
+			Namespace:    extraConfig.Namespace,
+		})
+	}
+
 	switch eventType {
 	case watch.Added, watch.Modified:
 		for _, resource := range resources {
