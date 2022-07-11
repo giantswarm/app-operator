@@ -21,9 +21,9 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	"github.com/giantswarm/app-operator/v5/integration/key"
-	pkglabel "github.com/giantswarm/app-operator/v5/pkg/label"
-	"github.com/giantswarm/app-operator/v5/pkg/project"
+	"github.com/giantswarm/app-operator/v6/integration/key"
+	pkglabel "github.com/giantswarm/app-operator/v6/pkg/label"
+	"github.com/giantswarm/app-operator/v6/pkg/project"
 )
 
 // TestAppCatalogEntry tests appcatalogentry CRs are generated for the
@@ -60,6 +60,12 @@ func TestAppCatalogEntry(t *testing.T) {
 				Storage: v1alpha1.CatalogSpecStorage{
 					Type: "helm",
 					URL:  key.StableCatalogStorageURL(),
+				},
+				Repositories: []v1alpha1.CatalogSpecRepository{
+					{
+						Type: "helm",
+						URL:  key.StableCatalogStorageURL(),
+					},
 				},
 			},
 		}

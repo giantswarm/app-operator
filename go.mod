@@ -1,4 +1,4 @@
-module github.com/giantswarm/app-operator/v5
+module github.com/giantswarm/app-operator/v6
 
 go 1.16
 
@@ -7,7 +7,6 @@ require (
 	github.com/MakeNowJust/heredoc v1.0.0 // indirect
 	github.com/Masterminds/semver/v3 v3.1.1
 	github.com/Masterminds/squirrel v1.5.3 // indirect
-	github.com/Microsoft/go-winio v0.5.2 // indirect
 	github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d // indirect
 	github.com/cenkalti/backoff/v4 v4.1.3 // indirect
 	github.com/containerd/cgroups v1.0.4 // indirect
@@ -19,16 +18,16 @@ require (
 	github.com/exponent-io/jsonpath v0.0.0-20210407135951-1de76d718b3f // indirect
 	github.com/getsentry/sentry-go v0.13.0 // indirect
 	github.com/ghodss/yaml v1.0.0
-	github.com/giantswarm/apiextensions-application v0.3.1
-	github.com/giantswarm/app/v6 v6.10.0
-	github.com/giantswarm/appcatalog v0.7.0
+	github.com/giantswarm/apiextensions-application v0.5.1
+	github.com/giantswarm/app/v6 v6.12.0
+	github.com/giantswarm/appcatalog v0.9.1
 	github.com/giantswarm/apptest v1.2.0
 	github.com/giantswarm/backoff v1.0.0
 	github.com/giantswarm/errors v0.3.0
 	github.com/giantswarm/exporterkit v1.0.0 // indirect
-	github.com/giantswarm/helmclient/v4 v4.10.0
+	github.com/giantswarm/helmclient/v4 v4.10.1
 	github.com/giantswarm/k8sclient/v6 v6.1.0
-	github.com/giantswarm/k8smetadata v0.11.0
+	github.com/giantswarm/k8smetadata v0.11.1
 	github.com/giantswarm/kubeconfig/v4 v4.1.0
 	github.com/giantswarm/microendpoint v1.0.0
 	github.com/giantswarm/microerror v0.4.0
@@ -62,17 +61,15 @@ require (
 	github.com/spf13/afero v1.8.2
 	github.com/spf13/viper v1.12.0
 	github.com/xeipuuv/gojsonpointer v0.0.0-20190905194746-02993c407bfb // indirect
-	github.com/xlab/treeprint v1.1.0 // indirect; indirectg
+	github.com/xlab/treeprint v1.1.0 // indirect
 	go.starlark.net v0.0.0-20220328144851-d1966c6b9fcd // indirect
 	golang.org/x/crypto v0.0.0-20220525230936-793ad666bf5e // indirect
-	golang.org/x/net v0.0.0-20220607020251-c690dde0001d // indirect
 	golang.org/x/oauth2 v0.0.0-20220524215830-622c5d57e401 // indirect
 	golang.org/x/sync v0.0.0-20220601150217-0de741cfad7f // indirect
 	golang.org/x/term v0.0.0-20220526004731-065cf7ba2467 // indirect
 	golang.org/x/time v0.0.0-20220411224347-583f2d630306 // indirect
 	google.golang.org/genproto v0.0.0-20220607223854-30acc4cbd2aa // indirect
 	gopkg.in/ini.v1 v1.66.5 // indirect
-	gopkg.in/yaml.v3 v3.0.1 // indirect
 	helm.sh/helm/v3 v3.9.0 // indirect
 	k8s.io/api v0.24.1
 	k8s.io/apiextensions-apiserver v0.24.1

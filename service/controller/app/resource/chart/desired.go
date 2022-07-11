@@ -9,16 +9,22 @@ import (
 	"github.com/giantswarm/apiextensions-application/api/v1alpha1"
 	"github.com/giantswarm/app/v6/pkg/key"
 	"github.com/giantswarm/appcatalog"
+	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/k8smetadata/pkg/annotation"
 	"github.com/giantswarm/k8smetadata/pkg/label"
 	"github.com/giantswarm/microerror"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/kubernetes"
 
-	"github.com/giantswarm/app-operator/v5/pkg/project"
-	"github.com/giantswarm/app-operator/v5/service/controller/app/controllercontext"
-	"github.com/giantswarm/app-operator/v5/service/internal/indexcache"
+	"github.com/giantswarm/app-operator/v6/pkg/project"
+	"github.com/giantswarm/app-operator/v6/service/controller/app/controllercontext"
+	"github.com/giantswarm/app-operator/v6/service/internal/indexcache"
+)
+
+const (
+	chartPullFailedStatus = "chart-pull-failed"
 )
 
 func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interface{}, error) {
@@ -50,37 +56,30 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		return nil, microerror.Mask(err)
 	}
 
-	var tarballURL, version string
+	repositoryURL, err := r.pickRepositoryURL(ctx, cc, cr, chartName)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
 
-	if key.CatalogVisibility(cc.Catalog) == "internal" {
-		// For internal catalogs we generate the URL as its predictable
-		// and to avoid having chicken egg problems.
-		tarballURL, err = appcatalog.NewTarballURL(key.CatalogStorageURL(cc.Catalog), key.AppName(cr), key.Version(cr))
-		if err != nil {
-			r.logger.Errorf(ctx, err, "failed to generated tarball")
-		}
-
-		version = key.Version(cr)
-	} else {
-		// For all other catalogs we check the index.yaml for compatibility
-		// with community catalogs.
-		index, err := r.indexCache.GetIndex(ctx, key.CatalogStorageURL(cc.Catalog))
-		if err != nil {
-			r.logger.Errorf(ctx, err, "failed to get index.yaml")
-		}
-
-		version, tarballURL, err = getVersionAndTarballURL(index, key.AppName(cr), cr.Spec.Version)
-		if err != nil {
-			r.logger.Errorf(ctx, err, "failed to get tarball URL")
-		}
-
-		if !isValidURL(tarballURL) {
-			// URL may be relative. If so we join it to the Catalog Storage URL.
-			tarballURL, err = joinRelativeURL(cc.Catalog, tarballURL)
-			if err != nil {
-				r.logger.Errorf(ctx, err, "failed to join relative URL")
+	tarballURL, version, err := r.buildTarballURL(ctx, cc, cr, repositoryURL)
+	if err != nil && IsNotFound(err) && key.CatalogVisibility(cc.Catalog) != "internal" {
+		// Could not reach custom catalog's index or find app entry in it.
+		// Let's retry using other repositories.
+		r.logger.Errorf(ctx, err, "failed to resolve tarball URL for %#q repository, trying next one", repositoryURL)
+		for _, fallbackURL := range fallbackRepositories(cc.Catalog, repositoryURL) {
+			tarballURL, version, err = r.buildTarballURL(ctx, cc, cr, fallbackURL)
+			if err == nil {
+				r.logger.Debugf(ctx, "found a working tarball URL in repository %#q", fallbackURL)
+				break
+			} else {
+				r.logger.Errorf(ctx, err, "failed to resolve tarball URL for %#q repository, trying next one", fallbackURL)
 			}
 		}
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	} else if err != nil {
+		return nil, microerror.Mask(err)
 	}
 
 	chartCR := &v1alpha1.Chart{
@@ -109,6 +108,129 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 	}
 
 	return chartCR, nil
+}
+
+func (r *Resource) pickRepositoryURL(ctx context.Context, cc *controllercontext.Context, cr v1alpha1.App, chartName string) (string, error) {
+	switch len(cc.Catalog.Spec.Repositories) {
+	case 0:
+		return cc.Catalog.Spec.Storage.URL, nil
+	case 1:
+		return cc.Catalog.Spec.Repositories[0].URL, nil
+	}
+
+	var chart v1alpha1.Chart
+	err := cc.Clients.K8s.CtrlClient().Get(
+		ctx,
+		types.NamespacedName{Name: chartName, Namespace: r.chartNamespace},
+		&chart,
+	)
+	if apierrors.IsNotFound(err) || tenant.IsAPINotAvailable(err) {
+		// Repositories is guaranteed by Custom Resource Definition to have at least one entry.
+		return cc.Catalog.Spec.Repositories[0].URL, nil
+	} else if err != nil {
+		return "", microerror.Mask(err)
+	}
+
+	// Check currently selected repository
+	repositoryIndex := -1
+	for i, repo := range cc.Catalog.Spec.Repositories {
+		if strings.Contains(chart.Spec.TarballURL, repo.URL) {
+			repositoryIndex = i
+			break
+		}
+	}
+	if repositoryIndex == -1 {
+		// Could not match current tarballURL to any of Catalog's repositories.
+		// Maybe the list was updated. Let's pick any existing repository.
+		r.logger.Debugf(ctx, "could not match tarball URL %q to any of %q Catalog repositories; using default", chart.Spec.TarballURL, cc.Catalog.Name)
+		return cc.Catalog.Spec.Repositories[0].URL, nil
+	}
+
+	if chart.Status.Release.Status == chartPullFailedStatus {
+		// chart-operator had trouble pulling the chart -- this includes timeouts and chart not being found (404)
+		// Round-robin the repository.
+		repositoryIndex = (repositoryIndex + 1) % len(cc.Catalog.Spec.Repositories)
+	}
+	return cc.Catalog.Spec.Repositories[repositoryIndex].URL, nil
+}
+
+func (r *Resource) buildTarballURL(ctx context.Context, cc *controllercontext.Context, cr v1alpha1.App, repositoryURL string) (url string, version string, err error) {
+	if key.CatalogVisibility(cc.Catalog) == "internal" {
+		// For internal catalogs we generate the URL as its predictable
+		// and to avoid having chicken egg problems.
+		url, err = appcatalog.NewTarballURL(repositoryURL, key.AppName(cr), key.Version(cr))
+		if err != nil {
+			return "", "", microerror.Mask(err)
+		}
+		version = key.Version(cr)
+		return url, version, nil
+	}
+
+	// For all other catalogs we check the index.yaml for compatibility
+	// with community catalogs.
+	index, err := r.indexCache.GetIndex(ctx, repositoryURL)
+	if err != nil {
+		r.logger.Errorf(ctx, err, "failed to get index.yaml from %q", repositoryURL)
+	}
+	if index == nil {
+		return "", "", microerror.Maskf(notFoundError, "index %#v for %q is <nil>", index, repositoryURL)
+	}
+	if len(index.Entries) == 0 {
+		return "", "", microerror.Maskf(notFoundError, "index %#v for %q has no entries", index, repositoryURL)
+	}
+
+	entries, ok := index.Entries[cr.Spec.Name]
+	if !ok {
+		return "", "", microerror.Maskf(notFoundError, "no entries for app %#q in index.yaml for %q", cr.Spec.Name, repositoryURL)
+	}
+
+	// We first try with the full version set in .spec.version of the app CR.
+	version = cr.Spec.Version
+	url, err = getEntryURL(entries, cr.Spec.Name, version)
+	if err != nil {
+		// We try again without the `v` prefix. This enables us to use the
+		// Flux Image Automation controller to automatically update apps.
+		version = strings.TrimPrefix(version, "v")
+
+		url, err = getEntryURL(entries, cr.Spec.Name, version)
+		if err != nil {
+			return "", "", microerror.Mask(err)
+		}
+	}
+
+	if url == "" {
+		return "", "", microerror.Maskf(notFoundError, "found entry for app %#q but URL is not specified", cr.Spec.Name)
+	}
+
+	if !isValidURL(url) {
+		// URL may be relative. If so we join it to the Catalog Storage URL.
+		url, err = joinRelativeURL(repositoryURL, url)
+		if err != nil {
+			return "", "", microerror.Mask(err)
+		}
+	}
+
+	return url, version, err
+}
+
+func fallbackRepositories(catalog v1alpha1.Catalog, repositoryURL string) []string {
+	urls := []string{}
+	repositoryIndex := -1
+	for i, repo := range catalog.Spec.Repositories {
+		if repo.URL == repositoryURL {
+			repositoryIndex = i
+		}
+		urls = append(urls, repo.URL)
+	}
+	if repositoryIndex == -1 {
+		// could not find failed repositoryURL, let's just return the whole slice
+		return urls
+	}
+
+	// Return all repositoryURLs, starting with the one after repositoryURL and skip repositoryURL.
+	// example: urls=["a", "b", "c", "d"], repositoryURL="c" -> ["d", "a", "b"]
+	// example: urls=["x"], repositoryURL="x" -> []
+	return append(urls[repositoryIndex+1:], urls[:repositoryIndex]...)
 }
 
 func generateAnnotations(input map[string]string, appNamespace, appName string) map[string]string {
@@ -193,32 +315,6 @@ func getEntryURL(entries []indexcache.Entry, app, version string) (string, error
 	return "", microerror.Maskf(notFoundError, "no app %#q in index.yaml with given version %#q", app, version)
 }
 
-func getVersionAndTarballURL(index *indexcache.Index, app, version string) (string, string, error) {
-	if index == nil || len(index.Entries) == 0 {
-		return "", "", microerror.Maskf(notFoundError, "no entries in index %#v", index)
-	}
-
-	entries, ok := index.Entries[app]
-	if !ok {
-		return "", "", microerror.Maskf(notFoundError, "no entries for app %#q in index.yaml", app)
-	}
-
-	// We first try with the full version set in .spec.version of the app CR.
-	url, err := getEntryURL(entries, app, version)
-	if err != nil {
-		// We try again without the `v` prefix. This enables us to use the
-		// Flux Image Automation controller to automatically update apps.
-		version = strings.TrimPrefix(version, "v")
-
-		url, err = getEntryURL(entries, app, version)
-		if err != nil {
-			return "", "", microerror.Mask(err)
-		}
-	}
-
-	return version, url, nil
-}
-
 func hasConfigMap(cr v1alpha1.App, catalog v1alpha1.Catalog) bool {
 	if key.AppConfigMapName(cr) != "" || key.CatalogConfigMapName(catalog) != "" || key.UserConfigMapName(cr) != "" {
 		return true
@@ -249,8 +345,7 @@ func isValidURL(input string) bool {
 	return true
 }
 
-func joinRelativeURL(catalog v1alpha1.Catalog, relativeURL string) (string, error) {
-	baseURL := key.CatalogStorageURL(catalog)
+func joinRelativeURL(baseURL, relativeURL string) (string, error) {
 	u, err := url.Parse(baseURL)
 	if err != nil {
 		return "", microerror.Mask(err)

@@ -4,6 +4,8 @@ metadata:
   name: {{ include "resource.psp.name" . }}
   labels:
     {{- include "labels.common" . | nindent 4 }}
+  annotations:
+    seccomp.security.alpha.kubernetes.io/allowedProfileNames: 'runtime/default'
 spec:
   privileged: false
   fsGroup:
@@ -25,7 +27,8 @@ spec:
   volumes:
     - 'configMap'
     - 'projected'
+    - 'secret'
   allowPrivilegeEscalation: false
-  hostNetwork: {{ .Values.initialBootstrapMode }}
+  hostNetwork: {{ .Values.bootstrapMode.enabled }}
   hostIPC: false
   hostPID: false

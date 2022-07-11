@@ -2,8 +2,9 @@ package indexcachetest
 
 import (
 	"context"
+	"fmt"
 
-	"github.com/giantswarm/app-operator/v5/service/internal/indexcache"
+	"github.com/giantswarm/app-operator/v6/service/internal/indexcache"
 )
 
 type Config struct {
@@ -14,6 +15,10 @@ type Config struct {
 type Resource struct {
 	getIndexError    error
 	getIndexResponse *indexcache.Index
+}
+
+type MapResource struct {
+	indices map[string]*Resource
 }
 
 func New(config Config) *Resource {
@@ -33,5 +38,30 @@ func (r *Resource) GetIndex(ctx context.Context, url string) (*indexcache.Index,
 		return r.getIndexResponse, nil
 	}
 
+	return nil, nil
+}
+
+func NewMap(config map[string]Config) *MapResource {
+	m := map[string]*Resource{}
+	for url, cfg := range config {
+		m[url] = New(cfg)
+	}
+	r := &MapResource{
+		indices: m,
+	}
+	return r
+}
+
+func (r *MapResource) GetIndex(ctx context.Context, url string) (*indexcache.Index, error) {
+	idx, ok := r.indices[url]
+	if !ok {
+		return nil, fmt.Errorf("index %s not found", url)
+	}
+	if idx.getIndexError != nil {
+		return nil, idx.getIndexError
+	}
+	if idx.getIndexResponse != nil {
+		return idx.getIndexResponse, nil
+	}
 	return nil, nil
 }

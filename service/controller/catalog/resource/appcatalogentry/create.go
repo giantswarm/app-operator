@@ -19,8 +19,8 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 
-	pkglabel "github.com/giantswarm/app-operator/v5/pkg/label"
-	"github.com/giantswarm/app-operator/v5/pkg/project"
+	pkglabel "github.com/giantswarm/app-operator/v6/pkg/label"
+	"github.com/giantswarm/app-operator/v6/pkg/project"
 )
 
 // EnsureCreated ensures appcatalogentry CRs are created or updated for this

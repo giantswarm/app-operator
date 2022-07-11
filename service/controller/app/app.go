@@ -15,11 +15,11 @@ import (
 	"k8s.io/apimachinery/pkg/labels"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	"github.com/giantswarm/app-operator/v5/pkg/label"
-	"github.com/giantswarm/app-operator/v5/pkg/project"
-	"github.com/giantswarm/app-operator/v5/service/controller/app/controllercontext"
-	"github.com/giantswarm/app-operator/v5/service/internal/clientcache"
-	"github.com/giantswarm/app-operator/v5/service/internal/indexcache"
+	"github.com/giantswarm/app-operator/v6/pkg/label"
+	"github.com/giantswarm/app-operator/v6/pkg/project"
+	"github.com/giantswarm/app-operator/v6/service/controller/app/controllercontext"
+	"github.com/giantswarm/app-operator/v6/service/internal/clientcache"
+	"github.com/giantswarm/app-operator/v6/service/internal/indexcache"
 )
 
 const appControllerSuffix = "-app"

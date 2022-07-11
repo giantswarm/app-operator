@@ -16,10 +16,9 @@ import (
 	"github.com/spf13/afero"
 	"sigs.k8s.io/yaml"
 
-	"github.com/giantswarm/app-operator/v5/integration/env"
-	"github.com/giantswarm/app-operator/v5/integration/key"
-	"github.com/giantswarm/app-operator/v5/integration/templates"
-	"github.com/giantswarm/app-operator/v5/pkg/project"
+	"github.com/giantswarm/app-operator/v6/integration/key"
+	"github.com/giantswarm/app-operator/v6/integration/templates"
+	"github.com/giantswarm/app-operator/v6/pkg/project"
 )
 
 func Setup(m *testing.M, config Config) {
@@ -63,7 +62,7 @@ func installResources(ctx context.Context, config Config) error {
 		config.Logger.Debugf(ctx, "getting %#q tarball URL", project.Name())
 
 		o := func() error {
-			operatorTarballURL, err = appcatalog.GetLatestChart(ctx, key.ControlPlaneTestCatalogStorageURL(), project.Name(), env.CircleSHA())
+			operatorTarballURL, err = appcatalog.GetLatestChart(ctx, key.ControlPlaneTestCatalogStorageURL(), project.Name(), key.AppOperatorInTestVersion())
 			if err != nil {
 				return microerror.Mask(err)
 			}
