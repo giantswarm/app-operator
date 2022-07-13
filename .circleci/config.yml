@@ -179,4 +179,3 @@ workflows:
               ignore: /.*/
             tags:
               only: /^v.*/
-
