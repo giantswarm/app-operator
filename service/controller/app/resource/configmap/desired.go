@@ -41,6 +41,19 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		return configMap, nil
 	}
 
+	// If no user-provided configmap name is present, check if a *-user-values config map exists and set the reference
+	if key.UserConfigMapName(cr) == "" {
+		userCM, err := cc.Clients.K8s.K8sClient().CoreV1().ConfigMaps(r.chartNamespace).Get(ctx, fmt.Sprintf("%s-user-values", cr.Name), metav1.GetOptions{})
+		if err == nil {
+			cr.Spec.UserConfig.ConfigMap.Name = userCM.GetName()
+			cr.Spec.UserConfig.ConfigMap.Namespace = userCM.GetNamespace()
+			err = cc.Clients.K8s.CtrlClient().Update(ctx, &cr)
+			if err != nil {
+				return nil, microerror.Mask(err)
+			}
+		}
+	}
+
 	mergedData, err := r.values.MergeConfigMapData(ctx, cr, cc.Catalog)
 	if values.IsNotFound(err) {
 		r.logger.LogCtx(ctx, "level", "warning", "message", "dependent configMaps are not found")
