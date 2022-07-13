@@ -41,6 +41,19 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		return secret, nil
 	}
 
+	// If no user-provided secret name is present, check if a *-user-values config map exists and set the reference
+	if key.UserSecretName(cr) == "" {
+		userSec, err := cc.Clients.K8s.K8sClient().CoreV1().Secrets(r.chartNamespace).Get(ctx, fmt.Sprintf("%s-user-secrets", cr.Name), metav1.GetOptions{})
+		if err == nil {
+			cr.Spec.UserConfig.Secret.Name = userSec.GetName()
+			cr.Spec.UserConfig.Secret.Namespace = userSec.GetNamespace()
+			err = cc.Clients.K8s.CtrlClient().Update(ctx, &cr)
+			if err != nil {
+				return nil, microerror.Mask(err)
+			}
+		}
+	}
+
 	mergedData, err := r.values.MergeSecretData(ctx, cr, cc.Catalog)
 	if values.IsNotFound(err) {
 		r.logger.LogCtx(ctx, "level", "warning", "message", "dependent secrets are not found")
