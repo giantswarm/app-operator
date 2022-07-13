@@ -165,3 +165,18 @@ workflows:
               ignore: /.*/
             tags:
               only: /^v.*/
+
+
+      - architect/push-to-app-collection:
+          name: push-to-cloud-director-app-collection
+          context: architect
+          app_name: "app-operator"
+          app_collection_repo: "cloud-director-app-collection"
+          requires:
+            - push-app-operator-to-control-plane-app-catalog
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^v.*/
+
