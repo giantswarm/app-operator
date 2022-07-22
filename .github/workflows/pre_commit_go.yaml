@@ -19,7 +19,7 @@ jobs:
         go install golang.org/x/tools/cmd/goimports@latest
     - name: Install golangci-lint
       env:
-        GOLANGCI_LINT_VERSION: "1.47.2"
+        GOLANGCI_LINT_VERSION: "v1.47.2"
       run: |
         curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | \
             sudo sh -s -- -b $GOPATH/bin ${GOLANGCI_LINT_VERSION}
