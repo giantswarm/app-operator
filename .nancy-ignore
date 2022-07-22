@@ -38,6 +38,9 @@ CVE-2021-23772 until=2022-08-01
 #  - github.com/go-kit/kit@v0.12.0
 CVE-2021-3127 until=2022-08-01
 
+# pkg:golang/github.com/nats-io/jwt@v0.3.2
+CVE-2020-26892 until=2022-08-01
+
 # pkg:golang/helm.sh/helm/v3@v3.9.0
 CVE-2018-1714 until=2022-08-01
 
