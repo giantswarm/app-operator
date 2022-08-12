@@ -38,7 +38,7 @@ spec:
         node-role.kubernetes.io/control-plane: ""
       {{- else }}
       nodeSelector:
-        node-role.kubernetes.io/master: ""      
+        node-role.kubernetes.io/master: ""
       {{- end }}
       {{- end }}
       securityContext:
