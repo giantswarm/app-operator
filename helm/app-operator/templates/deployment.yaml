@@ -33,8 +33,13 @@ spec:
       tolerations:
       - effect: NoSchedule
         operator: Exists
+      {{- if ge (int .Capabilities.KubeVersion.Minor) 24 }}
       nodeSelector:
-        node-role.kubernetes.io/master: ""
+        node-role.kubernetes.io/control-plane: ""
+      {{- else }}
+      nodeSelector:
+        node-role.kubernetes.io/master: ""      
+      {{- end }}
       {{- end }}
       securityContext:
         runAsUser: {{ .Values.userID }}
