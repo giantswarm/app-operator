@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Changed
+
+- Add support for new control-plane label in k8s 1.24.
+
 ## [6.3.0] - 2022-07-11
 
 ### Added
