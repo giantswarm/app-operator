@@ -5,8 +5,8 @@ go 1.18
 require (
 	github.com/Masterminds/semver/v3 v3.1.1
 	github.com/ghodss/yaml v1.0.0
-	github.com/giantswarm/apiextensions-application v0.5.1
-	github.com/giantswarm/app/v6 v6.12.0
+	github.com/giantswarm/apiextensions-application v0.5.2-0.20220920114322-52c32c99461c
+	github.com/giantswarm/app/v6 v6.14.1-0.20220920122705-5a7567b35f37
 	github.com/giantswarm/appcatalog v0.9.1
 	github.com/giantswarm/apptest v1.2.1
 	github.com/giantswarm/backoff v1.0.0

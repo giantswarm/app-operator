@@ -292,13 +292,18 @@ func generateConfig(ctx context.Context, k8sClient kubernetes.Interface, cr v1al
 }
 
 func generateInstall(cr v1alpha1.App) v1alpha1.ChartSpecInstall {
+	options := v1alpha1.ChartSpecInstall{}
+
 	if key.InstallSkipCRDs(cr) {
-		return v1alpha1.ChartSpecInstall{
-			SkipCRDs: true,
-		}
+		options.SkipCRDs = true
 	}
 
-	return v1alpha1.ChartSpecInstall{}
+	timeout := key.InstallTimeout(cr)
+	if timeout != nil {
+		options.Timeout = timeout
+	}
+
+	return options
 }
 
 func getEntryURL(entries []indexcache.Entry, app, version string) (string, error) {
