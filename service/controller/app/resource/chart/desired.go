@@ -102,6 +102,9 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 				Annotations: cr.Spec.NamespaceConfig.Annotations,
 				Labels:      cr.Spec.NamespaceConfig.Labels,
 			},
+			Rollback:   generateRollback(cr),
+			Uninstall:  generateUninstall(cr),
+			Upgrade:    generateUpgrade(cr),
 			TarballURL: tarballURL,
 			Version:    version,
 		},
@@ -292,18 +295,51 @@ func generateConfig(ctx context.Context, k8sClient kubernetes.Interface, cr v1al
 }
 
 func generateInstall(cr v1alpha1.App) v1alpha1.ChartSpecInstall {
-	options := v1alpha1.ChartSpecInstall{}
+	install := v1alpha1.ChartSpecInstall{}
 
 	if key.InstallSkipCRDs(cr) {
-		options.SkipCRDs = true
+		install.SkipCRDs = true
 	}
 
 	timeout := key.InstallTimeout(cr)
 	if timeout != nil {
-		options.Timeout = timeout
+		install.Timeout = timeout
 	}
 
-	return options
+	return install
+}
+
+func generateRollback(cr v1alpha1.App) v1alpha1.ChartSpecRollback {
+	rollback := v1alpha1.ChartSpecRollback{}
+
+	timeout := key.RollbackTimeout(cr)
+	if timeout != nil {
+		rollback.Timeout = timeout
+	}
+
+	return rollback
+}
+
+func generateUninstall(cr v1alpha1.App) v1alpha1.ChartSpecUninstall {
+	uninstall := v1alpha1.ChartSpecUninstall{}
+
+	timeout := key.UninstallTimeout(cr)
+	if timeout != nil {
+		uninstall.Timeout = timeout
+	}
+
+	return uninstall
+}
+
+func generateUpgrade(cr v1alpha1.App) v1alpha1.ChartSpecUpgrade {
+	upgrade := v1alpha1.ChartSpecUpgrade{}
+
+	timeout := key.UpgradeTimeout(cr)
+	if timeout != nil {
+		upgrade.Timeout = timeout
+	}
+
+	return upgrade
 }
 
 func getEntryURL(entries []indexcache.Entry, app, version string) (string, error) {

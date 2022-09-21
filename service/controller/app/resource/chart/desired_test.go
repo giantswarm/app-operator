@@ -2,6 +2,7 @@ package chart
 
 import (
 	"context"
+	//"fmt"
 	"reflect"
 	"regexp"
 	"testing"
@@ -455,7 +456,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 			},
 		},
 		{
-			name: "case 5: use custom timeout setting",
+			name: "case 5: use custom timeout settings",
 			obj: &v1alpha1.App{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "hello-world",
@@ -473,7 +474,16 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 						},
 					},
 					Install: v1alpha1.AppSpecInstall{
-						Timeout: &metav1.Duration{Duration: 600 * time.Second},
+						Timeout: &metav1.Duration{Duration: 360 * time.Second},
+					},
+					Rollback: v1alpha1.AppSpecRollback{
+						Timeout: &metav1.Duration{Duration: 420 * time.Second},
+					},
+					Uninstall: v1alpha1.AppSpecUninstall{
+						Timeout: &metav1.Duration{Duration: 480 * time.Second},
+					},
+					Upgrade: v1alpha1.AppSpecUpgrade{
+						Timeout: &metav1.Duration{Duration: 540 * time.Second},
 					},
 				},
 			},
@@ -522,7 +532,16 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					TarballURL: "https://giantswarm.github.io/app-catalog/hello-world-app-1.1.1.tgz",
 					Version:    "1.1.1",
 					Install: v1alpha1.ChartSpecInstall{
-						Timeout: &metav1.Duration{Duration: 600 * time.Second},
+						Timeout: &metav1.Duration{Duration: 360 * time.Second},
+					},
+					Rollback: v1alpha1.ChartSpecRollback{
+						Timeout: &metav1.Duration{Duration: 420 * time.Second},
+					},
+					Uninstall: v1alpha1.ChartSpecUninstall{
+						Timeout: &metav1.Duration{Duration: 480 * time.Second},
+					},
+					Upgrade: v1alpha1.ChartSpecUpgrade{
+						Timeout: &metav1.Duration{Duration: 540 * time.Second},
 					},
 				},
 			},
