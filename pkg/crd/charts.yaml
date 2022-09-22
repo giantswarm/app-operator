@@ -114,6 +114,11 @@ spec:
                       with the chart are not installed. Default: false.'
                     nullable: true
                     type: boolean
+                  timeout:
+                    description: Timeout for the Helm install. When not set the default
+                      timeout of 5 minutes is being enforced.
+                    pattern: ^([0-9]+(\.[0-9]+)?(ms|s|m))+$
+                    type: string
                 type: object
               name:
                 description: Name is the name of the Helm chart to be deployed. e.g.
@@ -143,10 +148,43 @@ spec:
                     nullable: true
                     type: object
                 type: object
+              rollback:
+                description: Rollback is the config used to rollback the app and is
+                  passed to Helm.
+                nullable: true
+                properties:
+                  timeout:
+                    description: Timeout for the Helm rollback. When not set the default
+                      timeout of 5 minutes is being enforced.
+                    pattern: ^([0-9]+(\.[0-9]+)?(ms|s|m))+$
+                    type: string
+                type: object
               tarballURL:
                 description: TarballURL is the URL for the Helm chart tarball to be
                   deployed. e.g. https://example.com/path/to/prom-1-0-0.tgz
                 type: string
+              uninstall:
+                description: Uninstall is the config used to uninstall the app and
+                  is passed to Helm.
+                nullable: true
+                properties:
+                  timeout:
+                    description: Timeout for the Helm uninstall. When not set the
+                      default timeout of 5 minutes is being enforced.
+                    pattern: ^([0-9]+(\.[0-9]+)?(ms|s|m))+$
+                    type: string
+                type: object
+              upgrade:
+                description: Upgrade is the config used to upgrade the app and is
+                  passed to Helm.
+                nullable: true
+                properties:
+                  timeout:
+                    description: Timeout for the Helm upgrade. When not set the default
+                      timeout of 5 minutes is being enforced.
+                    pattern: ^([0-9]+(\.[0-9]+)?(ms|s|m))+$
+                    type: string
+                type: object
               version:
                 description: Version is the version of the chart that should be deployed.
                   e.g. 1.0.0
