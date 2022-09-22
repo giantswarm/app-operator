@@ -9,7 +9,7 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ### Added
 
-- Support `timeout` in `AppSpecInstall` field of App CR.
+- Support timeouts fields in the App CR.
 
 ### Changed
 
