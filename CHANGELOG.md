@@ -9,6 +9,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [6.4.0] - 2022-09-22
 
+### Added
+
+- Support timeouts fields in the App CR.
+
 ### Changed
 
 - Add support for new control-plane label in k8s 1.24.
