@@ -294,7 +294,7 @@ func (r Resource) uninstallChartOperator(ctx context.Context, cr v1alpha1.App) e
 		return microerror.Mask(err)
 	}
 
-	err = cc.Clients.Helm.DeleteRelease(ctx, key.Namespace(cr), key.AppName(cr))
+	err = cc.Clients.Helm.DeleteRelease(ctx, key.Namespace(cr), key.AppName(cr), helmclient.DeleteOptions{})
 	if helmclient.IsReleaseNotFound(err) {
 		// no-op
 	} else if err != nil {
