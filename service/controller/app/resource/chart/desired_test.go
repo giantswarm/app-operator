@@ -2,9 +2,11 @@ package chart
 
 import (
 	"context"
+	//"fmt"
 	"reflect"
 	"regexp"
 	"testing"
+	"time"
 
 	"github.com/giantswarm/apiextensions-application/api/v1alpha1"
 	"github.com/giantswarm/k8sclient/v6/pkg/k8sclienttest"
@@ -450,6 +452,97 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					Namespace:  "monitoring",
 					TarballURL: "https://giantswarm.github.io/app-catalog/prometheus-1.0.0.tgz",
 					Version:    "1.0.0",
+				},
+			},
+		},
+		{
+			name: "case 5: use custom timeout settings",
+			obj: &v1alpha1.App{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "hello-world",
+					Namespace: "default",
+				},
+				Spec: v1alpha1.AppSpec{
+					Catalog:   "giantswarm",
+					Name:      "hello-world-app",
+					Namespace: "default",
+					Version:   "1.1.1",
+					KubeConfig: v1alpha1.AppSpecKubeConfig{
+						Secret: v1alpha1.AppSpecKubeConfigSecret{
+							Name:      "giantswarm-12345",
+							Namespace: "12345",
+						},
+					},
+					Install: v1alpha1.AppSpecInstall{
+						Timeout: &metav1.Duration{Duration: 360 * time.Second},
+					},
+					Rollback: v1alpha1.AppSpecRollback{
+						Timeout: &metav1.Duration{Duration: 420 * time.Second},
+					},
+					Uninstall: v1alpha1.AppSpecUninstall{
+						Timeout: &metav1.Duration{Duration: 480 * time.Second},
+					},
+					Upgrade: v1alpha1.AppSpecUpgrade{
+						Timeout: &metav1.Duration{Duration: 540 * time.Second},
+					},
+				},
+			},
+			catalog: v1alpha1.Catalog{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "giantswarm",
+					Namespace: "default",
+				},
+				Spec: v1alpha1.CatalogSpec{
+					Title:       "Giant Swarm",
+					Description: "Catalog of Apps by Giant Swarm",
+					Storage: v1alpha1.CatalogSpecStorage{
+						Type: "helm",
+						URL:  "https://giantswarm.github.io/app-catalog/",
+					},
+					Repositories: []v1alpha1.CatalogSpecRepository{
+						{
+							Type: "helm",
+							URL:  "https://giantswarm.github.io/app-catalog/",
+						},
+					},
+					LogoURL: "https://s.giantswarm.io/...",
+				},
+			},
+			index: newIndexWithApp("hello-world-app", "1.1.1", "https://giantswarm.github.io/app-catalog/hello-world-app-1.1.1.tgz"),
+			expectedChart: &v1alpha1.Chart{
+				TypeMeta: metav1.TypeMeta{
+					Kind:       "Chart",
+					APIVersion: "application.giantswarm.io",
+				},
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "hello-world",
+					Namespace: "giantswarm",
+					Annotations: map[string]string{
+						"chart-operator.giantswarm.io/app-name":      "hello-world",
+						"chart-operator.giantswarm.io/app-namespace": "default",
+					},
+					Labels: map[string]string{
+						"chart-operator.giantswarm.io/version": "1.0.0",
+						"giantswarm.io/managed-by":             "app-operator",
+					},
+				},
+				Spec: v1alpha1.ChartSpec{
+					Name:       "hello-world",
+					Namespace:  "default",
+					TarballURL: "https://giantswarm.github.io/app-catalog/hello-world-app-1.1.1.tgz",
+					Version:    "1.1.1",
+					Install: v1alpha1.ChartSpecInstall{
+						Timeout: &metav1.Duration{Duration: 360 * time.Second},
+					},
+					Rollback: v1alpha1.ChartSpecRollback{
+						Timeout: &metav1.Duration{Duration: 420 * time.Second},
+					},
+					Uninstall: v1alpha1.ChartSpecUninstall{
+						Timeout: &metav1.Duration{Duration: 480 * time.Second},
+					},
+					Upgrade: v1alpha1.ChartSpecUpgrade{
+						Timeout: &metav1.Duration{Duration: 540 * time.Second},
+					},
 				},
 			},
 		},

@@ -4,6 +4,7 @@ import (
 	"context"
 	"reflect"
 	"testing"
+	"time"
 
 	"github.com/giantswarm/apiextensions-application/api/v1alpha1"
 	"github.com/giantswarm/k8sclient/v6/pkg/k8sclienttest"
@@ -186,6 +187,75 @@ func Test_Resource_newUpdateChange(t *testing.T) {
 				},
 			},
 			expectedChart: &v1alpha1.Chart{},
+		},
+		{
+			name: "case 2: adding timeout",
+			currentChart: &v1alpha1.Chart{
+				TypeMeta: metav1.TypeMeta{
+					Kind:       "Chart",
+					APIVersion: "application.giantswarm.io",
+				},
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "hello-world",
+					Namespace: "default",
+					Labels: map[string]string{
+						"chart-operator.giantswarm.io/version": "1.0.0",
+						"giantswarm.io/managed-by":             "app-operator",
+					},
+				},
+				Spec: v1alpha1.ChartSpec{
+					Name:       "hello-world",
+					Namespace:  "default",
+					TarballURL: "https://giantswarm.github.io/app-catalog/hello-world-app-1.1.1.tgz",
+					Version:    "1.1.1",
+				},
+			},
+			desiredChart: &v1alpha1.Chart{
+				TypeMeta: metav1.TypeMeta{
+					Kind:       "Chart",
+					APIVersion: "application.giantswarm.io",
+				},
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "hello-world",
+					Namespace: "default",
+					Labels: map[string]string{
+						"chart-operator.giantswarm.io/version": "1.0.0",
+						"giantswarm.io/managed-by":             "app-operator",
+					},
+				},
+				Spec: v1alpha1.ChartSpec{
+					Name:       "hello-world",
+					Namespace:  "default",
+					TarballURL: "https://giantswarm.github.io/app-catalog/hello-world-app-1.1.1.tgz",
+					Version:    "1.1.1",
+					Install: v1alpha1.ChartSpecInstall{
+						Timeout: &metav1.Duration{Duration: 300 * time.Second},
+					},
+				},
+			},
+			expectedChart: &v1alpha1.Chart{
+				TypeMeta: metav1.TypeMeta{
+					Kind:       "Chart",
+					APIVersion: "application.giantswarm.io",
+				},
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "hello-world",
+					Namespace: "default",
+					Labels: map[string]string{
+						"chart-operator.giantswarm.io/version": "1.0.0",
+						"giantswarm.io/managed-by":             "app-operator",
+					},
+				},
+				Spec: v1alpha1.ChartSpec{
+					Name:       "hello-world",
+					Namespace:  "default",
+					TarballURL: "https://giantswarm.github.io/app-catalog/hello-world-app-1.1.1.tgz",
+					Version:    "1.1.1",
+					Install: v1alpha1.ChartSpecInstall{
+						Timeout: &metav1.Duration{Duration: 300 * time.Second},
+					},
+				},
+			},
 		},
 	}
 

@@ -7,6 +7,16 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+## [6.4.0] - 2022-09-22
+
+### Added
+
+- Support timeouts fields in the App CR.
+
+### Changed
+
+- Add support for new control-plane label in k8s 1.24.
+
 ## [6.3.0] - 2022-07-11
 
 ### Added
@@ -599,7 +609,8 @@ from Helm 2 to Helm 3.
 
 - Flattening operator release structure.
 
-[Unreleased]: https://github.com/giantswarm/app-operator/compare/v6.3.0...HEAD
+[Unreleased]: https://github.com/giantswarm/app-operator/compare/v6.4.0...HEAD
+[6.4.0]: https://github.com/giantswarm/app-operator/compare/v6.3.0...v6.4.0
 [6.3.0]: https://github.com/giantswarm/app-operator/compare/v6.2.0...v6.3.0
 [6.2.0]: https://github.com/giantswarm/app-operator/compare/v6.1.0...v6.2.0
 [6.1.0]: https://github.com/giantswarm/app-operator/compare/v6.0.1...v6.1.0
