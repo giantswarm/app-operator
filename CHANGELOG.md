@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Fixed
+
+- Fix a bug that skips adding the chart-values or chart-secrets entries to the Chart CR when they are only created via extra configs of the App CR
+
 ## [6.4.0] - 2022-09-22
 
 ### Added

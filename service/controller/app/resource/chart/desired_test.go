@@ -30,6 +30,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 		obj           *v1alpha1.App
 		catalog       v1alpha1.Catalog
 		configMap     *corev1.ConfigMap
+		secret        *corev1.Secret
 		index         *indexcache.Index
 		expectedChart *v1alpha1.Chart
 		errorPattern  *regexp.Regexp
@@ -546,6 +547,113 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 				},
 			},
 		},
+		{
+			name: "case 6: config maps and secrets are only set via extra configs",
+			obj: &v1alpha1.App{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "my-cool-prometheus",
+					Namespace: "default",
+					Labels: map[string]string{
+						"app":                                "prometheus",
+						"app-operator.giantswarm.io/version": "1.0.0",
+						"giantswarm.io/managed-by":           "cluster-operator",
+					},
+				},
+				Spec: v1alpha1.AppSpec{
+					Catalog:   "giantswarm",
+					Name:      "prometheus",
+					Namespace: "monitoring",
+					Version:   "1.0.0",
+					ExtraConfigs: []v1alpha1.AppExtraConfig{
+						{
+							Kind:      "configMap",
+							Name:      "configmap-extra-config",
+							Namespace: "giantswarm",
+						},
+						{
+							Kind:      "secret",
+							Name:      "secret-extra-config",
+							Namespace: "giantswarm",
+						},
+					},
+				},
+			},
+			configMap: &corev1.ConfigMap{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "my-cool-prometheus-chart-values",
+					Namespace: "giantswarm",
+				},
+			},
+			secret: &corev1.Secret{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "my-cool-prometheus-chart-secrets",
+					Namespace: "giantswarm",
+				},
+				Data: map[string][]byte{
+					"values": []byte("Zm9vOiBiYXIK"),
+				},
+			},
+			catalog: v1alpha1.Catalog{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "giantswarm",
+					Namespace: "default",
+					Labels: map[string]string{
+						"app-operator.giantswarm.io/version": "1.0.0",
+					},
+				},
+				Spec: v1alpha1.CatalogSpec{
+					Title:       "Giant Swarm",
+					Description: "Catalog of Apps by Giant Swarm",
+					Storage: v1alpha1.CatalogSpecStorage{
+						Type: "helm",
+						URL:  "https://giantswarm.github.io/app-catalog/",
+					},
+					Repositories: []v1alpha1.CatalogSpecRepository{
+						{
+							Type: "helm",
+							URL:  "https://giantswarm.github.io/app-catalog/",
+						},
+					},
+					LogoURL: "https://s.giantswarm.io/...",
+				},
+			},
+			index: newIndexWithApp("prometheus", "1.0.0", "https://giantswarm.github.io/app-catalog/prometheus-1.0.0.tgz"),
+			expectedChart: &v1alpha1.Chart{
+				TypeMeta: metav1.TypeMeta{
+					Kind:       "Chart",
+					APIVersion: "application.giantswarm.io",
+				},
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "my-cool-prometheus",
+					Namespace: "giantswarm",
+					Annotations: map[string]string{
+						"chart-operator.giantswarm.io/app-name":      "my-cool-prometheus",
+						"chart-operator.giantswarm.io/app-namespace": "default",
+					},
+					Labels: map[string]string{
+						"app":                                  "prometheus",
+						"chart-operator.giantswarm.io/version": "1.0.0",
+						"giantswarm.io/managed-by":             "app-operator",
+					},
+				},
+				Spec: v1alpha1.ChartSpec{
+					Config: v1alpha1.ChartSpecConfig{
+						ConfigMap: v1alpha1.ChartSpecConfigConfigMap{
+							Name:      "my-cool-prometheus-chart-values",
+							Namespace: "giantswarm",
+						},
+						Secret: v1alpha1.ChartSpecConfigSecret{
+							Name:      "my-cool-prometheus-chart-secrets",
+							Namespace: "giantswarm",
+						},
+					},
+					Name:       "my-cool-prometheus",
+					Namespace:  "monitoring",
+					TarballURL: "https://giantswarm.github.io/app-catalog/prometheus-1.0.0.tgz",
+					Version:    "1.0.0",
+				},
+			},
+		},
 	}
 
 	for _, tc := range tests {
@@ -553,6 +661,9 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 			objs := make([]runtime.Object, 0)
 			if tc.configMap != nil {
 				objs = append(objs, tc.configMap)
+			}
+			if tc.secret != nil {
+				objs = append(objs, tc.secret)
 			}
 
 			c := Config{
