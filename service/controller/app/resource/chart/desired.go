@@ -357,7 +357,7 @@ func getEntryURL(entries []indexcache.Entry, app, version string) (string, error
 }
 
 func hasConfigMap(cr v1alpha1.App, catalog v1alpha1.Catalog) bool {
-	if key.AppConfigMapName(cr) != "" || key.CatalogConfigMapName(catalog) != "" || key.UserConfigMapName(cr) != "" {
+	if key.AppConfigMapName(cr) != "" || key.CatalogConfigMapName(catalog) != "" || key.UserConfigMapName(cr) != "" || hasKindInExtraConfigs(cr, "configMap") {
 		return true
 	}
 
@@ -365,8 +365,20 @@ func hasConfigMap(cr v1alpha1.App, catalog v1alpha1.Catalog) bool {
 }
 
 func hasSecret(cr v1alpha1.App, catalog v1alpha1.Catalog) bool {
-	if key.AppSecretName(cr) != "" || key.CatalogSecretName(catalog) != "" || key.UserSecretName(cr) != "" {
+	if key.AppSecretName(cr) != "" || key.CatalogSecretName(catalog) != "" || key.UserSecretName(cr) != "" || hasKindInExtraConfigs(cr, "secret") {
 		return true
+	}
+
+	return false
+}
+
+func hasKindInExtraConfigs(cr v1alpha1.App, kind string) bool {
+	kindLowerCase := strings.ToLower(kind)
+
+	for _, extraConfig := range key.ExtraConfigs(cr) {
+		if strings.ToLower(extraConfig.Kind) == kindLowerCase {
+			return true
+		}
 	}
 
 	return false
