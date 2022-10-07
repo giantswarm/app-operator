@@ -1,6 +1,6 @@
 module github.com/giantswarm/app-operator/v6
 
-go 1.18
+go 1.19
 
 require (
 	github.com/Masterminds/semver/v3 v3.1.1
@@ -23,7 +23,7 @@ require (
 	github.com/giantswarm/to v0.4.0
 	github.com/google/go-cmp v0.5.9
 	github.com/patrickmn/go-cache v2.1.0+incompatible
-	github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring v0.59.2
+	github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring v0.60.0
 	github.com/prometheus/client_golang v1.13.0
 	github.com/spf13/afero v1.9.2
 	github.com/spf13/viper v1.13.0
