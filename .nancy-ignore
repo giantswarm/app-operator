@@ -44,3 +44,7 @@ sonatype-2021-0276 until=2022-12-31
 sonatype-2021-0276 until=2022-12-30
 sonatype-2022-5277 until=2022-12-30
 sonatype-2022-5436 until=2022-12-31
+
+# pkg:golang/github.com/nats-io/nats-server/v2@v2.8.4
+CVE-2022-42709 until=2022-12-31
+CVE-2022-42708 until=2022-12-31
