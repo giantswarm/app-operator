@@ -6,6 +6,10 @@
   "labels": ["dependencies", "renovate"],
   "packageRules": [
     {
+      "automerge": true,
+      "automergeStrategy": "squash"
+    },
+    {
       "matchPackagePatterns": [".*giantswarm.*"],
       "groupName": "giantswarm modules"
     },
