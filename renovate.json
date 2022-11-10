@@ -6,10 +6,6 @@
   "labels": ["dependencies", "renovate"],
   "packageRules": [
     {
-      "automerge": true,
-      "automergeStrategy": "squash"
-    },
-    {
       "matchPackagePatterns": [".*giantswarm.*"],
       "groupName": "giantswarm modules"
     },
@@ -24,7 +20,7 @@
     },
     {
       "excludePackagePatterns": [".*giantswarm.*" ,"^k8s.io", "^sigs.k8s.io"],
-      "groupName": "etc modules"
+      "groupName": "misc modules"
     },
     {
       "matchPackagePatterns": ["^sigs.k8s.io/cluster*"],
