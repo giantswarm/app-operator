@@ -32,7 +32,6 @@ import (
 //
 // - Delete app CR
 // - Ensure chart CR is deleted.
-//
 func TestAppLifecycle(t *testing.T) {
 	ctx := context.Background()
 
