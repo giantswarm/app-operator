@@ -34,7 +34,6 @@ import (
 //
 // Delete giantswarm catalog CR to trigger deletion of appcatalogentry CRs.
 // Check all appcatalogentry CRs are deleted.
-//
 func TestAppCatalogEntry(t *testing.T) {
 	ctx := context.Background()
 

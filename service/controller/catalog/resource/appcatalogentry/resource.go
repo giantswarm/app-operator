@@ -3,7 +3,7 @@ package appcatalogentry
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"strings"
 
@@ -119,7 +119,7 @@ func (r *Resource) getIndex(ctx context.Context, storageURL string) (index, erro
 	}
 	defer resp.Body.Close()
 
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return index{}, microerror.Mask(err)
 	}
@@ -156,7 +156,7 @@ func (r *Resource) getMetadata(ctx context.Context, mainURL string) ([]byte, err
 		return nil, nil
 	}
 
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
