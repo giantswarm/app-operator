@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Fixed
+
+- Provide synchronization between goroutines operating on indices maps.
+
 ## [6.4.2] - 2022-11-21
 
 ### Changed
