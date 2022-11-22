@@ -14,5 +14,5 @@ spec:
     matchLabels:
       {{- include "labels.selector" . | nindent 6 }}
   podMetricsEndpoints:
-    - port: {{ .Values.port }}
+    - port: "{{ .Values.port }}"
 {{- end }}
