@@ -104,6 +104,7 @@ func (c *AppValueWatcher) watchConfigMap(ctx context.Context) {
 
 			var currentApp v1alpha1.App
 
+			c.appIndexMutex.RLock()
 			for app := range storedIndex {
 				c.logger.Debugf(ctx, "triggering %#q app update in namespace %#q", app.Name, app.Namespace)
 
@@ -127,6 +128,7 @@ func (c *AppValueWatcher) watchConfigMap(ctx context.Context) {
 
 				c.event.Emit(ctx, &currentApp, "AppUpdated", "change to configmap %s/%s triggered an update", configMap.Namespace, configMap.Name)
 			}
+			c.appIndexMutex.RUnlock()
 			c.logger.Debugf(ctx, "listed apps depends on %#q configmap in namespace %#q", cm.Name, cm.Namespace)
 		}
 

@@ -30,6 +30,7 @@ type AppValueWatcher struct {
 	k8sClient k8sclient.Interface
 	logger    micrologger.Logger
 
+	appIndexMutex   sync.RWMutex
 	resourcesToApps sync.Map
 	secretNamespace string
 	selector        labels.Selector
@@ -63,6 +64,7 @@ func NewAppValueWatcher(config AppValueWatcherConfig) (*AppValueWatcher, error) 
 		k8sClient: config.K8sClient,
 		logger:    config.Logger,
 
+		appIndexMutex:   sync.RWMutex{},
 		resourcesToApps: sync.Map{},
 		secretNamespace: config.SecretNamespace,
 		selector:        selector,
