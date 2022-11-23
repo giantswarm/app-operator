@@ -7,6 +7,16 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+## [6.4.3] - 2022-11-23
+
+### Changed
+
+- Use `port` instead of deprecated `targetPort` field for `PodMonitor`
+
+### Fixed
+
+- Provide synchronization between goroutines operating on indices maps.
+
 ## [6.4.2] - 2022-11-21
 
 ### Changed
@@ -621,7 +631,8 @@ from Helm 2 to Helm 3.
 
 - Flattening operator release structure.
 
-[Unreleased]: https://github.com/giantswarm/app-operator/compare/v6.4.2...HEAD
+[Unreleased]: https://github.com/giantswarm/app-operator/compare/v6.4.3...HEAD
+[6.4.3]: https://github.com/giantswarm/app-operator/compare/v6.4.2...v6.4.3
 [6.4.2]: https://github.com/giantswarm/app-operator/compare/v6.4.1...v6.4.2
 [6.4.1]: https://github.com/giantswarm/app-operator/compare/v6.4.0...v6.4.1
 [6.4.0]: https://github.com/giantswarm/app-operator/compare/v6.3.0...v6.4.0
