@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Changed
+
+- Use `port` instead of deprecated `targetPort` field for `PodMonitor`
+
 ### Fixed
 
 - Provide synchronization between goroutines operating on indices maps.
