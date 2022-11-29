@@ -55,7 +55,7 @@ limits:
 {{ toYaml .Values.deployment.management.limits | indent 2 -}}
 {{- end -}}
 {{- else }}
-request:
+requests:
 {{ toYaml .Values.deployment.workload.requests | indent 2 -}}
 {{ if eq (include "resource.vpa.enabled" .) "false" }}
 limits:

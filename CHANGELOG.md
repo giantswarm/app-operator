@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Fixed
+
+- Fix workload cluster request template.
+
 ## [6.4.3] - 2022-11-23
 
 ### Changed
