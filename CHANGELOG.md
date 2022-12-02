@@ -7,6 +7,8 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+## [6.5.0] - 2022-12-02
+
 ### Fixed
 
 - Fix building URLs for OCI Repositories assigned to non-internal `Catalogs`.
@@ -641,7 +643,8 @@ from Helm 2 to Helm 3.
 
 - Flattening operator release structure.
 
-[Unreleased]: https://github.com/giantswarm/app-operator/compare/v6.4.4...HEAD
+[Unreleased]: https://github.com/giantswarm/app-operator/compare/v6.5.0...HEAD
+[6.5.0]: https://github.com/giantswarm/app-operator/compare/v6.4.4...v6.5.0
 [6.4.4]: https://github.com/giantswarm/app-operator/compare/v6.4.3...v6.4.4
 [6.4.3]: https://github.com/giantswarm/app-operator/compare/v6.4.2...v6.4.3
 [6.4.2]: https://github.com/giantswarm/app-operator/compare/v6.4.1...v6.4.2
