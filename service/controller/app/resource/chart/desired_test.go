@@ -801,14 +801,10 @@ func Test_Resource_Bulid_TarballURL(t *testing.T) {
 			Title:       "Giant Swarm",
 			Description: "Catalog of Apps by Giant Swarm",
 			Storage: v1alpha1.CatalogSpecStorage{
-				Type: "oci",
-				URL:  "oci://giantswarmpublic.azurecr.io/app-catalog/",
+				Type: "helm",
+				URL:  "https://giantswarm.github.io/app-catalog-mirror/",
 			},
 			Repositories: []v1alpha1.CatalogSpecRepository{
-				{
-					Type: "oci",
-					URL:  "oci://giantswarmpublic.azurecr.io/app-catalog/",
-				},
 				{
 					Type: "helm",
 					URL:  "https://giantswarm.github.io/app-catalog-mirror/",

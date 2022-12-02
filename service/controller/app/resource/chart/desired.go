@@ -158,9 +158,11 @@ func (r *Resource) pickRepositoryURL(ctx context.Context, cc *controllercontext.
 }
 
 func (r *Resource) buildTarballURL(ctx context.Context, cc *controllercontext.Context, cr v1alpha1.App, repositoryURL string) (url string, version string, err error) {
-	if key.CatalogVisibility(cc.Catalog) == "internal" {
+	if key.CatalogVisibility(cc.Catalog) == "internal" || isOCIRepositoryURL(repositoryURL) {
 		// For internal catalogs we generate the URL as its predictable
 		// and to avoid having chicken egg problems.
+		// For OCI repositories there is no discovery mechanism, so we just
+		// make an assumption about URL format.
 		url, err = appcatalog.NewTarballURL(repositoryURL, key.AppName(cr), key.Version(cr))
 		if err != nil {
 			return "", "", microerror.Mask(err)
@@ -429,4 +431,16 @@ func processLabels(projectName string, inputLabels map[string]string) map[string
 	}
 
 	return labels
+}
+
+// isOCIRepositoryURL determines whether given URL points to OCI repository. To be used with repositoryURL variable.
+func isOCIRepositoryURL(repositoryURL string) bool {
+	if repositoryURL == "" {
+		return false
+	}
+	u, err := url.Parse(repositoryURL)
+	if err != nil {
+		return false
+	}
+	return u.Scheme == "oci"
 }

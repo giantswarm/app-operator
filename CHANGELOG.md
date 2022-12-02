@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Fixed
+
+- Fix building URLs for OCI Repositories assigned to non-internal `Catalogs`.
+
 ## [6.4.4] - 2022-11-29
 
 ### Fixed
