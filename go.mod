@@ -197,10 +197,10 @@ replace (
 	github.com/nats-io/nats-server/v2 v2.5.0 => github.com/nats-io/nats-server/v2 v2.8.4
 	github.com/opencontainers/runc v0.1.1 => github.com/opencontainers/runc v1.0.0-rc7
 	github.com/opencontainers/runc v1.1.1 => github.com/opencontainers/runc v1.1.2
-	github.com/ulikunitz/xz => github.com/ulikunitz/xz v0.5.10
+	github.com/ulikunitz/xz => github.com/ulikunitz/xz v0.5.11
 	github.com/valyala/fasthttp v1.6.0 => github.com/valyala/fasthttp v1.37.0
 	go.mongodb.org/mongo-driver v1.1.2 => go.mongodb.org/mongo-driver v1.9.1
-	helm.sh/helm/v3@v3.9.0 => helm.sh/helm/v3 v3.10.2
+	helm.sh/helm/v3@v3.9.0 => helm.sh/helm/v3 v3.10.3
 	// Same as go-logr/logr, klog/v2 is using logr v0.2.0
 	k8s.io/klog/v2 v2.2.0 => k8s.io/klog/v2 v2.0.0
 )
