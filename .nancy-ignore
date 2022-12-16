@@ -38,8 +38,19 @@ CVE-2021-3127 until=2022-12-31
 # pkg:golang/github.com/nats-io/jwt@v0.3.2
 CVE-2020-26892 until=2022-12-31
 
+# pkg:golang/github.com/containerd/containerd@v1.6.6
+CVE-2022-23471 until=2022-12-31
+
+# pkg:golang/golang.org/x/net@v0.2.0
+CVE-2022-41717 until=2022-12-31
+
 # pkg:golang/github.com/mholt/archiver/v3@v3.5.0
 sonatype-2021-0276 until=2022-12-31
+
+# pkg:golang/helm.sh/helm/v3@v3.9.4
+CVE-2022-23524 until=2022-12-31
+CVE-2022-23525 until=2022-12-31
+CVE-2022-23526 until=2022-12-31
 
 sonatype-2021-0276 until=2022-12-30
 sonatype-2022-5277 until=2022-12-30
