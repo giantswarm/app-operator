@@ -5,13 +5,13 @@ import (
 
 	"github.com/giantswarm/app/v6/pkg/values"
 	"github.com/giantswarm/helmclient/v4/pkg/helmclient"
-	"github.com/giantswarm/k8sclient/v6/pkg/k8sclient"
+	"github.com/giantswarm/k8sclient/v7/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
-	"github.com/giantswarm/operatorkit/v6/pkg/resource"
-	"github.com/giantswarm/operatorkit/v6/pkg/resource/crud"
-	"github.com/giantswarm/operatorkit/v6/pkg/resource/wrapper/metricsresource"
-	"github.com/giantswarm/operatorkit/v6/pkg/resource/wrapper/retryresource"
+	"github.com/giantswarm/operatorkit/v7/pkg/resource"
+	"github.com/giantswarm/operatorkit/v7/pkg/resource/crud"
+	"github.com/giantswarm/operatorkit/v7/pkg/resource/wrapper/metricsresource"
+	"github.com/giantswarm/operatorkit/v7/pkg/resource/wrapper/retryresource"
 	"github.com/spf13/afero"
 
 	"github.com/giantswarm/app-operator/v6/service/controller/app/resource/appfinalizermigration"

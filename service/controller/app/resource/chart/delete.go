@@ -5,7 +5,7 @@ import (
 
 	"github.com/giantswarm/app/v6/pkg/key"
 	"github.com/giantswarm/microerror"
-	"github.com/giantswarm/operatorkit/v6/pkg/resource/crud"
+	"github.com/giantswarm/operatorkit/v7/pkg/resource/crud"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 
 	"github.com/giantswarm/app-operator/v6/service/controller/app/controllercontext"
