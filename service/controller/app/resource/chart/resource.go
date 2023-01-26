@@ -150,7 +150,7 @@ func copyAnnotations(current, desired *v1alpha1.Chart) {
 
 	// Remove annotations whose key end with a "-"
 	for k, v := range desired.Annotations {
-		if v == "DELETE" {
+		if v == "DELETE" { //nolint:goconst
 			delete(desired.Annotations, k)
 		}
 	}
