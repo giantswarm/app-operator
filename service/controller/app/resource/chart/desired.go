@@ -2,6 +2,7 @@ package chart
 
 import (
 	"context"
+	"fmt"
 	"net/url"
 	"path"
 	"strings"
@@ -17,6 +18,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/kubernetes"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/giantswarm/app-operator/v6/pkg/project"
 	"github.com/giantswarm/app-operator/v6/service/controller/app/controllercontext"
@@ -25,6 +27,10 @@ import (
 
 const (
 	chartPullFailedStatus = "chart-pull-failed"
+
+	annotationChartOperatorPause        = "chart-operator.giantswarm.io/paused"
+	annotationChartOperatorPauseReason  = "chart-operator.giantswarm.io/pause-reason"
+	annotationChartOperatorPauseStarted = "chart-operator.giantswarm.io/pause-ts"
 )
 
 func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interface{}, error) {
@@ -82,6 +88,16 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		return nil, microerror.Mask(err)
 	}
 
+	annotations := generateAnnotations(cr.GetAnnotations(), cr.Namespace, cr.Name)
+	depsNotInstalled, err := r.checkDependencies(ctx, cc, cr)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+	if len(depsNotInstalled) > 0 {
+		annotations[annotationChartOperatorPause] = "true"
+		annotations[annotationChartOperatorPauseReason] = fmt.Sprintf("Waiting for dependencies to be installed: %s", strings.Join(depsNotInstalled, ", "))
+	}
+
 	chartCR := &v1alpha1.Chart{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       chartKind,
@@ -90,7 +106,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		ObjectMeta: metav1.ObjectMeta{
 			Name:        chartName,
 			Namespace:   r.chartNamespace,
-			Annotations: generateAnnotations(cr.GetAnnotations(), cr.Namespace, cr.Name),
+			Annotations: annotations,
 			Labels:      processLabels(project.Name(), cr.GetLabels()),
 		},
 		Spec: v1alpha1.ChartSpec{
@@ -111,6 +127,65 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 	}
 
 	return chartCR, nil
+}
+
+func (r *Resource) checkDependencies(ctx context.Context, cc *controllercontext.Context, app v1alpha1.App) ([]string, error) {
+	appList := v1alpha1.AppList{}
+	err := cc.Clients.K8s.CtrlClient().List(ctx, &appList, client.InNamespace(app.Namespace))
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+	installedApps := map[string]bool{}
+	for _, app := range appList.Items {
+		installedApps[app.Name] = app.Status.Release.Status == "deployed" && app.Status.Version == app.Spec.Version
+	}
+
+	// todo use annotation in app cr to get dependencies list for an app.
+	appDependencies := map[string][]string{
+		"azure-cloud-controller-manager":           nil,
+		"azure-cloud-node-manager":                 nil,
+		"azuredisk-csi-driver":                     nil,
+		"azurefile-csi-driver":                     nil,
+		"cert-exporter":                            {"azure-cloud-controller-manager", "azure-cloud-node-manager", "coredns", "vertical-pod-autoscaler"},
+		"chart-operator":                           nil,
+		"coredns":                                  {"azure-cloud-controller-manager", "azure-cloud-node-manager"},
+		"etcd-kubernetes-resources-count-exporter": {"azure-cloud-controller-manager", "azure-cloud-node-manager", "coredns", "vertical-pod-autoscaler"},
+		"external-dns":                             {"azure-cloud-controller-manager", "azure-cloud-node-manager", "coredns", "vertical-pod-autoscaler"},
+		"kube-state-metrics":                       {"azure-cloud-controller-manager", "azure-cloud-node-manager", "coredns", "vertical-pod-autoscaler"},
+		"metrics-server":                           {"azure-cloud-controller-manager", "azure-cloud-node-manager", "coredns", "vertical-pod-autoscaler"},
+		"net-exporter":                             {"azure-cloud-controller-manager", "azure-cloud-node-manager", "coredns", "vertical-pod-autoscaler"},
+		"node-exporter":                            {"azure-cloud-controller-manager", "azure-cloud-node-manager", "coredns", "vertical-pod-autoscaler"},
+		"cluster-autoscaler":                       {"azure-cloud-controller-manager", "azure-cloud-node-manager", "coredns", "vertical-pod-autoscaler"},
+		"azure-scheduled-events":                   nil,
+		"vertical-pod-autoscaler":                  {"azure-cloud-controller-manager", "azure-cloud-node-manager", "coredns", "vertical-pod-autoscaler-crd"},
+		"vertical-pod-autoscaler-crd":              nil,
+		"observability-bundle":                     nil,
+		"k8s-dns-node-cache":                       {"azure-cloud-controller-manager", "azure-cloud-node-manager", "coredns"},
+	}
+
+	deps := appDependencies[app.Name]
+
+	if len(deps) == 0 {
+		r.logger.Debugf(ctx, "App %q has no dependencies", app.Name)
+	} else {
+		dependenciesNotInstalled := make([]string, 0)
+		for _, dep := range deps {
+			// Avoid self dependencies, just a safety net.
+			if dep != app.Name {
+				installed, found := installedApps[dep]
+				if !found || !installed {
+					dependenciesNotInstalled = append(dependenciesNotInstalled, dep)
+				}
+			}
+		}
+		if len(dependenciesNotInstalled) > 0 {
+			r.logger.Debugf(ctx, "Not creating chart for app %q: dependencies not satisfied %v", app.Name, dependenciesNotInstalled)
+			return dependenciesNotInstalled, nil
+		}
+
+		r.logger.Debugf(ctx, "Dependencies for App %q are satisfied", app.Name)
+	}
+	return nil, nil
 }
 
 func (r *Resource) pickRepositoryURL(ctx context.Context, cc *controllercontext.Context, cr v1alpha1.App, chartName string) (string, error) {
