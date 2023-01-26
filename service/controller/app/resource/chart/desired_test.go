@@ -682,7 +682,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 			var ctx context.Context
 			{
 				s := runtime.NewScheme()
-				s.AddKnownTypes(v1alpha1.SchemeGroupVersion, &v1alpha1.Chart{}, &v1alpha1.ChartList{})
+				s.AddKnownTypes(v1alpha1.SchemeGroupVersion, &v1alpha1.Chart{}, &v1alpha1.ChartList{}, &v1alpha1.AppList{})
 				config := k8sclienttest.ClientsConfig{
 					CtrlClient: fake.NewFakeClientWithScheme(s), //nolint:staticcheck
 					K8sClient:  clientgofake.NewSimpleClientset(objs...),
@@ -1161,7 +1161,7 @@ func Test_Resource_Bulid_TarballURL(t *testing.T) {
 			var ctx context.Context
 			{
 				s := runtime.NewScheme()
-				s.AddKnownTypes(v1alpha1.SchemeGroupVersion, &v1alpha1.Chart{}, &v1alpha1.ChartList{})
+				s.AddKnownTypes(v1alpha1.SchemeGroupVersion, &v1alpha1.Chart{}, &v1alpha1.ChartList{}, &v1alpha1.AppList{})
 				config := k8sclienttest.ClientsConfig{
 					CtrlClient: fake.NewFakeClientWithScheme(s, objs...), //nolint:staticcheck
 					K8sClient:  clientgofake.NewSimpleClientset(),
