@@ -29,6 +29,7 @@ type Config struct {
 	// Dependencies.
 	IndexCache indexcache.Interface
 	Logger     micrologger.Logger
+	CtrlClient client.Client
 
 	// Settings.
 	ChartNamespace    string
@@ -40,6 +41,7 @@ type Resource struct {
 	// Dependencies.
 	indexCache indexcache.Interface
 	logger     micrologger.Logger
+	ctrlClient client.Client
 
 	// Settings.
 	chartNamespace    string
@@ -54,6 +56,9 @@ func New(config Config) (*Resource, error) {
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
+	if config.CtrlClient == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.CtrlClient must not be empty", config)
+	}
 
 	if config.ChartNamespace == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ChartNamespace must not be empty", config)
@@ -62,6 +67,7 @@ func New(config Config) (*Resource, error) {
 	r := &Resource{
 		indexCache: config.IndexCache,
 		logger:     config.Logger,
+		ctrlClient: config.CtrlClient,
 
 		chartNamespace:    config.ChartNamespace,
 		workloadClusterID: config.WorkloadClusterID,

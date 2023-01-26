@@ -131,7 +131,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 
 func (r *Resource) checkDependencies(ctx context.Context, cc *controllercontext.Context, app v1alpha1.App) ([]string, error) {
 	appList := v1alpha1.AppList{}
-	err := cc.Clients.K8s.CtrlClient().List(ctx, &appList, client.InNamespace(app.Namespace))
+	err := r.ctrlClient.List(ctx, &appList, client.InNamespace(app.Namespace))
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
