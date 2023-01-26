@@ -142,10 +142,6 @@ func copyAnnotations(current, desired *v1alpha1.Chart) {
 			continue
 		}
 
-		if strings.HasSuffix(k, "-") {
-			continue
-		}
-
 		_, ok := desired.Annotations[k]
 		if !ok {
 			desired.Annotations[k] = currentValue
@@ -153,9 +149,8 @@ func copyAnnotations(current, desired *v1alpha1.Chart) {
 	}
 
 	// Remove annotations whose key end with a "-"
-	for k := range desired.Annotations {
-		if strings.HasSuffix(k, "-") {
-			delete(desired.Annotations, strings.TrimSuffix(k, "-"))
+	for k, v := range desired.Annotations {
+		if v == "DELETE" {
 			delete(desired.Annotations, k)
 		}
 	}

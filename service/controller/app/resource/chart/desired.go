@@ -98,8 +98,8 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		annotations[annotationChartOperatorPause] = "true"
 		annotations[annotationChartOperatorPauseReason] = fmt.Sprintf("Waiting for dependencies to be installed: %s", strings.Join(depsNotInstalled, ", "))
 	} else {
-		annotations[fmt.Sprintf("%s-", annotationChartOperatorPause)] = ""
-		annotations[fmt.Sprintf("%s-", annotationChartOperatorPauseReason)] = ""
+		annotations[annotationChartOperatorPause] = "DELETE"
+		annotations[annotationChartOperatorPauseReason] = "DELETE"
 	}
 
 	chartCR := &v1alpha1.Chart{

@@ -51,7 +51,7 @@ func Test_copyAnnotations(t *testing.T) {
 					"chart-operator.giantswarm.io/foo": "foo",
 				},
 				desired: map[string]string{
-					"chart-operator.giantswarm.io/foo-": "",
+					"chart-operator.giantswarm.io/foo": "DELETE",
 				},
 				result: map[string]string{},
 			},
@@ -73,7 +73,7 @@ func Test_copyAnnotations(t *testing.T) {
 					"chart-operator.giantswarm.io/foo": "foo",
 				},
 				desired: map[string]string{
-					"chart-operator.giantswarm.io/bar-": "",
+					"chart-operator.giantswarm.io/bar": "DELETE",
 				},
 				result: map[string]string{
 					"chart-operator.giantswarm.io/foo": "foo",
