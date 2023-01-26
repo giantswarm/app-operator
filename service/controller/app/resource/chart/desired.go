@@ -89,7 +89,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 	}
 
 	annotations := generateAnnotations(cr.GetAnnotations(), cr.Namespace, cr.Name)
-	depsNotInstalled, err := r.checkDependencies(ctx, cc, cr)
+	depsNotInstalled, err := r.checkDependencies(ctx, cr)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
@@ -129,7 +129,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 	return chartCR, nil
 }
 
-func (r *Resource) checkDependencies(ctx context.Context, cc *controllercontext.Context, app v1alpha1.App) ([]string, error) {
+func (r *Resource) checkDependencies(ctx context.Context, app v1alpha1.App) ([]string, error) {
 	appList := v1alpha1.AppList{}
 	err := r.ctrlClient.List(ctx, &appList, client.InNamespace(app.Namespace))
 	if err != nil {
@@ -139,6 +139,8 @@ func (r *Resource) checkDependencies(ctx context.Context, cc *controllercontext.
 	for _, app := range appList.Items {
 		installedApps[app.Name] = app.Status.Release.Status == "deployed" && app.Status.Version == app.Spec.Version
 	}
+
+	r.logger.Debugf(ctx, "Installed: %v", installedApps)
 
 	// todo use annotation in app cr to get dependencies list for an app.
 	appDependencies := map[string][]string{
