@@ -31,6 +31,7 @@ const (
 	annotationChartOperatorPause        = "chart-operator.giantswarm.io/paused"
 	annotationChartOperatorPauseReason  = "chart-operator.giantswarm.io/pause-reason"
 	annotationChartOperatorPauseStarted = "chart-operator.giantswarm.io/pause-ts"
+	annotationChartOperatorDependsOn    = "chart-operator.giantswarm.io/depends-on"
 )
 
 func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interface{}, error) {
@@ -143,32 +144,10 @@ func (r *Resource) checkDependencies(ctx context.Context, app v1alpha1.App) ([]s
 		installedApps[app.Name] = app.Status.Release.Status == "deployed" && app.Status.Version == app.Spec.Version
 	}
 
-	r.logger.Debugf(ctx, "Installed: %v", installedApps)
-
-	// todo use annotation in app cr to get dependencies list for an app.
-	appDependencies := map[string][]string{
-		"azure-cloud-controller-manager":           nil,
-		"azure-cloud-node-manager":                 nil,
-		"azuredisk-csi-driver":                     nil,
-		"azurefile-csi-driver":                     nil,
-		"cert-exporter":                            {"azure-cloud-controller-manager", "azure-cloud-node-manager", "coredns", "vertical-pod-autoscaler"},
-		"chart-operator":                           nil,
-		"coredns":                                  {"azure-cloud-controller-manager", "azure-cloud-node-manager"},
-		"etcd-kubernetes-resources-count-exporter": {"azure-cloud-controller-manager", "azure-cloud-node-manager", "coredns", "vertical-pod-autoscaler"},
-		"external-dns":                             {"azure-cloud-controller-manager", "azure-cloud-node-manager", "coredns", "vertical-pod-autoscaler"},
-		"kube-state-metrics":                       {"azure-cloud-controller-manager", "azure-cloud-node-manager", "coredns", "vertical-pod-autoscaler"},
-		"metrics-server":                           {"azure-cloud-controller-manager", "azure-cloud-node-manager", "coredns", "vertical-pod-autoscaler"},
-		"net-exporter":                             {"azure-cloud-controller-manager", "azure-cloud-node-manager", "coredns", "vertical-pod-autoscaler"},
-		"node-exporter":                            {"azure-cloud-controller-manager", "azure-cloud-node-manager", "coredns", "vertical-pod-autoscaler"},
-		"cluster-autoscaler":                       {"azure-cloud-controller-manager", "azure-cloud-node-manager", "coredns", "vertical-pod-autoscaler"},
-		"azure-scheduled-events":                   nil,
-		"vertical-pod-autoscaler":                  {"azure-cloud-controller-manager", "azure-cloud-node-manager", "coredns", "vertical-pod-autoscaler-crd"},
-		"vertical-pod-autoscaler-crd":              nil,
-		"observability-bundle":                     nil,
-		"k8s-dns-node-cache":                       {"azure-cloud-controller-manager", "azure-cloud-node-manager", "coredns"},
+	deps, err := getDependenciesFromCR(app)
+	if err != nil {
+		return nil, microerror.Mask(err)
 	}
-
-	deps := appDependencies[app.Name]
 
 	if len(deps) == 0 {
 		r.logger.Debugf(ctx, "App %q has no dependencies", app.Name)
@@ -422,6 +401,23 @@ func generateUpgrade(cr v1alpha1.App) v1alpha1.ChartSpecUpgrade {
 	}
 
 	return upgrade
+}
+
+func getDependenciesFromCR(app v1alpha1.App) ([]string, error) {
+	deps := make([]string, 0)
+	dependsOn, found := app.Annotations[annotationChartOperatorDependsOn]
+	if found {
+		deps = strings.Split(dependsOn, ",")
+	}
+
+	ret := make([]string, 0)
+	for _, dep := range deps {
+		if dep != "" {
+			ret = append(ret, dep)
+		}
+	}
+
+	return ret, nil
 }
 
 func getEntryURL(entries []indexcache.Entry, app, version string) (string, error) {
