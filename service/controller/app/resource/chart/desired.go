@@ -96,6 +96,9 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 	if len(depsNotInstalled) > 0 {
 		annotations[annotationChartOperatorPause] = "true"
 		annotations[annotationChartOperatorPauseReason] = fmt.Sprintf("Waiting for dependencies to be installed: %s", strings.Join(depsNotInstalled, ", "))
+	} else {
+		annotations[annotationChartOperatorPause] = "false"
+		annotations[annotationChartOperatorPauseReason] = ""
 	}
 
 	chartCR := &v1alpha1.Chart{
