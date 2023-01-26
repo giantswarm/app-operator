@@ -114,6 +114,8 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					Annotations: map[string]string{
 						"chart-operator.giantswarm.io/app-name":      "my-cool-prometheus",
 						"chart-operator.giantswarm.io/app-namespace": "default",
+						"chart-operator.giantswarm.io/pause-reason-": "",
+						"chart-operator.giantswarm.io/paused-":       "",
 					},
 					Labels: map[string]string{
 						"app":                                  "prometheus",
@@ -259,6 +261,8 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 						"chart-operator.giantswarm.io/app-name":           "my-cool-prometheus",
 						"chart-operator.giantswarm.io/app-namespace":      "default",
 						"chart-operator.giantswarm.io/force-helm-upgrade": "true",
+						"chart-operator.giantswarm.io/pause-reason-":      "",
+						"chart-operator.giantswarm.io/paused-":            "",
 					},
 					Name:      "my-cool-prometheus",
 					Namespace: "giantswarm",
@@ -354,6 +358,8 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					Annotations: map[string]string{
 						"chart-operator.giantswarm.io/app-name":      "my-cool-prometheus",
 						"chart-operator.giantswarm.io/app-namespace": "default",
+						"chart-operator.giantswarm.io/pause-reason-": "",
+						"chart-operator.giantswarm.io/paused-":       "",
 					},
 					Labels: map[string]string{
 						"app":                                  "prometheus",
@@ -441,6 +447,8 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					Annotations: map[string]string{
 						"chart-operator.giantswarm.io/app-name":      "my-cool-prometheus",
 						"chart-operator.giantswarm.io/app-namespace": "default",
+						"chart-operator.giantswarm.io/pause-reason-": "",
+						"chart-operator.giantswarm.io/paused-":       "",
 					},
 					Labels: map[string]string{
 						"app":                                  "prometheus",
@@ -521,6 +529,8 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					Annotations: map[string]string{
 						"chart-operator.giantswarm.io/app-name":      "hello-world",
 						"chart-operator.giantswarm.io/app-namespace": "default",
+						"chart-operator.giantswarm.io/pause-reason-": "",
+						"chart-operator.giantswarm.io/paused-":       "",
 					},
 					Labels: map[string]string{
 						"chart-operator.giantswarm.io/version": "1.0.0",
@@ -629,6 +639,8 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					Annotations: map[string]string{
 						"chart-operator.giantswarm.io/app-name":      "my-cool-prometheus",
 						"chart-operator.giantswarm.io/app-namespace": "default",
+						"chart-operator.giantswarm.io/pause-reason-": "",
+						"chart-operator.giantswarm.io/paused-":       "",
 					},
 					Labels: map[string]string{
 						"app":                                  "prometheus",
@@ -853,6 +865,8 @@ func Test_Resource_Bulid_TarballURL(t *testing.T) {
 					Annotations: map[string]string{
 						"chart-operator.giantswarm.io/app-name":      "my-cool-prometheus",
 						"chart-operator.giantswarm.io/app-namespace": "default",
+						"chart-operator.giantswarm.io/pause-reason-": "",
+						"chart-operator.giantswarm.io/paused-":       "",
 					},
 					Labels: map[string]string{
 						"app":                                  "prometheus",
@@ -922,6 +936,8 @@ func Test_Resource_Bulid_TarballURL(t *testing.T) {
 					Annotations: map[string]string{
 						"chart-operator.giantswarm.io/app-name":      "my-cool-prometheus",
 						"chart-operator.giantswarm.io/app-namespace": "default",
+						"chart-operator.giantswarm.io/pause-reason-": "",
+						"chart-operator.giantswarm.io/paused-":       "",
 					},
 					Labels: map[string]string{
 						"app":                                  "prometheus",
@@ -1001,6 +1017,8 @@ func Test_Resource_Bulid_TarballURL(t *testing.T) {
 					Annotations: map[string]string{
 						"chart-operator.giantswarm.io/app-name":      "my-cool-prometheus",
 						"chart-operator.giantswarm.io/app-namespace": "default",
+						"chart-operator.giantswarm.io/pause-reason-": "",
+						"chart-operator.giantswarm.io/paused-":       "",
 					},
 					Labels: map[string]string{
 						"app":                                  "prometheus",
@@ -1080,6 +1098,8 @@ func Test_Resource_Bulid_TarballURL(t *testing.T) {
 					Annotations: map[string]string{
 						"chart-operator.giantswarm.io/app-name":      "my-cool-prometheus",
 						"chart-operator.giantswarm.io/app-namespace": "default",
+						"chart-operator.giantswarm.io/pause-reason-": "",
+						"chart-operator.giantswarm.io/paused-":       "",
 					},
 					Labels: map[string]string{
 						"app":                                  "prometheus",
@@ -1121,6 +1141,8 @@ func Test_Resource_Bulid_TarballURL(t *testing.T) {
 					Annotations: map[string]string{
 						"chart-operator.giantswarm.io/app-name":      "my-cool-prometheus",
 						"chart-operator.giantswarm.io/app-namespace": "default",
+						"chart-operator.giantswarm.io/pause-reason-": "",
+						"chart-operator.giantswarm.io/paused-":       "",
 					},
 					Labels: map[string]string{
 						"app":                                  "prometheus",
