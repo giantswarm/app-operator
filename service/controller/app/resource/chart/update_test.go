@@ -266,6 +266,7 @@ func Test_Resource_newUpdateChange(t *testing.T) {
 			c := Config{
 				IndexCache: indexcachetest.New(indexcachetest.Config{}),
 				Logger:     microloggertest.New(),
+				CtrlClient: fake.NewFakeClient(), //nolint:staticcheck
 
 				ChartNamespace: "giantswarm",
 			}

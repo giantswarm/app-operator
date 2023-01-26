@@ -666,11 +666,15 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 				objs = append(objs, tc.secret)
 			}
 
+			s := runtime.NewScheme()
+			s.AddKnownTypes(v1alpha1.SchemeGroupVersion, &v1alpha1.AppList{})
+
 			c := Config{
 				IndexCache: indexcachetest.New(indexcachetest.Config{
 					GetIndexResponse: tc.index,
 				}),
-				Logger: microloggertest.New(),
+				Logger:     microloggertest.New(),
+				CtrlClient: fake.NewFakeClientWithScheme(s), //nolint:staticcheck
 
 				ChartNamespace: "giantswarm",
 			}
@@ -682,7 +686,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 			var ctx context.Context
 			{
 				s := runtime.NewScheme()
-				s.AddKnownTypes(v1alpha1.SchemeGroupVersion, &v1alpha1.Chart{}, &v1alpha1.ChartList{}, &v1alpha1.AppList{})
+				s.AddKnownTypes(v1alpha1.SchemeGroupVersion, &v1alpha1.Chart{}, &v1alpha1.ChartList{})
 				config := k8sclienttest.ClientsConfig{
 					CtrlClient: fake.NewFakeClientWithScheme(s), //nolint:staticcheck
 					K8sClient:  clientgofake.NewSimpleClientset(objs...),
@@ -1147,9 +1151,13 @@ func Test_Resource_Bulid_TarballURL(t *testing.T) {
 				objs = append(objs, tc.existingChart)
 			}
 
+			s := runtime.NewScheme()
+			s.AddKnownTypes(v1alpha1.SchemeGroupVersion, &v1alpha1.AppList{})
+
 			c := Config{
 				IndexCache: indexcachetest.NewMap(tc.indices),
 				Logger:     microloggertest.New(),
+				CtrlClient: fake.NewFakeClientWithScheme(s), //nolint:staticcheck
 
 				ChartNamespace: "giantswarm",
 			}
@@ -1161,7 +1169,7 @@ func Test_Resource_Bulid_TarballURL(t *testing.T) {
 			var ctx context.Context
 			{
 				s := runtime.NewScheme()
-				s.AddKnownTypes(v1alpha1.SchemeGroupVersion, &v1alpha1.Chart{}, &v1alpha1.ChartList{}, &v1alpha1.AppList{})
+				s.AddKnownTypes(v1alpha1.SchemeGroupVersion, &v1alpha1.Chart{}, &v1alpha1.ChartList{})
 				config := k8sclienttest.ClientsConfig{
 					CtrlClient: fake.NewFakeClientWithScheme(s, objs...), //nolint:staticcheck
 					K8sClient:  clientgofake.NewSimpleClientset(),
