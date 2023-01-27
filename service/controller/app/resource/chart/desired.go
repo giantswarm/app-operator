@@ -29,9 +29,9 @@ const (
 	chartPullFailedStatus = "chart-pull-failed"
 
 	annotationChartOperatorPause        = "chart-operator.giantswarm.io/paused"
-	annotationChartOperatorPauseReason  = "chart-operator.giantswarm.io/pause-reason"
-	annotationChartOperatorPauseStarted = "chart-operator.giantswarm.io/pause-ts"
-	annotationChartOperatorDependsOn    = "chart-operator.giantswarm.io/depends-on"
+	annotationChartOperatorPauseReason  = "app-operator.giantswarm.io/pause-reason"
+	annotationChartOperatorPauseStarted = "app-operator.giantswarm.io/pause-ts"
+	annotationChartOperatorDependsOn    = "app-operator.giantswarm.io/depends-on"
 )
 
 func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interface{}, error) {
@@ -97,9 +97,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 	if len(depsNotInstalled) > 0 {
 		annotations[annotationChartOperatorPause] = "true"
 		annotations[annotationChartOperatorPauseReason] = fmt.Sprintf("Waiting for dependencies to be installed: %s", strings.Join(depsNotInstalled, ", "))
-	} else {
-		annotations[annotationChartOperatorPause] = "DELETE"       //nolint:goconst
-		annotations[annotationChartOperatorPauseReason] = "DELETE" //nolint:goconst
+		//annotations[annotationChartOperatorPauseStarted] = ""
 	}
 
 	chartCR := &v1alpha1.Chart{

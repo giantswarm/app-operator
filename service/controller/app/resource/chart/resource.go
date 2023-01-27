@@ -134,9 +134,15 @@ func copyChart(current *v1alpha1.Chart) *v1alpha1.Chart {
 func copyAnnotations(current, desired *v1alpha1.Chart) {
 	webhookAnnotation := annotation.AppOperatorWebhookURL
 
+	pauseValue := ""
+	pauseReasonFound := false
+
 	for k, currentValue := range current.Annotations {
 		if k == webhookAnnotation {
 			// Remove webhook annotation that is no longer used.
+			continue
+		} else if k == annotationChartOperatorPauseReason {
+			pauseReasonFound = true
 			continue
 		} else if !strings.HasPrefix(k, annotation.ChartOperatorPrefix) {
 			continue
@@ -144,15 +150,17 @@ func copyAnnotations(current, desired *v1alpha1.Chart) {
 
 		_, ok := desired.Annotations[k]
 		if !ok {
-			desired.Annotations[k] = currentValue
+			if k == annotationChartOperatorPause {
+				pauseValue = currentValue
+			} else {
+				desired.Annotations[k] = currentValue
+			}
 		}
 	}
 
-	// Remove annotations whose key end with a "-"
-	for k, v := range desired.Annotations {
-		if v == "DELETE" { //nolint:goconst
-			delete(desired.Annotations, k)
-		}
+	// The pause annotation was not set by app operator but from something else, so we want to keep it.
+	if pauseValue != "" && !pauseReasonFound {
+		desired.Annotations[annotationChartOperatorPause] = pauseValue
 	}
 }
 

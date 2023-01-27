@@ -45,18 +45,6 @@ func Test_copyAnnotations(t *testing.T) {
 			},
 		},
 		{
-			name: "Deleting existing annotation",
-			args: args{
-				current: map[string]string{
-					"chart-operator.giantswarm.io/foo": "foo",
-				},
-				desired: map[string]string{
-					"chart-operator.giantswarm.io/foo": "DELETE",
-				},
-				result: map[string]string{},
-			},
-		},
-		{
 			name: "Deleting not owned annotation",
 			args: args{
 				current: map[string]string{
@@ -67,17 +55,26 @@ func Test_copyAnnotations(t *testing.T) {
 			},
 		},
 		{
-			name: "Attempting to delete annotation that's not there",
+			name: "Pause annotation is kept when not handled by app operator",
 			args: args{
 				current: map[string]string{
-					"chart-operator.giantswarm.io/foo": "foo",
+					"chart-operator.giantswarm.io/paused": "true",
 				},
-				desired: map[string]string{
-					"chart-operator.giantswarm.io/bar": "DELETE",
-				},
+				desired: map[string]string{},
 				result: map[string]string{
-					"chart-operator.giantswarm.io/foo": "foo",
+					"chart-operator.giantswarm.io/paused": "true",
 				},
+			},
+		},
+		{
+			name: "Pause annotation is deleted when handled by app operator",
+			args: args{
+				current: map[string]string{
+					"chart-operator.giantswarm.io/paused":     "true",
+					"app-operator.giantswarm.io/pause-reason": "foobar",
+				},
+				desired: map[string]string{},
+				result:  map[string]string{},
 			},
 		},
 	}
