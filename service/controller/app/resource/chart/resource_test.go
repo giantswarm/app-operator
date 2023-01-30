@@ -77,6 +77,55 @@ func Test_copyAnnotations(t *testing.T) {
 				result:  map[string]string{},
 			},
 		},
+		{
+			name: "Pause timestamp annotation is kept",
+			args: args{
+				current: map[string]string{
+					"chart-operator.giantswarm.io/paused":     "true",
+					"app-operator.giantswarm.io/pause-ts":     "foobar",
+					"app-operator.giantswarm.io/pause-reason": "foobar",
+				},
+				desired: map[string]string{
+					"chart-operator.giantswarm.io/paused":     "true",
+					"app-operator.giantswarm.io/pause-reason": "changed",
+				},
+				result: map[string]string{
+					"app-operator.giantswarm.io/pause-ts":     "foobar",
+					"app-operator.giantswarm.io/pause-reason": "changed",
+					"chart-operator.giantswarm.io/paused":     "true",
+				},
+			},
+		},
+		{
+			name: "Pause timestamp annotation is unchanged",
+			args: args{
+				current: map[string]string{
+					"chart-operator.giantswarm.io/paused":     "true",
+					"app-operator.giantswarm.io/pause-ts":     "foobar",
+					"app-operator.giantswarm.io/pause-reason": "foobar",
+				},
+				desired: map[string]string{
+					"chart-operator.giantswarm.io/paused":     "true",
+					"app-operator.giantswarm.io/pause-ts":     "changed",
+					"app-operator.giantswarm.io/pause-reason": "foobar",
+				},
+				result: map[string]string{
+					"chart-operator.giantswarm.io/paused":     "true",
+					"app-operator.giantswarm.io/pause-ts":     "foobar",
+					"app-operator.giantswarm.io/pause-reason": "foobar",
+				},
+			},
+		},
+		{
+			name: "Pause timestamp annotation is deleted when pause is removed",
+			args: args{
+				current: map[string]string{
+					"app-operator.giantswarm.io/pause-ts": "foobar",
+				},
+				desired: map[string]string{},
+				result:  map[string]string{},
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

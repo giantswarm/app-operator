@@ -134,15 +134,16 @@ func copyChart(current *v1alpha1.Chart) *v1alpha1.Chart {
 func copyAnnotations(current, desired *v1alpha1.Chart) {
 	webhookAnnotation := annotation.AppOperatorWebhookURL
 
-	pauseValue := ""
-	pauseReasonFound := false
+	pauseValue := current.Annotations[annotationChartOperatorPause]
+	pauseReason := current.Annotations[annotationChartOperatorPauseReason]
+	pauseTs := current.Annotations[annotationChartOperatorPauseStarted]
 
 	for k, currentValue := range current.Annotations {
 		if k == webhookAnnotation {
 			// Remove webhook annotation that is no longer used.
 			continue
-		} else if k == annotationChartOperatorPauseReason {
-			pauseReasonFound = true
+		} else if k == annotationChartOperatorPause {
+			// Pause annotation is specially managed.
 			continue
 		} else if !strings.HasPrefix(k, annotation.ChartOperatorPrefix) {
 			continue
@@ -150,17 +151,20 @@ func copyAnnotations(current, desired *v1alpha1.Chart) {
 
 		_, ok := desired.Annotations[k]
 		if !ok {
-			if k == annotationChartOperatorPause {
-				pauseValue = currentValue
-			} else {
-				desired.Annotations[k] = currentValue
-			}
+			desired.Annotations[k] = currentValue
 		}
 	}
 
 	// The pause annotation was not set by app operator but from something else, so we want to keep it.
-	if pauseValue != "" && !pauseReasonFound {
+	if pauseValue != "" && pauseReason == "" {
 		desired.Annotations[annotationChartOperatorPause] = pauseValue
+	}
+
+	if _, paused := desired.Annotations[annotationChartOperatorPause]; paused {
+		// Pause was set by app operator, we want to keep the existing pause timestamp.
+		if pauseValue != "" && pauseReason != "" && pauseTs != "" {
+			desired.Annotations[annotationChartOperatorPauseStarted] = pauseTs
+		}
 	}
 }
 
