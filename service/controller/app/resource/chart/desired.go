@@ -96,7 +96,6 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		return nil, microerror.Mask(err)
 	}
 	if len(depsNotInstalled) > 0 {
-		// TODO Check if timeout expired.
 		annotations[annotationChartOperatorPause] = "true"
 		annotations[annotationChartOperatorPauseReason] = fmt.Sprintf("Waiting for dependencies to be installed: %s", strings.Join(depsNotInstalled, ", "))
 		annotations[annotationChartOperatorPauseStarted] = time.Now().Format(time.RFC3339)
