@@ -676,7 +676,8 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 				Logger:     microloggertest.New(),
 				CtrlClient: fake.NewFakeClientWithScheme(s), //nolint:staticcheck
 
-				ChartNamespace: "giantswarm",
+				ChartNamespace:               "giantswarm",
+				DependencyWaitTimeoutMinutes: 30,
 			}
 			r, err := New(c)
 			if err != nil {
@@ -1159,7 +1160,8 @@ func Test_Resource_Bulid_TarballURL(t *testing.T) {
 				Logger:     microloggertest.New(),
 				CtrlClient: fake.NewFakeClientWithScheme(s), //nolint:staticcheck
 
-				ChartNamespace: "giantswarm",
+				ChartNamespace:               "giantswarm",
+				DependencyWaitTimeoutMinutes: 30,
 			}
 			r, err := New(c)
 			if err != nil {

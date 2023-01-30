@@ -81,7 +81,7 @@ func (r *Resource) newUpdateChange(ctx context.Context, currentResource, desired
 	// Copy current chart CR and annotations keeping only the values we need
 	// for comparing them.
 	currentChart = copyChart(currentChart)
-	copyAnnotations(currentChart, desiredChart)
+	r.copyAnnotations(currentChart, desiredChart)
 
 	if !reflect.DeepEqual(currentChart, desiredChart) {
 		if diff := cmp.Diff(currentChart, desiredChart); diff != "" {

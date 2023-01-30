@@ -3,6 +3,7 @@ package chart
 import (
 	"context"
 	"strings"
+	"time"
 
 	"github.com/giantswarm/apiextensions-application/api/v1alpha1"
 	"github.com/giantswarm/k8smetadata/pkg/annotation"
@@ -32,8 +33,9 @@ type Config struct {
 	CtrlClient client.Client
 
 	// Settings.
-	ChartNamespace    string
-	WorkloadClusterID string
+	ChartNamespace               string
+	WorkloadClusterID            string
+	DependencyWaitTimeoutMinutes int
 }
 
 // Resource implements the chart resource.
@@ -44,8 +46,9 @@ type Resource struct {
 	ctrlClient client.Client
 
 	// Settings.
-	chartNamespace    string
-	workloadClusterID string
+	chartNamespace               string
+	workloadClusterID            string
+	dependencyWaitTimeoutMinutes int
 }
 
 // New creates a new configured chart resource.
@@ -59,6 +62,9 @@ func New(config Config) (*Resource, error) {
 	if config.CtrlClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.CtrlClient must not be empty", config)
 	}
+	if config.DependencyWaitTimeoutMinutes <= 0 {
+		return nil, microerror.Maskf(invalidConfigError, "%T.DependencyWaitTimeoutMinutes must be greater than 0", config)
+	}
 
 	if config.ChartNamespace == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ChartNamespace must not be empty", config)
@@ -69,8 +75,9 @@ func New(config Config) (*Resource, error) {
 		logger:     config.Logger,
 		ctrlClient: config.CtrlClient,
 
-		chartNamespace:    config.ChartNamespace,
-		workloadClusterID: config.WorkloadClusterID,
+		chartNamespace:               config.ChartNamespace,
+		workloadClusterID:            config.WorkloadClusterID,
+		dependencyWaitTimeoutMinutes: config.DependencyWaitTimeoutMinutes,
 	}
 
 	return r, nil
@@ -131,7 +138,7 @@ func copyChart(current *v1alpha1.Chart) *v1alpha1.Chart {
 
 // copyAnnotations copies annotations from the current to desired chart,
 // only if the key has a chart-operator.giantswarm.io prefix.
-func copyAnnotations(current, desired *v1alpha1.Chart) {
+func (r *Resource) copyAnnotations(current, desired *v1alpha1.Chart) {
 	webhookAnnotation := annotation.AppOperatorWebhookURL
 
 	pauseValue := current.Annotations[annotationChartOperatorPause]
@@ -164,6 +171,22 @@ func copyAnnotations(current, desired *v1alpha1.Chart) {
 		// Pause was set by app operator, we want to keep the existing pause timestamp.
 		if pauseValue != "" && pauseReason != "" && pauseTs != "" {
 			desired.Annotations[annotationChartOperatorPauseStarted] = pauseTs
+		}
+	}
+
+	// Check if pause timestamp is expired.
+	if ts, found := desired.Annotations[annotationChartOperatorPauseStarted]; found {
+		t, err := time.Parse(time.RFC3339, ts)
+		if err != nil {
+			// Timestamp invalid, do nothing.
+			return
+		}
+
+		if time.Since(t) > (time.Minute * time.Duration(r.dependencyWaitTimeoutMinutes)) {
+			// Wait timeout is expired, remove pause annotations.
+			delete(desired.Annotations, annotationChartOperatorPause)
+			delete(desired.Annotations, annotationChartOperatorPauseStarted)
+			delete(desired.Annotations, annotationChartOperatorPauseReason)
 		}
 	}
 }

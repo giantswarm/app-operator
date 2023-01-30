@@ -6,6 +6,7 @@ import (
 	"net/url"
 	"path"
 	"strings"
+	"time"
 
 	"github.com/giantswarm/apiextensions-application/api/v1alpha1"
 	"github.com/giantswarm/app/v6/pkg/key"
@@ -95,9 +96,10 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		return nil, microerror.Mask(err)
 	}
 	if len(depsNotInstalled) > 0 {
+		// TODO Check if timeout expired.
 		annotations[annotationChartOperatorPause] = "true"
 		annotations[annotationChartOperatorPauseReason] = fmt.Sprintf("Waiting for dependencies to be installed: %s", strings.Join(depsNotInstalled, ", "))
-		//annotations[annotationChartOperatorPauseStarted] = ""
+		annotations[annotationChartOperatorPauseStarted] = time.Now().Format(time.RFC3339)
 	}
 
 	chartCR := &v1alpha1.Chart{

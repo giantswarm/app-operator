@@ -18,6 +18,7 @@ data:
         unique: {{ include "resource.app.unique" . }}
         watchNamespace: '{{ .Values.app.watchNamespace }}'
         workloadClusterID: '{{ .Values.app.workloadClusterID }}'
+        dependencyWaitTimeoutMinutes: {{ .Values.app.dependencyWaitTimeoutMinutes }}
       helm:
         http:
           clientTimeout: '{{ .Values.helm.http.clientTimeout }}'

@@ -268,7 +268,8 @@ func Test_Resource_newUpdateChange(t *testing.T) {
 				Logger:     microloggertest.New(),
 				CtrlClient: fake.NewFakeClient(), //nolint:staticcheck
 
-				ChartNamespace: "giantswarm",
+				ChartNamespace:               "giantswarm",
+				DependencyWaitTimeoutMinutes: 30,
 			}
 			r, err := New(c)
 			if err != nil {
