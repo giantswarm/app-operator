@@ -81,6 +81,9 @@ func NewApp(config Config) (*App, error) {
 	if config.ResyncPeriod == 0 {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ResyncPeriod must not be empty", config)
 	}
+	if config.DependencyWaitTimeoutMinutes <= 0 {
+		return nil, microerror.Maskf(invalidConfigError, "%T.DependencyWaitTimeoutMinutes must be greater than 0", config)
+	}
 
 	// For non-unique instances if either watch namespace or cluster ID are
 	// provided both must be set.
