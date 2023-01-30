@@ -133,16 +133,6 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 }
 
 func (r *Resource) checkDependencies(ctx context.Context, app v1alpha1.App) ([]string, error) {
-	appList := v1alpha1.AppList{}
-	err := r.ctrlClient.List(ctx, &appList, client.InNamespace(app.Namespace))
-	if err != nil {
-		return nil, microerror.Mask(err)
-	}
-	installedApps := map[string]bool{}
-	for _, app := range appList.Items {
-		installedApps[app.Name] = app.Status.Release.Status == "deployed" && app.Status.Version == app.Spec.Version
-	}
-
 	deps, err := getDependenciesFromCR(app)
 	if err != nil {
 		return nil, microerror.Mask(err)
@@ -150,8 +140,26 @@ func (r *Resource) checkDependencies(ctx context.Context, app v1alpha1.App) ([]s
 
 	if len(deps) == 0 {
 		r.logger.Debugf(ctx, "App %q has no dependencies", app.Name)
-	} else {
-		dependenciesNotInstalled := make([]string, 0)
+		return nil, nil
+	}
+
+	// Get a list of installed and up-to-date apps in the same namespace.
+	installedApps := map[string]bool{}
+	{
+		appList := v1alpha1.AppList{}
+		err = r.ctrlClient.List(ctx, &appList, client.InNamespace(app.Namespace))
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		for _, app := range appList.Items {
+			installedApps[app.Name] = app.Status.Release.Status == "deployed" && app.Status.Version == app.Spec.Version
+		}
+	}
+
+	// Get a list of dependencies that are not installed.
+	dependenciesNotInstalled := make([]string, 0)
+	{
 		for _, dep := range deps {
 			// Avoid self dependencies, just a safety net.
 			if dep != app.Name {
@@ -161,13 +169,15 @@ func (r *Resource) checkDependencies(ctx context.Context, app v1alpha1.App) ([]s
 				}
 			}
 		}
-		if len(dependenciesNotInstalled) > 0 {
-			r.logger.Debugf(ctx, "Not creating chart for app %q: dependencies not satisfied %v", app.Name, dependenciesNotInstalled)
-			return dependenciesNotInstalled, nil
-		}
-
-		r.logger.Debugf(ctx, "Dependencies for App %q are satisfied", app.Name)
 	}
+
+	if len(dependenciesNotInstalled) > 0 {
+		r.logger.Debugf(ctx, "Not creating chart for app %q: dependencies not satisfied %v", app.Name, dependenciesNotInstalled)
+		return dependenciesNotInstalled, nil
+	}
+
+	r.logger.Debugf(ctx, "Dependencies for App %q are satisfied", app.Name)
+
 	return nil, nil
 }
 
