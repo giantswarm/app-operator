@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Changed
+
+- Bump `giantswarm/app` package to `v6.15.2` to weaken the condition on userConfig names for default apps.
+
 ## [6.5.0] - 2022-12-02
 
 ### Fixed
