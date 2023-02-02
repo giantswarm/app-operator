@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Added
+
+- Add support for dependencies between apps using `app-operator.giantswarm.io/depends-on` annotation.
+
 ## [6.5.1] - 2023-02-01
 
 ### Changed
