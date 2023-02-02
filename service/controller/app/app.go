@@ -31,15 +31,16 @@ type Config struct {
 	IndexCache  indexcache.Interface
 	Logger      micrologger.Logger
 
-	ChartNamespace    string
-	HTTPClientTimeout time.Duration
-	ImageRegistry     string
-	PodNamespace      string
-	Provider          string
-	ResyncPeriod      time.Duration
-	UniqueApp         bool
-	WatchNamespace    string
-	WorkloadClusterID string
+	ChartNamespace               string
+	HTTPClientTimeout            time.Duration
+	ImageRegistry                string
+	PodNamespace                 string
+	Provider                     string
+	ResyncPeriod                 time.Duration
+	UniqueApp                    bool
+	WatchNamespace               string
+	WorkloadClusterID            string
+	DependencyWaitTimeoutMinutes int
 }
 
 type App struct {
@@ -80,6 +81,9 @@ func NewApp(config Config) (*App, error) {
 	if config.ResyncPeriod == 0 {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ResyncPeriod must not be empty", config)
 	}
+	if config.DependencyWaitTimeoutMinutes <= 0 {
+		return nil, microerror.Maskf(invalidConfigError, "%T.DependencyWaitTimeoutMinutes must be greater than 0", config)
+	}
 
 	// For non-unique instances if either watch namespace or cluster ID are
 	// provided both must be set.
@@ -112,13 +116,14 @@ func NewApp(config Config) (*App, error) {
 			K8sClient:   config.K8sClient,
 			Logger:      config.Logger,
 
-			ChartNamespace:    config.ChartNamespace,
-			HTTPClientTimeout: config.HTTPClientTimeout,
-			ImageRegistry:     config.ImageRegistry,
-			ProjectName:       project.Name(),
-			Provider:          config.Provider,
-			UniqueApp:         config.UniqueApp,
-			WorkloadClusterID: config.WorkloadClusterID,
+			ChartNamespace:               config.ChartNamespace,
+			HTTPClientTimeout:            config.HTTPClientTimeout,
+			ImageRegistry:                config.ImageRegistry,
+			ProjectName:                  project.Name(),
+			Provider:                     config.Provider,
+			UniqueApp:                    config.UniqueApp,
+			WorkloadClusterID:            config.WorkloadClusterID,
+			DependencyWaitTimeoutMinutes: config.DependencyWaitTimeoutMinutes,
 		}
 
 		resources, err = newAppResources(c)

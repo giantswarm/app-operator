@@ -10,6 +10,7 @@ protocol: "TCP"
 app:
   watchNamespace: ""
   workloadClusterID: ""
+  dependencyWaitTimeoutMinutes: 30
 
 helm:
   http:

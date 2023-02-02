@@ -2,9 +2,11 @@ package chart
 
 import (
 	"context"
+	"fmt"
 	"net/url"
 	"path"
 	"strings"
+	"time"
 
 	"github.com/giantswarm/apiextensions-application/api/v1alpha1"
 	"github.com/giantswarm/app/v6/pkg/key"
@@ -17,6 +19,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/kubernetes"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/giantswarm/app-operator/v6/pkg/project"
 	"github.com/giantswarm/app-operator/v6/service/controller/app/controllercontext"
@@ -25,6 +28,11 @@ import (
 
 const (
 	chartPullFailedStatus = "chart-pull-failed"
+
+	annotationChartOperatorPause        = "chart-operator.giantswarm.io/paused"
+	annotationChartOperatorPauseReason  = "app-operator.giantswarm.io/pause-reason"
+	annotationChartOperatorPauseStarted = "app-operator.giantswarm.io/pause-ts"
+	annotationChartOperatorDependsOn    = "app-operator.giantswarm.io/depends-on"
 )
 
 func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interface{}, error) {
@@ -82,6 +90,17 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		return nil, microerror.Mask(err)
 	}
 
+	annotations := generateAnnotations(cr.GetAnnotations(), cr.Namespace, cr.Name)
+	depsNotInstalled, err := r.checkDependencies(ctx, cr)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+	if len(depsNotInstalled) > 0 {
+		annotations[annotationChartOperatorPause] = "true"
+		annotations[annotationChartOperatorPauseReason] = fmt.Sprintf("Waiting for dependencies to be installed: %s", strings.Join(depsNotInstalled, ", "))
+		annotations[annotationChartOperatorPauseStarted] = time.Now().Format(time.RFC3339)
+	}
+
 	chartCR := &v1alpha1.Chart{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       chartKind,
@@ -90,7 +109,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		ObjectMeta: metav1.ObjectMeta{
 			Name:        chartName,
 			Namespace:   r.chartNamespace,
-			Annotations: generateAnnotations(cr.GetAnnotations(), cr.Namespace, cr.Name),
+			Annotations: annotations,
 			Labels:      processLabels(project.Name(), cr.GetLabels()),
 		},
 		Spec: v1alpha1.ChartSpec{
@@ -111,6 +130,55 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 	}
 
 	return chartCR, nil
+}
+
+func (r *Resource) checkDependencies(ctx context.Context, app v1alpha1.App) ([]string, error) {
+	deps, err := getDependenciesFromCR(app)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	if len(deps) == 0 {
+		r.logger.Debugf(ctx, "App %q has no dependencies", app.Name)
+		return nil, nil
+	}
+
+	// Get a list of installed and up-to-date apps in the same namespace.
+	installedApps := map[string]bool{}
+	{
+		appList := v1alpha1.AppList{}
+		err = r.ctrlClient.List(ctx, &appList, client.InNamespace(app.Namespace))
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		for _, app := range appList.Items {
+			installedApps[app.Name] = app.Status.Release.Status == "deployed" && app.Status.Version == app.Spec.Version
+		}
+	}
+
+	// Get a list of dependencies that are not installed.
+	dependenciesNotInstalled := make([]string, 0)
+	{
+		for _, dep := range deps {
+			// Avoid self dependencies, just a safety net.
+			if dep != app.Name {
+				installed, found := installedApps[dep]
+				if !found || !installed {
+					dependenciesNotInstalled = append(dependenciesNotInstalled, dep)
+				}
+			}
+		}
+	}
+
+	if len(dependenciesNotInstalled) > 0 {
+		r.logger.Debugf(ctx, "Not creating chart for app %q: dependencies not satisfied %v", app.Name, dependenciesNotInstalled)
+		return dependenciesNotInstalled, nil
+	}
+
+	r.logger.Debugf(ctx, "Dependencies for App %q are satisfied", app.Name)
+
+	return nil, nil
 }
 
 func (r *Resource) pickRepositoryURL(ctx context.Context, cc *controllercontext.Context, cr v1alpha1.App, chartName string) (string, error) {
@@ -342,6 +410,23 @@ func generateUpgrade(cr v1alpha1.App) v1alpha1.ChartSpecUpgrade {
 	}
 
 	return upgrade
+}
+
+func getDependenciesFromCR(app v1alpha1.App) ([]string, error) {
+	deps := make([]string, 0)
+	dependsOn, found := app.Annotations[annotationChartOperatorDependsOn]
+	if found {
+		deps = strings.Split(dependsOn, ",")
+	}
+
+	ret := make([]string, 0)
+	for _, dep := range deps {
+		if dep != "" {
+			ret = append(ret, dep)
+		}
+	}
+
+	return ret, nil
 }
 
 func getEntryURL(entries []indexcache.Entry, app, version string) (string, error) {

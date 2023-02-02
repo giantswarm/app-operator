@@ -149,6 +149,7 @@ func mainWithError() (err error) {
 	daemonCommand.PersistentFlags().Bool(f.Service.App.Unique, false, "Whether the operator is deployed as a unique app.")
 	daemonCommand.PersistentFlags().String(f.Service.App.WatchNamespace, "", "Namespace to watch for app CRs.")
 	daemonCommand.PersistentFlags().String(f.Service.App.WorkloadClusterID, "", "Workload cluster ID for app CR label selector.")
+	daemonCommand.PersistentFlags().Int(f.Service.App.DependencyWaitTimeoutMinutes, 30, "Timeout in seconds after which to ignore dependencies and make app installation to move on.")
 	daemonCommand.PersistentFlags().Int(f.Service.AppCatalog.MaxEntriesPerApp, 5, "The maximum number of appCatalogEntries per app.")
 	daemonCommand.PersistentFlags().String(f.Service.Chart.Namespace, "giantswarm", "The namespace where chart CRs are located.")
 	daemonCommand.PersistentFlags().String(f.Service.Helm.HTTP.ClientTimeout, "5s", "HTTP timeout for pulling chart tarballs.")

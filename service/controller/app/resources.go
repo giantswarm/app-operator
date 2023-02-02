@@ -39,13 +39,14 @@ type appResourcesConfig struct {
 	Logger      micrologger.Logger
 
 	// Settings.
-	ChartNamespace    string
-	HTTPClientTimeout time.Duration
-	ImageRegistry     string
-	ProjectName       string
-	Provider          string
-	UniqueApp         bool
-	WorkloadClusterID string
+	ChartNamespace               string
+	HTTPClientTimeout            time.Duration
+	ImageRegistry                string
+	ProjectName                  string
+	Provider                     string
+	UniqueApp                    bool
+	WorkloadClusterID            string
+	DependencyWaitTimeoutMinutes int
 }
 
 func newAppResources(config appResourcesConfig) ([]resource.Interface, error) {
@@ -157,9 +158,11 @@ func newAppResources(config appResourcesConfig) ([]resource.Interface, error) {
 		c := chart.Config{
 			IndexCache: config.IndexCache,
 			Logger:     config.Logger,
+			CtrlClient: config.K8sClient.CtrlClient(),
 
-			ChartNamespace:    config.ChartNamespace,
-			WorkloadClusterID: config.WorkloadClusterID,
+			ChartNamespace:               config.ChartNamespace,
+			WorkloadClusterID:            config.WorkloadClusterID,
+			DependencyWaitTimeoutMinutes: config.DependencyWaitTimeoutMinutes,
 		}
 
 		ops, err := chart.New(c)

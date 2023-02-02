@@ -666,13 +666,18 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 				objs = append(objs, tc.secret)
 			}
 
+			s := runtime.NewScheme()
+			s.AddKnownTypes(v1alpha1.SchemeGroupVersion, &v1alpha1.AppList{})
+
 			c := Config{
 				IndexCache: indexcachetest.New(indexcachetest.Config{
 					GetIndexResponse: tc.index,
 				}),
-				Logger: microloggertest.New(),
+				Logger:     microloggertest.New(),
+				CtrlClient: fake.NewFakeClientWithScheme(s), //nolint:staticcheck
 
-				ChartNamespace: "giantswarm",
+				ChartNamespace:               "giantswarm",
+				DependencyWaitTimeoutMinutes: 30,
 			}
 			r, err := New(c)
 			if err != nil {
@@ -1147,11 +1152,16 @@ func Test_Resource_Bulid_TarballURL(t *testing.T) {
 				objs = append(objs, tc.existingChart)
 			}
 
+			s := runtime.NewScheme()
+			s.AddKnownTypes(v1alpha1.SchemeGroupVersion, &v1alpha1.AppList{})
+
 			c := Config{
 				IndexCache: indexcachetest.NewMap(tc.indices),
 				Logger:     microloggertest.New(),
+				CtrlClient: fake.NewFakeClientWithScheme(s), //nolint:staticcheck
 
-				ChartNamespace: "giantswarm",
+				ChartNamespace:               "giantswarm",
+				DependencyWaitTimeoutMinutes: 30,
 			}
 			r, err := New(c)
 			if err != nil {
@@ -1557,4 +1567,65 @@ func newIndexWithApp(app, version, url string) *indexcache.Index {
 	}
 
 	return index
+}
+
+func Test_getDependenciesFromCR(t *testing.T) {
+	tests := []struct {
+		name            string
+		annotationValue string
+		want            []string
+		wantErr         bool
+	}{
+		{
+			name:            "Annotation exists with one app",
+			annotationValue: "coredns",
+			want:            []string{"coredns"},
+			wantErr:         false,
+		},
+		{
+			name:            "Annotation exists with two apps",
+			annotationValue: "coredns,prometheus",
+			want:            []string{"coredns", "prometheus"},
+			wantErr:         false,
+		},
+		{
+			name:            "Annotation does not exist",
+			annotationValue: "",
+			want:            []string{},
+			wantErr:         false,
+		},
+		{
+			name:            "Annotation with typo",
+			annotationValue: "coredns,,prometheus",
+			want:            []string{"coredns", "prometheus"},
+			wantErr:         false,
+		},
+		{
+			name:            "Annotation with just a comma",
+			annotationValue: ",",
+			want:            []string{},
+			wantErr:         false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			annotations := map[string]string{}
+			if tt.annotationValue != "" {
+				annotations["app-operator.giantswarm.io/depends-on"] = tt.annotationValue
+			}
+			app := v1alpha1.App{
+				ObjectMeta: metav1.ObjectMeta{
+					Annotations: annotations,
+				},
+			}
+			got, err := getDependenciesFromCR(app)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("getDependenciesFromCR() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("getDependenciesFromCR() got = %v, want %v", got, tt.want)
+			}
+		})
+	}
 }
