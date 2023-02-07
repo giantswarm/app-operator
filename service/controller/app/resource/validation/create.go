@@ -20,6 +20,12 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
+	// Return early if the app is being deleted, there is no point
+	// in validating it now.
+	if key.IsDeleted(cr) {
+		return nil
+	}
+
 	_, err = r.appValidator.ValidateApp(ctx, cr)
 	if validation.IsValidationError(err) {
 		r.logger.LogCtx(ctx, "level", "warning", "message", fmt.Sprintf("validation error %s", err.Error()))
