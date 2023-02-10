@@ -7,10 +7,6 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
-### Changed
-
-- Skip validation if the App CR is being deleted.
-
 ## [6.6.0] - 2023-02-02
 
 ### Added
