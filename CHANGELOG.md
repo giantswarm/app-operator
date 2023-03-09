@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Changed
+
+- Bump `giantswarm/app` package to `v6.15.2` to fix cluster and namespace singletons checks for CAPI.
+
 ## [6.6.0] - 2023-02-02
 
 ### Added
