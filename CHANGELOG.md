@@ -7,6 +7,8 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+## [6.6.2] - 2023-03-10
+
 ### Changed
 
 - Bump `giantswarm/app` package to `v6.15.5`
@@ -665,7 +667,8 @@ from Helm 2 to Helm 3.
 
 - Flattening operator release structure.
 
-[Unreleased]: https://github.com/giantswarm/app-operator/compare/v6.6.1...HEAD
+[Unreleased]: https://github.com/giantswarm/app-operator/compare/v6.6.2...HEAD
+[6.6.2]: https://github.com/giantswarm/app-operator/compare/v6.6.1...v6.6.2
 [6.6.1]: https://github.com/giantswarm/app-operator/compare/v6.6.0...v6.6.1
 [6.6.0]: https://github.com/giantswarm/app-operator/compare/v6.5.1...v6.6.0
 [6.5.1]: https://github.com/giantswarm/app-operator/compare/v6.5.0...v6.5.1
