@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Changed
+
+- Bump `giantswarm/app` package to `v6.15.5`
+
 ## [6.6.1] - 2023-03-09
 
 ### Changed
