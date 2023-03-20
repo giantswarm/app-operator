@@ -41,17 +41,17 @@ project:
 deployment:
   management:
     requests:
-      cpu: 250m
-      memory: 250Mi
+      cpu: 200m
+      memory: 200Mi
     limits:
-      cpu: 350m
-      memory: 500Mi
+      cpu: 300m
+      memory: 300Mi
   workload:
     requests:
-      cpu: 100m
+      cpu: 75m
       memory: 50Mi
     limits:
-      cpu: 150m
+      cpu: 125m
       memory: 100Mi
 
 verticalPodAutoscaler:
