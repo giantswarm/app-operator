@@ -7,6 +7,12 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+## [6.6.3] - 2023-03-21
+
+## [6.6.3] - 2023-03-21
+
+## [6.6.3] - 2023-03-21
+
 ### Changed
 
 - Lowered resource requests and limits
@@ -672,7 +678,10 @@ from Helm 2 to Helm 3.
 
 - Flattening operator release structure.
 
-[Unreleased]: https://github.com/giantswarm/app-operator/compare/v6.6.2...HEAD
+[Unreleased]: https://github.com/giantswarm/app-operator/compare/v6.6.3...HEAD
+[6.6.3]: https://github.com/giantswarm/app-operator/compare/v6.6.3...v6.6.3
+[6.6.3]: https://github.com/giantswarm/app-operator/compare/v6.6.3...v6.6.3
+[6.6.3]: https://github.com/giantswarm/app-operator/compare/v6.6.2...v6.6.3
 [6.6.2]: https://github.com/giantswarm/app-operator/compare/v6.6.1...v6.6.2
 [6.6.1]: https://github.com/giantswarm/app-operator/compare/v6.6.0...v6.6.1
 [6.6.0]: https://github.com/giantswarm/app-operator/compare/v6.5.1...v6.6.0
