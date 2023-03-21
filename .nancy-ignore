@@ -58,3 +58,9 @@ sonatype-2022-5436 until=2023-06-30
 
 # pkg:golang/golang.org/x/text@v0.3.7
 CVE-2022-32149 until=2023-06-30
+
+CVE-2022-41723 until=2023-06-30
+CVE-2023-27561 until=2023-06-30
+CVE-2023-25173 until=2023-06-30
+CVE-2023-25153 until=2023-06-30
+sonatype-2023-1010 until=2023-06-30
