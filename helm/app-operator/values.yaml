@@ -29,7 +29,7 @@ registry:
 
 image:
   repository: giantswarm/app-operator
-  tag: [[ .Version ]]
+  tag: "[[ .Version ]]"
 
 operatorkit:
   resyncPeriod: "5m"
@@ -41,17 +41,17 @@ project:
 deployment:
   management:
     requests:
+      cpu: 150m
+      memory: 200Mi
+    limits:
       cpu: 250m
       memory: 250Mi
-    limits:
-      cpu: 350m
-      memory: 500Mi
   workload:
     requests:
-      cpu: 100m
+      cpu: 75m
       memory: 50Mi
     limits:
-      cpu: 150m
+      cpu: 125m
       memory: 100Mi
 
 verticalPodAutoscaler:
