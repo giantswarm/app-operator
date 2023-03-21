@@ -246,8 +246,8 @@ github.com/giantswarm/apiextensions-application v0.6.0 h1:ZPIiq27zJ2VatrWH21/dK6
 github.com/giantswarm/apiextensions-application v0.6.0/go.mod h1:O6mg+EdXC9CyTLgi0d3rf6QTXrQX/79iw4kjMJRinig=
 github.com/giantswarm/app/v6 v6.15.5 h1:lkSznEo2Jork2GacF1m4izT1S0HdmBcvRQSbUbKdRA8=
 github.com/giantswarm/app/v6 v6.15.5/go.mod h1:eSA53r9jMGhD//voaXM6xCH4YEI9RjouE/cU4v0Cq4g=
-github.com/giantswarm/appcatalog v0.9.1 h1:W2C2FjkF9TrYabQdkcg+L9CPFALsWa7ymnFzq+A2w4U=
-github.com/giantswarm/appcatalog v0.9.1/go.mod h1:+x2lS326P9kn9JqAUdAZMzj1hOoMGSs5sUd/aOHYykI=
+github.com/giantswarm/appcatalog v0.10.1 h1:9wNi53D5m85S87FIIuX4849FmqtdpsHWwbeSCibSgOw=
+github.com/giantswarm/appcatalog v0.10.1/go.mod h1:/FmHAicJ82jifSwq8VDS4zsupnrHbZt0xWAkRAMuvsk=
 github.com/giantswarm/apptest v1.2.1 h1:VczKzHfsrTC4XfKW7cF+pzhGXOMl6B7QG52McZY/JIo=
 github.com/giantswarm/apptest v1.2.1/go.mod h1:yt8wABUPR6olBuwBpiUvpoxwESQTKYP67DGg4CxzolA=
 github.com/giantswarm/backoff v1.0.0 h1:1oeTvyPsm1tJrHlSmfxbIWuoCNWPOkWJCb8kfLvE2T0=
@@ -262,8 +262,8 @@ github.com/giantswarm/k8sclient/v6 v6.1.0 h1:UdIh2P4LeFz+PDxprwNbV7Nic2q7YAAAtKd
 github.com/giantswarm/k8sclient/v6 v6.1.0/go.mod h1:mF0FgQHqCrAhk5EGiyN7RfgMMsz7CP3GoaFsfZ5KHps=
 github.com/giantswarm/k8sclient/v7 v7.0.1 h1:UmRwgsw5Uda27tpIblPo7nWjp/nq5qwqxEPHWcvzsHk=
 github.com/giantswarm/k8sclient/v7 v7.0.1/go.mod h1:zJTXammjLHSiukMIO4+a6eUDgzj/lJxEXFZ22mC0WXc=
-github.com/giantswarm/k8smetadata v0.17.0 h1:4D68QCCaTFc4MdYhdPw/V6bbp95VXoD6sHXq3Zoqxo4=
-github.com/giantswarm/k8smetadata v0.17.0/go.mod h1:QiQAyaZnwco1U0lENLF0Kp4bSN4dIPwIlHWEvUo3ES8=
+github.com/giantswarm/k8smetadata v0.20.0 h1:wvKD2SkFsNxQkbnvRbq/e2DHVqoQVeNxehGOmcIdTL8=
+github.com/giantswarm/k8smetadata v0.20.0/go.mod h1:QiQAyaZnwco1U0lENLF0Kp4bSN4dIPwIlHWEvUo3ES8=
 github.com/giantswarm/kubeconfig/v4 v4.1.0 h1:Ziq60FDlbigxRVJ47wLTdF3fx/Ao8gppe4CPmnEO6HM=
 github.com/giantswarm/kubeconfig/v4 v4.1.0/go.mod h1:cc01+1DLSnZh8csr33fPIWY/C97bXKMAL5k0Y1jpyYQ=
 github.com/giantswarm/microendpoint v1.0.0 h1:vW6VXPaWXBPZc9Q99FgPcjYprAKLItufKFcydBH47Xc=
@@ -400,7 +400,6 @@ github.com/google/go-cmp v0.5.2/go.mod h1:v8dTdLbMG2kIc/vJvl+f65V22dbkXbowE6jgT/
 github.com/google/go-cmp v0.5.3/go.mod h1:v8dTdLbMG2kIc/vJvl+f65V22dbkXbowE6jgT/gNBxE=
 github.com/google/go-cmp v0.5.4/go.mod h1:v8dTdLbMG2kIc/vJvl+f65V22dbkXbowE6jgT/gNBxE=
 github.com/google/go-cmp v0.5.5/go.mod h1:v8dTdLbMG2kIc/vJvl+f65V22dbkXbowE6jgT/gNBxE=
-github.com/google/go-cmp v0.5.6/go.mod h1:v8dTdLbMG2kIc/vJvl+f65V22dbkXbowE6jgT/gNBxE=
 github.com/google/go-cmp v0.5.9 h1:O2Tfq5qg4qc4AmwVlvv0oLiVAGB7enBSJ2x2DqQFi38=
 github.com/google/go-cmp v0.5.9/go.mod h1:17dUlkBOakJ0+DkrSSNjCkIjxS6bF9zb3elmeNGIjoY=
 github.com/google/gofuzz v1.0.0/go.mod h1:dBl0BpW6vV/+mYPU4Po3pmUjxk6FQPldtuIdl/M65Eg=
