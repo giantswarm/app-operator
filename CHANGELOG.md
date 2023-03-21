@@ -7,6 +7,11 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Changed
+
+- Lowered resource requests and limits
+- Changed VPA to consider unique and workload cluster operators as well and added support for min allowed fields of CPU and memory
+
 ## [6.6.2] - 2023-03-10
 
 ### Changed
