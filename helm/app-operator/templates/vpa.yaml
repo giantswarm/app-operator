@@ -20,14 +20,14 @@ spec:
       maxAllowed:
         cpu: {{ .Values.deployment.management.limits.cpu }}
         memory: {{ .Values.deployment.management.limits.memory }}
-      {{- else }}}
+      {{- else }}
       minAllowed:
         cpu: {{ .Values.deployment.workload.requests.cpu }}
         memory: {{ .Values.deployment.workload.requests.memory }}
       maxAllowed:
         cpu: {{ .Values.deployment.workload.limits.cpu }}
         memory: {{ .Values.deployment.workload.limits.memory }}
-      {{- end }}}
+      {{- end }}
       mode: Auto
   targetRef:
     apiVersion: apps/v1
