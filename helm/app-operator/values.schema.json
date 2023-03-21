@@ -109,13 +109,7 @@
                     "type": "string"
                 },
                 "tag": {
-                    "type": "array",
-                    "items": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
-                    }
+                    "type": "string"
                 }
             }
         },

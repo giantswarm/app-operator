@@ -29,7 +29,7 @@ registry:
 
 image:
   repository: giantswarm/app-operator
-  tag: [[ .Version ]]
+  tag: "[[ .Version ]]"
 
 operatorkit:
   resyncPeriod: "5m"
