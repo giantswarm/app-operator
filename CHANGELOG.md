@@ -9,7 +9,7 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ### Changed
 
-- Improved feedback when working with looking for an app in catalog.
+- Improved feedback when searching for an app in catalog.
 
 ## [6.6.3] - 2023-03-21
 
