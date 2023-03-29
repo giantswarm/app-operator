@@ -654,6 +654,110 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 				},
 			},
 		},
+		{
+			name: "case 7: app not found in the catalog",
+			obj: &v1alpha1.App{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "missing-app",
+					Namespace: "default",
+					Labels: map[string]string{
+						"app-operator.giantswarm.io/version": "1.0.0",
+					},
+				},
+				Spec: v1alpha1.AppSpec{
+					Catalog:   "giantswarm",
+					Name:      "missing-app",
+					Namespace: "default",
+					Version:   "1.0.0",
+					KubeConfig: v1alpha1.AppSpecKubeConfig{
+						Secret: v1alpha1.AppSpecKubeConfigSecret{
+							Name:      "giantswarm-12345",
+							Namespace: "12345",
+						},
+					},
+				},
+			},
+			catalog: v1alpha1.Catalog{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "giantswarm",
+					Namespace: "default",
+					Labels: map[string]string{
+						"app-operator.giantswarm.io/version": "1.0.0",
+					},
+				},
+				Spec: v1alpha1.CatalogSpec{
+					Title:       "Giant Swarm",
+					Description: "Catalog of Apps by Giant Swarm",
+					Storage: v1alpha1.CatalogSpecStorage{
+						Type: "helm",
+						URL:  "", // Empty baseURL
+					},
+					Repositories: []v1alpha1.CatalogSpecRepository{
+						{
+							Type: "helm",
+							URL:  "", // Empty baseURL
+						},
+					},
+					LogoURL: "https://s.giantswarm.io/...",
+				},
+			},
+			index:         newIndexWithApp("existing-app", "1.0.0", "https://giantswarm.github.io/app-catalog/existing-app-1.0.0.tgz"),
+			expectedChart: nil,
+			error:         true,
+			errorPattern:  regexp.MustCompile(`.*no entries for app.*in index.yaml for.*`),
+		},
+		{
+			name: "case 8: app version not found in the catalog",
+			obj: &v1alpha1.App{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "missing-version-app",
+					Namespace: "default",
+					Labels: map[string]string{
+						"app-operator.giantswarm.io/version": "1.0.0",
+					},
+				},
+				Spec: v1alpha1.AppSpec{
+					Catalog:   "giantswarm",
+					Name:      "existing-app",
+					Namespace: "default",
+					Version:   "2.0.0",
+					KubeConfig: v1alpha1.AppSpecKubeConfig{
+						Secret: v1alpha1.AppSpecKubeConfigSecret{
+							Name:      "giantswarm-12345",
+							Namespace: "12345",
+						},
+					},
+				},
+			},
+			catalog: v1alpha1.Catalog{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "giantswarm",
+					Namespace: "default",
+					Labels: map[string]string{
+						"app-operator.giantswarm.io/version": "1.0.0",
+					},
+				},
+				Spec: v1alpha1.CatalogSpec{
+					Title:       "Giant Swarm",
+					Description: "Catalog of Apps by Giant Swarm",
+					Storage: v1alpha1.CatalogSpecStorage{
+						Type: "helm",
+						URL:  "", // Empty baseURL
+					},
+					Repositories: []v1alpha1.CatalogSpecRepository{
+						{
+							Type: "helm",
+							URL:  "", // Empty baseURL
+						},
+					},
+					LogoURL: "https://s.giantswarm.io/...",
+				},
+			},
+			index:         newIndexWithApp("existing-app", "1.0.0", "https://giantswarm.github.io/app-catalog/existing-app-1.0.0.tgz"),
+			expectedChart: nil,
+			error:         true,
+			errorPattern:  regexp.MustCompile(`.*no app.*in index.yaml with given version.*`),
+		},
 	}
 
 	for _, tc := range tests {

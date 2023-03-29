@@ -11,13 +11,24 @@ func IsInvalidConfig(err error) bool {
 	return microerror.Cause(err) == invalidConfigError
 }
 
-var notFoundError = &microerror.Error{
-	Kind: "notFoundError",
+var catalogEmptyError = &microerror.Error{
+	Kind: "catalogEmptyError",
 }
 
-// IsNotFound asserts notFoundError.
+var appNotFoundError = &microerror.Error{
+	Kind: "appNotFoundError",
+}
+
+var appVersionNotFoundError = &microerror.Error{
+	Kind: "appVersionNotFoundError",
+}
+
+// IsNotFound asserts:
+// appVersionNotFoundError OR appNotFoundError OR catalogEmptyError.
 func IsNotFound(err error) bool {
-	return microerror.Cause(err) == notFoundError
+	return microerror.Cause(err) == appVersionNotFoundError ||
+		microerror.Cause(err) == appNotFoundError ||
+		microerror.Cause(err) == catalogEmptyError
 }
 
 var wrongTypeError = &microerror.Error{

@@ -1,6 +1,18 @@
 package status
 
 const (
+	// appNotFoundStatus is set in the CR status when it app in question
+	// cannot be found in the index.yaml of a catalog.
+	AppNotFoundStatus = "app-not-found"
+
+	// appVersionNotFoundStatus is set in the CR status when it app in question
+	// is found in the index.yaml of a catalog, but the version is not.
+	AppVersionNotFoundStatus = "app-version-not-found"
+
+	// catalogEmptyStatus is set in the CR status when the catalog's index.yaml
+	// has no entries.
+	CatalogEmptyStatus = "catalog-empty"
+
 	// ConfigmapMergeFailedStatus is set in the CR status when there is an failure during
 	// merge configmaps.
 	ConfigmapMergeFailedStatus = "configmap-merge-failed"
