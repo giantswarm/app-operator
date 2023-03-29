@@ -256,7 +256,6 @@ func (r *Resource) buildTarballURL(ctx context.Context, cc *controllercontext.Co
 
 	entries, ok := index.Entries[cr.Spec.Name]
 	if !ok {
-		// App is not there
 		return "", "", microerror.Maskf(appNotFoundError, "no entries for app %#q in index.yaml for %q", cr.Spec.Name, repositoryURL)
 	}
 
