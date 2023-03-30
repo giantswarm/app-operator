@@ -15,6 +15,7 @@ import (
 	"github.com/giantswarm/k8smetadata/pkg/annotation"
 	"github.com/giantswarm/k8smetadata/pkg/label"
 	"github.com/giantswarm/microerror"
+	"github.com/giantswarm/operatorkit/v7/pkg/controller/context/resourcecanceledcontext"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
@@ -69,27 +70,26 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
+	repositories := []string{repositoryURL}
 
-	tarballURL, version, err := r.buildTarballURL(ctx, cc, cr, repositoryURL)
-	if err != nil && IsNotFound(err) && key.CatalogVisibility(cc.Catalog) != "internal" {
-		// Could not reach custom catalog's index or find app entry in it.
-		// Let's retry using other repositories.
-		r.logger.Errorf(ctx, err, "failed to resolve tarball URL for %#q repository, trying next one", repositoryURL)
-		for _, fallbackURL := range fallbackRepositories(cc.Catalog, repositoryURL) {
-			tarballURL, version, err = r.buildTarballURL(ctx, cc, cr, fallbackURL)
-			if err == nil {
-				r.logger.Debugf(ctx, "found a working tarball URL in repository %#q", fallbackURL)
-				break
-			} else {
-				r.logger.Errorf(ctx, err, "failed to resolve tarball URL for %#q repository, trying next one", fallbackURL)
-			}
+	if key.CatalogVisibility(cc.Catalog) != "internal" {
+		repositories = append(repositories, fallbackRepositories(cc.Catalog, repositoryURL)...)
+	}
+
+	var tarballURL, version string
+	for _, url := range repositories {
+		tarballURL, version, err = r.buildTarballURL(ctx, cc, cr, url)
+		if err == nil {
+			r.logger.Debugf(ctx, "found a working tarball URL in repository %#q", url)
+			break
+		} else {
+			r.logger.Errorf(ctx, err, "failed to resolve tarball URL for %#q repository", url)
 		}
-		if err != nil {
-			setStatus(cc, err)
-			return nil, microerror.Mask(err)
-		}
-	} else if err != nil {
-		return nil, microerror.Mask(err)
+	}
+	if err != nil {
+		setStatus(cc, err)
+		resourcecanceledcontext.SetCanceled(ctx)
+		return nil, nil
 	}
 
 	annotations := generateAnnotations(cr.GetAnnotations(), cr.Namespace, cr.Name)
@@ -248,7 +248,7 @@ func (r *Resource) buildTarballURL(ctx context.Context, cc *controllercontext.Co
 		r.logger.Errorf(ctx, err, "failed to get index.yaml from %q", repositoryURL)
 	}
 	if index == nil {
-		return "", "", microerror.Maskf(catalogEmptyError, "index %#v for %q is <nil>", index, repositoryURL)
+		return "", "", microerror.Maskf(indexNotFoundError, "index %#v for %q is <nil>", index, repositoryURL)
 	}
 	if len(index.Entries) == 0 {
 		return "", "", microerror.Maskf(catalogEmptyError, "index %#v for %q has no entries", index, repositoryURL)
@@ -540,5 +540,9 @@ func setStatus(cc *controllercontext.Context, err error) {
 		addStatusToContext(cc, err.Error(), status.AppVersionNotFoundStatus)
 	case catalogEmptyError:
 		addStatusToContext(cc, err.Error(), status.CatalogEmptyStatus)
+	case indexNotFoundError:
+		addStatusToContext(cc, err.Error(), status.IndexNotFoundStatus)
+	default:
+		addStatusToContext(cc, err.Error(), status.UnknownError)
 	}
 }

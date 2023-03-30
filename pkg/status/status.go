@@ -17,6 +17,10 @@ const (
 	// merge configmaps.
 	ConfigmapMergeFailedStatus = "configmap-merge-failed"
 
+	// IndexNotFoundStatus is set in the CR status when the catalog's index.yaml
+	// has no entries or is nil.
+	IndexNotFoundStatus = "index-not-found"
+
 	// ResourceNotFoundStatus is set in the CR status when there is an failure during
 	// finding dependents kubernete resources.
 	ResourceNotFoundStatus = "resource-not-found"
@@ -24,6 +28,10 @@ const (
 	// SecretMergeFailedStatus is set in the CR status when there is an failure during
 	// merge secrets.
 	SecretMergeFailedStatus = "secret-merge-failed"
+
+	// UnknownError is set in the CR status when there is an failure during
+	// merge secrets.
+	UnknownError = "unknown-error"
 )
 
 var (

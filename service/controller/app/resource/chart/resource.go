@@ -2,6 +2,7 @@ package chart
 
 import (
 	"context"
+	"reflect"
 	"strings"
 	"time"
 
@@ -200,6 +201,14 @@ func (r *Resource) copyAnnotations(current, desired *v1alpha1.Chart) {
 			delete(desired.Annotations, annotationChartOperatorPauseReason)
 		}
 	}
+}
+
+func isEmpty(c *v1alpha1.Chart) bool {
+	if c == nil {
+		return true
+	}
+
+	return reflect.DeepEqual(c, &v1alpha1.Chart{})
 }
 
 // toChart converts the input into a Chart.

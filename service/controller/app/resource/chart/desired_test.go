@@ -26,15 +26,16 @@ import (
 
 func Test_Resource_GetDesiredState(t *testing.T) {
 	tests := []struct {
-		name          string
-		obj           *v1alpha1.App
-		catalog       v1alpha1.Catalog
-		configMap     *corev1.ConfigMap
-		secret        *corev1.Secret
-		index         *indexcache.Index
-		expectedChart *v1alpha1.Chart
-		errorPattern  *regexp.Regexp
-		error         bool
+		name                string
+		obj                 *v1alpha1.App
+		catalog             v1alpha1.Catalog
+		configMap           *corev1.ConfigMap
+		secret              *corev1.Secret
+		index               *indexcache.Index
+		expectedChart       *v1alpha1.Chart
+		expectedChartStatus *controllercontext.ChartStatus
+		errorPattern        *regexp.Regexp
+		error               bool
 	}{
 		{
 			name: "case 0: flawless flow",
@@ -201,9 +202,12 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					Namespace: "giantswarm",
 				},
 			},
-			expectedChart: nil,
-			error:         true,
-			errorPattern:  regexp.MustCompile(`.*index.*for "" is <nil>.*`),
+			expectedChart: &v1alpha1.Chart{},
+			expectedChartStatus: &controllercontext.ChartStatus{
+				Reason: "index not found error: index (*indexcache.Index)(nil) for \"\" is <nil>",
+				Status: "index-not-found",
+			},
+			error: false,
 		},
 		{
 			name: "case 2: set helm force upgrade annotation",
@@ -702,9 +706,12 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 				},
 			},
 			index:         newIndexWithApp("existing-app", "1.0.0", "https://giantswarm.github.io/app-catalog/existing-app-1.0.0.tgz"),
-			expectedChart: nil,
-			error:         true,
-			errorPattern:  regexp.MustCompile(`.*no entries for app.*in index.yaml for.*`),
+			expectedChart: &v1alpha1.Chart{},
+			expectedChartStatus: &controllercontext.ChartStatus{
+				Reason: "app not found error: no entries for app `missing-app` in index.yaml for \"\"",
+				Status: "app-not-found",
+			},
+			error: false,
 		},
 		{
 			name: "case 8: app version not found in the catalog",
@@ -754,9 +761,12 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 				},
 			},
 			index:         newIndexWithApp("existing-app", "1.0.0", "https://giantswarm.github.io/app-catalog/existing-app-1.0.0.tgz"),
-			expectedChart: nil,
-			error:         true,
-			errorPattern:  regexp.MustCompile(`.*no app.*in index.yaml with given version.*`),
+			expectedChart: &v1alpha1.Chart{},
+			expectedChartStatus: &controllercontext.ChartStatus{
+				Reason: "app version not found error: no app `existing-app` in index.yaml with given version `2.0.0`",
+				Status: "app-version-not-found",
+			},
+			error: false,
 		},
 	}
 
@@ -821,6 +831,17 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 				chart, err := toChart(result)
 				if err != nil {
 					t.Fatalf("error == %#v, want nil", err)
+				}
+
+				if tc.expectedChartStatus != nil {
+					cc, err := controllercontext.FromContext(ctx)
+					if err != nil {
+						t.Fatalf("error == %#v, want nil", err)
+					}
+
+					if !reflect.DeepEqual(cc.Status.ChartStatus, *tc.expectedChartStatus) {
+						t.Fatalf("want matching statuses \n %s", cmp.Diff(cc.Status.ChartStatus, *tc.expectedChartStatus))
+					}
 				}
 
 				if !reflect.DeepEqual(chart.ObjectMeta, tc.expectedChart.ObjectMeta) {
