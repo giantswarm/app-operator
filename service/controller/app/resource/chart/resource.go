@@ -203,14 +203,6 @@ func (r *Resource) copyAnnotations(current, desired *v1alpha1.Chart) {
 	}
 }
 
-func isEmpty(c *v1alpha1.Chart) bool {
-	if c == nil {
-		return true
-	}
-
-	return reflect.DeepEqual(c, &v1alpha1.Chart{})
-}
-
 // toChart converts the input into a Chart.
 func toChart(v interface{}) (*v1alpha1.Chart, error) {
 	if v == nil {
