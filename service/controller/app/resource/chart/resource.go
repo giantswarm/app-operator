@@ -2,7 +2,6 @@ package chart
 
 import (
 	"context"
-	"reflect"
 	"strings"
 	"time"
 
