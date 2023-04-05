@@ -15,6 +15,7 @@ import (
 	"github.com/giantswarm/k8smetadata/pkg/annotation"
 	"github.com/giantswarm/k8smetadata/pkg/label"
 	"github.com/giantswarm/microerror"
+	"github.com/giantswarm/operatorkit/v7/pkg/controller/context/resourcecanceledcontext"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
@@ -22,6 +23,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/giantswarm/app-operator/v6/pkg/project"
+	"github.com/giantswarm/app-operator/v6/pkg/status"
 	"github.com/giantswarm/app-operator/v6/service/controller/app/controllercontext"
 	"github.com/giantswarm/app-operator/v6/service/internal/indexcache"
 )
@@ -68,26 +70,26 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
+	repositories := []string{repositoryURL}
 
-	tarballURL, version, err := r.buildTarballURL(ctx, cc, cr, repositoryURL)
-	if err != nil && IsNotFound(err) && key.CatalogVisibility(cc.Catalog) != "internal" {
-		// Could not reach custom catalog's index or find app entry in it.
-		// Let's retry using other repositories.
-		r.logger.Errorf(ctx, err, "failed to resolve tarball URL for %#q repository, trying next one", repositoryURL)
-		for _, fallbackURL := range fallbackRepositories(cc.Catalog, repositoryURL) {
-			tarballURL, version, err = r.buildTarballURL(ctx, cc, cr, fallbackURL)
-			if err == nil {
-				r.logger.Debugf(ctx, "found a working tarball URL in repository %#q", fallbackURL)
-				break
-			} else {
-				r.logger.Errorf(ctx, err, "failed to resolve tarball URL for %#q repository, trying next one", fallbackURL)
-			}
+	if key.CatalogVisibility(cc.Catalog) != "internal" {
+		repositories = append(repositories, fallbackRepositories(cc.Catalog, repositoryURL)...)
+	}
+
+	var tarballURL, version string
+	for _, url := range repositories {
+		tarballURL, version, err = r.buildTarballURL(ctx, cc, cr, url)
+		if err == nil {
+			r.logger.Debugf(ctx, "found a working tarball URL in repository %#q", url)
+			break
+		} else {
+			r.logger.Errorf(ctx, err, "failed to resolve tarball URL for %#q repository", url)
 		}
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	} else if err != nil {
-		return nil, microerror.Mask(err)
+	}
+	if err != nil {
+		setStatus(cc, err)
+		resourcecanceledcontext.SetCanceled(ctx)
+		return nil, nil
 	}
 
 	annotations := generateAnnotations(cr.GetAnnotations(), cr.Namespace, cr.Name)
@@ -246,15 +248,15 @@ func (r *Resource) buildTarballURL(ctx context.Context, cc *controllercontext.Co
 		r.logger.Errorf(ctx, err, "failed to get index.yaml from %q", repositoryURL)
 	}
 	if index == nil {
-		return "", "", microerror.Maskf(notFoundError, "index %#v for %q is <nil>", index, repositoryURL)
+		return "", "", microerror.Maskf(indexNotFoundError, "index %#v for %q is <nil>", index, repositoryURL)
 	}
 	if len(index.Entries) == 0 {
-		return "", "", microerror.Maskf(notFoundError, "index %#v for %q has no entries", index, repositoryURL)
+		return "", "", microerror.Maskf(catalogEmptyError, "index %#v for %q has no entries", index, repositoryURL)
 	}
 
 	entries, ok := index.Entries[cr.Spec.Name]
 	if !ok {
-		return "", "", microerror.Maskf(notFoundError, "no entries for app %#q in index.yaml for %q", cr.Spec.Name, repositoryURL)
+		return "", "", microerror.Maskf(appNotFoundError, "no entries for app %#q in index.yaml for %q", cr.Spec.Name, repositoryURL)
 	}
 
 	// We first try with the full version set in .spec.version of the app CR.
@@ -272,7 +274,7 @@ func (r *Resource) buildTarballURL(ctx context.Context, cc *controllercontext.Co
 	}
 
 	if url == "" {
-		return "", "", microerror.Maskf(notFoundError, "found entry for app %#q but URL is not specified", cr.Spec.Name)
+		return "", "", microerror.Maskf(appVersionNotFoundError, "found entry for app %#q but URL is not specified", cr.Spec.Name)
 	}
 
 	if !isValidURL(url) {
@@ -433,14 +435,14 @@ func getEntryURL(entries []indexcache.Entry, app, version string) (string, error
 	for _, e := range entries {
 		if e.Version == version {
 			if len(e.Urls) == 0 {
-				return "", microerror.Maskf(notFoundError, "no URL in index.yaml for app %#q version %#q", app, version)
+				return "", microerror.Maskf(appVersionNotFoundError, "no URL in index.yaml for app %#q version %#q", app, version)
 			}
 
 			return e.Urls[0], nil
 		}
 	}
 
-	return "", microerror.Maskf(notFoundError, "no app %#q in index.yaml with given version %#q", app, version)
+	return "", microerror.Maskf(appVersionNotFoundError, "no app %#q in index.yaml with given version %#q", app, version)
 }
 
 func hasConfigMap(cr v1alpha1.App, catalog v1alpha1.Catalog) bool {
@@ -528,4 +530,19 @@ func isOCIRepositoryURL(repositoryURL string) bool {
 		return false
 	}
 	return u.Scheme == "oci"
+}
+
+func setStatus(cc *controllercontext.Context, err error) {
+	switch microerror.Cause(err) {
+	case appNotFoundError:
+		addStatusToContext(cc, err.Error(), status.AppNotFoundStatus)
+	case appVersionNotFoundError:
+		addStatusToContext(cc, err.Error(), status.AppVersionNotFoundStatus)
+	case catalogEmptyError:
+		addStatusToContext(cc, err.Error(), status.CatalogEmptyStatus)
+	case indexNotFoundError:
+		addStatusToContext(cc, err.Error(), status.IndexNotFoundStatus)
+	default:
+		addStatusToContext(cc, err.Error(), status.UnknownError)
+	}
 }
