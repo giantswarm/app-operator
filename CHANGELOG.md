@@ -7,6 +7,8 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+## [6.6.4] - 2023-04-05
+
 ### Changed
 
 - Improved feedback when searching for an app in catalog.
@@ -682,7 +684,8 @@ from Helm 2 to Helm 3.
 
 - Flattening operator release structure.
 
-[Unreleased]: https://github.com/giantswarm/app-operator/compare/v6.6.3...HEAD
+[Unreleased]: https://github.com/giantswarm/app-operator/compare/v6.6.4...HEAD
+[6.6.4]: https://github.com/giantswarm/app-operator/compare/v6.6.3...v6.6.4
 [6.6.3]: https://github.com/giantswarm/app-operator/compare/v6.6.3...v6.6.3
 [6.6.3]: https://github.com/giantswarm/app-operator/compare/v6.6.3...v6.6.3
 [6.6.3]: https://github.com/giantswarm/app-operator/compare/v6.6.2...v6.6.3
