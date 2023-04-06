@@ -15,10 +15,6 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [6.6.3] - 2023-03-21
 
-## [6.6.3] - 2023-03-21
-
-## [6.6.3] - 2023-03-21
-
 ### Changed
 
 - Lowered resource requests and limits
