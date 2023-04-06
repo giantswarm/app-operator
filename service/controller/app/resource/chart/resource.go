@@ -87,6 +87,17 @@ func (r *Resource) Name() string {
 	return Name
 }
 
+// addStatusToContext adds the status to the controller context. It will be
+// used to set the CR status in the status resource.
+func addStatusToContext(cc *controllercontext.Context, reason, status string) {
+	cc.Status = controllercontext.Status{
+		ChartStatus: controllercontext.ChartStatus{
+			Reason: reason,
+			Status: status,
+		},
+	}
+}
+
 func (r *Resource) removeFinalizer(ctx context.Context, chart *v1alpha1.Chart) error {
 	cc, err := controllercontext.FromContext(ctx)
 	if err != nil {
