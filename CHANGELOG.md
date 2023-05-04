@@ -10,6 +10,7 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 ### Changed
 
 - Only include PodSecurityPolicy on clusters with policy/v1beta1 api available.
+- Only include PodMonitor on clusters with monitoring.coreos.com/v1 api available.
 
 ## [6.6.4] - 2023-04-05
 
