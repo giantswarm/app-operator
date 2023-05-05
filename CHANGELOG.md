@@ -12,6 +12,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 - Only include PodSecurityPolicy on clusters with policy/v1beta1 api available.
 - Only include PodMonitor on clusters with monitoring.coreos.com/v1 api available.
 
+### Removed
+
+- Stop pushing to `openstack-app-collection`.
+
 ## [6.6.4] - 2023-04-05
 
 ### Changed
