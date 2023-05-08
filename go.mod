@@ -186,6 +186,7 @@ replace (
 	github.com/docker/distribution => github.com/docker/distribution v0.0.0-20191216044856-a8371794149d
 	// Use moby v20.10.0-beta1 to fix build issue on darwin.
 	github.com/docker/docker => github.com/moby/moby v20.10.24+incompatible
+	github.com/gin-gonic/gin v1.7.7 => github.com/gin-gonic/gin v1.9.0
 	// Use go-logr/logr v0.1.0 due to breaking changes in v0.2.0 that can't be applied.
 	github.com/go-logr/logr v0.2.0 => github.com/go-logr/logr v0.1.0
 	github.com/gogo/protobuf v1.3.1 => github.com/gogo/protobuf v1.3.2
