@@ -4,20 +4,22 @@ import (
 	"context"
 	"time"
 
-	"github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
-	"github.com/giantswarm/k8sclient/v5/pkg/k8sclient"
+	"github.com/giantswarm/apiextensions-application/api/v1alpha1"
+	"github.com/giantswarm/k8sclient/v7/pkg/k8sclient"
 	"github.com/giantswarm/k8smetadata/pkg/annotation"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
-	"github.com/giantswarm/operatorkit/v4/pkg/controller"
-	"github.com/giantswarm/operatorkit/v4/pkg/resource"
+	"github.com/giantswarm/operatorkit/v8/pkg/controller"
+	"github.com/giantswarm/operatorkit/v8/pkg/resource"
 	"github.com/spf13/afero"
-	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/labels"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	"github.com/giantswarm/app-operator/v4/pkg/label"
-	"github.com/giantswarm/app-operator/v4/pkg/project"
-	"github.com/giantswarm/app-operator/v4/service/controller/app/controllercontext"
-	"github.com/giantswarm/app-operator/v4/service/internal/clientcache"
+	"github.com/giantswarm/app-operator/v6/pkg/label"
+	"github.com/giantswarm/app-operator/v6/pkg/project"
+	"github.com/giantswarm/app-operator/v6/service/controller/app/controllercontext"
+	"github.com/giantswarm/app-operator/v6/service/internal/clientcache"
+	"github.com/giantswarm/app-operator/v6/service/internal/indexcache"
 )
 
 const appControllerSuffix = "-app"
@@ -26,15 +28,19 @@ type Config struct {
 	Fs          afero.Fs
 	K8sClient   k8sclient.Interface
 	ClientCache *clientcache.Resource
+	IndexCache  indexcache.Interface
 	Logger      micrologger.Logger
 
-	ChartNamespace    string
-	HTTPClientTimeout time.Duration
-	ImageRegistry     string
-	PodNamespace      string
-	Provider          string
-	ResyncPeriod      time.Duration
-	UniqueApp         bool
+	ChartNamespace               string
+	HTTPClientTimeout            time.Duration
+	ImageRegistry                string
+	PodNamespace                 string
+	Provider                     string
+	ResyncPeriod                 time.Duration
+	UniqueApp                    bool
+	WatchNamespace               string
+	WorkloadClusterID            string
+	DependencyWaitTimeoutMinutes int
 }
 
 type App struct {
@@ -49,6 +55,9 @@ func NewApp(config Config) (*App, error) {
 	}
 	if config.Fs == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Fs must not be empty", config)
+	}
+	if config.IndexCache == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.IndexCache must not be empty", config)
 	}
 	if config.K8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
@@ -72,6 +81,20 @@ func NewApp(config Config) (*App, error) {
 	if config.ResyncPeriod == 0 {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ResyncPeriod must not be empty", config)
 	}
+	if config.DependencyWaitTimeoutMinutes <= 0 {
+		return nil, microerror.Maskf(invalidConfigError, "%T.DependencyWaitTimeoutMinutes must be greater than 0", config)
+	}
+
+	// For non-unique instances if either watch namespace or cluster ID are
+	// provided both must be set.
+	if !config.UniqueApp && (config.WatchNamespace != "" || config.WorkloadClusterID != "") {
+		if config.WatchNamespace == "" {
+			return nil, microerror.Maskf(invalidConfigError, "%T.WatchNamespace must not be empty", config)
+		}
+		if config.WorkloadClusterID == "" {
+			return nil, microerror.Maskf(invalidConfigError, "%T.WorkloadClusterID must not be empty", config)
+		}
+	}
 
 	// TODO: Remove usage of deprecated controller context.
 	//
@@ -89,19 +112,41 @@ func NewApp(config Config) (*App, error) {
 		c := appResourcesConfig{
 			ClientCache: config.ClientCache,
 			FileSystem:  config.Fs,
+			IndexCache:  config.IndexCache,
 			K8sClient:   config.K8sClient,
 			Logger:      config.Logger,
 
-			ChartNamespace:    config.ChartNamespace,
-			HTTPClientTimeout: config.HTTPClientTimeout,
-			ImageRegistry:     config.ImageRegistry,
-			Provider:          config.Provider,
-			UniqueApp:         config.UniqueApp,
+			ChartNamespace:               config.ChartNamespace,
+			HTTPClientTimeout:            config.HTTPClientTimeout,
+			ImageRegistry:                config.ImageRegistry,
+			ProjectName:                  project.Name(),
+			Provider:                     config.Provider,
+			UniqueApp:                    config.UniqueApp,
+			WorkloadClusterID:            config.WorkloadClusterID,
+			DependencyWaitTimeoutMinutes: config.DependencyWaitTimeoutMinutes,
 		}
 
 		resources, err = newAppResources(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
+		}
+	}
+
+	var selector labels.Selector
+	{
+		if config.WorkloadClusterID != "" {
+			selector = label.ClusterSelector(config.WorkloadClusterID)
+		} else {
+			selector = label.AppVersionSelector(config.UniqueApp)
+		}
+	}
+
+	var watchNamespace string
+	{
+		if config.WatchNamespace != "" {
+			watchNamespace = config.WatchNamespace
+		} else {
+			watchNamespace = config.PodNamespace
 		}
 	}
 
@@ -116,8 +161,8 @@ func NewApp(config Config) (*App, error) {
 				annotation.AppOperatorPaused: "true",
 			},
 			Resources: resources,
-			Selector:  label.AppVersionSelector(config.UniqueApp),
-			NewRuntimeObjectFunc: func() runtime.Object {
+			Selector:  selector,
+			NewRuntimeObjectFunc: func() client.Object {
 				return new(v1alpha1.App)
 			},
 
@@ -125,9 +170,7 @@ func NewApp(config Config) (*App, error) {
 		}
 
 		if !config.UniqueApp {
-			// Only watch app CRs in the current namespace. The label selector
-			// excludes the operator's own app CR which has the unique version.
-			c.Namespace = config.PodNamespace
+			c.Namespace = watchNamespace
 		}
 
 		appController, err = controller.New(c)

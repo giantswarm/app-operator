@@ -4,10 +4,12 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/giantswarm/apiextensions-application/api/v1alpha1"
 	"github.com/giantswarm/k8smetadata/pkg/label"
 	"github.com/giantswarm/microerror"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/watch"
 )
 
@@ -18,7 +20,7 @@ func (c *AppValueWatcher) watchSecret(ctx context.Context) {
 		}
 
 		// Find the highest resourceVersion for each secret.
-		secrets, err := c.k8sClient.K8sClient().CoreV1().Secrets("").List(ctx, lo)
+		secrets, err := c.k8sClient.K8sClient().CoreV1().Secrets(c.secretNamespace).List(ctx, lo)
 		if err != nil {
 			c.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("failed to get secrets with label %#q", label.AppOperatorWatching), "stack", fmt.Sprintf("%#v", err))
 			continue
@@ -39,7 +41,7 @@ func (c *AppValueWatcher) watchSecret(ctx context.Context) {
 
 		c.logger.LogCtx(ctx, "debug", fmt.Sprintf("starting ResourceVersion is %d", highestResourceVersion))
 
-		res, err := c.k8sClient.K8sClient().CoreV1().Secrets("").Watch(ctx, lo)
+		res, err := c.k8sClient.K8sClient().CoreV1().Secrets(c.secretNamespace).Watch(ctx, lo)
 		if err != nil {
 			c.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("failed to get secrets with label %#q", label.AppOperatorWatching), "stack", fmt.Sprintf("%#v", err))
 			continue
@@ -96,16 +98,24 @@ func (c *AppValueWatcher) watchSecret(ctx context.Context) {
 			}
 
 			c.logger.Debugf(ctx, "listing apps depends on %#q secret in namespace %#q", secret.Name, secret.Namespace)
+
+			var currentApp v1alpha1.App
+
+			c.appIndexMutex.RLock()
 			for app := range storedIndex {
 				c.logger.Debugf(ctx, "triggering %#q app update in namespace %#q", app.Name, app.Namespace)
 
-				currentApp, err := c.k8sClient.G8sClient().ApplicationV1alpha1().Apps(app.Namespace).Get(ctx, app.Name, metav1.GetOptions{})
+				err = c.k8sClient.CtrlClient().Get(
+					ctx,
+					types.NamespacedName{Name: app.Name, Namespace: app.Namespace},
+					&currentApp,
+				)
 				if err != nil {
 					c.logger.Errorf(ctx, err, "cannot fetch app CR %s/%s", app.Namespace, app.Name)
 					continue
 				}
 
-				err = c.addAnnotation(ctx, currentApp, secret.GetResourceVersion(), secretType)
+				err = c.addAnnotation(ctx, &currentApp, secret.GetResourceVersion(), secretType)
 				if err != nil {
 					c.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("failed to add annotation to app %#q in namespace %#q", app.Name, app.Namespace), "stack", fmt.Sprintf("%#v", err))
 					continue
@@ -113,8 +123,9 @@ func (c *AppValueWatcher) watchSecret(ctx context.Context) {
 
 				c.logger.Debugf(ctx, "triggered %#q app update in namespace %#q", app.Name, app.Namespace)
 
-				c.event.Emit(ctx, currentApp, "AppUpdated", "change to secret %s/%s triggered an update", secret.Namespace, secret.Name)
+				c.event.Emit(ctx, &currentApp, "AppUpdated", "change to secret %s/%s triggered an update", secret.Namespace, secret.Name)
 			}
+			c.appIndexMutex.RUnlock()
 			c.logger.Debugf(ctx, "listed apps depends on %#q secret in namespace %#q", secret.Name, secret.Namespace)
 		}
 

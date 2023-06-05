@@ -7,27 +7,29 @@ namespace: giantswarm
 port: 8000
 protocol: "TCP"
 
+app:
+  watchNamespace: ""
+  workloadClusterID: ""
+  dependencyWaitTimeoutMinutes: 30
+
+helm:
+  http:
+    clientTimeout: "5s"
+
+provider:
+  kind: ""
+
 userID: 1000
 groupID: 1000
 
 replicas: 1
 
+registry:
+  domain: docker.io
+
 image:
   repository: giantswarm/app-operator
-  tag: [[ .Version ]]
-
-Installation:
-  V1:
-    Helm:
-      HTTP:
-        ClientTimeout: "5s"
-    Kubernetes:
-      API:
-        Address: ""
-    Provider:
-      Kind: ""
-    Registry:
-      Domain: quay.io
+  tag: "[[ .Version ]]"
 
 operatorkit:
   resyncPeriod: "5m"
@@ -39,16 +41,48 @@ project:
 deployment:
   management:
     requests:
+      cpu: 150m
+      memory: 200Mi
+    limits:
       cpu: 250m
       memory: 250Mi
-    limits:
-      memory: 280Mi
   workload:
     requests:
-      cpu: 100m
+      cpu: 75m
       memory: 50Mi
     limits:
-      memory: 50Mi
+      cpu: 125m
+      memory: 100Mi
 
 verticalPodAutoscaler:
   enabled: true
+
+# When this flag is true, app operator runs in special mode in order to be able to run in partially deployed clusters.
+# Main differences are:
+# - runs on master nodes
+# - runs on hostNetwork
+# - tolerates all taints
+# - uses API hostname to reach the API to support kube-proxy being missing
+# This mode is meant to be used during bootstrap of management clusters to be able to deploy basic system services
+# (such as the CNI or the out-of-tree cloud controller managers) as a managed app.
+# After the cluster is fully deployed, this flag should be switched to false.
+bootstrapMode:
+  apiServerPodPort: 443
+  enabled: false
+
+# Pod securityContext
+podSecurityContext:
+  runAsNonRoot: true
+  seccompProfile:
+    type: RuntimeDefault
+
+# Container securityContext
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+    - ALL
+  privileged: false
+  runAsNonRoot: true
+  seccompProfile:
+    type: RuntimeDefault

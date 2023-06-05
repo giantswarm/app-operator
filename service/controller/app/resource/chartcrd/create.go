@@ -4,14 +4,16 @@ import (
 	"context"
 	"time"
 
-	"github.com/giantswarm/apiextensions/v3/pkg/crd"
-	"github.com/giantswarm/app/v4/pkg/key"
+	"github.com/giantswarm/app/v6/pkg/key"
 	"github.com/giantswarm/backoff"
 	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/microerror"
+	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	"sigs.k8s.io/yaml"
 
-	"github.com/giantswarm/app-operator/v4/service/controller/app/controllercontext"
+	"github.com/giantswarm/app-operator/v6/pkg/crd"
+	"github.com/giantswarm/app-operator/v6/service/controller/app/controllercontext"
 )
 
 func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
@@ -46,10 +48,17 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 	r.logger.Debugf(ctx, "ensuring chart CRD in workload cluster %#q", key.ClusterID(cr))
 
+	var chartCRD apiextensionsv1.CustomResourceDefinition
+
+	err = yaml.Unmarshal([]byte(crd.ChartCRD()), &chartCRD)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
 	ch := make(chan error)
 
 	go func() {
-		err = cc.Clients.K8s.CRDClient().EnsureCreated(ctx, crd.LoadV1("application.giantswarm.io", "Chart"), backoff.NewMaxRetries(7, 1*time.Second))
+		err = cc.Clients.K8s.CRDClient().EnsureCreated(ctx, &chartCRD, backoff.NewMaxRetries(7, 1*time.Second))
 
 		close(ch)
 	}()

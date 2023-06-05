@@ -4,19 +4,19 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/giantswarm/app/v4/pkg/key"
-	"github.com/giantswarm/app/v4/pkg/values"
+	"github.com/giantswarm/app/v6/pkg/key"
+	"github.com/giantswarm/app/v6/pkg/values"
 	"github.com/giantswarm/k8smetadata/pkg/annotation"
 	"github.com/giantswarm/k8smetadata/pkg/label"
 	"github.com/giantswarm/microerror"
-	"github.com/giantswarm/operatorkit/v4/pkg/controller/context/resourcecanceledcontext"
+	"github.com/giantswarm/operatorkit/v8/pkg/controller/context/resourcecanceledcontext"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/yaml"
 
-	"github.com/giantswarm/app-operator/v4/pkg/project"
-	"github.com/giantswarm/app-operator/v4/pkg/status"
-	"github.com/giantswarm/app-operator/v4/service/controller/app/controllercontext"
+	"github.com/giantswarm/app-operator/v6/pkg/project"
+	"github.com/giantswarm/app-operator/v6/pkg/status"
+	"github.com/giantswarm/app-operator/v6/service/controller/app/controllercontext"
 )
 
 func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interface{}, error) {
@@ -41,7 +41,20 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		return configMap, nil
 	}
 
-	mergedData, err := r.values.MergeConfigMapData(ctx, cr, cc.AppCatalog)
+	// If no user-provided configmap name is present, check if a *-user-values config map exists and set the reference
+	if key.UserConfigMapName(cr) == "" {
+		userCM, err := cc.Clients.K8s.K8sClient().CoreV1().ConfigMaps(r.chartNamespace).Get(ctx, fmt.Sprintf("%s-user-values", cr.Name), metav1.GetOptions{})
+		if err == nil {
+			cr.Spec.UserConfig.ConfigMap.Name = userCM.GetName()
+			cr.Spec.UserConfig.ConfigMap.Namespace = userCM.GetNamespace()
+			err = cc.Clients.K8s.CtrlClient().Update(ctx, &cr)
+			if err != nil {
+				return nil, microerror.Mask(err)
+			}
+		}
+	}
+
+	mergedData, err := r.values.MergeConfigMapData(ctx, cr, cc.Catalog)
 	if values.IsNotFound(err) {
 		r.logger.LogCtx(ctx, "level", "warning", "message", "dependent configMaps are not found")
 		addStatusToContext(cc, err.Error(), status.ConfigmapMergeFailedStatus)

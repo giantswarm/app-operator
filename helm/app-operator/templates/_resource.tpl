@@ -24,18 +24,22 @@ room for such suffix.
 {{- end -}}
 
 {{- define "resource.default.namespace" -}}
-{{-  .Release.Namespace }}
+{{-  .Release.Namespace | quote }}
 {{- end -}}
 
 {{/*
-The unique deployment of app-operator is for management cluster app CRs and uses
-a special app version of 0.0.0.
+The deployment of app-operator for management cluster reconciles a special app
+CR version of 0.0.0.
 */}}
 {{- define "resource.app.unique" -}}
-{{- if hasSuffix "-unique" .Release.Name }}true{{ else }}false{{ end }}
+{{- if eq $.Chart.Name $.Release.Name }}true{{ else }}false{{ end }}
 {{- end -}}
 {{- define "resource.app.version" -}}
-{{- if hasSuffix "-unique" .Release.Name }}0.0.0{{ else }}{{ .Chart.AppVersion }}{{ end }}
+{{- if eq $.Chart.Name $.Release.Name }}0.0.0{{ else }}{{ .Chart.AppVersion }}{{ end }}
+{{- end -}}
+
+{{- define "resource.vpa.enabled" -}}
+{{- if and (.Capabilities.APIVersions.Has "autoscaling.k8s.io/v1") (.Values.verticalPodAutoscaler.enabled) }}true{{ else }}false{{ end }}
 {{- end -}}
 
 {{/*
@@ -44,8 +48,18 @@ the per workload cluster instances.
 */}}
 {{- define "resource.deployment.resources" -}}
 {{- if eq (include "resource.app.unique" .) "true" -}}
-{{ toYaml .Values.deployment.management }}
+requests:
+{{ toYaml .Values.deployment.management.requests | indent 2 -}}
+{{ if eq (include "resource.vpa.enabled" .) "false" }}
+limits:
+{{ toYaml .Values.deployment.management.limits | indent 2 -}}
+{{- end -}}
 {{- else }}
-{{ toYaml .Values.deployment.workload }}
+requests:
+{{ toYaml .Values.deployment.workload.requests | indent 2 -}}
+{{ if eq (include "resource.vpa.enabled" .) "false" }}
+limits:
+{{ toYaml .Values.deployment.workload.limits | indent 2 -}}
+{{- end -}}
 {{- end -}}
 {{- end -}}

@@ -4,13 +4,13 @@ import (
 	"context"
 	"sync"
 
-	"github.com/giantswarm/k8sclient/v5/pkg/k8sclient"
+	"github.com/giantswarm/k8sclient/v7/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"k8s.io/apimachinery/pkg/labels"
 
-	"github.com/giantswarm/app-operator/v4/pkg/label"
-	"github.com/giantswarm/app-operator/v4/service/internal/recorder"
+	"github.com/giantswarm/app-operator/v6/pkg/label"
+	"github.com/giantswarm/app-operator/v6/service/internal/recorder"
 )
 
 type AppValueWatcherConfig struct {
@@ -18,7 +18,11 @@ type AppValueWatcherConfig struct {
 	K8sClient k8sclient.Interface
 	Logger    micrologger.Logger
 
-	UniqueApp bool
+	// SecretNamespace is used to limit access to secrets to only the
+	// SecretNamespace. No other namespaces will be watched for Secrets.
+	SecretNamespace   string
+	UniqueApp         bool
+	WorkloadClusterID string
 }
 
 type AppValueWatcher struct {
@@ -26,9 +30,10 @@ type AppValueWatcher struct {
 	k8sClient k8sclient.Interface
 	logger    micrologger.Logger
 
+	appIndexMutex   sync.RWMutex
 	resourcesToApps sync.Map
+	secretNamespace string
 	selector        labels.Selector
-	unique          bool
 }
 
 func NewAppValueWatcher(config AppValueWatcherConfig) (*AppValueWatcher, error) {
@@ -41,15 +46,28 @@ func NewAppValueWatcher(config AppValueWatcherConfig) (*AppValueWatcher, error) 
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
+	if config.SecretNamespace == "" {
+		return nil, microerror.Maskf(invalidConfigError, "%T.SecretNamespace must not be empty", config)
+	}
+
+	var selector labels.Selector
+	{
+		if config.WorkloadClusterID != "" {
+			selector = label.ClusterSelector(config.WorkloadClusterID)
+		} else {
+			selector = label.AppVersionSelector(config.UniqueApp)
+		}
+	}
 
 	c := &AppValueWatcher{
 		event:     config.Event,
 		k8sClient: config.K8sClient,
 		logger:    config.Logger,
 
+		appIndexMutex:   sync.RWMutex{},
 		resourcesToApps: sync.Map{},
-		selector:        label.AppVersionSelector(config.UniqueApp),
-		unique:          config.UniqueApp,
+		secretNamespace: config.SecretNamespace,
+		selector:        selector,
 	}
 
 	return c, nil

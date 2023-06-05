@@ -3,61 +3,67 @@ package app
 import (
 	"time"
 
-	"github.com/giantswarm/app/v4/pkg/values"
+	"github.com/giantswarm/app/v6/pkg/values"
 	"github.com/giantswarm/helmclient/v4/pkg/helmclient"
-	"github.com/giantswarm/k8sclient/v5/pkg/k8sclient"
+	"github.com/giantswarm/k8sclient/v7/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
-	"github.com/giantswarm/operatorkit/v4/pkg/resource"
-	"github.com/giantswarm/operatorkit/v4/pkg/resource/crud"
-	"github.com/giantswarm/operatorkit/v4/pkg/resource/wrapper/metricsresource"
-	"github.com/giantswarm/operatorkit/v4/pkg/resource/wrapper/retryresource"
+	"github.com/giantswarm/operatorkit/v8/pkg/resource"
+	"github.com/giantswarm/operatorkit/v8/pkg/resource/crud"
+	"github.com/giantswarm/operatorkit/v8/pkg/resource/wrapper/metricsresource"
+	"github.com/giantswarm/operatorkit/v8/pkg/resource/wrapper/retryresource"
 	"github.com/spf13/afero"
 
-	"github.com/giantswarm/app-operator/v4/service/controller/app/resource/appcatalog"
-	"github.com/giantswarm/app-operator/v4/service/controller/app/resource/appfinalizermigration"
-	"github.com/giantswarm/app-operator/v4/service/controller/app/resource/appnamespace"
-	"github.com/giantswarm/app-operator/v4/service/controller/app/resource/authtokenmigration"
-	"github.com/giantswarm/app-operator/v4/service/controller/app/resource/chart"
-	"github.com/giantswarm/app-operator/v4/service/controller/app/resource/chartcrd"
-	"github.com/giantswarm/app-operator/v4/service/controller/app/resource/chartoperator"
-	"github.com/giantswarm/app-operator/v4/service/controller/app/resource/clients"
-	"github.com/giantswarm/app-operator/v4/service/controller/app/resource/configmap"
-	"github.com/giantswarm/app-operator/v4/service/controller/app/resource/releasemigration"
-	"github.com/giantswarm/app-operator/v4/service/controller/app/resource/secret"
-	"github.com/giantswarm/app-operator/v4/service/controller/app/resource/status"
-	"github.com/giantswarm/app-operator/v4/service/controller/app/resource/tcnamespace"
-	"github.com/giantswarm/app-operator/v4/service/controller/app/resource/validation"
-	"github.com/giantswarm/app-operator/v4/service/internal/clientcache"
+	"github.com/giantswarm/app-operator/v6/service/controller/app/resource/appfinalizermigration"
+	"github.com/giantswarm/app-operator/v6/service/controller/app/resource/appnamespace"
+	"github.com/giantswarm/app-operator/v6/service/controller/app/resource/catalog"
+	"github.com/giantswarm/app-operator/v6/service/controller/app/resource/chart"
+	"github.com/giantswarm/app-operator/v6/service/controller/app/resource/chartcrd"
+	"github.com/giantswarm/app-operator/v6/service/controller/app/resource/chartoperator"
+	"github.com/giantswarm/app-operator/v6/service/controller/app/resource/clients"
+	"github.com/giantswarm/app-operator/v6/service/controller/app/resource/configmap"
+	"github.com/giantswarm/app-operator/v6/service/controller/app/resource/secret"
+	"github.com/giantswarm/app-operator/v6/service/controller/app/resource/status"
+	"github.com/giantswarm/app-operator/v6/service/controller/app/resource/tcnamespace"
+	"github.com/giantswarm/app-operator/v6/service/controller/app/resource/validation"
+	"github.com/giantswarm/app-operator/v6/service/internal/clientcache"
+	"github.com/giantswarm/app-operator/v6/service/internal/indexcache"
 )
 
 type appResourcesConfig struct {
 	// Dependencies.
 	ClientCache *clientcache.Resource
 	FileSystem  afero.Fs
+	IndexCache  indexcache.Interface
 	K8sClient   k8sclient.Interface
 	Logger      micrologger.Logger
 
 	// Settings.
-	ChartNamespace    string
-	HTTPClientTimeout time.Duration
-	ImageRegistry     string
-	Provider          string
-	UniqueApp         bool
+	ChartNamespace               string
+	HTTPClientTimeout            time.Duration
+	ImageRegistry                string
+	ProjectName                  string
+	Provider                     string
+	UniqueApp                    bool
+	WorkloadClusterID            string
+	DependencyWaitTimeoutMinutes int
 }
 
 func newAppResources(config appResourcesConfig) ([]resource.Interface, error) {
 	var err error
 
 	// Dependencies.
+	if config.ClientCache == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.ClientCache must not be empty", config)
+	}
 	if config.FileSystem == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Fs must not be empty", config)
 	}
+	if config.IndexCache == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.IndexCache must not be empty", config)
+	}
 	if config.K8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
-	}
-	if config.ClientCache == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.CachedK8sClient must not be empty", config)
 	}
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
@@ -72,6 +78,9 @@ func newAppResources(config appResourcesConfig) ([]resource.Interface, error) {
 	}
 	if config.ImageRegistry == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ImageRegistry must not be empty", config)
+	}
+	if config.ProjectName == "" {
+		return nil, microerror.Maskf(invalidConfigError, "%T.ProjectName must not be empty", config)
 	}
 	if config.Provider == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Provider must not be empty", config)
@@ -90,13 +99,13 @@ func newAppResources(config appResourcesConfig) ([]resource.Interface, error) {
 		}
 	}
 
-	var appcatalogResource resource.Interface
+	var catalogResource resource.Interface
 	{
-		c := appcatalog.Config{
-			G8sClient: config.K8sClient.G8sClient(),
-			Logger:    config.Logger,
+		c := catalog.Config{
+			CtrlClient: config.K8sClient.CtrlClient(),
+			Logger:     config.Logger,
 		}
-		appcatalogResource, err = appcatalog.New(c)
+		catalogResource, err = catalog.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -126,28 +135,17 @@ func newAppResources(config appResourcesConfig) ([]resource.Interface, error) {
 		}
 	}
 
-	var authTokenMigrationResource resource.Interface
-	{
-		c := authtokenmigration.Config{
-			K8sClient: config.K8sClient.K8sClient(),
-			Logger:    config.Logger,
-		}
-		authTokenMigrationResource, err = authtokenmigration.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
 	var chartOperatorResource resource.Interface
 	{
 		c := chartoperator.Config{
 			FileSystem: config.FileSystem,
-			G8sClient:  config.K8sClient.G8sClient(),
+			CtrlClient: config.K8sClient.CtrlClient(),
 			K8sClient:  config.K8sClient.K8sClient(),
 			Logger:     config.Logger,
 			Values:     valuesService,
 
-			ChartNamespace: config.ChartNamespace,
+			ChartNamespace:    config.ChartNamespace,
+			WorkloadClusterID: config.WorkloadClusterID,
 		}
 		chartOperatorResource, err = chartoperator.New(c)
 		if err != nil {
@@ -158,9 +156,13 @@ func newAppResources(config appResourcesConfig) ([]resource.Interface, error) {
 	var chartResource resource.Interface
 	{
 		c := chart.Config{
-			Logger: config.Logger,
+			IndexCache: config.IndexCache,
+			Logger:     config.Logger,
+			CtrlClient: config.K8sClient.CtrlClient(),
 
-			ChartNamespace: config.ChartNamespace,
+			ChartNamespace:               config.ChartNamespace,
+			WorkloadClusterID:            config.WorkloadClusterID,
+			DependencyWaitTimeoutMinutes: config.DependencyWaitTimeoutMinutes,
 		}
 
 		ops, err := chart.New(c)
@@ -239,21 +241,6 @@ func newAppResources(config appResourcesConfig) ([]resource.Interface, error) {
 		}
 	}
 
-	var releaseMigrationResource resource.Interface
-	{
-		c := releasemigration.Config{
-			Logger: config.Logger,
-
-			ChartNamespace: config.ChartNamespace,
-			ImageRegistry:  config.ImageRegistry,
-		}
-
-		releaseMigrationResource, err = releasemigration.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
 	var secretResource resource.Interface
 	{
 		c := secret.Config{
@@ -277,10 +264,11 @@ func newAppResources(config appResourcesConfig) ([]resource.Interface, error) {
 	var statusResource resource.Interface
 	{
 		c := status.Config{
-			G8sClient: config.K8sClient.G8sClient(),
-			Logger:    config.Logger,
+			CtrlClient: config.K8sClient.CtrlClient(),
+			Logger:     config.Logger,
 
-			ChartNamespace: config.ChartNamespace,
+			ChartNamespace:    config.ChartNamespace,
+			WorkloadClusterID: config.WorkloadClusterID,
 		}
 
 		statusResource, err = status.New(c)
@@ -304,11 +292,12 @@ func newAppResources(config appResourcesConfig) ([]resource.Interface, error) {
 	var validationResource resource.Interface
 	{
 		c := validation.Config{
-			G8sClient: config.K8sClient.G8sClient(),
-			K8sClient: config.K8sClient.K8sClient(),
-			Logger:    config.Logger,
+			CtrlClient: config.K8sClient.CtrlClient(),
+			K8sClient:  config.K8sClient.K8sClient(),
+			Logger:     config.Logger,
 
-			Provider: config.Provider,
+			ProjectName: config.ProjectName,
+			Provider:    config.Provider,
 		}
 
 		validationResource, err = validation.New(c)
@@ -326,18 +315,13 @@ func newAppResources(config appResourcesConfig) ([]resource.Interface, error) {
 
 		// Following resources manage controller context information.
 		appNamespaceResource,
-		appcatalogResource,
+		catalogResource,
 		clientsResource,
-
-		// authTokenMigrationResource deletes auth token secrets that are no
-		// longer used.
-		authTokenMigrationResource,
 
 		// Following resources bootstrap chart-operator in workload clusters.
 		tcNamespaceResource,
 		chartCRDResource,
 		chartOperatorResource,
-		releaseMigrationResource,
 
 		// Following resources process app CRs.
 		configMapResource,

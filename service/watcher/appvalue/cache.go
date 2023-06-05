@@ -7,14 +7,19 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
-	"github.com/giantswarm/app/v4/pkg/key"
+	"github.com/giantswarm/apiextensions-application/api/v1alpha1"
+	"github.com/giantswarm/app/v6/pkg/key"
 	"github.com/giantswarm/k8smetadata/pkg/label"
 	"github.com/giantswarm/microerror"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/watch"
 )
+
+var appResource = schema.GroupVersionResource{Group: "application.giantswarm.io", Version: "v1alpha1", Resource: "apps"}
 
 func (c *AppValueWatcher) buildCache(ctx context.Context) {
 	for {
@@ -22,22 +27,29 @@ func (c *AppValueWatcher) buildCache(ctx context.Context) {
 			LabelSelector: c.selector.String(),
 		}
 
-		res, err := c.k8sClient.G8sClient().ApplicationV1alpha1().Apps("").Watch(ctx, lo)
+		res, err := c.k8sClient.DynClient().Resource(appResource).Namespace(metav1.NamespaceAll).Watch(ctx, lo)
 		if err != nil {
 			c.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("failed to get apps with label %#q", c.selector.String()), "stack", fmt.Sprintf("%#v", err))
 			continue
 		}
 
 		for r := range res.ResultChan() {
-			cr, err := key.ToApp(r.Object)
+			unstructuredObj, err := runtime.DefaultUnstructuredConverter.ToUnstructured(r.Object)
 			if err != nil {
-				c.logger.LogCtx(ctx, "level", "info", "message", "failed to convert app object", "stack", fmt.Sprintf("%#v", err))
+				c.logger.Errorf(ctx, err, "failed to convert %#v to unstructured object", r.Object)
 				continue
 			}
 
-			err = c.addCache(ctx, cr, r.Type)
+			app := &v1alpha1.App{}
+			err = runtime.DefaultUnstructuredConverter.FromUnstructured(unstructuredObj, app)
 			if err != nil {
-				c.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("failed to reconcile app CR %#q", cr.Name), "stack", fmt.Sprintf("%#v", err))
+				c.logger.Errorf(ctx, err, "failed to convert unstructured object %#v to app", unstructuredObj)
+				continue
+			}
+
+			err = c.addCache(ctx, *app, r.Type)
+			if err != nil {
+				c.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("failed to reconcile app CR %#q", app.Name), "stack", fmt.Sprintf("%#v", err))
 			}
 		}
 
@@ -55,16 +67,16 @@ func (c *AppValueWatcher) addCache(ctx context.Context, cr v1alpha1.App, eventTy
 
 	resources := []resourceIndex{}
 
-	appCatalog, err := c.k8sClient.G8sClient().ApplicationV1alpha1().AppCatalogs().Get(ctx, key.CatalogName(cr), metav1.GetOptions{})
+	catalog, err := c.findCatalog(ctx, cr)
 	if err != nil {
 		return microerror.Mask(err)
 	}
 
-	if key.AppCatalogConfigMapName(*appCatalog) != "" {
+	if key.CatalogConfigMapName(*catalog) != "" {
 		resources = append(resources, resourceIndex{
 			ResourceType: configMapType,
-			Name:         key.AppCatalogConfigMapName(*appCatalog),
-			Namespace:    key.AppCatalogConfigMapNamespace(*appCatalog),
+			Name:         key.CatalogConfigMapName(*catalog),
+			Namespace:    key.CatalogConfigMapNamespace(*catalog),
 		})
 	}
 
@@ -84,11 +96,11 @@ func (c *AppValueWatcher) addCache(ctx context.Context, cr v1alpha1.App, eventTy
 		})
 	}
 
-	if key.AppCatalogSecretName(*appCatalog) != "" {
+	if key.CatalogSecretName(*catalog) != "" {
 		resources = append(resources, resourceIndex{
 			ResourceType: secretType,
-			Name:         key.AppCatalogSecretName(*appCatalog),
-			Namespace:    key.AppCatalogSecretNamespace(*appCatalog),
+			Name:         key.CatalogSecretName(*catalog),
+			Namespace:    key.CatalogSecretNamespace(*catalog),
 		})
 	}
 
@@ -105,6 +117,23 @@ func (c *AppValueWatcher) addCache(ctx context.Context, cr v1alpha1.App, eventTy
 			ResourceType: secretType,
 			Name:         key.UserSecretName(cr),
 			Namespace:    key.UserSecretNamespace(cr),
+		})
+	}
+
+	// Watch extra configs as well
+	for _, extraConfig := range key.ExtraConfigs(cr) {
+		var kind resourceType
+		switch extraConfig.Kind {
+		case "secret":
+			kind = secretType
+		default:
+			kind = configMapType
+		}
+
+		resources = append(resources, resourceIndex{
+			ResourceType: kind,
+			Name:         extraConfig.Name,
+			Namespace:    extraConfig.Namespace,
 		})
 	}
 
@@ -125,7 +154,9 @@ func (c *AppValueWatcher) addCache(ctx context.Context, cr v1alpha1.App, eventTy
 					return microerror.Maskf(wrongTypeError, "expected '%T', got '%T'", []appIndex{}, v)
 				}
 
+				c.appIndexMutex.Lock()
 				storedAppIndex[app] = true
+				c.appIndexMutex.Unlock()
 				c.resourcesToApps.Store(resource, storedAppIndex)
 			} else {
 				m := map[appIndex]bool{
@@ -144,7 +175,9 @@ func (c *AppValueWatcher) addCache(ctx context.Context, cr v1alpha1.App, eventTy
 					return microerror.Maskf(wrongTypeError, "expected '%T', got '%T'", []appIndex{}, v)
 				}
 
+				c.appIndexMutex.Lock()
 				delete(storedIndex, app)
+				c.appIndexMutex.Unlock()
 				if len(storedIndex) == 0 {
 					err := c.removeLabel(ctx, resource)
 					if err != nil {
@@ -227,6 +260,41 @@ func (c *AppValueWatcher) addLabel(ctx context.Context, resource resourceIndex) 
 	}
 
 	return nil
+}
+
+func (c *AppValueWatcher) findCatalog(ctx context.Context, cr v1alpha1.App) (*v1alpha1.Catalog, error) {
+	var err error
+	var namespaces []string
+	{
+		if cr.Spec.CatalogNamespace != "" {
+			namespaces = []string{cr.Spec.CatalogNamespace}
+		} else {
+			namespaces = []string{metav1.NamespaceDefault, "giantswarm"}
+		}
+	}
+
+	catalog := &v1alpha1.Catalog{}
+
+	for _, namespace := range namespaces {
+		err = c.k8sClient.CtrlClient().Get(
+			ctx,
+			types.NamespacedName{Name: key.CatalogName(cr), Namespace: namespace},
+			catalog,
+		)
+		if apierrors.IsNotFound(err) {
+			// no-op
+			continue
+		} else if err != nil {
+			return nil, microerror.Mask(err)
+		}
+		break
+	}
+
+	if catalog.GetName() == "" {
+		return nil, microerror.Maskf(notFoundError, "catalog %#q", key.CatalogName(cr))
+	}
+
+	return catalog, nil
 }
 
 func (c *AppValueWatcher) removeLabel(ctx context.Context, resource resourceIndex) error {

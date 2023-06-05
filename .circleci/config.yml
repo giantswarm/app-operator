@@ -1,6 +1,6 @@
 version: 2.1
 orbs:
-  architect: giantswarm/architect@3.1.0
+  architect: giantswarm/architect@4.29.0
 
 workflows:
   build:
@@ -9,6 +9,19 @@ workflows:
           context: architect
           name: go-build
           binary: app-operator
+          filters:
+            tags:
+              only: /^v.*/
+
+      - architect/push-to-docker:
+          context: "architect"
+          name: push-app-operator-to-docker
+          image: "docker.io/giantswarm/app-operator"
+          username_envar: "DOCKER_USERNAME"
+          password_envar: "DOCKER_PASSWORD"
+          requires:
+            - go-build
+          # Needed to trigger job also on git tag.
           filters:
             tags:
               only: /^v.*/
@@ -29,7 +42,7 @@ workflows:
       - architect/push-to-docker:
           context: architect
           name: push-app-operator-to-aliyun
-          image: "registry-intl.cn-shanghai.aliyuncs.com/giantswarm/app-operator"
+          image: "giantswarm-registry.cn-shanghai.cr.aliyuncs.com/giantswarm/app-operator"
           username_envar: "ALIYUN_USERNAME"
           password_envar: "ALIYUN_PASSWORD"
           requires:
@@ -54,6 +67,7 @@ workflows:
       - architect/integration-test:
           context: architect
           name: basic-integration-test
+          setup-script: "integration/setup/setup.sh"
           test-dir: "integration/test/app/basic"
           requires:
             - go-build
@@ -62,7 +76,8 @@ workflows:
       - architect/integration-test:
           context: architect
           name: appcatalogentry-integration-test
-          test-dir: "integration/test/appcatalog/appcatalogentry"
+          setup-script: "integration/setup/setup.sh"
+          test-dir: "integration/test/catalog/appcatalogentry"
           requires:
             - go-build
             - push-app-operator-to-control-plane-app-catalog
@@ -70,6 +85,7 @@ workflows:
       - architect/integration-test:
           context: architect
           name: watching-configmap-integration-test
+          setup-script: "integration/setup/setup.sh"
           test-dir: "integration/test/watcher/configmap"
           requires:
             - go-build
@@ -78,8 +94,88 @@ workflows:
       - architect/integration-test:
           context: architect
           name: workload-cluster-integration-test
+          setup-script: "integration/setup/setup.sh"
           test-dir: "integration/test/app/workload"
           requires:
             - go-build
             - push-app-operator-to-control-plane-app-catalog
 
+      - architect/push-to-app-collection:
+          context: architect
+          name: push-app-operator-to-aws-app-collection
+          app_name: "app-operator"
+          app_collection_repo: "aws-app-collection"
+          requires:
+            - push-app-operator-to-aliyun
+            - push-app-operator-to-control-plane-app-catalog
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^v.*/
+
+      - architect/push-to-app-collection:
+          context: architect
+          name: push-app-operator-to-azure-app-collection
+          app_name: "app-operator"
+          app_collection_repo: "azure-app-collection"
+          requires:
+            - push-app-operator-to-control-plane-app-catalog
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^v.*/
+
+      - architect/push-to-app-collection:
+          context: architect
+          name: push-app-operator-to-vsphere-app-collection
+          app_name: "app-operator"
+          app_collection_repo: "vsphere-app-collection"
+          requires:
+            - push-app-operator-to-control-plane-app-catalog
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^v.*/
+
+
+      - architect/push-to-app-collection:
+          name: push-to-cloud-director-app-collection
+          context: architect
+          app_name: "app-operator"
+          app_collection_repo: "cloud-director-app-collection"
+          requires:
+            - push-app-operator-to-control-plane-app-catalog
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^v.*/
+
+      - architect/push-to-app-collection:
+          context: architect
+          name: push-to-capa-app-collection
+          app_name: "app-operator"
+          app_collection_repo: "capa-app-collection"
+          requires:
+            - push-app-operator-to-control-plane-app-catalog
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^v.*/
+
+      - architect/push-to-app-collection:
+          context: architect
+          name: push-to-gcp-app-collection
+          app_name: "app-operator"
+          app_collection_repo: "gcp-app-collection"
+          requires:
+            - push-app-operator-to-control-plane-app-catalog
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^v.*/

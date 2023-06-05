@@ -4,17 +4,19 @@ import (
 	"context"
 	"reflect"
 	"testing"
+	"time"
 
-	"github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
-	"github.com/giantswarm/apiextensions/v3/pkg/clientset/versioned/fake"
-	"github.com/giantswarm/k8sclient/v5/pkg/k8sclienttest"
+	"github.com/giantswarm/apiextensions-application/api/v1alpha1"
+	"github.com/giantswarm/k8sclient/v7/pkg/k8sclienttest"
 	"github.com/giantswarm/micrologger/microloggertest"
 	"github.com/google/go-cmp/cmp"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	clientgofake "k8s.io/client-go/kubernetes/fake"
+	"sigs.k8s.io/controller-runtime/pkg/client/fake" //nolint:staticcheck
 
-	"github.com/giantswarm/app-operator/v4/service/controller/app/controllercontext"
+	"github.com/giantswarm/app-operator/v6/service/controller/app/controllercontext"
+	"github.com/giantswarm/app-operator/v6/service/internal/indexcache/indexcachetest"
 )
 
 func Test_Resource_newUpdateChange(t *testing.T) {
@@ -186,6 +188,75 @@ func Test_Resource_newUpdateChange(t *testing.T) {
 			},
 			expectedChart: &v1alpha1.Chart{},
 		},
+		{
+			name: "case 2: adding timeout",
+			currentChart: &v1alpha1.Chart{
+				TypeMeta: metav1.TypeMeta{
+					Kind:       "Chart",
+					APIVersion: "application.giantswarm.io",
+				},
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "hello-world",
+					Namespace: "default",
+					Labels: map[string]string{
+						"chart-operator.giantswarm.io/version": "1.0.0",
+						"giantswarm.io/managed-by":             "app-operator",
+					},
+				},
+				Spec: v1alpha1.ChartSpec{
+					Name:       "hello-world",
+					Namespace:  "default",
+					TarballURL: "https://giantswarm.github.io/app-catalog/hello-world-app-1.1.1.tgz",
+					Version:    "1.1.1",
+				},
+			},
+			desiredChart: &v1alpha1.Chart{
+				TypeMeta: metav1.TypeMeta{
+					Kind:       "Chart",
+					APIVersion: "application.giantswarm.io",
+				},
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "hello-world",
+					Namespace: "default",
+					Labels: map[string]string{
+						"chart-operator.giantswarm.io/version": "1.0.0",
+						"giantswarm.io/managed-by":             "app-operator",
+					},
+				},
+				Spec: v1alpha1.ChartSpec{
+					Name:       "hello-world",
+					Namespace:  "default",
+					TarballURL: "https://giantswarm.github.io/app-catalog/hello-world-app-1.1.1.tgz",
+					Version:    "1.1.1",
+					Install: v1alpha1.ChartSpecInstall{
+						Timeout: &metav1.Duration{Duration: 300 * time.Second},
+					},
+				},
+			},
+			expectedChart: &v1alpha1.Chart{
+				TypeMeta: metav1.TypeMeta{
+					Kind:       "Chart",
+					APIVersion: "application.giantswarm.io",
+				},
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "hello-world",
+					Namespace: "default",
+					Labels: map[string]string{
+						"chart-operator.giantswarm.io/version": "1.0.0",
+						"giantswarm.io/managed-by":             "app-operator",
+					},
+				},
+				Spec: v1alpha1.ChartSpec{
+					Name:       "hello-world",
+					Namespace:  "default",
+					TarballURL: "https://giantswarm.github.io/app-catalog/hello-world-app-1.1.1.tgz",
+					Version:    "1.1.1",
+					Install: v1alpha1.ChartSpecInstall{
+						Timeout: &metav1.Duration{Duration: 300 * time.Second},
+					},
+				},
+			},
+		},
 	}
 
 	for _, tc := range tests {
@@ -193,9 +264,12 @@ func Test_Resource_newUpdateChange(t *testing.T) {
 			objs := make([]runtime.Object, 0)
 
 			c := Config{
-				Logger: microloggertest.New(),
+				IndexCache: indexcachetest.New(indexcachetest.Config{}),
+				Logger:     microloggertest.New(),
+				CtrlClient: fake.NewFakeClient(), //nolint:staticcheck
 
-				ChartNamespace: "giantswarm",
+				ChartNamespace:               "giantswarm",
+				DependencyWaitTimeoutMinutes: 30,
 			}
 			r, err := New(c)
 			if err != nil {
@@ -205,8 +279,8 @@ func Test_Resource_newUpdateChange(t *testing.T) {
 			var ctx context.Context
 			{
 				config := k8sclienttest.ClientsConfig{
-					G8sClient: fake.NewSimpleClientset(),
-					K8sClient: clientgofake.NewSimpleClientset(objs...),
+					CtrlClient: fake.NewFakeClient(), //nolint:staticcheck
+					K8sClient:  clientgofake.NewSimpleClientset(objs...),
 				}
 				client := k8sclienttest.NewClients(config)
 

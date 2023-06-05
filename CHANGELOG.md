@@ -7,9 +7,340 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+## [6.7.0] - 2023-05-10
+
 ### Changed
 
+- Only include PodSecurityPolicy on clusters with policy/v1beta1 api available.
+- Only include PodMonitor on clusters with monitoring.coreos.com/v1 api available.
+
+### Removed
+
+- Stop pushing to `openstack-app-collection`.
+
+## [6.6.4] - 2023-04-05
+
+### Changed
+
+- Improved feedback when searching for an app in catalog.
+
+## [6.6.3] - 2023-03-21
+
+### Changed
+
+- Lowered resource requests and limits
+- Changed VPA to consider unique and workload cluster operators as well and added support for min allowed fields of CPU and memory
+
+## [6.6.2] - 2023-03-10
+
+### Changed
+
+- Bump `giantswarm/app` package to `v6.15.5`
+
+## [6.6.1] - 2023-03-09
+
+### Changed
+
+- Bump `giantswarm/app` package to `v6.15.2` to fix cluster and namespace singletons checks for CAPI.
+
+## [6.6.0] - 2023-02-02
+
+### Added
+
+- Add support for dependencies between apps using `app-operator.giantswarm.io/depends-on` annotation.
+
+## [6.5.1] - 2023-02-01
+
+### Changed
+
+- Bump `giantswarm/app` package to `v6.15.2` to weaken the condition on userConfig names for default apps.
+
+## [6.5.0] - 2022-12-02
+
+### Fixed
+
+- Fix building URLs for OCI Repositories assigned to non-internal `Catalogs`.
+
+## [6.4.4] - 2022-11-29
+
+### Fixed
+
+- Fix workload cluster request template.
+
+## [6.4.3] - 2022-11-23
+
+### Changed
+
+- Use `port` instead of deprecated `targetPort` field for `PodMonitor`
+
+### Fixed
+
+- Provide synchronization between goroutines operating on indices maps.
+
+## [6.4.2] - 2022-11-21
+
+### Changed
+
+- Bump `github.com/giantswarm/app` to `v6.15.1`
+
+## [6.4.1] - 2022-09-26
+
+### Fixed
+
+- Fix a bug that skips adding the chart-values or chart-secrets entries to the Chart CR when they are only created via extra configs of the App CR
+
+## [6.4.0] - 2022-09-22
+
+### Added
+
+- Support timeouts fields in the App CR.
+
+### Changed
+
+- Add support for new control-plane label in k8s 1.24.
+
+## [6.3.0] - 2022-07-11
+
+### Added
+
+- If no userconfig configmap or secret reference is specified but one is found following the default naming convention (`*-user-values` / `*-user-secrets`) then the App resource is updated to reference the found configmap/secret.
+
+## [6.2.0] - 2022-07-11
+
+### Added
+
+- Watch config maps and secrets listed in the `extraConfigs` section of App CR for multi layer configs, see: https://github.com/giantswarm/rfc/tree/main/multi-layer-app-config#enhancing-app-cr
+
+### Changed
+
+- Bump `github.com/giantswarm/app` to `v6.12.0`
+
+## [6.1.0] - 2022-07-05
+
+### Changed
+
+- Use downward API to set deployment env var `KUBERNETES_SERVICE_HOST` to `status.hostIP`.
+- Change `initialBootstrapMode` configuration value to `bootstrapMode`.
+- Tighten pod and container security contexts for PSS restricted policies.
+
+### Added
+
+- Allow to set api server pod port when enabling `initialBootstrapMode`.
+
+## [6.0.1] - 2022-06-20
+
+### Added
+
+- Add support for Catalogs that define multiple repository mirrors to be used in case some of them are unreachable.
+
+### Changed
+
+- Only run `PodMonitor` outside of bootstrap mode.
+
+## [6.0.0] - 2022-06-08
+
+### Added
+
+- Added `PodMonitor` to the Helm chart to collect metrics from the running operator pod (instead of via the Service)
+
+### Changed
+
+- This version requires `prometheus-meta-operator` of `v3.6.0` or later to scrape the metrics from the `PodMinitor`
+- This version requires `kyverno-policies-observability` of `v0.1.2` or later to have proper labels applied to metrics
+
+### Removed
+
+- Removed Service from the Helm chart
+
+## [5.12.0] - 2022-06-06
+
+### Added
+
+- Add `initialBootstrapMode` flag to allow deploying CNI as managed apps.
+
+## [5.11.0] - 2022-05-23
+
+### Changed
+
+- Only set resource limits on the deployment when the VPA is not available or disabled
+- Increase min / max resource limits on VPA
+
+## [5.10.2] - 2022-05-18
+
+### Fixed
+
+- Add missing permissions for `apps/deployments`.
+
+## [5.10.1] - 2022-05-18
+
+### Fixed
+
+- Limit `*-chart` `ClusterRole` and `ClusterRoleBinding` to `giantswarm` namespace deployment.
+
+## [5.10.0] - 2022-05-16
+
+### Fixed
+
+- Fix `app-operator` RBAC to avoid granting excessive permissions to its `ServiceAccount`.
+
+### Removed
+
+- Remove `authtokenmigration` resource.
+
+## [5.9.0] - 2022-04-07
+
+### Changed
+
+- Update `helmclient` to v4.10.0.
+- Update giantswarm/appcatalog to `v0.7.0`, adding support for internal OCI chart catalogs.
+
+
+## [5.8.0] - 2022-03-11
+
+### Added
+
+- Add support for relative URLs in catalog indexes.
+
+### Fixed
+
+- Continue processing `AppCatalogEntry` CRs if an error occurs.
+- Only show `AppCatalogEntry` CRs that are compatible with the current provider.
+- For internal catalogs generate tarball URLs instead of checking `index.yaml`
+to prevent chicken egg problems in new clusters.
+
+## [5.7.5] - 2022-03-01
+
+### Fixed
+
+- Fix label selector in app values watcher so it supports CAPI clusters.
+- Strip cluster name from App CR name to determine Chart CR name in `chart/current.go` resource to fix WC app updates.
+
+## [5.7.4] - 2022-03-01
+
+### Fixed
+
+- Allow usage of chart-operator PSP so it can be bootstrapped.
+
+## [5.7.3] - 2022-02-28
+
+### Fixed
+
+- Fixing patch to not reset fields.
+
+## [5.7.2] - 2022-02-25
+
+### Fixed
+
+- Remove compatible providers validation for `AppCatalogEntry` as its overly strict.
+- Push image to Docker Hub to not rely on crsync.
+
+## [5.7.1] - 2022-02-22
+
+### Fixed
+
+- Restrict PSP usage to only named resource.
+
+## [5.7.0] - 2022-02-17
+
+## Added
+
+- Annotate App CRs after bootstrapping chart-operator to trigger reconciliation.
+
+## [5.6.0] - 2022-02-02
+
+### Changed
+
+- Get tarball URL for chart CRs from index.yaml for better community app catalog support.
+
+### Fixed
+
+- Fix error handling in chart CR watcher when chart CRD not installed.
+
+## [5.5.2] - 2022-01-28
+
+### Fixed
+
+- Fix getting kubeconfig in chart CR watcher.
+
+## [5.5.1] - 2022-01-20
+
+### Fixed
+
+- When bootstrapping chart-operator the helm release should not include the cluster ID.
+
+## [5.5.0] - 2022-01-19
+
+### Added
+
+- Support watching app CRs in organization namespace with cluster label selector.
+
+## [5.4.1] - 2022-01-14
+
+### Fixed
+
+- Embed Chart CRD in app-operator to prevent hitting GitHub API rate limits.
+
+## [5.4.0] - 2021-12-17
+
+### Changed
+
+- Update Helm to `v3.6.3`.
+- Use controller-runtime client to remove CAPI dependency.
+- Use `apptestctl` to install CRDs in integration tests to avoid hitting GitHub rate limits.
+
+### Removed
+
+- Remove `releasemigration` resource now migration to Helm 3 is complete.
+
+## [5.3.1] - 2021-12-08
+
+### Added
+
+- Support for App CRs with a `v` prefixed version. This enables Flux to automatically update the version based on its image tag.
+
+## [5.3.0] - 2021-11-11
+
+### Changed
+
+- Use dynamic client instead of generated client for watching chart CRs.
+- Validate `.spec.kubeConfig.secret.name` in validation resource.
+
+## [5.2.0] - 2021-08-19
+
+### Changed
+
+- Reject App CRs with version labels with the legacy `1.0.0` value.
+- Validate `.spec.catalog` using Catalog CRs instead of AppCatalog CRs.
+
+## [5.1.1] - 2021-08-05
+
+### Fixed
+
+- Fix creating `AppCatalog` CRs in appcatalogsync resource.
+
+## [5.1.0] - 2021-07-29
+
+### Changed
+
+- Create `AppCatalogEntry` CRs into the same namespace of Catalog CR.
+- Include `chart.keywords`, `chart.description` and `chart.upstreamChartVersion` in `AppCatalogEntry` CRs.
+
+## [5.0.0] - 2021-07-16
+
+### Changed
+
+- Create `AppCatalog` CRs from `Catalog` CRs for compatibility with existing app-operator releases.
+- Prepare helm values to configuration management.
+- Use `Catalog` CRs in `App` controller.
+- Reconcile to `Catalog` CRs instead of `AppCatalog`.
+- Get `Chart` CRD from the GitHub resources.
 - Get metadata constants from k8smetadata library not apiextensions.
+
+### Fixed
+
+- For the chart CR watcher get the kubeconfig secret from the chart-operator app
+CR to avoid hardcoding it.
+- Quote namespace in helm templates to handle numeric workload cluster IDs.
 
 ## [4.4.0] - 2021-05-03
 
@@ -26,7 +357,7 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [4.3.1] - 2021-03-30
 
-### Fixed 
+### Fixed
 
 - Restore chart-operator when it had been deleted.
 
@@ -360,7 +691,52 @@ from Helm 2 to Helm 3.
 
 - Flattening operator release structure.
 
-[Unreleased]: https://github.com/giantswarm/app-operator/compare/v4.4.0...HEAD
+[Unreleased]: https://github.com/giantswarm/app-operator/compare/v6.7.0...HEAD
+[6.7.0]: https://github.com/giantswarm/app-operator/compare/v6.6.4...v6.7.0
+[6.6.4]: https://github.com/giantswarm/app-operator/compare/v6.6.3...v6.6.4
+[6.6.3]: https://github.com/giantswarm/app-operator/compare/v6.6.3...v6.6.3
+[6.6.3]: https://github.com/giantswarm/app-operator/compare/v6.6.3...v6.6.3
+[6.6.3]: https://github.com/giantswarm/app-operator/compare/v6.6.2...v6.6.3
+[6.6.2]: https://github.com/giantswarm/app-operator/compare/v6.6.1...v6.6.2
+[6.6.1]: https://github.com/giantswarm/app-operator/compare/v6.6.0...v6.6.1
+[6.6.0]: https://github.com/giantswarm/app-operator/compare/v6.5.1...v6.6.0
+[6.5.1]: https://github.com/giantswarm/app-operator/compare/v6.5.0...v6.5.1
+[6.5.0]: https://github.com/giantswarm/app-operator/compare/v6.4.4...v6.5.0
+[6.4.4]: https://github.com/giantswarm/app-operator/compare/v6.4.3...v6.4.4
+[6.4.3]: https://github.com/giantswarm/app-operator/compare/v6.4.2...v6.4.3
+[6.4.2]: https://github.com/giantswarm/app-operator/compare/v6.4.1...v6.4.2
+[6.4.1]: https://github.com/giantswarm/app-operator/compare/v6.4.0...v6.4.1
+[6.4.0]: https://github.com/giantswarm/app-operator/compare/v6.3.0...v6.4.0
+[6.3.0]: https://github.com/giantswarm/app-operator/compare/v6.2.0...v6.3.0
+[6.2.0]: https://github.com/giantswarm/app-operator/compare/v6.1.0...v6.2.0
+[6.1.0]: https://github.com/giantswarm/app-operator/compare/v6.0.1...v6.1.0
+[6.0.1]: https://github.com/giantswarm/app-operator/compare/v6.0.0...v6.0.1
+[6.0.0]: https://github.com/giantswarm/app-operator/compare/v5.12.0...v6.0.0
+[5.12.0]: https://github.com/giantswarm/app-operator/compare/v5.11.0...v5.12.0
+[5.11.0]: https://github.com/giantswarm/app-operator/compare/v5.10.2...v5.11.0
+[5.10.2]: https://github.com/giantswarm/app-operator/compare/v5.10.1...v5.10.2
+[5.10.1]: https://github.com/giantswarm/app-operator/compare/v5.10.0...v5.10.1
+[5.10.0]: https://github.com/giantswarm/app-operator/compare/v5.9.0...v5.10.0
+[5.9.0]: https://github.com/giantswarm/app-operator/compare/v5.8.0...v5.9.0
+[5.8.0]: https://github.com/giantswarm/app-operator/compare/v5.7.5...v5.8.0
+[5.7.5]: https://github.com/giantswarm/app-operator/compare/v5.7.4...v5.7.5
+[5.7.4]: https://github.com/giantswarm/app-operator/compare/v5.7.3...v5.7.4
+[5.7.3]: https://github.com/giantswarm/app-operator/compare/v5.7.2...v5.7.3
+[5.7.2]: https://github.com/giantswarm/app-operator/compare/v5.7.1...v5.7.2
+[5.7.1]: https://github.com/giantswarm/app-operator/compare/v5.7.0...v5.7.1
+[5.7.0]: https://github.com/giantswarm/app-operator/compare/v5.6.0...v5.7.0
+[5.6.0]: https://github.com/giantswarm/app-operator/compare/v5.5.2...v5.6.0
+[5.5.2]: https://github.com/giantswarm/app-operator/compare/v5.5.1...v5.5.2
+[5.5.1]: https://github.com/giantswarm/app-operator/compare/v5.5.0...v5.5.1
+[5.5.0]: https://github.com/giantswarm/app-operator/compare/v5.4.1...v5.5.0
+[5.4.1]: https://github.com/giantswarm/app-operator/compare/v5.4.0...v5.4.1
+[5.4.0]: https://github.com/giantswarm/app-operator/compare/v5.3.1...v5.4.0
+[5.3.1]: https://github.com/giantswarm/app-operator/compare/v5.3.0...v5.3.1
+[5.3.0]: https://github.com/giantswarm/app-operator/compare/v5.2.0...v5.3.0
+[5.2.0]: https://github.com/giantswarm/app-operator/compare/v5.1.1...v5.2.0
+[5.1.1]: https://github.com/giantswarm/app-operator/compare/v5.1.0...v5.1.1
+[5.1.0]: https://github.com/giantswarm/app-operator/compare/v5.0.0...v5.1.0
+[5.0.0]: https://github.com/giantswarm/app-operator/compare/v4.4.0...v5.0.0
 [4.4.0]: https://github.com/giantswarm/app-operator/compare/v4.3.2...v4.4.0
 [4.3.2]: https://github.com/giantswarm/app-operator/compare/v4.3.1...v4.3.2
 [4.3.1]: https://github.com/giantswarm/app-operator/compare/v4.3.0...v4.3.1

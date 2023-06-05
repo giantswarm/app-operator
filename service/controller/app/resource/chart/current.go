@@ -3,15 +3,16 @@ package chart
 import (
 	"context"
 
-	"github.com/giantswarm/app/v4/pkg/key"
+	"github.com/giantswarm/apiextensions-application/api/v1alpha1"
+	"github.com/giantswarm/app/v6/pkg/key"
 	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/microerror"
-	"github.com/giantswarm/operatorkit/v4/pkg/controller/context/resourcecanceledcontext"
+	"github.com/giantswarm/operatorkit/v8/pkg/controller/context/resourcecanceledcontext"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
 
-	"github.com/giantswarm/app-operator/v4/pkg/status"
-	"github.com/giantswarm/app-operator/v4/service/controller/app/controllercontext"
+	"github.com/giantswarm/app-operator/v6/pkg/status"
+	"github.com/giantswarm/app-operator/v6/service/controller/app/controllercontext"
 )
 
 func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interface{}, error) {
@@ -20,7 +21,7 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 		return nil, microerror.Mask(err)
 	}
 
-	name := cr.GetName()
+	chartName := key.ChartName(cr, r.workloadClusterID)
 
 	cc, err := controllercontext.FromContext(ctx)
 	if err != nil {
@@ -55,11 +56,16 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 		return nil, nil
 	}
 
-	r.logger.Debugf(ctx, "finding chart %#q", name)
+	r.logger.Debugf(ctx, "finding chart %#q", chartName)
 
-	chart, err := cc.Clients.K8s.G8sClient().ApplicationV1alpha1().Charts(r.chartNamespace).Get(ctx, name, metav1.GetOptions{})
+	chart := &v1alpha1.Chart{}
+	err = cc.Clients.K8s.CtrlClient().Get(
+		ctx,
+		types.NamespacedName{Name: chartName, Namespace: r.chartNamespace},
+		chart,
+	)
 	if apierrors.IsNotFound(err) {
-		r.logger.Debugf(ctx, "did not find chart %#q in namespace %#q", name, r.chartNamespace)
+		r.logger.Debugf(ctx, "did not find chart %#q in namespace %#q", chartName, r.chartNamespace)
 		return nil, nil
 	} else if tenant.IsAPINotAvailable(err) {
 		// We should not hammer workload API if it is not available, the workload cluster
@@ -72,7 +78,7 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 		return nil, microerror.Mask(err)
 	}
 
-	r.logger.Debugf(ctx, "found chart %#q", name)
+	r.logger.Debugf(ctx, "found chart %#q", chartName)
 
 	return chart, nil
 }
