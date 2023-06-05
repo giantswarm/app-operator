@@ -68,3 +68,6 @@ sonatype-2023-1010 until=2023-06-30
 CVE-2020-8561 until=2023-06-30
 CVE-2023-25809 until=2023-06-30
 CVE-2023-28642 until=2023-06-30
+
+# pkg:golang/github.com/gin-gonic/gin@v1.9.0
+CVE-2023-29401
