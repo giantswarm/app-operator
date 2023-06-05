@@ -1,18 +1,22 @@
+//go:build k8srequired
 // +build k8srequired
 
 package setup
 
 import (
+	"github.com/giantswarm/apiextensions-application/api/v1alpha1"
 	"github.com/giantswarm/apptest"
 	"github.com/giantswarm/helmclient/v4/pkg/helmclient"
-	"github.com/giantswarm/k8sclient/v5/pkg/k8sclient"
+	"github.com/giantswarm/k8sclient/v6/pkg/k8sclient"
 	"github.com/giantswarm/kubeconfig/v4"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/spf13/afero"
 
-	"github.com/giantswarm/app-operator/v4/integration/env"
-	"github.com/giantswarm/app-operator/v4/integration/release"
+	prometheusMonitoringV1 "github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring/v1"
+
+	"github.com/giantswarm/app-operator/v6/integration/env"
+	"github.com/giantswarm/app-operator/v6/integration/release"
 )
 
 type Config struct {
@@ -58,6 +62,10 @@ func NewConfig() (Config, error) {
 	{
 		c := k8sclient.ClientsConfig{
 			Logger: logger,
+			SchemeBuilder: k8sclient.SchemeBuilder{
+				prometheusMonitoringV1.AddToScheme,
+				v1alpha1.AddToScheme,
+			},
 
 			KubeConfigPath: env.KubeConfigPath(),
 		}

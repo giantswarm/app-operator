@@ -1,3 +1,4 @@
+//go:build k8srequired
 // +build k8srequired
 
 package workload
@@ -13,10 +14,10 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/tools/clientcmd/api"
 
-	"github.com/giantswarm/app-operator/v4/integration/env"
-	"github.com/giantswarm/app-operator/v4/integration/key"
-	"github.com/giantswarm/app-operator/v4/integration/templates"
-	"github.com/giantswarm/app-operator/v4/pkg/project"
+	"github.com/giantswarm/app-operator/v6/integration/env"
+	"github.com/giantswarm/app-operator/v6/integration/key"
+	"github.com/giantswarm/app-operator/v6/integration/templates"
+	"github.com/giantswarm/app-operator/v6/pkg/project"
 )
 
 const (
@@ -93,7 +94,7 @@ func TestWorkloadCluster(t *testing.T) {
 		apps := []apptest.App{
 			{
 				// Bootstrap chart-operator in the giantswarm namespace.
-				AppCRName:     key.ChartOperatorUniqueName(),
+				AppCRName:     key.ChartOperatorName(),
 				CatalogName:   key.ControlPlaneCatalogName(),
 				KubeConfig:    kubeConfig,
 				Name:          key.ChartOperatorName(),
@@ -104,12 +105,13 @@ func TestWorkloadCluster(t *testing.T) {
 			},
 			{
 				// Install app-operator in the workload cluster namespace.
+				AppCRName:      fmt.Sprintf("%s-%s", project.Name(), key.WorkloadClusterNamespace()),
 				AppCRNamespace: key.WorkloadClusterNamespace(),
 				CatalogName:    key.ControlPlaneTestCatalogName(),
 				Name:           project.Name(),
 				Namespace:      key.WorkloadClusterNamespace(),
 				ValuesYAML:     templates.AppOperatorValues,
-				SHA:            env.CircleSHA(),
+				SHA:            key.AppOperatorInTestVersion(),
 				WaitForDeploy:  true,
 			},
 			{

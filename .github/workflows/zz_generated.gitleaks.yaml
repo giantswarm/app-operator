@@ -1,17 +1,17 @@
 # DO NOT EDIT. Generated with:
 #
-#    devctl@4.5.1
+#    devctl@6.1.1
 #
 name: gitleaks
 
-on: [push,pull_request]
+on: [pull_request]
 
 jobs:
   gitleaks:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         fetch-depth: '0'
     - name: gitleaks-action
-      uses: zricethezav/gitleaks-action@v1.2.0
+      uses: zricethezav/gitleaks-action@v1.6.0

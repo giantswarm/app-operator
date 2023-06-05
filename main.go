@@ -4,20 +4,21 @@ import (
 	"context"
 	"fmt"
 
-	applicationv1alpha1 "github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
-	"github.com/giantswarm/k8sclient/v5/pkg/k8sclient"
-	"github.com/giantswarm/k8sclient/v5/pkg/k8srestconfig"
+	applicationv1alpha1 "github.com/giantswarm/apiextensions-application/api/v1alpha1"
+	"github.com/giantswarm/k8sclient/v7/pkg/k8sclient"
+	"github.com/giantswarm/k8sclient/v7/pkg/k8srestconfig"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/microkit/command"
 	microserver "github.com/giantswarm/microkit/server"
 	"github.com/giantswarm/micrologger"
+	prometheusMonitoringV1 "github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring/v1"
 	"github.com/spf13/viper"
 	"k8s.io/client-go/rest"
 
-	"github.com/giantswarm/app-operator/v4/flag"
-	"github.com/giantswarm/app-operator/v4/pkg/project"
-	"github.com/giantswarm/app-operator/v4/server"
-	"github.com/giantswarm/app-operator/v4/service"
+	"github.com/giantswarm/app-operator/v6/flag"
+	"github.com/giantswarm/app-operator/v6/pkg/project"
+	"github.com/giantswarm/app-operator/v6/server"
+	"github.com/giantswarm/app-operator/v6/service"
 )
 
 var (
@@ -74,6 +75,7 @@ func mainWithError() (err error) {
 			c := k8sclient.ClientsConfig{
 				Logger: newLogger,
 				SchemeBuilder: k8sclient.SchemeBuilder{
+					prometheusMonitoringV1.AddToScheme,
 					applicationv1alpha1.AddToScheme,
 				},
 
@@ -145,6 +147,9 @@ func mainWithError() (err error) {
 	daemonCommand := newCommand.DaemonCommand().CobraCommand()
 
 	daemonCommand.PersistentFlags().Bool(f.Service.App.Unique, false, "Whether the operator is deployed as a unique app.")
+	daemonCommand.PersistentFlags().String(f.Service.App.WatchNamespace, "", "Namespace to watch for app CRs.")
+	daemonCommand.PersistentFlags().String(f.Service.App.WorkloadClusterID, "", "Workload cluster ID for app CR label selector.")
+	daemonCommand.PersistentFlags().Int(f.Service.App.DependencyWaitTimeoutMinutes, 30, "Timeout in seconds after which to ignore dependencies and make app installation to move on.")
 	daemonCommand.PersistentFlags().Int(f.Service.AppCatalog.MaxEntriesPerApp, 5, "The maximum number of appCatalogEntries per app.")
 	daemonCommand.PersistentFlags().String(f.Service.Chart.Namespace, "giantswarm", "The namespace where chart CRs are located.")
 	daemonCommand.PersistentFlags().String(f.Service.Helm.HTTP.ClientTimeout, "5s", "HTTP timeout for pulling chart tarballs.")

@@ -2,11 +2,10 @@ package appvalue
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"strconv"
 
-	"github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
+	"github.com/giantswarm/apiextensions-application/api/v1alpha1"
 	"github.com/giantswarm/k8smetadata/pkg/annotation"
 	"github.com/giantswarm/k8smetadata/pkg/label"
 	"github.com/giantswarm/microerror"
@@ -14,6 +13,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/watch"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 func (c *AppValueWatcher) watchConfigMap(ctx context.Context) {
@@ -101,16 +101,24 @@ func (c *AppValueWatcher) watchConfigMap(ctx context.Context) {
 			}
 
 			c.logger.Debugf(ctx, "listed apps depends on %#q configmap in namespace %#q", cm.Name, cm.Namespace)
+
+			var currentApp v1alpha1.App
+
+			c.appIndexMutex.RLock()
 			for app := range storedIndex {
 				c.logger.Debugf(ctx, "triggering %#q app update in namespace %#q", app.Name, app.Namespace)
 
-				currentApp, err := c.k8sClient.G8sClient().ApplicationV1alpha1().Apps(app.Namespace).Get(ctx, app.Name, metav1.GetOptions{})
+				err = c.k8sClient.CtrlClient().Get(
+					ctx,
+					types.NamespacedName{Name: app.Name, Namespace: app.Namespace},
+					&currentApp,
+				)
 				if err != nil {
 					c.logger.Errorf(ctx, err, "cannot fetch app CR %s/%s", app.Namespace, app.Name)
 					continue
 				}
 
-				err = c.addAnnotation(ctx, currentApp, cm.GetResourceVersion(), configMapType)
+				err = c.addAnnotation(ctx, &currentApp, cm.GetResourceVersion(), configMapType)
 				if err != nil {
 					c.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("failed to add annotation to app %#q in namespace %#q", app.Name, app.Namespace), "stack", fmt.Sprintf("%#v", err))
 					continue
@@ -118,8 +126,9 @@ func (c *AppValueWatcher) watchConfigMap(ctx context.Context) {
 
 				c.logger.Debugf(ctx, "triggered %#q app update in namespace %#q", app.Name, app.Namespace)
 
-				c.event.Emit(ctx, currentApp, "AppUpdated", "change to configmap %s/%s triggered an update", configMap.Namespace, configMap.Name)
+				c.event.Emit(ctx, &currentApp, "AppUpdated", "change to configmap %s/%s triggered an update", configMap.Namespace, configMap.Name)
 			}
+			c.appIndexMutex.RUnlock()
 			c.logger.Debugf(ctx, "listed apps depends on %#q configmap in namespace %#q", cm.Name, cm.Namespace)
 		}
 
@@ -137,33 +146,26 @@ func (c *AppValueWatcher) addAnnotation(ctx context.Context, app *v1alpha1.App, 
 		}
 	}
 
-	currentApp, err := c.k8sClient.G8sClient().ApplicationV1alpha1().Apps(app.Namespace).Get(ctx, app.Name, metav1.GetOptions{})
+	var modifiedApp v1alpha1.App
+
+	err := c.k8sClient.CtrlClient().Get(
+		ctx,
+		types.NamespacedName{Name: app.Name, Namespace: app.Namespace},
+		&modifiedApp,
+	)
 	if err != nil {
 		return microerror.Mask(err)
 	}
 
-	patches := []patch{}
-
-	if len(currentApp.GetAnnotations()) == 0 {
-		patches = append(patches, patch{
-			Op:    "add",
-			Path:  "/metadata/annotations",
-			Value: map[string]string{},
-		})
+	if len(modifiedApp.GetAnnotations()) == 0 {
+		modifiedApp.Annotations = map[string]string{}
 	}
 
-	patches = append(patches, patch{
-		Op:    "add",
-		Path:  fmt.Sprintf("/metadata/annotations/%s", replaceToEscape(versionAnnotation)),
-		Value: latestResourceVersion,
-	})
+	annotations := modifiedApp.Annotations
+	annotations[versionAnnotation] = latestResourceVersion
+	modifiedApp.Annotations = annotations
 
-	bytes, err := json.Marshal(patches)
-	if err != nil {
-		return microerror.Mask(err)
-	}
-
-	_, err = c.k8sClient.G8sClient().ApplicationV1alpha1().Apps(app.Namespace).Patch(ctx, app.Name, types.JSONPatchType, bytes, metav1.PatchOptions{})
+	err = c.k8sClient.CtrlClient().Patch(ctx, &modifiedApp, client.MergeFrom(app))
 	if err != nil {
 		return microerror.Mask(err)
 	}

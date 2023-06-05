@@ -1,0 +1,18 @@
+{{- if and (not .Values.bootstrapMode.enabled) (.Capabilities.APIVersions.Has "monitoring.coreos.com/v1") }}
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: {{ include "resource.default.name" . }}
+  namespace: {{ include "resource.default.namespace" . }}
+  labels:
+    name: {{ include "resource.default.name" . }}
+spec:
+  namespaceSelector:
+    matchNames:
+      - {{ include "resource.default.namespace" . }}
+  selector:
+    matchLabels:
+      {{- include "labels.selector" . | nindent 6 }}
+  podMetricsEndpoints:
+    - port: "{{ .Values.port }}"
+{{- end }}

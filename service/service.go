@@ -5,23 +5,23 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/giantswarm/k8sclient/v5/pkg/k8sclient"
+	"github.com/giantswarm/k8sclient/v7/pkg/k8sclient"
 	"github.com/giantswarm/microendpoint/service/version"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
-	"github.com/giantswarm/versionbundle"
 	"github.com/spf13/afero"
 	"github.com/spf13/viper"
 
-	"github.com/giantswarm/app-operator/v4/flag"
-	"github.com/giantswarm/app-operator/v4/pkg/env"
-	"github.com/giantswarm/app-operator/v4/pkg/project"
-	"github.com/giantswarm/app-operator/v4/service/controller/app"
-	"github.com/giantswarm/app-operator/v4/service/controller/appcatalog"
-	"github.com/giantswarm/app-operator/v4/service/internal/clientcache"
-	"github.com/giantswarm/app-operator/v4/service/internal/recorder"
-	"github.com/giantswarm/app-operator/v4/service/watcher/appvalue"
-	"github.com/giantswarm/app-operator/v4/service/watcher/chartstatus"
+	"github.com/giantswarm/app-operator/v6/flag"
+	"github.com/giantswarm/app-operator/v6/pkg/env"
+	"github.com/giantswarm/app-operator/v6/pkg/project"
+	"github.com/giantswarm/app-operator/v6/service/controller/app"
+	"github.com/giantswarm/app-operator/v6/service/controller/catalog"
+	"github.com/giantswarm/app-operator/v6/service/internal/clientcache"
+	"github.com/giantswarm/app-operator/v6/service/internal/indexcache"
+	"github.com/giantswarm/app-operator/v6/service/internal/recorder"
+	"github.com/giantswarm/app-operator/v6/service/watcher/appvalue"
+	"github.com/giantswarm/app-operator/v6/service/watcher/chartstatus"
 )
 
 // Config represents the configuration used to create a new service.
@@ -38,11 +38,11 @@ type Service struct {
 	Version *version.Service
 
 	// Internals
-	appController        *app.App
-	appCatalogController *appcatalog.AppCatalog
-	appValueWatcher      *appvalue.AppValueWatcher
-	chartStatusWatcher   *chartstatus.ChartStatusWatcher
-	bootOnce             sync.Once
+	appController      *app.App
+	catalogController  *catalog.Catalog
+	appValueWatcher    *appvalue.AppValueWatcher
+	chartStatusWatcher *chartstatus.ChartStatusWatcher
+	bootOnce           sync.Once
 
 	// Settings
 	unique bool
@@ -66,17 +66,18 @@ func New(config Config) (*Service, error) {
 
 	var err error
 
-	var appCatalogController *appcatalog.AppCatalog
+	var catalogController *catalog.Catalog
 	{
-		c := appcatalog.Config{
+		c := catalog.Config{
 			Logger:    config.Logger,
 			K8sClient: config.K8sClient,
 
 			MaxEntriesPerApp: config.Viper.GetInt(config.Flag.Service.AppCatalog.MaxEntriesPerApp),
+			Provider:         config.Viper.GetString(config.Flag.Service.Provider.Kind),
 			UniqueApp:        config.Viper.GetBool(config.Flag.Service.App.Unique),
 		}
 
-		appCatalogController, err = appcatalog.NewAppCatalog(c)
+		catalogController, err = catalog.NewCatalog(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -101,21 +102,39 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
+	var indexCache indexcache.Interface
+	{
+		c := indexcache.Config{
+			Logger: config.Logger,
+
+			HTTPClientTimeout: config.Viper.GetDuration(config.Flag.Service.Helm.HTTP.ClientTimeout),
+		}
+
+		indexCache, err = indexcache.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var appController *app.App
 	{
 		c := app.Config{
 			ClientCache: clientCache,
 			Fs:          fs,
+			IndexCache:  indexCache,
 			Logger:      config.Logger,
 			K8sClient:   config.K8sClient,
 
-			ChartNamespace:    config.Viper.GetString(config.Flag.Service.Chart.Namespace),
-			HTTPClientTimeout: config.Viper.GetDuration(config.Flag.Service.Helm.HTTP.ClientTimeout),
-			ImageRegistry:     config.Viper.GetString(config.Flag.Service.Image.Registry),
-			PodNamespace:      podNamespace,
-			Provider:          config.Viper.GetString(config.Flag.Service.Provider.Kind),
-			ResyncPeriod:      config.Viper.GetDuration(config.Flag.Service.Operatorkit.ResyncPeriod),
-			UniqueApp:         config.Viper.GetBool(config.Flag.Service.App.Unique),
+			ChartNamespace:               config.Viper.GetString(config.Flag.Service.Chart.Namespace),
+			HTTPClientTimeout:            config.Viper.GetDuration(config.Flag.Service.Helm.HTTP.ClientTimeout),
+			ImageRegistry:                config.Viper.GetString(config.Flag.Service.Image.Registry),
+			PodNamespace:                 podNamespace,
+			Provider:                     config.Viper.GetString(config.Flag.Service.Provider.Kind),
+			ResyncPeriod:                 config.Viper.GetDuration(config.Flag.Service.Operatorkit.ResyncPeriod),
+			UniqueApp:                    config.Viper.GetBool(config.Flag.Service.App.Unique),
+			WatchNamespace:               config.Viper.GetString(config.Flag.Service.App.WatchNamespace),
+			WorkloadClusterID:            config.Viper.GetString(config.Flag.Service.App.WorkloadClusterID),
+			DependencyWaitTimeoutMinutes: config.Viper.GetInt(config.Flag.Service.App.DependencyWaitTimeoutMinutes),
 		}
 
 		appController, err = app.NewApp(c)
@@ -142,7 +161,9 @@ func New(config Config) (*Service, error) {
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
 
-			UniqueApp: config.Viper.GetBool(config.Flag.Service.App.Unique),
+			SecretNamespace:   podNamespace,
+			UniqueApp:         config.Viper.GetBool(config.Flag.Service.App.Unique),
+			WorkloadClusterID: config.Viper.GetString(config.Flag.Service.App.WorkloadClusterID),
 		}
 
 		appValueWatcher, err = appvalue.NewAppValueWatcher(c)
@@ -157,9 +178,10 @@ func New(config Config) (*Service, error) {
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
 
-			ChartNamespace: config.Viper.GetString(config.Flag.Service.Chart.Namespace),
-			PodNamespace:   podNamespace,
-			UniqueApp:      config.Viper.GetBool(config.Flag.Service.App.Unique),
+			ChartNamespace:    config.Viper.GetString(config.Flag.Service.Chart.Namespace),
+			PodNamespace:      podNamespace,
+			UniqueApp:         config.Viper.GetBool(config.Flag.Service.App.Unique),
+			WorkloadClusterID: config.Viper.GetString(config.Flag.Service.App.WorkloadClusterID),
 		}
 
 		chartStatusWatcher, err = chartstatus.NewChartStatusWatcher(c)
@@ -171,12 +193,11 @@ func New(config Config) (*Service, error) {
 	var versionService *version.Service
 	{
 		versionConfig := version.Config{
-			Description:    project.Description(),
-			GitCommit:      project.GitSHA(),
-			Name:           project.Name(),
-			Source:         project.Source(),
-			Version:        project.Version(),
-			VersionBundles: []versionbundle.Bundle{project.NewVersionBundle()},
+			Description: project.Description(),
+			GitCommit:   project.GitSHA(),
+			Name:        project.Name(),
+			Source:      project.Source(),
+			Version:     project.Version(),
 		}
 
 		versionService, err = version.New(versionConfig)
@@ -188,11 +209,11 @@ func New(config Config) (*Service, error) {
 	newService := &Service{
 		Version: versionService,
 
-		appController:        appController,
-		appCatalogController: appCatalogController,
-		appValueWatcher:      appValueWatcher,
-		chartStatusWatcher:   chartStatusWatcher,
-		bootOnce:             sync.Once{},
+		appController:      appController,
+		catalogController:  catalogController,
+		appValueWatcher:    appValueWatcher,
+		chartStatusWatcher: chartStatusWatcher,
+		bootOnce:           sync.Once{},
 
 		unique: config.Viper.GetBool(config.Flag.Service.App.Unique),
 	}
@@ -205,7 +226,7 @@ func (s *Service) Boot(ctx context.Context) {
 	s.bootOnce.Do(func() {
 		// Boot appCatalogController only if it's unique app.
 		if s.unique {
-			go s.appCatalogController.Boot(ctx)
+			go s.catalogController.Boot(ctx)
 		}
 
 		// Start the controller.

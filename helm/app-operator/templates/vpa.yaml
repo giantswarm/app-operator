@@ -1,4 +1,4 @@
-{{ if and (.Capabilities.APIVersions.Has "autoscaling.k8s.io/v1") (.Values.verticalPodAutoscaler.enabled) }}
+{{ if eq (include "resource.vpa.enabled" .) "true" }}
 apiVersion: autoscaling.k8s.io/v1
 kind: VerticalPodAutoscaler
 metadata:
@@ -10,7 +10,24 @@ spec:
   resourcePolicy:
     containerPolicies:
     - containerName: {{ include "name" . }}
-      controlledValues: RequestsAndLimits
+      controlledResources:
+        - cpu
+        - memory
+      {{- if eq (include "resource.app.unique" .) "true" }}
+      minAllowed:
+        cpu: {{ .Values.deployment.management.requests.cpu }}
+        memory: {{ .Values.deployment.management.requests.memory }}
+      maxAllowed:
+        cpu: {{ .Values.deployment.management.limits.cpu }}
+        memory: {{ .Values.deployment.management.limits.memory }}
+      {{- else }}
+      minAllowed:
+        cpu: {{ .Values.deployment.workload.requests.cpu }}
+        memory: {{ .Values.deployment.workload.requests.memory }}
+      maxAllowed:
+        cpu: {{ .Values.deployment.workload.limits.cpu }}
+        memory: {{ .Values.deployment.workload.limits.memory }}
+      {{- end }}
       mode: Auto
   targetRef:
     apiVersion: apps/v1

@@ -1,3 +1,4 @@
+//go:build k8srequired
 // +build k8srequired
 
 package workload
@@ -5,7 +6,7 @@ package workload
 import (
 	"testing"
 
-	"github.com/giantswarm/app-operator/v4/integration/setup"
+	"github.com/giantswarm/app-operator/v6/integration/setup"
 )
 
 var (

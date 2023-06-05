@@ -1,3 +1,4 @@
+//go:build k8srequired
 // +build k8srequired
 
 package setup
@@ -8,7 +9,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/giantswarm/apiextensions/v3/pkg/crd"
 	"github.com/giantswarm/appcatalog"
 	"github.com/giantswarm/backoff"
 	"github.com/giantswarm/helmclient/v4/pkg/helmclient"
@@ -16,10 +16,9 @@ import (
 	"github.com/spf13/afero"
 	"sigs.k8s.io/yaml"
 
-	"github.com/giantswarm/app-operator/v4/integration/env"
-	"github.com/giantswarm/app-operator/v4/integration/key"
-	"github.com/giantswarm/app-operator/v4/integration/templates"
-	"github.com/giantswarm/app-operator/v4/pkg/project"
+	"github.com/giantswarm/app-operator/v6/integration/key"
+	"github.com/giantswarm/app-operator/v6/integration/templates"
+	"github.com/giantswarm/app-operator/v6/pkg/project"
 )
 
 func Setup(m *testing.M, config Config) {
@@ -58,38 +57,32 @@ func installResources(ctx context.Context, config Config) error {
 		}
 	}
 
-	// for the kubeconfig test that bootstraps chart-operator.
-	crds := []string{
-		"App",
-		"AppCatalog",
-		"AppCatalogEntry",
-		"Chart",
-	}
-
+	var operatorTarballURL string
 	{
-		for _, crdName := range crds {
-			config.Logger.Debugf(ctx, "ensuring %#q CRD exists", crdName)
+		config.Logger.Debugf(ctx, "getting %#q tarball URL", project.Name())
 
-			err := config.K8sClients.CRDClient().EnsureCreated(ctx, crd.LoadV1("application.giantswarm.io", crdName), backoff.NewMaxRetries(7, 1*time.Second))
+		o := func() error {
+			operatorTarballURL, err = appcatalog.GetLatestChart(ctx, key.ControlPlaneTestCatalogStorageURL(), project.Name(), key.AppOperatorInTestVersion())
 			if err != nil {
 				return microerror.Mask(err)
 			}
 
-			config.Logger.Debugf(ctx, "ensured %#q CRD exists", crdName)
+			return nil
 		}
-	}
 
-	var operatorTarballPath string
-	{
-		config.Logger.Debugf(ctx, "getting tarball URL")
+		b := backoff.NewConstant(5*time.Minute, 10*time.Second)
+		n := backoff.NewNotifier(config.Logger, ctx)
 
-		operatorTarballURL, err := appcatalog.GetLatestChart(ctx, key.ControlPlaneTestCatalogStorageURL(), project.Name(), env.CircleSHA())
+		err = backoff.RetryNotify(o, b, n)
 		if err != nil {
 			return microerror.Mask(err)
 		}
 
 		config.Logger.Debugf(ctx, "tarball URL is %#q", operatorTarballURL)
+	}
 
+	var operatorTarballPath string
+	{
 		config.Logger.Debugf(ctx, "pulling tarball")
 
 		operatorTarballPath, err = config.HelmClient.PullChartTarball(ctx, operatorTarballURL)
@@ -117,12 +110,12 @@ func installResources(ctx context.Context, config Config) error {
 			}
 		}()
 
-		config.Logger.Debugf(ctx, "installing %#q", key.AppOperatorUniqueName())
+		config.Logger.Debugf(ctx, "installing %#q", project.Name())
 
 		// Release is named app-operator-unique as some functionality is only
 		// implemented for the unique instance.
 		opts := helmclient.InstallOptions{
-			ReleaseName: key.AppOperatorUniqueName(),
+			ReleaseName: project.Name(),
 			Wait:        true,
 		}
 		err = config.HelmClient.InstallReleaseFromTarball(ctx,
@@ -134,7 +127,7 @@ func installResources(ctx context.Context, config Config) error {
 			return microerror.Mask(err)
 		}
 
-		config.Logger.Debugf(ctx, "installed %#q", key.AppOperatorUniqueName())
+		config.Logger.Debugf(ctx, "installed %#q", project.Version())
 	}
 
 	return nil
