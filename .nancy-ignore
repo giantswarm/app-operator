@@ -70,4 +70,7 @@ CVE-2023-25809 until=2023-06-30
 CVE-2023-28642 until=2023-06-30
 
 # pkg:golang/github.com/gin-gonic/gin@v1.9.0
-CVE-2023-29401
+CVE-2023-29401 until=2023-06-30
+
+# golang/google.golang.org/grpc@v1.52.0
+CVE-2023-32731 until=2023-06-30
