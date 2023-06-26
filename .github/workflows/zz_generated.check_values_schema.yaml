@@ -16,8 +16,29 @@ on:
   push: {}
 
 jobs:
-  check:
+  existence_check:
+    name: 'Check for the existence of values.schema.json'
+    runs-on: ubuntu-latest
+    outputs:
+      exists: ${{ steps.existence_check.outputs.exists }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: 'Check for the existence of values.schema.json'
+        id: existence_check
+        run: |
+          if [ -f ${helm_dir}/values.schema.json ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
+  validate:
     name: 'validate values.yaml against values.schema.json'
+    needs: existence_check
+    if: ${{ needs.existence_check.outputs.exists == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
