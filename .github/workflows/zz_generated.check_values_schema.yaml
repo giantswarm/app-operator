@@ -36,7 +36,7 @@ jobs:
             helm_dir="${chart_yaml%/Chart.yaml}"
 
             if [ ! -f ${helm_dir}/values.schema.json ]; then
-              echo "Skipping validation for ${helm_dir} folder, because 'values.schema.json' does not exist..."
+              echo "Skipping validation for '${helm_dir}' folder, because 'values.schema.json' does not exist..."
               continue
             fi
 
