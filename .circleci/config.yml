@@ -67,7 +67,6 @@ workflows:
       - architect/integration-test:
           context: architect
           name: basic-integration-test
-          apptestctl-version: "v0.17.0"
           install-app-platform: true
           setup-script: "integration/setup/setup.sh"
           test-dir: "integration/test/app/basic"
