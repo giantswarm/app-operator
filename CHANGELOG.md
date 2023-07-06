@@ -9,6 +9,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [6.8.0] - 2023-07-06
 
+### Added
+
+- Add Service Monitor by default to make it complaint with the latest monitoring improvements 
+
 ## [6.7.0] - 2023-05-10
 
 ### Changed
