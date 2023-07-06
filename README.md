@@ -104,4 +104,3 @@ details.
 [chart-operator]: https://github.com/giantswarm/chart-operator
 [helm]: https://github.com/helm/helm
 [operatorkit]: https://github.com/giantswarm/operatorkit
-
