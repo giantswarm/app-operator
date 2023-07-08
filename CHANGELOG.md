@@ -11,7 +11,7 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ### Added
 
-- Add Service Monitor by default to make it complain with the latest monitoring improvements 
+- Add Service Monitor by default to make it complain with the latest monitoring improvements
 
 ## [6.7.0] - 2023-05-10
 
