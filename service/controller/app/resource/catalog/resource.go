@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/giantswarm/apiextensions-application/api/v1alpha1"
-	"github.com/giantswarm/app/v6/pkg/key"
+	"github.com/giantswarm/app/v7/pkg/key"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -36,7 +36,7 @@ type Resource struct {
 
 // New creates a new configured catalog resource.
 func New(config Config) (*Resource, error) {
-	if config.CtrlClient == nil {
+	if config.CtrlClient == client.Client(nil) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.CtrlClient must not be empty", config)
 	}
 	if config.Logger == nil {

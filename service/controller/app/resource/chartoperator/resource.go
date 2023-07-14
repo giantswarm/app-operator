@@ -7,8 +7,8 @@ import (
 	"time"
 
 	"github.com/giantswarm/apiextensions-application/api/v1alpha1"
-	"github.com/giantswarm/app/v6/pkg/key"
-	"github.com/giantswarm/app/v6/pkg/values"
+	"github.com/giantswarm/app/v7/pkg/key"
+	"github.com/giantswarm/app/v7/pkg/values"
 	"github.com/giantswarm/appcatalog"
 	"github.com/giantswarm/helmclient/v4/pkg/helmclient"
 	"github.com/giantswarm/k8smetadata/pkg/annotation"
@@ -62,10 +62,10 @@ func New(config Config) (*Resource, error) {
 	if config.FileSystem == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.FileSystem must not be empty", config)
 	}
-	if config.CtrlClient == nil {
+	if config.CtrlClient == client.Client(nil) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.CtrlClient must not be empty", config)
 	}
-	if config.K8sClient == nil {
+	if config.K8sClient == kubernetes.Interface(nil) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
 	}
 	if config.Logger == nil {

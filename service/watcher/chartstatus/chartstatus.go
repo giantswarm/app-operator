@@ -5,10 +5,10 @@ import (
 	"fmt"
 
 	"github.com/giantswarm/apiextensions-application/api/v1alpha1"
-	"github.com/giantswarm/app/v6/pkg/key"
+	"github.com/giantswarm/app/v7/pkg/key"
 	"github.com/giantswarm/k8sclient/v7/pkg/k8sclient"
 	"github.com/giantswarm/k8smetadata/pkg/annotation"
-	"github.com/giantswarm/kubeconfig/v4"
+	kubeconfig "github.com/giantswarm/kubeconfig/v4"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/google/go-cmp/cmp"
@@ -43,7 +43,7 @@ type ChartStatusWatcher struct {
 }
 
 func NewChartStatusWatcher(config ChartStatusWatcherConfig) (*ChartStatusWatcher, error) {
-	if config.K8sClient == nil {
+	if config.K8sClient == k8sclient.Interface(nil) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
 	}
 	if config.Logger == nil {

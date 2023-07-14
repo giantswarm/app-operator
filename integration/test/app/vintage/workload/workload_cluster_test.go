@@ -110,7 +110,7 @@ func TestWorkloadCluster(t *testing.T) {
 				CatalogName:    key.ControlPlaneTestCatalogName(),
 				Name:           project.Name(),
 				Namespace:      key.WorkloadClusterNamespace(),
-				ValuesYAML:     templates.AppOperatorValues,
+				ValuesYAML:     templates.AppOperatorVintageValues,
 				SHA:            key.AppOperatorInTestVersion(),
 				WaitForDeploy:  true,
 			},
