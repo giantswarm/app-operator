@@ -32,6 +32,7 @@ type Config struct {
 	Logger      micrologger.Logger
 
 	ChartNamespace               string
+	HelmControllerBackend        bool
 	HTTPClientTimeout            time.Duration
 	ImageRegistry                string
 	PodNamespace                 string
@@ -59,7 +60,7 @@ func NewApp(config Config) (*App, error) {
 	if config.IndexCache == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.IndexCache must not be empty", config)
 	}
-	if config.K8sClient == nil {
+	if config.K8sClient == k8sclient.Interface(nil) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
 	}
 	if config.Logger == nil {
@@ -117,6 +118,7 @@ func NewApp(config Config) (*App, error) {
 			Logger:      config.Logger,
 
 			ChartNamespace:               config.ChartNamespace,
+			HelmControllerBackend:        config.HelmControllerBackend,
 			HTTPClientTimeout:            config.HTTPClientTimeout,
 			ImageRegistry:                config.ImageRegistry,
 			ProjectName:                  project.Name(),

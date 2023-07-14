@@ -18,9 +18,10 @@ type Config struct {
 	K8sClient k8sclient.Interface
 	Logger    micrologger.Logger
 
-	MaxEntriesPerApp int
-	Provider         string
-	UniqueApp        bool
+	HelmControllerBackend bool
+	MaxEntriesPerApp      int
+	Provider              string
+	UniqueApp             bool
 }
 
 type Catalog struct {
@@ -30,7 +31,7 @@ type Catalog struct {
 func NewCatalog(config Config) (*Catalog, error) {
 	var err error
 
-	if config.K8sClient == nil {
+	if config.K8sClient == k8sclient.Interface(nil) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
 	}
 	if config.Logger == nil {

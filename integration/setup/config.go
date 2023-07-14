@@ -4,6 +4,8 @@
 package setup
 
 import (
+	helmv2 "github.com/fluxcd/helm-controller/api/v2beta1"
+	sourcev1beta2 "github.com/fluxcd/source-controller/api/v1beta2"
 	"github.com/giantswarm/apiextensions-application/api/v1alpha1"
 	"github.com/giantswarm/apptest"
 	"github.com/giantswarm/helmclient/v4/pkg/helmclient"
@@ -20,13 +22,14 @@ import (
 )
 
 type Config struct {
-	AppTest    apptest.Interface
-	HelmClient helmclient.Interface
-	K8s        *k8sclient.Setup
-	K8sClients k8sclient.Interface
-	KubeConfig *kubeconfig.KubeConfig
-	Release    *release.Release
-	Logger     micrologger.Logger
+	AppTest               apptest.Interface
+	HelmClient            helmclient.Interface
+	HelmControllerBackend bool
+	K8s                   *k8sclient.Setup
+	K8sClients            k8sclient.Interface
+	KubeConfig            *kubeconfig.KubeConfig
+	Release               *release.Release
+	Logger                micrologger.Logger
 }
 
 func NewConfig() (Config, error) {
@@ -65,6 +68,8 @@ func NewConfig() (Config, error) {
 			SchemeBuilder: k8sclient.SchemeBuilder{
 				prometheusMonitoringV1.AddToScheme,
 				v1alpha1.AddToScheme,
+				sourcev1beta2.AddToScheme,
+				helmv2.AddToScheme,
 			},
 
 			KubeConfigPath: env.KubeConfigPath(),

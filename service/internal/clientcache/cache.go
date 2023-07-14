@@ -9,7 +9,7 @@ import (
 	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/helmclient/v4/pkg/helmclient"
 	"github.com/giantswarm/k8sclient/v7/pkg/k8sclient"
-	"github.com/giantswarm/kubeconfig/v4"
+	kubeconfig "github.com/giantswarm/kubeconfig/v4"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	gocache "github.com/patrickmn/go-cache"
@@ -55,7 +55,7 @@ func New(config Config) (*Resource, error) {
 	if config.Fs == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Fs must not be empty", config)
 	}
-	if config.K8sClient == nil {
+	if config.K8sClient == k8sclient.Interface(nil) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
 	}
 	if config.Logger == nil {

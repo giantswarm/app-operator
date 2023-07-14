@@ -58,12 +58,12 @@ func TestAppCatalogEntry(t *testing.T) {
 				Title:       key.StableCatalogName(),
 				Storage: v1alpha1.CatalogSpecStorage{
 					Type: "helm",
-					URL:  key.StableCatalogStorageURL(),
+					URL:  key.StableCatalogStorageHelmURL(),
 				},
 				Repositories: []v1alpha1.CatalogSpecRepository{
 					{
 						Type: "helm",
-						URL:  key.StableCatalogStorageURL(),
+						URL:  key.StableCatalogStorageHelmURL(),
 					},
 				},
 			},
@@ -78,7 +78,7 @@ func TestAppCatalogEntry(t *testing.T) {
 
 	var latestEntry appcatalog.Entry
 	{
-		latestEntry, err = appcatalog.GetLatestEntry(ctx, key.StableCatalogStorageURL(), "prometheus-operator-app", "")
+		latestEntry, err = appcatalog.GetLatestEntry(ctx, key.StableCatalogStorageHelmURL(), "prometheus-operator-app", "")
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}

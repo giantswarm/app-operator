@@ -21,6 +21,14 @@ import (
 	"github.com/giantswarm/app-operator/v6/pkg/project"
 )
 
+type appConfiguration struct {
+	appName      string
+	appNamespace string
+	appValues    string
+	appVersion   string
+	catalogURL   string
+}
+
 func Setup(m *testing.M, config Config) {
 	ctx := context.Background()
 
@@ -57,77 +65,113 @@ func installResources(ctx context.Context, config Config) error {
 		}
 	}
 
-	var operatorTarballURL string
 	{
-		config.Logger.Debugf(ctx, "getting %#q tarball URL", project.Name())
+		err = config.K8s.EnsureNamespaceCreated(ctx, key.FluxSystemNamespace())
+		if err != nil {
+			return microerror.Mask(err)
+		}
+	}
 
-		o := func() error {
-			operatorTarballURL, err = appcatalog.GetLatestChart(ctx, key.ControlPlaneTestCatalogStorageURL(), project.Name(), key.AppOperatorInTestVersion())
+	apps := []appConfiguration{
+		appConfiguration{
+			appName:      project.Name(),
+			appNamespace: key.GiantSwarmNamespace(),
+			appValues:    templates.AppOperatorVintageValues,
+			appVersion:   key.AppOperatorInTestVersion(),
+			catalogURL:   key.ControlPlaneTestCatalogStorageURL(),
+		},
+	}
+
+	if config.HelmControllerBackend {
+		apps[0].appValues = templates.AppOperatorCAPIValues
+	}
+
+	if config.HelmControllerBackend {
+		apps = append(
+			apps,
+			appConfiguration{
+				appName:      key.FluxAppName(),
+				appNamespace: key.FluxSystemNamespace(),
+				appValues:    "",
+				appVersion:   key.FluxAppVersion(),
+				catalogURL:   key.StableCatalogStorageHelmURL(),
+			},
+		)
+	}
+
+	for _, app := range apps {
+		var tarballURL string
+		{
+			config.Logger.Debugf(ctx, "getting %#q tarball URL", app.appName)
+
+			o := func() error {
+				tarballURL, err = appcatalog.GetLatestChart(ctx, app.catalogURL, app.appName, app.appVersion)
+				if err != nil {
+					return microerror.Mask(err)
+				}
+
+				return nil
+			}
+
+			b := backoff.NewConstant(5*time.Minute, 10*time.Second)
+			n := backoff.NewNotifier(config.Logger, ctx)
+
+			err = backoff.RetryNotify(o, b, n)
 			if err != nil {
 				return microerror.Mask(err)
 			}
 
-			return nil
+			config.Logger.Debugf(ctx, "tarball URL is %#q", tarballURL)
 		}
 
-		b := backoff.NewConstant(5*time.Minute, 10*time.Second)
-		n := backoff.NewNotifier(config.Logger, ctx)
+		var tarballPath string
+		{
+			config.Logger.Debugf(ctx, "pulling tarball")
 
-		err = backoff.RetryNotify(o, b, n)
-		if err != nil {
-			return microerror.Mask(err)
-		}
-
-		config.Logger.Debugf(ctx, "tarball URL is %#q", operatorTarballURL)
-	}
-
-	var operatorTarballPath string
-	{
-		config.Logger.Debugf(ctx, "pulling tarball")
-
-		operatorTarballPath, err = config.HelmClient.PullChartTarball(ctx, operatorTarballURL)
-		if err != nil {
-			return microerror.Mask(err)
-		}
-
-		config.Logger.Debugf(ctx, "tarball path is %#q", operatorTarballPath)
-	}
-
-	var values map[string]interface{}
-	{
-		err = yaml.Unmarshal([]byte(templates.AppOperatorValues), &values)
-		if err != nil {
-			return microerror.Mask(err)
-		}
-	}
-
-	{
-		defer func() {
-			fs := afero.NewOsFs()
-			err := fs.Remove(operatorTarballPath)
+			tarballPath, err = config.HelmClient.PullChartTarball(ctx, tarballURL)
 			if err != nil {
-				config.Logger.Errorf(ctx, err, "deletion of %#q failed", operatorTarballPath)
+				return microerror.Mask(err)
 			}
-		}()
 
-		config.Logger.Debugf(ctx, "installing %#q", project.Name())
-
-		// Release is named app-operator-unique as some functionality is only
-		// implemented for the unique instance.
-		opts := helmclient.InstallOptions{
-			ReleaseName: project.Name(),
-			Wait:        true,
-		}
-		err = config.HelmClient.InstallReleaseFromTarball(ctx,
-			operatorTarballPath,
-			key.GiantSwarmNamespace(),
-			values,
-			opts)
-		if err != nil {
-			return microerror.Mask(err)
+			config.Logger.Debugf(ctx, "tarball path is %#q", tarballPath)
 		}
 
-		config.Logger.Debugf(ctx, "installed %#q", project.Version())
+		var values map[string]interface{}
+		{
+			err = yaml.Unmarshal([]byte(app.appValues), &values)
+			if err != nil {
+				return microerror.Mask(err)
+			}
+		}
+
+		{
+			defer func() {
+				fs := afero.NewOsFs()
+				err := fs.Remove(tarballPath)
+				if err != nil {
+					config.Logger.Errorf(ctx, err, "deletion of %#q failed", tarballPath)
+				}
+			}()
+
+			config.Logger.Debugf(ctx, "installing %#q", app.appName)
+
+			// Release is named app-operator-unique as some functionality is only
+			// implemented for the unique instance.
+			opts := helmclient.InstallOptions{
+				ReleaseName: app.appName,
+				Wait:        true,
+			}
+			err = config.HelmClient.InstallReleaseFromTarball(ctx,
+				tarballPath,
+				app.appNamespace,
+				values,
+				opts)
+			if err != nil {
+				return microerror.Mask(err)
+			}
+
+			config.Logger.Debugf(ctx, "installed %#q", app.appVersion)
+		}
 	}
 
 	return nil

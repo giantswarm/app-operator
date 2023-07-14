@@ -5,7 +5,7 @@ import (
 	"unicode"
 
 	"github.com/giantswarm/k8sclient/v7/pkg/k8sclient"
-	"github.com/giantswarm/k8sclient/v7/pkg/k8sclienttest"
+	"github.com/giantswarm/k8sclient/v7/pkg/k8sclienttest" //nolint:typecheck
 	corev1 "k8s.io/api/core/v1"
 	pkgruntime "k8s.io/apimachinery/pkg/runtime"
 	typedcorev1 "k8s.io/client-go/kubernetes/typed/core/v1"

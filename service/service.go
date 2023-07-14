@@ -22,6 +22,7 @@ import (
 	"github.com/giantswarm/app-operator/v6/service/internal/recorder"
 	"github.com/giantswarm/app-operator/v6/service/watcher/appvalue"
 	"github.com/giantswarm/app-operator/v6/service/watcher/chartstatus"
+	"github.com/giantswarm/app-operator/v6/service/watcher/helmreleasestatus"
 )
 
 // Config represents the configuration used to create a new service.
@@ -38,14 +39,16 @@ type Service struct {
 	Version *version.Service
 
 	// Internals
-	appController      *app.App
-	catalogController  *catalog.Catalog
-	appValueWatcher    *appvalue.AppValueWatcher
-	chartStatusWatcher *chartstatus.ChartStatusWatcher
-	bootOnce           sync.Once
+	appController            *app.App
+	catalogController        *catalog.Catalog
+	appValueWatcher          *appvalue.AppValueWatcher
+	helmReleaseStatusWatcher *helmreleasestatus.HelmReleaseStatusWatcher
+	chartStatusWatcher       *chartstatus.ChartStatusWatcher
+	bootOnce                 sync.Once
 
 	// Settings
-	unique bool
+	helmControllerBackend bool
+	unique                bool
 }
 
 // New creates a new service with given configuration.
@@ -53,7 +56,7 @@ func New(config Config) (*Service, error) {
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
-	if config.K8sClient == nil {
+	if config.K8sClient == k8sclient.Interface(nil) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
 	}
 
@@ -72,9 +75,10 @@ func New(config Config) (*Service, error) {
 			Logger:    config.Logger,
 			K8sClient: config.K8sClient,
 
-			MaxEntriesPerApp: config.Viper.GetInt(config.Flag.Service.AppCatalog.MaxEntriesPerApp),
-			Provider:         config.Viper.GetString(config.Flag.Service.Provider.Kind),
-			UniqueApp:        config.Viper.GetBool(config.Flag.Service.App.Unique),
+			HelmControllerBackend: config.Viper.GetBool(config.Flag.Service.App.HelmControllerBackend),
+			MaxEntriesPerApp:      config.Viper.GetInt(config.Flag.Service.AppCatalog.MaxEntriesPerApp),
+			Provider:              config.Viper.GetString(config.Flag.Service.Provider.Kind),
+			UniqueApp:             config.Viper.GetBool(config.Flag.Service.App.Unique),
 		}
 
 		catalogController, err = catalog.NewCatalog(c)
@@ -127,6 +131,7 @@ func New(config Config) (*Service, error) {
 			K8sClient:   config.K8sClient,
 
 			ChartNamespace:               config.Viper.GetString(config.Flag.Service.Chart.Namespace),
+			HelmControllerBackend:        config.Viper.GetBool(config.Flag.Service.App.HelmControllerBackend),
 			HTTPClientTimeout:            config.Viper.GetDuration(config.Flag.Service.Helm.HTTP.ClientTimeout),
 			ImageRegistry:                config.Viper.GetString(config.Flag.Service.Image.Registry),
 			PodNamespace:                 podNamespace,
@@ -173,6 +178,23 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
+	var helmReleaseStatusWatcher *helmreleasestatus.HelmReleaseStatusWatcher
+	{
+		c := helmreleasestatus.HelmReleaseStatusWatcherConfig{
+			K8sClient: config.K8sClient,
+			Logger:    config.Logger,
+
+			PodNamespace:      podNamespace,
+			UniqueApp:         config.Viper.GetBool(config.Flag.Service.App.Unique),
+			WorkloadClusterID: config.Viper.GetString(config.Flag.Service.App.WorkloadClusterID),
+		}
+
+		helmReleaseStatusWatcher, err = helmreleasestatus.NewHelmReleaseStatusWatcher(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var chartStatusWatcher *chartstatus.ChartStatusWatcher
 	{
 		c := chartstatus.ChartStatusWatcherConfig{
@@ -210,13 +232,15 @@ func New(config Config) (*Service, error) {
 	newService := &Service{
 		Version: versionService,
 
-		appController:      appController,
-		catalogController:  catalogController,
-		appValueWatcher:    appValueWatcher,
-		chartStatusWatcher: chartStatusWatcher,
-		bootOnce:           sync.Once{},
+		appController:            appController,
+		catalogController:        catalogController,
+		appValueWatcher:          appValueWatcher,
+		helmReleaseStatusWatcher: helmReleaseStatusWatcher,
+		chartStatusWatcher:       chartStatusWatcher,
+		bootOnce:                 sync.Once{},
 
-		unique: config.Viper.GetBool(config.Flag.Service.App.Unique),
+		helmControllerBackend: config.Viper.GetBool(config.Flag.Service.App.HelmControllerBackend),
+		unique:                config.Viper.GetBool(config.Flag.Service.App.Unique),
 	}
 
 	return newService, nil
@@ -235,6 +259,11 @@ func (s *Service) Boot(ctx context.Context) {
 
 		// Start the watchers.
 		go s.appValueWatcher.Boot(ctx)
-		go s.chartStatusWatcher.Boot(ctx)
+
+		if s.helmControllerBackend {
+			go s.helmReleaseStatusWatcher.Boot(ctx)
+		} else {
+			go s.chartStatusWatcher.Boot(ctx)
+		}
 	})
 }

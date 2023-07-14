@@ -22,6 +22,8 @@ import (
 	"github.com/giantswarm/app-operator/v6/service/controller/app/resource/chartoperator"
 	"github.com/giantswarm/app-operator/v6/service/controller/app/resource/clients"
 	"github.com/giantswarm/app-operator/v6/service/controller/app/resource/configmap"
+	"github.com/giantswarm/app-operator/v6/service/controller/app/resource/helmrelease"
+	"github.com/giantswarm/app-operator/v6/service/controller/app/resource/migration"
 	"github.com/giantswarm/app-operator/v6/service/controller/app/resource/secret"
 	"github.com/giantswarm/app-operator/v6/service/controller/app/resource/status"
 	"github.com/giantswarm/app-operator/v6/service/controller/app/resource/tcnamespace"
@@ -40,6 +42,7 @@ type appResourcesConfig struct {
 
 	// Settings.
 	ChartNamespace               string
+	HelmControllerBackend        bool
 	HTTPClientTimeout            time.Duration
 	ImageRegistry                string
 	ProjectName                  string
@@ -62,7 +65,7 @@ func newAppResources(config appResourcesConfig) ([]resource.Interface, error) {
 	if config.IndexCache == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.IndexCache must not be empty", config)
 	}
-	if config.K8sClient == nil {
+	if config.K8sClient == k8sclient.Interface(nil) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
 	}
 	if config.Logger == nil {
@@ -210,10 +213,11 @@ func newAppResources(config appResourcesConfig) ([]resource.Interface, error) {
 	var clientsResource resource.Interface
 	{
 		c := clients.Config{
-			ClientCache: config.ClientCache,
-			HelmClient:  helmClient,
-			K8sClient:   config.K8sClient,
-			Logger:      config.Logger,
+			ClientCache:           config.ClientCache,
+			HelmClient:            helmClient,
+			HelmControllerBackend: config.HelmControllerBackend,
+			K8sClient:             config.K8sClient,
+			Logger:                config.Logger,
 		}
 
 		clientsResource, err = clients.New(c)
@@ -227,8 +231,12 @@ func newAppResources(config appResourcesConfig) ([]resource.Interface, error) {
 		c := configmap.Config{
 			Logger: config.Logger,
 			Values: valuesService,
+		}
 
-			ChartNamespace: config.ChartNamespace,
+		if config.HelmControllerBackend {
+			c.HelmControllerBackend = true
+		} else {
+			c.ChartNamespace = config.ChartNamespace
 		}
 
 		ops, err := configmap.New(c)
@@ -242,13 +250,55 @@ func newAppResources(config appResourcesConfig) ([]resource.Interface, error) {
 		}
 	}
 
+	var helmReleaseResource resource.Interface
+	{
+		c := helmrelease.Config{
+			IndexCache: config.IndexCache,
+			Logger:     config.Logger,
+			CtrlClient: config.K8sClient.CtrlClient(),
+
+			WorkloadClusterID:            config.WorkloadClusterID,
+			DependencyWaitTimeoutMinutes: config.DependencyWaitTimeoutMinutes,
+		}
+
+		ops, err := helmrelease.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		helmReleaseResource, err = toCRUDResource(config.Logger, ops)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	var migrationResource resource.Interface
+	{
+		c := migration.Config{
+			CtrlClient: config.K8sClient.CtrlClient(),
+			Logger:     config.Logger,
+
+			ChartNamespace:    config.ChartNamespace,
+			WorkloadClusterID: config.WorkloadClusterID,
+		}
+
+		migrationResource, err = migration.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var secretResource resource.Interface
 	{
 		c := secret.Config{
 			Logger: config.Logger,
 			Values: valuesService,
+		}
 
-			ChartNamespace: config.ChartNamespace,
+		if config.HelmControllerBackend {
+			c.HelmControllerBackend = true
+		} else {
+			c.ChartNamespace = config.ChartNamespace
 		}
 
 		ops, err := secret.New(c)
@@ -268,8 +318,9 @@ func newAppResources(config appResourcesConfig) ([]resource.Interface, error) {
 			CtrlClient: config.K8sClient.CtrlClient(),
 			Logger:     config.Logger,
 
-			ChartNamespace:    config.ChartNamespace,
-			WorkloadClusterID: config.WorkloadClusterID,
+			ChartNamespace:        config.ChartNamespace,
+			HelmControllerBackend: config.HelmControllerBackend,
+			WorkloadClusterID:     config.WorkloadClusterID,
 		}
 
 		statusResource, err = status.New(c)
@@ -314,22 +365,61 @@ func newAppResources(config appResourcesConfig) ([]resource.Interface, error) {
 		// appFinalizerResource check CRs for legacy finalizers and removes them.
 		appFinalizerResource,
 
-		// Following resources manage controller context information.
+		// Following resources manage controller context information. The `clientsResource`
+		// resource is being used regardless of downstream controller, that is either Helm
+		// Controller or Chart Operator, because it has been previously used regardless of
+		// App Operator uniqueness or not. The reason for that was consistency, and hence it
+		// remains a good reason to use it regardless of the downstream controller. Changing
+		// this logic now would require more code changes which is riskier, taking into
+		// account the amount of so far changes, without any impactful gain.
+		//
+		// It is however fair to note, without Chart Operator we do nothing in a workload cluster,
+		// hence these context-based clients are not needed, with one exception for the migration
+		// period.
 		appNamespaceResource,
 		catalogResource,
 		clientsResource,
-
-		// Following resources bootstrap chart-operator in workload clusters.
-		tcNamespaceResource,
-		chartCRDResource,
-		chartOperatorResource,
-
-		// Following resources process app CRs.
-		configMapResource,
-		secretResource,
-		chartResource,
-		statusResource,
 	}
+
+	if !config.HelmControllerBackend {
+		// Following resources bootstrap chart-operator in workload clusters.
+		resources = append(
+			resources,
+			[]resource.Interface{
+				tcNamespaceResource,
+				chartCRDResource,
+				chartOperatorResource,
+			}...,
+		)
+	}
+
+	// Following resources process app CRs.
+	resources = append(
+		resources,
+		[]resource.Interface{
+			configMapResource,
+			secretResource,
+		}...,
+	)
+
+	if !config.HelmControllerBackend {
+		// chartResource resource creates Chart CR.
+		resources = append(resources, chartResource)
+	} else {
+		// helmReleaseResource resource creates HelmRelease CR.
+		resources = append(
+			resources,
+			[]resource.Interface{
+				// The `migrationResource` is a temporary resource that is to be removed
+				// once we make sure all the clusters are migrated to the Helm Controller
+				// backend.
+				migrationResource,
+				helmReleaseResource,
+			}...,
+		)
+	}
+
+	resources = append(resources, statusResource)
 
 	{
 		c := retryresource.WrapConfig{

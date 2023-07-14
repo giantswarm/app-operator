@@ -47,6 +47,10 @@ func ChartOperatorVersion() string {
 	return "2.24.0"
 }
 
+func ClusterID() string {
+	return "kind"
+}
+
 func ControlPlaneCatalogName() string {
 	return "control-plane-catalog"
 }
@@ -67,20 +71,48 @@ func DefaultCatalogStorageURL() string {
 	return "https://giantswarm.github.io/default-catalog"
 }
 
+func DefaultNamespace() string {
+	return "default"
+}
+
+func FluxAppName() string {
+	return "flux-app"
+}
+
+func FluxAppVersion() string {
+	return "0.23.1"
+}
+
+func FluxSystemNamespace() string {
+	return "flux-system"
+}
+
 func GiantSwarmNamespace() string {
 	return "giantswarm"
+}
+
+func OrganizationNamespace() string {
+	return "org-test"
 }
 
 func StableCatalogName() string {
 	return "giantswarm"
 }
 
-func StableCatalogStorageURL() string {
+func StableCatalogStorageHelmURL() string {
 	return "https://giantswarm.github.io/giantswarm-catalog"
+}
+
+func StableCatalogStorageOciURL() string {
+	return "oci://giantswarmpublic.azurecr.io/giantswarm-catalog"
 }
 
 func TestAppName() string {
 	return "test-app"
+}
+
+func TestCatalogStorageHelmURL() string {
+	return "https://giantswarm.github.io/giantswarm-test-catalog"
 }
 
 func UniqueAppVersion() string {
