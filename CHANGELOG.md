@@ -7,6 +7,23 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+## [6.8.0] - 2023-07-06
+
+### Added
+
+- Add Service Monitor by default to make it complain with the latest monitoring improvements
+
+## [6.7.0] - 2023-05-10
+
+### Changed
+
+- Only include PodSecurityPolicy on clusters with policy/v1beta1 api available.
+- Only include PodMonitor on clusters with monitoring.coreos.com/v1 api available.
+
+### Removed
+
+- Stop pushing to `openstack-app-collection`.
+
 ## [6.6.4] - 2023-04-05
 
 ### Changed
@@ -680,7 +697,9 @@ from Helm 2 to Helm 3.
 
 - Flattening operator release structure.
 
-[Unreleased]: https://github.com/giantswarm/app-operator/compare/v6.6.4...HEAD
+[Unreleased]: https://github.com/giantswarm/app-operator/compare/v6.8.0...HEAD
+[6.8.0]: https://github.com/giantswarm/app-operator/compare/v6.7.0...v6.8.0
+[6.7.0]: https://github.com/giantswarm/app-operator/compare/v6.6.4...v6.7.0
 [6.6.4]: https://github.com/giantswarm/app-operator/compare/v6.6.3...v6.6.4
 [6.6.3]: https://github.com/giantswarm/app-operator/compare/v6.6.3...v6.6.3
 [6.6.3]: https://github.com/giantswarm/app-operator/compare/v6.6.3...v6.6.3

@@ -1,6 +1,6 @@
 version: 2.1
 orbs:
-  architect: giantswarm/architect@4.28.1
+  architect: giantswarm/architect@4.30.1
 
 workflows:
   build:
@@ -67,6 +67,7 @@ workflows:
       - architect/integration-test:
           context: architect
           name: basic-integration-test
+          install-app-platform: false
           setup-script: "integration/setup/setup.sh"
           test-dir: "integration/test/app/basic"
           requires:
@@ -119,19 +120,6 @@ workflows:
           name: push-app-operator-to-azure-app-collection
           app_name: "app-operator"
           app_collection_repo: "azure-app-collection"
-          requires:
-            - push-app-operator-to-control-plane-app-catalog
-          filters:
-            branches:
-              ignore: /.*/
-            tags:
-              only: /^v.*/
-
-      - architect/push-to-app-collection:
-          context: architect
-          name: push-app-operator-to-openstack-app-collection
-          app_name: "app-operator"
-          app_collection_repo: "openstack-app-collection"
           requires:
             - push-app-operator-to-control-plane-app-catalog
           filters:
