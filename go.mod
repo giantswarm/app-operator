@@ -191,7 +191,7 @@ replace (
 	github.com/gogo/protobuf v1.3.1 => github.com/gogo/protobuf v1.3.2
 	github.com/hashicorp/consul/api v1.12.0 => github.com/hashicorp/consul/api v1.15.2
 	// Use mergo 0.3.11 due to bug in 0.3.9 merging Go structs.
-	github.com/imdario/mergo => github.com/imdario/mergo v1.0.0
+	github.com/imdario/mergo => github.com/imdario/mergo v0.3.15
 	github.com/microcosm-cc/bluemonday v1.0.2 => github.com/microcosm-cc/bluemonday v1.0.18
 	github.com/nats-io/nats-server/v2 v2.5.0 => github.com/nats-io/nats-server/v2 v2.9.11
 	github.com/opencontainers/runc v0.1.1 => github.com/opencontainers/runc v1.0.0-rc7
