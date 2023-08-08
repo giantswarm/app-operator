@@ -5,6 +5,8 @@
 The app-operator manages apps in Kubernetes clusters. It is implemented
 using [operatorkit].
 
+Fake line.
+
 ## Important
 
 Upon releasing a new version of the project, remember to reference it in the [Cluster Apps Operator Helm Chart](https://github.com/giantswarm/cluster-apps-operator/blob/28d9692bdff1e1f8a95b948cb91f593a5ec97536/helm/cluster-apps-operator/values.yaml#L3).
