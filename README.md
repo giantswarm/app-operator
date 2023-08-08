@@ -1,4 +1,4 @@
-[![CircleCI](https://circleci.com/gh/giantswarm/app-operator.svg?style=shield)](https://circleci.com/gh/giantswarm/app-operator)
+[![CircleCI](https://dl.circleci.com/status-badge/img/gh/giantswarm/app-operator/tree/master.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/giantswarm/app-operator/tree/master)
 
 # app-operator
 
