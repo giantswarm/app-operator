@@ -1,7 +1,7 @@
 package validation
 
 import (
-	"github.com/giantswarm/app/v6/pkg/validation"
+	"github.com/giantswarm/app/v7/pkg/validation"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"k8s.io/client-go/kubernetes"

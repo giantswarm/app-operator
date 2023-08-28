@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/giantswarm/app/v6/pkg/key"
-	"github.com/giantswarm/app/v6/pkg/values"
+	"github.com/giantswarm/app/v7/pkg/key"
+	"github.com/giantswarm/app/v7/pkg/values"
 	"github.com/giantswarm/k8smetadata/pkg/annotation"
 	"github.com/giantswarm/k8smetadata/pkg/label"
 	"github.com/giantswarm/microerror"
