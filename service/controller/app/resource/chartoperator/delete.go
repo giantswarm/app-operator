@@ -3,7 +3,7 @@ package chartoperator
 import (
 	"context"
 
-	"github.com/giantswarm/app/v6/pkg/key"
+	"github.com/giantswarm/app/v7/pkg/key"
 	"github.com/giantswarm/microerror"
 
 	"github.com/giantswarm/app-operator/v6/service/controller/app/controllercontext"

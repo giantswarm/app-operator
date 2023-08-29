@@ -4,7 +4,7 @@ import (
 	"context"
 	"strings"
 
-	"github.com/giantswarm/app/v6/pkg/key"
+	"github.com/giantswarm/app/v7/pkg/key"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"sigs.k8s.io/controller-runtime/pkg/client"
