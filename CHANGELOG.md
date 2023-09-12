@@ -11,6 +11,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 - Update `PolicyExceptions` to `v2` and failover to `v2beta1`.
 
+### Added
+
+- Add support for Helm Controller backend.
+
 ## [6.11.0] - 2024-04-23
 
 ### Added
