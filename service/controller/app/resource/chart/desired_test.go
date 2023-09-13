@@ -1343,6 +1343,7 @@ func Test_Resource_Bulid_TarballURL(t *testing.T) {
 		})
 	}
 }
+
 func Test_generateConfig(t *testing.T) {
 	tests := []struct {
 		name           string

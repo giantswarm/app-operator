@@ -10,6 +10,7 @@ import (
 
 	"github.com/giantswarm/app-operator/v6/service/controller/catalog/resource/appcatalogentry"
 	"github.com/giantswarm/app-operator/v6/service/controller/catalog/resource/appcatalogsync"
+	"github.com/giantswarm/app-operator/v6/service/controller/catalog/resource/helmrepository"
 )
 
 type catalogResourcesConfig struct {
@@ -18,9 +19,10 @@ type catalogResourcesConfig struct {
 	Logger    micrologger.Logger
 
 	// Settings.
-	MaxEntriesPerApp int
-	Provider         string
-	UniqueApp        bool
+	HelmControllerBackend bool
+	MaxEntriesPerApp      int
+	Provider              string
+	UniqueApp             bool
 }
 
 // newCatalogResources returns a configured Catalog controller ResourceSet.
@@ -64,9 +66,26 @@ func newCatalogResources(config catalogResourcesConfig) ([]resource.Interface, e
 		}
 	}
 
+	var helmRepositoryResource resource.Interface
+	{
+		c := helmrepository.Config{
+			CtrlClient: config.K8sClient.CtrlClient(),
+			Logger:     config.Logger,
+		}
+
+		helmRepositoryResource, err = helmrepository.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	resources := []resource.Interface{
 		appCatalogEntryResource,
 		appCatalogSyncResource,
+	}
+
+	if config.UniqueApp && config.HelmControllerBackend {
+		resources = append(resources, helmRepositoryResource)
 	}
 
 	{

@@ -26,7 +26,8 @@ type Config struct {
 	Values *values.Values
 
 	// Settings.
-	ChartNamespace string
+	ChartNamespace        string
+	HelmControllerBackend bool
 }
 
 // Resource implements the configmap resource.
@@ -36,7 +37,8 @@ type Resource struct {
 	values *values.Values
 
 	// Settings.
-	chartNamespace string
+	chartNamespace        string
+	helmControllerBackend bool
 }
 
 // New creates a new configured configmap resource.
@@ -48,7 +50,7 @@ func New(config Config) (*Resource, error) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Values must not be empty", config)
 	}
 
-	if config.ChartNamespace == "" {
+	if !config.HelmControllerBackend && config.ChartNamespace == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ChartNamespace must not be empty", config)
 	}
 
@@ -56,7 +58,8 @@ func New(config Config) (*Resource, error) {
 		logger: config.Logger,
 		values: config.Values,
 
-		chartNamespace: config.ChartNamespace,
+		chartNamespace:        config.ChartNamespace,
+		helmControllerBackend: config.HelmControllerBackend,
 	}
 
 	return r, nil
@@ -90,30 +93,31 @@ func equals(a, b *corev1.ConfigMap) bool {
 		return false
 	}
 
+	if len(a.Data) != len(b.Data) {
+		return false
+	}
+
 	var source, dest map[string]interface{}
-	{
+	for k := range a.Data {
 		source = make(map[string]interface{})
 		dest = make(map[string]interface{})
 
-		err := yaml.Unmarshal([]byte(a.Data["values"]), &source)
+		err := yaml.Unmarshal([]byte(a.Data[k]), &source)
 		if err != nil {
 			return false
 		}
 
-		err = yaml.Unmarshal([]byte(b.Data["values"]), &dest)
+		err = yaml.Unmarshal([]byte(b.Data[k]), &dest)
 		if err != nil {
+			return false
+		}
+
+		if !reflect.DeepEqual(source, dest) {
 			return false
 		}
 	}
 
-	if !reflect.DeepEqual(source, dest) {
-		return false
-	}
-	if !reflect.DeepEqual(a.Labels, b.Labels) {
-		return false
-	}
-
-	return true
+	return reflect.DeepEqual(a.Labels, b.Labels)
 }
 
 // isEmpty checks if a ConfigMap is empty.

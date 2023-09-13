@@ -29,12 +29,25 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		return nil, microerror.Mask(err)
 	}
 
+	// When the Helm Controller backend is enable, config is located in the same namespace
+	// the App CR is located at. Also, the Config Map key the values are located at must be
+	// the `values.yaml`. Note, it may also remain to be the `values` and then it can be
+	// configured in the HelmRelease CR spec, but it feels less fuss to do it here.
+	var namespace, cmKey string
+	if r.helmControllerBackend {
+		namespace = cr.Namespace
+		cmKey = "values.yaml"
+	} else {
+		namespace = r.chartNamespace
+		cmKey = "values"
+	}
+
 	if key.IsDeleted(cr) {
 		// Return empty chart configmap so it is deleted.
 		configMap := &corev1.ConfigMap{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      key.ChartConfigMapName(cr),
-				Namespace: r.chartNamespace,
+				Namespace: namespace,
 			},
 		}
 
@@ -43,7 +56,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 
 	// If no user-provided configmap name is present, check if a *-user-values config map exists and set the reference
 	if key.UserConfigMapName(cr) == "" {
-		userCM, err := cc.Clients.K8s.K8sClient().CoreV1().ConfigMaps(r.chartNamespace).Get(ctx, fmt.Sprintf("%s-user-values", cr.Name), metav1.GetOptions{})
+		userCM, err := cc.Clients.K8s.K8sClient().CoreV1().ConfigMaps(namespace).Get(ctx, fmt.Sprintf("%s-user-values", cr.Name), metav1.GetOptions{})
 		if err == nil {
 			cr.Spec.UserConfig.ConfigMap.Name = userCM.GetName()
 			cr.Spec.UserConfig.ConfigMap.Namespace = userCM.GetNamespace()
@@ -85,11 +98,11 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 
 	configMap := &corev1.ConfigMap{
 		Data: map[string]string{
-			"values": string(bytes),
+			cmKey: string(bytes),
 		},
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      key.ChartConfigMapName(cr),
-			Namespace: r.chartNamespace,
+			Namespace: namespace,
 			Annotations: map[string]string{
 				annotation.Notes: fmt.Sprintf("DO NOT EDIT. Values managed by %s.", project.Name()),
 			},

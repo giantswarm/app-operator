@@ -25,13 +25,14 @@ import (
 
 func Test_Resource_GetDesiredState(t *testing.T) {
 	tests := []struct {
-		name               string
-		obj                *v1alpha1.App
-		catalog            v1alpha1.Catalog
-		configMaps         []*corev1.ConfigMap
-		expectedConfigMap  *corev1.ConfigMap
-		expectedUserConfig *v1alpha1.AppSpecUserConfig
-		errorMatcher       func(error) bool
+		name                  string
+		obj                   *v1alpha1.App
+		catalog               v1alpha1.Catalog
+		configMaps            []*corev1.ConfigMap
+		expectedConfigMap     *corev1.ConfigMap
+		expectedUserConfig    *v1alpha1.AppSpecUserConfig
+		errorMatcher          func(error) bool
+		helmControllerBackend bool
 	}{
 		{
 			name: "case 0: configmap is nil when there is no config",
@@ -280,6 +281,236 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 				},
 			},
 		},
+		{
+			name:                  "case 5: basic match with app config, Helm Controller backend enabled",
+			helmControllerBackend: true,
+			obj: &v1alpha1.App{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "my-prometheus",
+					Namespace: "org-test",
+				},
+				Spec: v1alpha1.AppSpec{
+					Catalog:   "app-catalog",
+					Name:      "prometheus",
+					Namespace: "monitoring",
+					Config: v1alpha1.AppSpecConfig{
+						ConfigMap: v1alpha1.AppSpecConfigConfigMap{
+							Name:      "test-cluster-values",
+							Namespace: "org-test",
+						},
+					},
+				},
+			},
+			catalog: v1alpha1.Catalog{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "test-catalog",
+				},
+			},
+			configMaps: []*corev1.ConfigMap{
+				{
+					Data: map[string]string{
+						"values": "cluster: yaml\n",
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "test-cluster-values",
+						Namespace: "org-test",
+					},
+				},
+			},
+			expectedConfigMap: &corev1.ConfigMap{
+				Data: map[string]string{
+					"values.yaml": "cluster: yaml\n",
+				},
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "my-prometheus-chart-values",
+					Namespace: "org-test",
+					Annotations: map[string]string{
+						annotation.Notes: "DO NOT EDIT. Values managed by app-operator.",
+					},
+					Labels: map[string]string{
+						label.ManagedBy: "app-operator",
+					},
+				},
+			},
+			expectedUserConfig: &v1alpha1.AppSpecUserConfig{},
+		},
+		{
+			name:                  "case 6: user-values configmap, Helm Controller backend enabled",
+			helmControllerBackend: true,
+			obj: &v1alpha1.App{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "test-app",
+					Namespace: "org-test",
+				},
+				Spec: v1alpha1.AppSpec{
+					Catalog:   "app-catalog",
+					Name:      "test-app",
+					Namespace: "kube-system",
+				},
+			},
+			catalog: v1alpha1.Catalog{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "test-catalog",
+				},
+			},
+			configMaps: []*corev1.ConfigMap{
+				{
+					Data: map[string]string{
+						"values": "cluster: yaml\n",
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "test-app-user-values",
+						Namespace: "org-test",
+					},
+				},
+			},
+			expectedConfigMap: &corev1.ConfigMap{
+				Data: map[string]string{
+					"values.yaml": "cluster: yaml\n",
+				},
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "test-app-chart-values",
+					Namespace: "org-test",
+					Annotations: map[string]string{
+						annotation.Notes: "DO NOT EDIT. Values managed by app-operator.",
+					},
+					Labels: map[string]string{
+						label.ManagedBy: "app-operator",
+					},
+				},
+			},
+			expectedUserConfig: &v1alpha1.AppSpecUserConfig{
+				ConfigMap: v1alpha1.AppSpecUserConfigConfigMap{
+					Name:      "test-app-user-values",
+					Namespace: "org-test",
+				},
+			},
+		},
+		{
+			name:                  "case 7: user provided configmap, Helm Controller backend enabled",
+			helmControllerBackend: true,
+			obj: &v1alpha1.App{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "test-app",
+					Namespace: "org-test",
+				},
+				Spec: v1alpha1.AppSpec{
+					Catalog:   "app-catalog",
+					Name:      "test-app",
+					Namespace: "kube-system",
+					UserConfig: v1alpha1.AppSpecUserConfig{
+						ConfigMap: v1alpha1.AppSpecUserConfigConfigMap{
+							Name:      "custom-values",
+							Namespace: "org-test",
+						},
+					},
+				},
+			},
+			catalog: v1alpha1.Catalog{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "test-catalog",
+				},
+			},
+			configMaps: []*corev1.ConfigMap{
+				{
+					Data: map[string]string{
+						"values": "cluster: yaml\n",
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "custom-values",
+						Namespace: "org-test",
+					},
+				},
+			},
+			expectedConfigMap: &corev1.ConfigMap{
+				Data: map[string]string{
+					"values.yaml": "cluster: yaml\n",
+				},
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "test-app-chart-values",
+					Namespace: "org-test",
+					Annotations: map[string]string{
+						annotation.Notes: "DO NOT EDIT. Values managed by app-operator.",
+					},
+					Labels: map[string]string{
+						label.ManagedBy: "app-operator",
+					},
+				},
+			},
+			expectedUserConfig: &v1alpha1.AppSpecUserConfig{
+				ConfigMap: v1alpha1.AppSpecUserConfigConfigMap{
+					Name:      "custom-values",
+					Namespace: "org-test",
+				},
+			},
+		},
+		{
+			name:                  "case 8: user provided configmap over default name configmap, Helm Controller backend enabled",
+			helmControllerBackend: true,
+			obj: &v1alpha1.App{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "test-app",
+					Namespace: "org-test",
+				},
+				Spec: v1alpha1.AppSpec{
+					Catalog:   "app-catalog",
+					Name:      "test-app",
+					Namespace: "kube-system",
+					UserConfig: v1alpha1.AppSpecUserConfig{
+						ConfigMap: v1alpha1.AppSpecUserConfigConfigMap{
+							Name:      "custom-values",
+							Namespace: "org-test",
+						},
+					},
+				},
+			},
+			catalog: v1alpha1.Catalog{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "test-catalog",
+				},
+			},
+			configMaps: []*corev1.ConfigMap{
+				{
+					Data: map[string]string{
+						"values": "default: name\n",
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "test-app-user-values",
+						Namespace: "org-test",
+					},
+				},
+				{
+					Data: map[string]string{
+						"values": "cluster: yaml\n",
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "custom-values",
+						Namespace: "org-test",
+					},
+				},
+			},
+			expectedConfigMap: &corev1.ConfigMap{
+				Data: map[string]string{
+					"values.yaml": "cluster: yaml\n",
+				},
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "test-app-chart-values",
+					Namespace: "org-test",
+					Annotations: map[string]string{
+						annotation.Notes: "DO NOT EDIT. Values managed by app-operator.",
+					},
+					Labels: map[string]string{
+						label.ManagedBy: "app-operator",
+					},
+				},
+			},
+			expectedUserConfig: &v1alpha1.AppSpecUserConfig{
+				ConfigMap: v1alpha1.AppSpecUserConfigConfigMap{
+					Name:      "custom-values",
+					Namespace: "org-test",
+				},
+			},
+		},
 	}
 
 	var err error
@@ -327,9 +558,14 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 			c := Config{
 				Logger: microloggertest.New(),
 				Values: valuesService,
-
-				ChartNamespace: "giantswarm",
 			}
+
+			if tc.helmControllerBackend {
+				c.HelmControllerBackend = true
+			} else {
+				c.ChartNamespace = "giantswarm"
+			}
+
 			r, err := New(c)
 			if err != nil {
 				t.Fatalf("error == %#v, want nil", err)

@@ -23,6 +23,15 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 
 	name := key.ChartConfigMapName(cr)
 
+	// When the Helm Controller backend is enable, config is located in the same namespace
+	// the App CR is located at.
+	var namespace string
+	if r.helmControllerBackend {
+		namespace = cr.Namespace
+	} else {
+		namespace = r.chartNamespace
+	}
+
 	cc, err := controllercontext.FromContext(ctx)
 	if err != nil {
 		return nil, microerror.Mask(err)
@@ -52,14 +61,14 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 		return nil, nil
 	}
 
-	r.logger.Debugf(ctx, "finding configmap %#q in namespace %#q", name, r.chartNamespace)
+	r.logger.Debugf(ctx, "finding configmap %#q in namespace %#q", name, namespace)
 
 	ch := make(chan struct{})
 
 	var configmap *corev1.ConfigMap
 
 	go func() {
-		configmap, err = cc.Clients.K8s.K8sClient().CoreV1().ConfigMaps(r.chartNamespace).Get(ctx, name, metav1.GetOptions{})
+		configmap, err = cc.Clients.K8s.K8sClient().CoreV1().ConfigMaps(namespace).Get(ctx, name, metav1.GetOptions{})
 		close(ch)
 	}()
 
@@ -79,7 +88,7 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 
 	if apierrors.IsNotFound(err) {
 		// Return early as configmap does not exist.
-		r.logger.Debugf(ctx, "did not find configmap %#q in namespace %#q", name, r.chartNamespace)
+		r.logger.Debugf(ctx, "did not find configmap %#q in namespace %#q", name, namespace)
 		return nil, nil
 	} else if tenant.IsAPINotAvailable(err) {
 		// Set status so we don't try to connect to the workload cluster
@@ -96,7 +105,7 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 	} else if err != nil {
 		return nil, microerror.Mask(err)
 	}
-	r.logger.Debugf(ctx, "found configmap %#q in namespace %#q", name, r.chartNamespace)
+	r.logger.Debugf(ctx, "found configmap %#q in namespace %#q", name, namespace)
 
 	return configmap, nil
 }

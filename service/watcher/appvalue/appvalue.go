@@ -37,10 +37,10 @@ type AppValueWatcher struct {
 }
 
 func NewAppValueWatcher(config AppValueWatcherConfig) (*AppValueWatcher, error) {
-	if config.Event == nil {
+	if config.Event == recorder.Interface(nil) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Event must not be empty", config)
 	}
-	if config.K8sClient == nil {
+	if config.K8sClient == k8sclient.Interface(nil) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
 	}
 	if config.Logger == nil {

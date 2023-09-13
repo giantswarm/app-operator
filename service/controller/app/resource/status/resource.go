@@ -16,8 +16,9 @@ type Config struct {
 	CtrlClient client.Client
 	Logger     micrologger.Logger
 
-	ChartNamespace    string
-	WorkloadClusterID string
+	ChartNamespace        string
+	HelmControllerBackend bool
+	WorkloadClusterID     string
 }
 
 // Resource implements the chartstatus resource.
@@ -25,12 +26,13 @@ type Resource struct {
 	ctrlClient client.Client
 	logger     micrologger.Logger
 
-	chartNamespace    string
-	workloadClusterID string
+	chartNamespace        string
+	helmControllerBackend bool
+	workloadClusterID     string
 }
 
 func New(config Config) (*Resource, error) {
-	if config.CtrlClient == nil {
+	if config.CtrlClient == client.Client(nil) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.CtrlClient must not be empty", config)
 	}
 	if config.Logger == nil {
@@ -42,8 +44,9 @@ func New(config Config) (*Resource, error) {
 		ctrlClient: config.CtrlClient,
 		logger:     config.Logger,
 
-		chartNamespace:    config.ChartNamespace,
-		workloadClusterID: config.WorkloadClusterID,
+		helmControllerBackend: config.HelmControllerBackend,
+		chartNamespace:        config.ChartNamespace,
+		workloadClusterID:     config.WorkloadClusterID,
 	}
 
 	return r, nil

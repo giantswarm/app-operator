@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Added
+
+- Add support for Helm Controller backend.
+
 ## [6.8.0] - 2023-07-06
 
 ### Added
