@@ -32,6 +32,10 @@
       "allowedVersions": "< 0.7.0"
     },
     {
+      "matchPackageNames": ["github.com/docker/docker"],
+      "allowedVersions": "<= v23.0.1+incompatible"
+    },
+    {
       "matchPackagePatterns": ["^github.com/giantswarm/apiextensions*"],
       "allowedVersions": ">= 4.0.0"
     }
