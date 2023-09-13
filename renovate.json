@@ -19,6 +19,7 @@
     },
     {
       "excludePackagePatterns": [".*giantswarm.*" ,"^k8s.io", "^sigs.k8s.io"],
+      "excludePackageNames": ["github.com/imdario/mergo"],
       "groupName": "misc modules"
     },
     {
@@ -29,6 +30,10 @@
     {
       "matchPackageNames": ["sigs.k8s.io/controller-runtime"],
       "allowedVersions": "< 0.7.0"
+    },
+    {
+      "matchPackageNames": ["github.com/docker/docker"],
+      "allowedVersions": "<= v23.0.1+incompatible"
     },
     {
       "matchPackagePatterns": ["^github.com/giantswarm/apiextensions*"],
