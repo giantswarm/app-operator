@@ -19,6 +19,7 @@
     },
     {
       "excludePackagePatterns": [".*giantswarm.*" ,"^k8s.io", "^sigs.k8s.io"],
+      "excludePackageNames": ["github.com/imdario/mergo"],
       "groupName": "misc modules"
     },
     {
