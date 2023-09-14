@@ -31,6 +31,10 @@
       "allowedVersions": "< 0.7.0"
     },
     {
+      "matchPackageNames": ["helm.sh/helm/v3"],
+      "allowedVersions": "<= 3.11.3"
+    },
+    {
       "matchPackagePatterns": ["^github.com/giantswarm/apiextensions*"],
       "allowedVersions": ">= 4.0.0"
     }
