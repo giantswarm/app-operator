@@ -35,6 +35,10 @@
       "allowedVersions": "<= 3.11.3"
     },
     {
+      "matchPackageNames": ["github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring"],
+      "allowedVersions": "<= v0.64.0"
+    },
+    {
       "matchPackagePatterns": ["^github.com/giantswarm/apiextensions*"],
       "allowedVersions": ">= 4.0.0"
     }
