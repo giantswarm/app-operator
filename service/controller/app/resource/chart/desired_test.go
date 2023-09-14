@@ -25,6 +25,7 @@ import (
 )
 
 func Test_Resource_GetDesiredState(t *testing.T) {
+	tm := metav1.NewTime(time.Now())
 	tests := []struct {
 		name                string
 		obj                 *v1alpha1.App
@@ -36,6 +37,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 		expectedChartStatus *controllercontext.ChartStatus
 		errorPattern        *regexp.Regexp
 		error               bool
+		workloadClusterId   string
 	}{
 		{
 			name: "case 0: flawless flow",
@@ -768,6 +770,67 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 			},
 			error: false,
 		},
+		{
+			name: "case 9: deleting CAPI workload cluster app",
+			obj: &v1alpha1.App{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "demo01-hello-world",
+					Namespace: "org-demo",
+					Labels: map[string]string{
+						"giantswarm.io/cluster": "demo01",
+					},
+					DeletionTimestamp: &tm,
+				},
+				Spec: v1alpha1.AppSpec{
+					Catalog:   "giantswarm",
+					Name:      "hello-world",
+					Namespace: "default",
+					Version:   "1.0.0",
+					KubeConfig: v1alpha1.AppSpecKubeConfig{
+						Secret: v1alpha1.AppSpecKubeConfigSecret{
+							Name:      "demo01-kubeconfig",
+							Namespace: "org-demo",
+						},
+					},
+				},
+			},
+			expectedChart: &v1alpha1.Chart{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "hello-world",
+					Namespace: "giantswarm",
+				},
+			},
+			workloadClusterId: "demo01",
+		},
+		{
+			name: "case 10: deleting CAPI management cluster app",
+			obj: &v1alpha1.App{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "demo01-security-bundle",
+					Namespace: "org-demo",
+					Labels: map[string]string{
+						"giantswarm.io/cluster": "demo01",
+					},
+					DeletionTimestamp: &tm,
+				},
+				Spec: v1alpha1.AppSpec{
+					Catalog:   "giantswarm",
+					Name:      "security-bundle",
+					Namespace: "security",
+					Version:   "1.0.0",
+					KubeConfig: v1alpha1.AppSpecKubeConfig{
+						InCluster: true,
+					},
+				},
+			},
+			expectedChart: &v1alpha1.Chart{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "demo01-security-bundle",
+					Namespace: "giantswarm",
+				},
+			},
+			workloadClusterId: "demo01",
+		},
 	}
 
 	for _, tc := range tests {
@@ -793,6 +856,11 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 				ChartNamespace:               "giantswarm",
 				DependencyWaitTimeoutMinutes: 30,
 			}
+
+			if tc.workloadClusterId != "" {
+				c.WorkloadClusterID = tc.workloadClusterId
+			}
+
 			r, err := New(c)
 			if err != nil {
 				t.Fatalf("error == %#v, want nil", err)

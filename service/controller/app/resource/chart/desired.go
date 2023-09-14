@@ -47,19 +47,19 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		return nil, microerror.Mask(err)
 	}
 
+	chartName := key.ChartName(cr, r.workloadClusterID)
+
 	if key.IsDeleted(cr) {
 		// Return empty chart CR so it is deleted.
 		chartCR := &v1alpha1.Chart{
 			ObjectMeta: metav1.ObjectMeta{
-				Name:      cr.Name,
+				Name:      chartName,
 				Namespace: r.chartNamespace,
 			},
 		}
 
 		return chartCR, nil
 	}
-
-	chartName := key.ChartName(cr, r.workloadClusterID)
 
 	config, err := generateConfig(ctx, cc.Clients.K8s.K8sClient(), cr, cc.Catalog, r.chartNamespace)
 	if err != nil {

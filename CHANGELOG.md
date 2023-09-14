@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Fixed
+
+- Use the right name for Chart CR to be deleted.
+
 ## [6.8.0] - 2023-07-06
 
 ### Added
