@@ -54,6 +54,7 @@
     "actions/setup-go",
     "architect",
     "github.com/imdario/mergo",
+    "github.com/docker/distribution",
     "zricethezav/gitleaks-action"
   ],
   "regexManagers": [
