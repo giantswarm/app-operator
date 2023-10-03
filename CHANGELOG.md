@@ -9,6 +9,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [6.8.2] - 2023-10-03
 
+### Fixed
+
+- Just testing release process...
+
 ## [6.8.1] - 2023-09-14
 
 ### Fixed
