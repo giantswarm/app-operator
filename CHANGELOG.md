@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Changed
+
+- Add a switch for PSP CR installation.
+
 ## [6.8.1] - 2023-09-14
 
 ### Fixed
