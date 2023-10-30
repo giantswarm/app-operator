@@ -371,7 +371,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 
 			if tc.expectedUserConfig != nil {
 				_ = ctrlClient.Get(ctx, types.NamespacedName{Name: tc.obj.GetName(), Namespace: tc.obj.GetNamespace()}, tc.obj)
-				uc := &tc.obj.Spec.UserConfig
+				uc := testCases[i].obj.Spec.UserConfig
 				if !reflect.DeepEqual(uc, tc.expectedUserConfig) {
 					t.Fatalf("want matching userconfig \n %s", cmp.Diff(uc, tc.expectedUserConfig))
 				}
