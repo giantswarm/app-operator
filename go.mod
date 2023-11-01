@@ -199,7 +199,7 @@ replace (
 	github.com/ulikunitz/xz => github.com/ulikunitz/xz v0.5.11
 	github.com/valyala/fasthttp v1.6.0 => github.com/valyala/fasthttp v1.37.0
 	go.mongodb.org/mongo-driver v1.1.2 => go.mongodb.org/mongo-driver v1.9.1
-	helm.sh/helm/v3@v3.9.0 => helm.sh/helm/v3 v3.11.3
+	helm.sh/helm/v3@v3.9.0 => helm.sh/helm/v3 v3.13.1
 	// Same as go-logr/logr, klog/v2 is using logr v0.2.0
 	k8s.io/klog/v2 v2.2.0 => k8s.io/klog/v2 v2.0.0
 )
