@@ -186,7 +186,7 @@ replace (
 	github.com/bketelsen/crypt => github.com/bketelsen/crypt v0.0.5
 	github.com/dgrijalva/jwt-go => github.com/dgrijalva/jwt-go/v4 v4.0.0-preview1
 	github.com/docker/distribution => github.com/docker/distribution v0.0.0-20191216044856-a8371794149d
-	github.com/docker/docker => github.com/moby/moby v20.10.24+incompatible
+	github.com/docker/docker => github.com/moby/moby v20.10.26+incompatible
 	github.com/gogo/protobuf v1.3.1 => github.com/gogo/protobuf v1.3.2
 	github.com/imdario/mergo => github.com/imdario/mergo v0.3.16
 )
