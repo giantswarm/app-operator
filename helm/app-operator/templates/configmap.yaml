@@ -26,6 +26,7 @@ data:
         registry: '{{ .Values.registry.domain }}'
       kubernetes:
         incluster: true
+        disableClientCache: {{ $.Values.kubernetes.disableClientCache }}
       operatorkit:
         resyncPeriod: '{{ .Values.operatorkit.resyncPeriod }}'
       provider:
