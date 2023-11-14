@@ -68,14 +68,14 @@ func New(config Config) (*Resource, error) {
 
 	r := &Resource{
 		// Dependencies.
-		cache:        gocache.New(expiration, expiration/2),
-		fs:           config.Fs,
-		k8sClient:    config.K8sClient,
-		logger:       config.Logger,
-		disableCache: config.DisableCache,
+		cache:     gocache.New(expiration, expiration/2),
+		fs:        config.Fs,
+		k8sClient: config.K8sClient,
+		logger:    config.Logger,
 
 		// Settings
 		httpClientTimeout: config.HTTPClientTimeout,
+		disableCache:      config.DisableCache,
 	}
 
 	return r, nil

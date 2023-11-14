@@ -86,6 +86,7 @@ func New(config Config) (*Service, error) {
 	fs := afero.NewOsFs()
 	podNamespace := env.PodNamespace()
 
+	fmt.Printf("\nDisable cache: %t\n\n", config.Viper.GetBool(config.Flag.Service.Kubernetes.DisableClientCache))
 	var clientCache *clientcache.Resource
 	{
 		c := clientcache.Config{
