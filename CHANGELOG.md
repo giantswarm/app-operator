@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Added
+
+- Add option to disable k8s client cache.
+
 ## [6.9.0] - 2023-11-10
 
 ### Changed
