@@ -119,6 +119,7 @@
         "disableClientCache": {
           "type": "boolean"
         }
+      }
     },
     "name": {
       "type": "string"
