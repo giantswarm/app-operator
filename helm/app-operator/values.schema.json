@@ -113,6 +113,14 @@
         }
       }
     },
+    "kubernetes": {
+      "type": "object",
+      "properties": {
+        "disableClientCache": {
+          "type": "boolean"
+        }
+      }
+    },
     "name": {
       "type": "string"
     },

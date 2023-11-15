@@ -94,6 +94,7 @@ func New(config Config) (*Service, error) {
 			Logger:    config.Logger,
 
 			HTTPClientTimeout: config.Viper.GetDuration(config.Flag.Service.Helm.HTTP.ClientTimeout),
+			DisableCache:      config.Viper.GetBool(config.Flag.Service.Kubernetes.DisableClientCache),
 		}
 
 		clientCache, err = clientcache.New(c)
