@@ -19,6 +19,9 @@ helm:
 provider:
   kind: ""
 
+kubernetes:
+  disableClientCache: false
+
 userID: 1000
 groupID: 1000
 

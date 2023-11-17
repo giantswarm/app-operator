@@ -7,6 +7,12 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+## [6.10.0] - 2023-11-15
+
+### Added
+
+- Add option to disable k8s client cache.
+
 ## [6.9.0] - 2023-11-10
 
 ### Changed
@@ -709,7 +715,8 @@ from Helm 2 to Helm 3.
 
 - Flattening operator release structure.
 
-[Unreleased]: https://github.com/giantswarm/app-operator/compare/v6.9.0...HEAD
+[Unreleased]: https://github.com/giantswarm/app-operator/compare/v6.10.0...HEAD
+[6.10.0]: https://github.com/giantswarm/app-operator/compare/v6.9.0...v6.10.0
 [6.9.0]: https://github.com/giantswarm/app-operator/compare/v6.8.1...v6.9.0
 [6.8.1]: https://github.com/giantswarm/app-operator/compare/v6.8.0...v6.8.1
 [6.8.0]: https://github.com/giantswarm/app-operator/compare/v6.7.0...v6.8.0
