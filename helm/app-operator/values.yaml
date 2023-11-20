@@ -28,7 +28,7 @@ groupID: 1000
 replicas: 1
 
 registry:
-  domain: docker.io
+  domain: quay.io
 
 image:
   repository: giantswarm/app-operator
