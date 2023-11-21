@@ -10,6 +10,7 @@ protocol: "TCP"
 app:
   watchNamespace: ""
   workloadClusterID: ""
+  dependencyWaitTimeoutMinutes: 30
 
 helm:
   http:
@@ -17,6 +18,9 @@ helm:
 
 provider:
   kind: ""
+
+kubernetes:
+  disableClientCache: false
 
 userID: 1000
 groupID: 1000
@@ -28,7 +32,7 @@ registry:
 
 image:
   repository: giantswarm/app-operator
-  tag: [[ .Version ]]
+  tag: "[[ .Version ]]"
 
 operatorkit:
   resyncPeriod: "5m"
@@ -40,17 +44,17 @@ project:
 deployment:
   management:
     requests:
+      cpu: 150m
+      memory: 200Mi
+    limits:
       cpu: 250m
       memory: 250Mi
-    limits:
-      cpu: 350m
-      memory: 500Mi
   workload:
     requests:
-      cpu: 100m
+      cpu: 75m
       memory: 50Mi
     limits:
-      cpu: 150m
+      cpu: 125m
       memory: 100Mi
 
 verticalPodAutoscaler:
@@ -85,3 +89,13 @@ securityContext:
   runAsNonRoot: true
   seccompProfile:
     type: RuntimeDefault
+
+serviceMonitor:
+  enabled: true
+  # -- (duration) Prometheus scrape interval.
+  interval: "60s"
+  # -- (duration) Prometheus scrape timeout.
+  scrapeTimeout: "45s"
+
+podSecurityStandards:
+  enforced: false

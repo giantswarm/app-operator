@@ -2,29 +2,39 @@ package chart
 
 import (
 	"context"
+	"fmt"
 	"net/url"
 	"path"
 	"strings"
+	"time"
 
 	"github.com/giantswarm/apiextensions-application/api/v1alpha1"
-	"github.com/giantswarm/app/v6/pkg/key"
+	"github.com/giantswarm/app/v7/pkg/key"
 	"github.com/giantswarm/appcatalog"
 	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/k8smetadata/pkg/annotation"
 	"github.com/giantswarm/k8smetadata/pkg/label"
 	"github.com/giantswarm/microerror"
+	"github.com/giantswarm/operatorkit/v8/pkg/controller/context/resourcecanceledcontext"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/kubernetes"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/giantswarm/app-operator/v6/pkg/project"
+	"github.com/giantswarm/app-operator/v6/pkg/status"
 	"github.com/giantswarm/app-operator/v6/service/controller/app/controllercontext"
 	"github.com/giantswarm/app-operator/v6/service/internal/indexcache"
 )
 
 const (
 	chartPullFailedStatus = "chart-pull-failed"
+
+	annotationChartOperatorPause        = "chart-operator.giantswarm.io/paused"
+	annotationChartOperatorPauseReason  = "app-operator.giantswarm.io/pause-reason"
+	annotationChartOperatorPauseStarted = "app-operator.giantswarm.io/pause-ts"
+	annotationChartOperatorDependsOn    = "app-operator.giantswarm.io/depends-on"
 )
 
 func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interface{}, error) {
@@ -37,19 +47,19 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		return nil, microerror.Mask(err)
 	}
 
+	chartName := key.ChartName(cr, r.workloadClusterID)
+
 	if key.IsDeleted(cr) {
 		// Return empty chart CR so it is deleted.
 		chartCR := &v1alpha1.Chart{
 			ObjectMeta: metav1.ObjectMeta{
-				Name:      cr.Name,
+				Name:      chartName,
 				Namespace: r.chartNamespace,
 			},
 		}
 
 		return chartCR, nil
 	}
-
-	chartName := key.ChartName(cr, r.workloadClusterID)
 
 	config, err := generateConfig(ctx, cc.Clients.K8s.K8sClient(), cr, cc.Catalog, r.chartNamespace)
 	if err != nil {
@@ -60,26 +70,37 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
+	repositories := []string{repositoryURL}
 
-	tarballURL, version, err := r.buildTarballURL(ctx, cc, cr, repositoryURL)
-	if err != nil && IsNotFound(err) && key.CatalogVisibility(cc.Catalog) != "internal" {
-		// Could not reach custom catalog's index or find app entry in it.
-		// Let's retry using other repositories.
-		r.logger.Errorf(ctx, err, "failed to resolve tarball URL for %#q repository, trying next one", repositoryURL)
-		for _, fallbackURL := range fallbackRepositories(cc.Catalog, repositoryURL) {
-			tarballURL, version, err = r.buildTarballURL(ctx, cc, cr, fallbackURL)
-			if err == nil {
-				r.logger.Debugf(ctx, "found a working tarball URL in repository %#q", fallbackURL)
-				break
-			} else {
-				r.logger.Errorf(ctx, err, "failed to resolve tarball URL for %#q repository, trying next one", fallbackURL)
-			}
+	if key.CatalogVisibility(cc.Catalog) != "internal" {
+		repositories = append(repositories, fallbackRepositories(cc.Catalog, repositoryURL)...)
+	}
+
+	var tarballURL, version string
+	for _, url := range repositories {
+		tarballURL, version, err = r.buildTarballURL(ctx, cc, cr, url)
+		if err == nil {
+			r.logger.Debugf(ctx, "found a working tarball URL in repository %#q", url)
+			break
+		} else {
+			r.logger.Errorf(ctx, err, "failed to resolve tarball URL for %#q repository", url)
 		}
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	} else if err != nil {
+	}
+	if err != nil {
+		setStatus(cc, err)
+		resourcecanceledcontext.SetCanceled(ctx)
+		return nil, nil
+	}
+
+	annotations := generateAnnotations(cr.GetAnnotations(), cr.Namespace, cr.Name)
+	depsNotInstalled, err := r.checkDependencies(ctx, cr)
+	if err != nil {
 		return nil, microerror.Mask(err)
+	}
+	if len(depsNotInstalled) > 0 {
+		annotations[annotationChartOperatorPause] = "true"
+		annotations[annotationChartOperatorPauseReason] = fmt.Sprintf("Waiting for dependencies to be installed: %s", strings.Join(depsNotInstalled, ", "))
+		annotations[annotationChartOperatorPauseStarted] = time.Now().Format(time.RFC3339)
 	}
 
 	chartCR := &v1alpha1.Chart{
@@ -90,7 +111,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		ObjectMeta: metav1.ObjectMeta{
 			Name:        chartName,
 			Namespace:   r.chartNamespace,
-			Annotations: generateAnnotations(cr.GetAnnotations(), cr.Namespace, cr.Name),
+			Annotations: annotations,
 			Labels:      processLabels(project.Name(), cr.GetLabels()),
 		},
 		Spec: v1alpha1.ChartSpec{
@@ -102,12 +123,64 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 				Annotations: cr.Spec.NamespaceConfig.Annotations,
 				Labels:      cr.Spec.NamespaceConfig.Labels,
 			},
+			Rollback:   generateRollback(cr),
+			Uninstall:  generateUninstall(cr),
+			Upgrade:    generateUpgrade(cr),
 			TarballURL: tarballURL,
 			Version:    version,
 		},
 	}
 
 	return chartCR, nil
+}
+
+func (r *Resource) checkDependencies(ctx context.Context, app v1alpha1.App) ([]string, error) {
+	deps, err := getDependenciesFromCR(app)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	if len(deps) == 0 {
+		r.logger.Debugf(ctx, "App %q has no dependencies", app.Name)
+		return nil, nil
+	}
+
+	// Get a list of installed and up-to-date apps in the same namespace.
+	installedApps := map[string]bool{}
+	{
+		appList := v1alpha1.AppList{}
+		err = r.ctrlClient.List(ctx, &appList, client.InNamespace(app.Namespace))
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		for _, app := range appList.Items {
+			installedApps[app.Name] = app.Status.Release.Status == "deployed" && app.Status.Version == app.Spec.Version
+		}
+	}
+
+	// Get a list of dependencies that are not installed.
+	dependenciesNotInstalled := make([]string, 0)
+	{
+		for _, dep := range deps {
+			// Avoid self dependencies, just a safety net.
+			if dep != app.Name {
+				installed, found := installedApps[dep]
+				if !found || !installed {
+					dependenciesNotInstalled = append(dependenciesNotInstalled, dep)
+				}
+			}
+		}
+	}
+
+	if len(dependenciesNotInstalled) > 0 {
+		r.logger.Debugf(ctx, "Not creating chart for app %q: dependencies not satisfied %v", app.Name, dependenciesNotInstalled)
+		return dependenciesNotInstalled, nil
+	}
+
+	r.logger.Debugf(ctx, "Dependencies for App %q are satisfied", app.Name)
+
+	return nil, nil
 }
 
 func (r *Resource) pickRepositoryURL(ctx context.Context, cc *controllercontext.Context, cr v1alpha1.App, chartName string) (string, error) {
@@ -155,9 +228,11 @@ func (r *Resource) pickRepositoryURL(ctx context.Context, cc *controllercontext.
 }
 
 func (r *Resource) buildTarballURL(ctx context.Context, cc *controllercontext.Context, cr v1alpha1.App, repositoryURL string) (url string, version string, err error) {
-	if key.CatalogVisibility(cc.Catalog) == "internal" {
+	if key.CatalogVisibility(cc.Catalog) == "internal" || isOCIRepositoryURL(repositoryURL) {
 		// For internal catalogs we generate the URL as its predictable
 		// and to avoid having chicken egg problems.
+		// For OCI repositories there is no discovery mechanism, so we just
+		// make an assumption about URL format.
 		url, err = appcatalog.NewTarballURL(repositoryURL, key.AppName(cr), key.Version(cr))
 		if err != nil {
 			return "", "", microerror.Mask(err)
@@ -173,15 +248,15 @@ func (r *Resource) buildTarballURL(ctx context.Context, cc *controllercontext.Co
 		r.logger.Errorf(ctx, err, "failed to get index.yaml from %q", repositoryURL)
 	}
 	if index == nil {
-		return "", "", microerror.Maskf(notFoundError, "index %#v for %q is <nil>", index, repositoryURL)
+		return "", "", microerror.Maskf(indexNotFoundError, "index %#v for %q is <nil>", index, repositoryURL)
 	}
 	if len(index.Entries) == 0 {
-		return "", "", microerror.Maskf(notFoundError, "index %#v for %q has no entries", index, repositoryURL)
+		return "", "", microerror.Maskf(catalogEmptyError, "index %#v for %q has no entries", index, repositoryURL)
 	}
 
 	entries, ok := index.Entries[cr.Spec.Name]
 	if !ok {
-		return "", "", microerror.Maskf(notFoundError, "no entries for app %#q in index.yaml for %q", cr.Spec.Name, repositoryURL)
+		return "", "", microerror.Maskf(appNotFoundError, "no entries for app %#q in index.yaml for %q", cr.Spec.Name, repositoryURL)
 	}
 
 	// We first try with the full version set in .spec.version of the app CR.
@@ -199,7 +274,7 @@ func (r *Resource) buildTarballURL(ctx context.Context, cc *controllercontext.Co
 	}
 
 	if url == "" {
-		return "", "", microerror.Maskf(notFoundError, "found entry for app %#q but URL is not specified", cr.Spec.Name)
+		return "", "", microerror.Maskf(appVersionNotFoundError, "found entry for app %#q but URL is not specified", cr.Spec.Name)
 	}
 
 	if !isValidURL(url) {
@@ -292,31 +367,86 @@ func generateConfig(ctx context.Context, k8sClient kubernetes.Interface, cr v1al
 }
 
 func generateInstall(cr v1alpha1.App) v1alpha1.ChartSpecInstall {
+	install := v1alpha1.ChartSpecInstall{}
+
 	if key.InstallSkipCRDs(cr) {
-		return v1alpha1.ChartSpecInstall{
-			SkipCRDs: true,
+		install.SkipCRDs = true
+	}
+
+	timeout := key.InstallTimeout(cr)
+	if timeout != nil {
+		install.Timeout = timeout
+	}
+
+	return install
+}
+
+func generateRollback(cr v1alpha1.App) v1alpha1.ChartSpecRollback {
+	rollback := v1alpha1.ChartSpecRollback{}
+
+	timeout := key.RollbackTimeout(cr)
+	if timeout != nil {
+		rollback.Timeout = timeout
+	}
+
+	return rollback
+}
+
+func generateUninstall(cr v1alpha1.App) v1alpha1.ChartSpecUninstall {
+	uninstall := v1alpha1.ChartSpecUninstall{}
+
+	timeout := key.UninstallTimeout(cr)
+	if timeout != nil {
+		uninstall.Timeout = timeout
+	}
+
+	return uninstall
+}
+
+func generateUpgrade(cr v1alpha1.App) v1alpha1.ChartSpecUpgrade {
+	upgrade := v1alpha1.ChartSpecUpgrade{}
+
+	timeout := key.UpgradeTimeout(cr)
+	if timeout != nil {
+		upgrade.Timeout = timeout
+	}
+
+	return upgrade
+}
+
+func getDependenciesFromCR(app v1alpha1.App) ([]string, error) {
+	deps := make([]string, 0)
+	dependsOn, found := app.Annotations[annotationChartOperatorDependsOn]
+	if found {
+		deps = strings.Split(dependsOn, ",")
+	}
+
+	ret := make([]string, 0)
+	for _, dep := range deps {
+		if dep != "" {
+			ret = append(ret, dep)
 		}
 	}
 
-	return v1alpha1.ChartSpecInstall{}
+	return ret, nil
 }
 
 func getEntryURL(entries []indexcache.Entry, app, version string) (string, error) {
 	for _, e := range entries {
 		if e.Version == version {
 			if len(e.Urls) == 0 {
-				return "", microerror.Maskf(notFoundError, "no URL in index.yaml for app %#q version %#q", app, version)
+				return "", microerror.Maskf(appVersionNotFoundError, "no URL in index.yaml for app %#q version %#q", app, version)
 			}
 
 			return e.Urls[0], nil
 		}
 	}
 
-	return "", microerror.Maskf(notFoundError, "no app %#q in index.yaml with given version %#q", app, version)
+	return "", microerror.Maskf(appVersionNotFoundError, "no app %#q in index.yaml with given version %#q", app, version)
 }
 
 func hasConfigMap(cr v1alpha1.App, catalog v1alpha1.Catalog) bool {
-	if key.AppConfigMapName(cr) != "" || key.CatalogConfigMapName(catalog) != "" || key.UserConfigMapName(cr) != "" {
+	if key.AppConfigMapName(cr) != "" || key.CatalogConfigMapName(catalog) != "" || key.UserConfigMapName(cr) != "" || hasKindInExtraConfigs(cr, "configMap") {
 		return true
 	}
 
@@ -324,8 +454,20 @@ func hasConfigMap(cr v1alpha1.App, catalog v1alpha1.Catalog) bool {
 }
 
 func hasSecret(cr v1alpha1.App, catalog v1alpha1.Catalog) bool {
-	if key.AppSecretName(cr) != "" || key.CatalogSecretName(catalog) != "" || key.UserSecretName(cr) != "" {
+	if key.AppSecretName(cr) != "" || key.CatalogSecretName(catalog) != "" || key.UserSecretName(cr) != "" || hasKindInExtraConfigs(cr, "secret") {
 		return true
+	}
+
+	return false
+}
+
+func hasKindInExtraConfigs(cr v1alpha1.App, kind string) bool {
+	kindLowerCase := strings.ToLower(kind)
+
+	for _, extraConfig := range key.ExtraConfigs(cr) {
+		if strings.ToLower(extraConfig.Kind) == kindLowerCase {
+			return true
+		}
 	}
 
 	return false
@@ -376,4 +518,31 @@ func processLabels(projectName string, inputLabels map[string]string) map[string
 	}
 
 	return labels
+}
+
+// isOCIRepositoryURL determines whether given URL points to OCI repository. To be used with repositoryURL variable.
+func isOCIRepositoryURL(repositoryURL string) bool {
+	if repositoryURL == "" {
+		return false
+	}
+	u, err := url.Parse(repositoryURL)
+	if err != nil {
+		return false
+	}
+	return u.Scheme == "oci"
+}
+
+func setStatus(cc *controllercontext.Context, err error) {
+	switch microerror.Cause(err) {
+	case appNotFoundError:
+		addStatusToContext(cc, err.Error(), status.AppNotFoundStatus)
+	case appVersionNotFoundError:
+		addStatusToContext(cc, err.Error(), status.AppVersionNotFoundStatus)
+	case catalogEmptyError:
+		addStatusToContext(cc, err.Error(), status.CatalogEmptyStatus)
+	case indexNotFoundError:
+		addStatusToContext(cc, err.Error(), status.IndexNotFoundStatus)
+	default:
+		addStatusToContext(cc, err.Error(), status.UnknownError)
+	}
 }

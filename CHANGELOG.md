@@ -7,6 +7,118 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+## [6.10.0] - 2023-11-15
+
+### Added
+
+- Add option to disable k8s client cache.
+
+## [6.9.0] - 2023-11-10
+
+### Changed
+
+- Add a switch for PSP CR installation.
+
+## [6.8.1] - 2023-09-14
+
+### Fixed
+
+- Use the right name for Chart CR to be deleted.
+
+## [6.8.0] - 2023-07-06
+
+### Added
+
+- Add Service Monitor by default to make it complain with the latest monitoring improvements
+
+## [6.7.0] - 2023-05-10
+
+### Changed
+
+- Only include PodSecurityPolicy on clusters with policy/v1beta1 api available.
+- Only include PodMonitor on clusters with monitoring.coreos.com/v1 api available.
+
+### Removed
+
+- Stop pushing to `openstack-app-collection`.
+
+## [6.6.4] - 2023-04-05
+
+### Changed
+
+- Improved feedback when searching for an app in catalog.
+
+## [6.6.3] - 2023-03-21
+
+### Changed
+
+- Lowered resource requests and limits
+- Changed VPA to consider unique and workload cluster operators as well and added support for min allowed fields of CPU and memory
+
+## [6.6.2] - 2023-03-10
+
+### Changed
+
+- Bump `giantswarm/app` package to `v6.15.5`
+
+## [6.6.1] - 2023-03-09
+
+### Changed
+
+- Bump `giantswarm/app` package to `v6.15.2` to fix cluster and namespace singletons checks for CAPI.
+
+## [6.6.0] - 2023-02-02
+
+### Added
+
+- Add support for dependencies between apps using `app-operator.giantswarm.io/depends-on` annotation.
+
+## [6.5.1] - 2023-02-01
+
+### Changed
+
+- Bump `giantswarm/app` package to `v6.15.2` to weaken the condition on userConfig names for default apps.
+
+## [6.5.0] - 2022-12-02
+
+### Fixed
+
+- Fix building URLs for OCI Repositories assigned to non-internal `Catalogs`.
+
+## [6.4.4] - 2022-11-29
+
+### Fixed
+
+- Fix workload cluster request template.
+
+## [6.4.3] - 2022-11-23
+
+### Changed
+
+- Use `port` instead of deprecated `targetPort` field for `PodMonitor`
+
+### Fixed
+
+- Provide synchronization between goroutines operating on indices maps.
+
+## [6.4.2] - 2022-11-21
+
+### Changed
+
+- Bump `github.com/giantswarm/app` to `v6.15.1`
+
+## [6.4.1] - 2022-09-26
+
+### Fixed
+
+- Fix a bug that skips adding the chart-values or chart-secrets entries to the Chart CR when they are only created via extra configs of the App CR
+
+## [6.4.0] - 2022-09-22
+
+### Added
+
+- Support timeouts fields in the App CR.
+
 ### Changed
 
 - Add support for new control-plane label in k8s 1.24.
@@ -603,7 +715,26 @@ from Helm 2 to Helm 3.
 
 - Flattening operator release structure.
 
-[Unreleased]: https://github.com/giantswarm/app-operator/compare/v6.3.0...HEAD
+[Unreleased]: https://github.com/giantswarm/app-operator/compare/v6.10.0...HEAD
+[6.10.0]: https://github.com/giantswarm/app-operator/compare/v6.9.0...v6.10.0
+[6.9.0]: https://github.com/giantswarm/app-operator/compare/v6.8.1...v6.9.0
+[6.8.1]: https://github.com/giantswarm/app-operator/compare/v6.8.0...v6.8.1
+[6.8.0]: https://github.com/giantswarm/app-operator/compare/v6.7.0...v6.8.0
+[6.7.0]: https://github.com/giantswarm/app-operator/compare/v6.6.4...v6.7.0
+[6.6.4]: https://github.com/giantswarm/app-operator/compare/v6.6.3...v6.6.4
+[6.6.3]: https://github.com/giantswarm/app-operator/compare/v6.6.3...v6.6.3
+[6.6.3]: https://github.com/giantswarm/app-operator/compare/v6.6.3...v6.6.3
+[6.6.3]: https://github.com/giantswarm/app-operator/compare/v6.6.2...v6.6.3
+[6.6.2]: https://github.com/giantswarm/app-operator/compare/v6.6.1...v6.6.2
+[6.6.1]: https://github.com/giantswarm/app-operator/compare/v6.6.0...v6.6.1
+[6.6.0]: https://github.com/giantswarm/app-operator/compare/v6.5.1...v6.6.0
+[6.5.1]: https://github.com/giantswarm/app-operator/compare/v6.5.0...v6.5.1
+[6.5.0]: https://github.com/giantswarm/app-operator/compare/v6.4.4...v6.5.0
+[6.4.4]: https://github.com/giantswarm/app-operator/compare/v6.4.3...v6.4.4
+[6.4.3]: https://github.com/giantswarm/app-operator/compare/v6.4.2...v6.4.3
+[6.4.2]: https://github.com/giantswarm/app-operator/compare/v6.4.1...v6.4.2
+[6.4.1]: https://github.com/giantswarm/app-operator/compare/v6.4.0...v6.4.1
+[6.4.0]: https://github.com/giantswarm/app-operator/compare/v6.3.0...v6.4.0
 [6.3.0]: https://github.com/giantswarm/app-operator/compare/v6.2.0...v6.3.0
 [6.2.0]: https://github.com/giantswarm/app-operator/compare/v6.1.0...v6.2.0
 [6.1.0]: https://github.com/giantswarm/app-operator/compare/v6.0.1...v6.1.0

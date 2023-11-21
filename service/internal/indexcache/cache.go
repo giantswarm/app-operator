@@ -3,7 +3,7 @@ package indexcache
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"strings"
 	"time"
@@ -74,7 +74,7 @@ func (r *Resource) GetIndex(ctx context.Context, storageURL string) (*Index, err
 	}
 	defer resp.Body.Close()
 
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}

@@ -8,7 +8,7 @@ import (
 	"github.com/giantswarm/apiextensions-application/api/v1alpha1"
 	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/helmclient/v4/pkg/helmclient"
-	"github.com/giantswarm/k8sclient/v6/pkg/k8sclient"
+	"github.com/giantswarm/k8sclient/v7/pkg/k8sclient"
 	"github.com/giantswarm/kubeconfig/v4"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
@@ -30,6 +30,7 @@ type Config struct {
 
 	// Settings.
 	HTTPClientTimeout time.Duration
+	DisableCache      bool
 }
 
 type Resource struct {
@@ -41,6 +42,7 @@ type Resource struct {
 
 	// Settings.
 	httpClientTimeout time.Duration
+	disableCache      bool
 }
 
 type clients struct {
@@ -73,6 +75,7 @@ func New(config Config) (*Resource, error) {
 
 		// Settings
 		httpClientTimeout: config.HTTPClientTimeout,
+		disableCache:      config.DisableCache,
 	}
 
 	return r, nil
@@ -81,13 +84,15 @@ func New(config Config) (*Resource, error) {
 func (r *Resource) GetClients(ctx context.Context, kubeConfig *v1alpha1.AppSpecKubeConfig) (*clients, error) {
 	k := fmt.Sprintf("%s/%s", kubeConfig.Secret.Namespace, kubeConfig.Secret.Name)
 
-	if v, ok := r.cache.Get(k); ok {
-		c, ok := v.(clients)
-		if !ok {
-			return nil, microerror.Maskf(wrongTypeError, "expected '%T', got '%T'", clients{}, v)
-		}
+	if !r.disableCache {
+		if v, ok := r.cache.Get(k); ok {
+			c, ok := v.(clients)
+			if !ok {
+				return nil, microerror.Maskf(wrongTypeError, "expected '%T', got '%T'", clients{}, v)
+			}
 
-		return &c, nil
+			return &c, nil
+		}
 	}
 
 	var c clients

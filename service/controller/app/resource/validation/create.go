@@ -5,10 +5,10 @@ import (
 	"fmt"
 
 	"github.com/giantswarm/apiextensions-application/api/v1alpha1"
-	"github.com/giantswarm/app/v6/pkg/key"
-	"github.com/giantswarm/app/v6/pkg/validation"
+	"github.com/giantswarm/app/v7/pkg/key"
+	"github.com/giantswarm/app/v7/pkg/validation"
 	"github.com/giantswarm/microerror"
-	"github.com/giantswarm/operatorkit/v6/pkg/controller/context/reconciliationcanceledcontext"
+	"github.com/giantswarm/operatorkit/v8/pkg/controller/context/reconciliationcanceledcontext"
 	"k8s.io/apimachinery/pkg/types"
 
 	"github.com/giantswarm/app-operator/v6/pkg/status"

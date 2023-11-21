@@ -3,13 +3,13 @@ package appcatalogentry
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"strings"
 
 	"github.com/giantswarm/apiextensions-application/api/v1alpha1"
-	"github.com/giantswarm/app/v6/pkg/key"
-	"github.com/giantswarm/k8sclient/v6/pkg/k8sclient"
+	"github.com/giantswarm/app/v7/pkg/key"
+	"github.com/giantswarm/k8sclient/v7/pkg/k8sclient"
 	"github.com/giantswarm/k8smetadata/pkg/label"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
@@ -119,7 +119,7 @@ func (r *Resource) getIndex(ctx context.Context, storageURL string) (index, erro
 	}
 	defer resp.Body.Close()
 
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return index{}, microerror.Mask(err)
 	}
@@ -156,7 +156,7 @@ func (r *Resource) getMetadata(ctx context.Context, mainURL string) ([]byte, err
 		return nil, nil
 	}
 
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}

@@ -7,7 +7,7 @@ import (
 
 	"github.com/giantswarm/apiextensions-application/api/v1alpha1"
 	"github.com/giantswarm/microerror"
-	"github.com/giantswarm/operatorkit/v6/pkg/resource/crud"
+	"github.com/giantswarm/operatorkit/v8/pkg/resource/crud"
 	"github.com/google/go-cmp/cmp"
 
 	"github.com/giantswarm/app-operator/v6/service/controller/app/controllercontext"
@@ -81,7 +81,7 @@ func (r *Resource) newUpdateChange(ctx context.Context, currentResource, desired
 	// Copy current chart CR and annotations keeping only the values we need
 	// for comparing them.
 	currentChart = copyChart(currentChart)
-	copyAnnotations(currentChart, desiredChart)
+	r.copyAnnotations(currentChart, desiredChart)
 
 	if !reflect.DeepEqual(currentChart, desiredChart) {
 		if diff := cmp.Diff(currentChart, desiredChart); diff != "" {

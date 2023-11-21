@@ -1,0 +1,243 @@
+{
+  "$schema": "http://json-schema.org/schema#",
+  "type": "object",
+  "properties": {
+    "app": {
+      "type": "object",
+      "properties": {
+        "dependencyWaitTimeoutMinutes": {
+          "type": "integer"
+        },
+        "watchNamespace": {
+          "type": "string"
+        },
+        "workloadClusterID": {
+          "type": "string"
+        }
+      }
+    },
+    "bootstrapMode": {
+      "type": "object",
+      "properties": {
+        "apiServerPodPort": {
+          "type": "integer"
+        },
+        "enabled": {
+          "type": "boolean"
+        }
+      }
+    },
+    "deployment": {
+      "type": "object",
+      "properties": {
+        "management": {
+          "type": "object",
+          "properties": {
+            "limits": {
+              "type": "object",
+              "properties": {
+                "cpu": {
+                  "type": "string"
+                },
+                "memory": {
+                  "type": "string"
+                }
+              }
+            },
+            "requests": {
+              "type": "object",
+              "properties": {
+                "cpu": {
+                  "type": "string"
+                },
+                "memory": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "workload": {
+          "type": "object",
+          "properties": {
+            "limits": {
+              "type": "object",
+              "properties": {
+                "cpu": {
+                  "type": "string"
+                },
+                "memory": {
+                  "type": "string"
+                }
+              }
+            },
+            "requests": {
+              "type": "object",
+              "properties": {
+                "cpu": {
+                  "type": "string"
+                },
+                "memory": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "groupID": {
+      "type": "integer"
+    },
+    "helm": {
+      "type": "object",
+      "properties": {
+        "http": {
+          "type": "object",
+          "properties": {
+            "clientTimeout": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "image": {
+      "type": "object",
+      "properties": {
+        "repository": {
+          "type": "string"
+        },
+        "tag": {
+          "type": "string"
+        }
+      }
+    },
+    "kubernetes": {
+      "type": "object",
+      "properties": {
+        "disableClientCache": {
+          "type": "boolean"
+        }
+      }
+    },
+    "name": {
+      "type": "string"
+    },
+    "namespace": {
+      "type": "string"
+    },
+    "operatorkit": {
+      "type": "object",
+      "properties": {
+        "resyncPeriod": {
+          "type": "string"
+        }
+      }
+    },
+    "podSecurityContext": {
+      "type": "object",
+      "properties": {
+        "runAsNonRoot": {
+          "type": "boolean"
+        },
+        "seccompProfile": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "port": {
+      "type": "integer"
+    },
+    "project": {
+      "type": "object",
+      "properties": {
+        "branch": {
+          "type": "string"
+        },
+        "commit": {
+          "type": "string"
+        }
+      }
+    },
+    "protocol": {
+      "type": "string"
+    },
+    "provider": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "type": "string"
+        }
+      }
+    },
+    "registry": {
+      "type": "object",
+      "properties": {
+        "domain": {
+          "type": "string"
+        }
+      }
+    },
+    "replicas": {
+      "type": "integer"
+    },
+    "securityContext": {
+      "type": "object",
+      "properties": {
+        "allowPrivilegeEscalation": {
+          "type": "boolean"
+        },
+        "capabilities": {
+          "type": "object",
+          "properties": {
+            "drop": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "privileged": {
+          "type": "boolean"
+        },
+        "runAsNonRoot": {
+          "type": "boolean"
+        },
+        "seccompProfile": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "userID": {
+      "type": "integer"
+    },
+    "verticalPodAutoscaler": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        }
+      }
+    },
+    "podSecurityStandards": {
+      "type": "object",
+      "properties": {
+        "enforced": {
+          "type": "boolean"
+        }
+      }
+    }
+  }
+}

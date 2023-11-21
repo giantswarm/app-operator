@@ -27,15 +27,13 @@ import (
 //
 // - Create app CR and wiring user configmap and catalog
 //
-// - Update user configmap and check the latest resource version is set on the annotation
-//   of app CR.
+//   - Update user configmap and check the latest resource version is set on the annotation
+//     of app CR.
 //
-// - Update appcatalog onfigmap and check the latest resource version is set on the annotation
-//   of app CR.
-//
+//   - Update appcatalog configmap and check the latest resource version is set on the annotation
+//     of app CR.
 //
 // - Delete app CR and check the watching label is deleted.
-//
 func TestWatchingConfigMap(t *testing.T) {
 	ctx := context.Background()
 
@@ -83,6 +81,12 @@ func TestWatchingConfigMap(t *testing.T) {
 				},
 				Description: key.DefaultCatalogName(),
 				Title:       key.DefaultCatalogName(),
+				Repositories: []v1alpha1.CatalogSpecRepository{
+					{
+						Type: "helm",
+						URL:  key.DefaultCatalogStorageURL(),
+					},
+				},
 				Storage: v1alpha1.CatalogSpecStorage{
 					Type: "helm",
 					URL:  key.DefaultCatalogStorageURL(),

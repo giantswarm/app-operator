@@ -3,15 +3,15 @@ package app
 import (
 	"time"
 
-	"github.com/giantswarm/app/v6/pkg/values"
+	"github.com/giantswarm/app/v7/pkg/values"
 	"github.com/giantswarm/helmclient/v4/pkg/helmclient"
-	"github.com/giantswarm/k8sclient/v6/pkg/k8sclient"
+	"github.com/giantswarm/k8sclient/v7/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
-	"github.com/giantswarm/operatorkit/v6/pkg/resource"
-	"github.com/giantswarm/operatorkit/v6/pkg/resource/crud"
-	"github.com/giantswarm/operatorkit/v6/pkg/resource/wrapper/metricsresource"
-	"github.com/giantswarm/operatorkit/v6/pkg/resource/wrapper/retryresource"
+	"github.com/giantswarm/operatorkit/v8/pkg/resource"
+	"github.com/giantswarm/operatorkit/v8/pkg/resource/crud"
+	"github.com/giantswarm/operatorkit/v8/pkg/resource/wrapper/metricsresource"
+	"github.com/giantswarm/operatorkit/v8/pkg/resource/wrapper/retryresource"
 	"github.com/spf13/afero"
 
 	"github.com/giantswarm/app-operator/v6/service/controller/app/resource/appfinalizermigration"
@@ -39,13 +39,14 @@ type appResourcesConfig struct {
 	Logger      micrologger.Logger
 
 	// Settings.
-	ChartNamespace    string
-	HTTPClientTimeout time.Duration
-	ImageRegistry     string
-	ProjectName       string
-	Provider          string
-	UniqueApp         bool
-	WorkloadClusterID string
+	ChartNamespace               string
+	HTTPClientTimeout            time.Duration
+	ImageRegistry                string
+	ProjectName                  string
+	Provider                     string
+	UniqueApp                    bool
+	WorkloadClusterID            string
+	DependencyWaitTimeoutMinutes int
 }
 
 func newAppResources(config appResourcesConfig) ([]resource.Interface, error) {
@@ -157,9 +158,11 @@ func newAppResources(config appResourcesConfig) ([]resource.Interface, error) {
 		c := chart.Config{
 			IndexCache: config.IndexCache,
 			Logger:     config.Logger,
+			CtrlClient: config.K8sClient.CtrlClient(),
 
-			ChartNamespace:    config.ChartNamespace,
-			WorkloadClusterID: config.WorkloadClusterID,
+			ChartNamespace:               config.ChartNamespace,
+			WorkloadClusterID:            config.WorkloadClusterID,
+			DependencyWaitTimeoutMinutes: config.DependencyWaitTimeoutMinutes,
 		}
 
 		ops, err := chart.New(c)

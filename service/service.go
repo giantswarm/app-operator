@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/giantswarm/k8sclient/v6/pkg/k8sclient"
+	"github.com/giantswarm/k8sclient/v7/pkg/k8sclient"
 	"github.com/giantswarm/microendpoint/service/version"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
@@ -94,6 +94,7 @@ func New(config Config) (*Service, error) {
 			Logger:    config.Logger,
 
 			HTTPClientTimeout: config.Viper.GetDuration(config.Flag.Service.Helm.HTTP.ClientTimeout),
+			DisableCache:      config.Viper.GetBool(config.Flag.Service.Kubernetes.DisableClientCache),
 		}
 
 		clientCache, err = clientcache.New(c)
@@ -125,15 +126,16 @@ func New(config Config) (*Service, error) {
 			Logger:      config.Logger,
 			K8sClient:   config.K8sClient,
 
-			ChartNamespace:    config.Viper.GetString(config.Flag.Service.Chart.Namespace),
-			HTTPClientTimeout: config.Viper.GetDuration(config.Flag.Service.Helm.HTTP.ClientTimeout),
-			ImageRegistry:     config.Viper.GetString(config.Flag.Service.Image.Registry),
-			PodNamespace:      podNamespace,
-			Provider:          config.Viper.GetString(config.Flag.Service.Provider.Kind),
-			ResyncPeriod:      config.Viper.GetDuration(config.Flag.Service.Operatorkit.ResyncPeriod),
-			UniqueApp:         config.Viper.GetBool(config.Flag.Service.App.Unique),
-			WatchNamespace:    config.Viper.GetString(config.Flag.Service.App.WatchNamespace),
-			WorkloadClusterID: config.Viper.GetString(config.Flag.Service.App.WorkloadClusterID),
+			ChartNamespace:               config.Viper.GetString(config.Flag.Service.Chart.Namespace),
+			HTTPClientTimeout:            config.Viper.GetDuration(config.Flag.Service.Helm.HTTP.ClientTimeout),
+			ImageRegistry:                config.Viper.GetString(config.Flag.Service.Image.Registry),
+			PodNamespace:                 podNamespace,
+			Provider:                     config.Viper.GetString(config.Flag.Service.Provider.Kind),
+			ResyncPeriod:                 config.Viper.GetDuration(config.Flag.Service.Operatorkit.ResyncPeriod),
+			UniqueApp:                    config.Viper.GetBool(config.Flag.Service.App.Unique),
+			WatchNamespace:               config.Viper.GetString(config.Flag.Service.App.WatchNamespace),
+			WorkloadClusterID:            config.Viper.GetString(config.Flag.Service.App.WorkloadClusterID),
+			DependencyWaitTimeoutMinutes: config.Viper.GetInt(config.Flag.Service.App.DependencyWaitTimeoutMinutes),
 		}
 
 		appController, err = app.NewApp(c)

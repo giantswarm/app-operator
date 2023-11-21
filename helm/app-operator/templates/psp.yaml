@@ -1,3 +1,4 @@
+{{- if not .Values.podSecurityStandards.enforced }}
 apiVersion: policy/v1beta1
 kind: PodSecurityPolicy
 metadata:
@@ -32,3 +33,4 @@ spec:
   hostNetwork: {{ .Values.bootstrapMode.enabled }}
   hostIPC: false
   hostPID: false
+{{- end }}

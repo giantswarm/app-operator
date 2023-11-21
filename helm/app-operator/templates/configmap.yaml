@@ -18,6 +18,7 @@ data:
         unique: {{ include "resource.app.unique" . }}
         watchNamespace: '{{ .Values.app.watchNamespace }}'
         workloadClusterID: '{{ .Values.app.workloadClusterID }}'
+        dependencyWaitTimeoutMinutes: {{ .Values.app.dependencyWaitTimeoutMinutes }}
       helm:
         http:
           clientTimeout: '{{ .Values.helm.http.clientTimeout }}'
@@ -25,6 +26,7 @@ data:
         registry: '{{ .Values.registry.domain }}'
       kubernetes:
         incluster: true
+        disableClientCache: {{ $.Values.kubernetes.disableClientCache }}
       operatorkit:
         resyncPeriod: '{{ .Values.operatorkit.resyncPeriod }}'
       provider:

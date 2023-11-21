@@ -8,7 +8,7 @@ import (
 	"sync"
 
 	"github.com/giantswarm/apiextensions-application/api/v1alpha1"
-	"github.com/giantswarm/app/v6/pkg/key"
+	"github.com/giantswarm/app/v7/pkg/key"
 	"github.com/giantswarm/k8smetadata/pkg/label"
 	"github.com/giantswarm/microerror"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -154,7 +154,9 @@ func (c *AppValueWatcher) addCache(ctx context.Context, cr v1alpha1.App, eventTy
 					return microerror.Maskf(wrongTypeError, "expected '%T', got '%T'", []appIndex{}, v)
 				}
 
+				c.appIndexMutex.Lock()
 				storedAppIndex[app] = true
+				c.appIndexMutex.Unlock()
 				c.resourcesToApps.Store(resource, storedAppIndex)
 			} else {
 				m := map[appIndex]bool{
@@ -173,7 +175,9 @@ func (c *AppValueWatcher) addCache(ctx context.Context, cr v1alpha1.App, eventTy
 					return microerror.Maskf(wrongTypeError, "expected '%T', got '%T'", []appIndex{}, v)
 				}
 
+				c.appIndexMutex.Lock()
 				delete(storedIndex, app)
+				c.appIndexMutex.Unlock()
 				if len(storedIndex) == 0 {
 					err := c.removeLabel(ctx, resource)
 					if err != nil {

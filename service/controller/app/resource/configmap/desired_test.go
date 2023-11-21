@@ -7,8 +7,8 @@ import (
 	"testing"
 
 	"github.com/giantswarm/apiextensions-application/api/v1alpha1"
-	"github.com/giantswarm/app/v6/pkg/values"
-	"github.com/giantswarm/k8sclient/v6/pkg/k8sclienttest"
+	"github.com/giantswarm/app/v7/pkg/values"
+	"github.com/giantswarm/k8sclient/v7/pkg/k8sclienttest"
 	"github.com/giantswarm/k8smetadata/pkg/annotation"
 	"github.com/giantswarm/k8smetadata/pkg/label"
 	"github.com/giantswarm/micrologger/microloggertest"
@@ -368,8 +368,8 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 
 			if tc.expectedUserConfig != nil {
 				_ = ctrlClient.Get(ctx, types.NamespacedName{Name: tc.obj.GetName(), Namespace: tc.obj.GetNamespace()}, tc.obj)
-				if !reflect.DeepEqual(&tc.obj.Spec.UserConfig, tc.expectedUserConfig) {
-					t.Fatalf("want matching userconfig \n %s", cmp.Diff(&tc.obj.Spec.UserConfig, tc.expectedUserConfig))
+				if !reflect.DeepEqual(&tests[i].obj.Spec.UserConfig, tc.expectedUserConfig) {
+					t.Fatalf("want matching userconfig \n %s", cmp.Diff(tests[i].obj.Spec.UserConfig, tc.expectedUserConfig))
 				}
 			}
 		})

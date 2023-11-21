@@ -2,11 +2,11 @@ package catalog
 
 import (
 	"github.com/giantswarm/apiextensions-application/api/v1alpha1"
-	"github.com/giantswarm/k8sclient/v6/pkg/k8sclient"
+	"github.com/giantswarm/k8sclient/v7/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
-	"github.com/giantswarm/operatorkit/v6/pkg/controller"
-	"github.com/giantswarm/operatorkit/v6/pkg/resource"
+	"github.com/giantswarm/operatorkit/v8/pkg/controller"
+	"github.com/giantswarm/operatorkit/v8/pkg/resource"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/giantswarm/app-operator/v6/pkg/project"
