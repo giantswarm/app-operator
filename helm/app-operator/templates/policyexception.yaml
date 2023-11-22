@@ -1,0 +1,32 @@
+{{- if .Values.kyvernoPolicyExceptions.enabled }}
+{{- if .Values.bootstrapMode.enabled }}
+{{- if .Capabilities.APIVersions.Has "kyverno.io/v2alpha1/PolicyException" -}}
+apiVersion: kyverno.io/v2alpha1
+kind: PolicyException
+metadata:
+  name: {{ include "resource.default.name" . }}-bootstrap-mode
+  namespace: {{ include "resource.default.namespace" . }}
+  labels:
+    {{- include "labels.common" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": "pre-install,pre-upgrade"
+spec:
+  exceptions:
+    - policyName: disallow-host-namespaces
+      ruleNames:
+        - autogen-host-namespaces
+        - host-namespaces
+  match:
+    any:
+    - resources:
+        kinds:
+          - Deployment
+          - ReplicaSet
+          - Pod
+        namespaces:
+          - {{ include "resource.default.namespace" . }}
+        names:
+          - "{{ include "resource.default.name" . }}*"
+{{- end -}}
+{{- end -}}
+{{- end -}}

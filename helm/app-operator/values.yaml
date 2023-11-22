@@ -99,3 +99,6 @@ serviceMonitor:
 
 podSecurityStandards:
   enforced: false
+
+kyvernoPolicyExceptions:
+  enabled: true

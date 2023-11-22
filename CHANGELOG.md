@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Fixed
+
+- Add policy exception so that controller can be deployed in bootstrap mode (uses host network)
+
 ## [6.10.0] - 2023-11-15
 
 ### Added
