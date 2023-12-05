@@ -7,6 +7,8 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+## [6.10.2] - 2023-12-05
+
 ### Changed
 
 - Set `gsoci.azurecr.io` as the default container registry for this app's image(s).
@@ -725,7 +727,8 @@ from Helm 2 to Helm 3.
 
 - Flattening operator release structure.
 
-[Unreleased]: https://github.com/giantswarm/app-operator/compare/v6.10.1...HEAD
+[Unreleased]: https://github.com/giantswarm/app-operator/compare/v6.10.2...HEAD
+[6.10.2]: https://github.com/giantswarm/app-operator/compare/v6.10.1...v6.10.2
 [6.10.1]: https://github.com/giantswarm/app-operator/compare/v6.10.0...v6.10.1
 [6.10.0]: https://github.com/giantswarm/app-operator/compare/v6.9.0...v6.10.0
 [6.9.0]: https://github.com/giantswarm/app-operator/compare/v6.8.1...v6.9.0
