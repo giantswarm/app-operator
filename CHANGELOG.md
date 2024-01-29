@@ -7,6 +7,8 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+## [6.10.3] - 2024-01-29
+
 ### Fixed
 
 - Move pss values under the global property
@@ -731,7 +733,8 @@ from Helm 2 to Helm 3.
 
 - Flattening operator release structure.
 
-[Unreleased]: https://github.com/giantswarm/app-operator/compare/v6.10.2...HEAD
+[Unreleased]: https://github.com/giantswarm/app-operator/compare/v6.10.3...HEAD
+[6.10.3]: https://github.com/giantswarm/app-operator/compare/v6.10.2...v6.10.3
 [6.10.2]: https://github.com/giantswarm/app-operator/compare/v6.10.1...v6.10.2
 [6.10.1]: https://github.com/giantswarm/app-operator/compare/v6.10.0...v6.10.1
 [6.10.0]: https://github.com/giantswarm/app-operator/compare/v6.9.0...v6.10.0
