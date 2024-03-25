@@ -7,7 +7,7 @@ require (
 	github.com/ghodss/yaml v1.0.0
 	github.com/giantswarm/apiextensions-application v0.6.0
 	github.com/giantswarm/app/v7 v7.0.0
-	github.com/giantswarm/appcatalog v0.10.1
+	github.com/giantswarm/appcatalog v1.0.0
 	github.com/giantswarm/apptest v1.2.1
 	github.com/giantswarm/backoff v1.0.0
 	github.com/giantswarm/errors v0.3.0
@@ -16,7 +16,7 @@ require (
 	github.com/giantswarm/k8smetadata v0.22.0
 	github.com/giantswarm/kubeconfig/v4 v4.1.0
 	github.com/giantswarm/microendpoint v1.0.0
-	github.com/giantswarm/microerror v0.4.0
+	github.com/giantswarm/microerror v0.4.1
 	github.com/giantswarm/microkit v1.0.0
 	github.com/giantswarm/micrologger v1.0.0
 	github.com/giantswarm/operatorkit/v8 v8.0.0
