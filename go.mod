@@ -189,3 +189,5 @@ replace (
 	github.com/gogo/protobuf v1.3.1 => github.com/gogo/protobuf v1.3.2
 	github.com/imdario/mergo => github.com/imdario/mergo v0.3.16
 )
+
+replace google.golang.org/protobuf v1.32.0 => google.golang.org/protobuf v1.33.0
