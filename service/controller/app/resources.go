@@ -156,9 +156,10 @@ func newAppResources(config appResourcesConfig) ([]resource.Interface, error) {
 	var chartResource resource.Interface
 	{
 		c := chart.Config{
-			IndexCache: config.IndexCache,
-			Logger:     config.Logger,
-			CtrlClient: config.K8sClient.CtrlClient(),
+			IndexCache:    config.IndexCache,
+			Logger:        config.Logger,
+			CtrlClient:    config.K8sClient.CtrlClient(),
+			DynamicClient: config.K8sClient.DynClient(),
 
 			ChartNamespace:               config.ChartNamespace,
 			WorkloadClusterID:            config.WorkloadClusterID,
