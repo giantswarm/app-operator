@@ -610,7 +610,7 @@ func getUnstructuredProperty[T interface{}](o unstructured.Unstructured, propert
 			// we are reading a parent property, e.g. if we want "x.y.z", here we read "x" or "x.y"
 			propertyRaw, foundProperty := property[propertyName]
 			if !foundProperty {
-				return result, microerror.Maskf(propertyNotFoundError, "trying to get property '%s' from the unstructured object, but property '%s' not found", propertyPath, propertyName)
+				return result, nil
 			}
 			property, ok = propertyRaw.(map[string]interface{})
 			if !ok {
@@ -620,9 +620,13 @@ func getUnstructuredProperty[T interface{}](o unstructured.Unstructured, propert
 		}
 
 		// we are reading desired property of type T at path "x.y.z" (this is the last loop iteration)
-		result, ok = property[propertyName].(T)
-		if !ok {
-			return result, microerror.Maskf(wrongTypeError, "property at path %s is of type %T, expected type %T", propertyPath, property[propertyName], result)
+		if property[propertyName] != nil {
+			result, ok = property[propertyName].(T)
+			if !ok {
+				// Returns error only when the property is set to some non-nil value. When the value is nil,
+				// the empty value of the desired type will be returned.
+				return result, microerror.Maskf(wrongTypeError, "property at path %s is of type %T, expected type %T", propertyPath, property[propertyName], result)
+			}
 		}
 	}
 

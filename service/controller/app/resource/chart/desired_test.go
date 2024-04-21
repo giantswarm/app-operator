@@ -2057,7 +2057,44 @@ func Test_checkDependencies(t *testing.T) {
 			dependenciesNotInstalled: []string{"test-app-1"},
 		},
 		{
-			name: " case 7: App has 1 HelmRelease dependency and 1 App dependency, both dependencies are installed",
+			name: " case 7: App has 1 HelmRelease dependency, dependency is applied but not installed",
+			appToInstall: &v1alpha1.App{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "test-app-case-6",
+					Namespace: "org-giantswarm",
+					Annotations: map[string]string{
+						annotationChartOperatorDependsOn:            "test-app-1",
+						annotationChartOperatorDependsOnHelmRelease: "true",
+					},
+				},
+				Spec: v1alpha1.AppSpec{
+					Namespace: "giantswarm",
+				},
+			},
+			installedApps: []*v1alpha1.App{},
+			installedHelmReleases: []*unstructured.Unstructured{
+				{
+					Object: map[string]interface{}{
+						"apiVersion": "helm.toolkit.fluxcd.io/v2beta1",
+						"kind":       "HelmRelease",
+						"metadata": map[string]interface{}{
+							"name":      "test-app-1",
+							"namespace": "org-giantswarm",
+						},
+						"spec": map[string]interface{}{
+							"chart": map[string]interface{}{
+								"spec": map[string]interface{}{
+									"version": "1.0.0",
+								},
+							},
+						},
+					},
+				},
+			},
+			dependenciesNotInstalled: []string{"test-app-1"},
+		},
+		{
+			name: " case 8: App has 1 HelmRelease dependency and 1 App dependency, both dependencies are installed",
 			appToInstall: &v1alpha1.App{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "test-app-case-7",
