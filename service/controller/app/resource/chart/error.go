@@ -27,6 +27,10 @@ var indexNotFoundError = &microerror.Error{
 	Kind: "indexNotFoundError",
 }
 
+var propertyNotFoundError = &microerror.Error{
+	Kind: "propertyNotFoundError",
+}
+
 // IsNotFound asserts:
 // appVersionNotFoundError OR appNotFoundError OR catalogEmptyError.
 func IsNotFound(err error) bool {

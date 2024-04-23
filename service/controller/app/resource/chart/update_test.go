@@ -12,6 +12,7 @@ import (
 	"github.com/google/go-cmp/cmp"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
+	dynamicfake "k8s.io/client-go/dynamic/fake"
 	clientgofake "k8s.io/client-go/kubernetes/fake"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake" //nolint:staticcheck
 
@@ -263,10 +264,14 @@ func Test_Resource_newUpdateChange(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			objs := make([]runtime.Object, 0)
 
+			s := runtime.NewScheme()
+			s.AddKnownTypes(v1alpha1.SchemeGroupVersion, &v1alpha1.AppList{})
+
 			c := Config{
-				IndexCache: indexcachetest.New(indexcachetest.Config{}),
-				Logger:     microloggertest.New(),
-				CtrlClient: fake.NewFakeClient(), //nolint:staticcheck
+				IndexCache:    indexcachetest.New(indexcachetest.Config{}),
+				Logger:        microloggertest.New(),
+				CtrlClient:    fake.NewFakeClient(), //nolint:staticcheck
+				DynamicClient: dynamicfake.NewSimpleDynamicClient(s),
 
 				ChartNamespace:               "giantswarm",
 				DependencyWaitTimeoutMinutes: 30,

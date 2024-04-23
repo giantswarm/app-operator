@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Added
+
+- Add support for App resources having a dependency on HelmReleases.
+
 ## [6.10.3] - 2024-01-29
 
 ### Fixed

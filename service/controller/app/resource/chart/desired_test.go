@@ -2,9 +2,11 @@ package chart
 
 import (
 	"context"
-	//"fmt"
+	"fmt"
 	"reflect"
 	"regexp"
+	"sort"
+	"strings"
 	"testing"
 	"time"
 
@@ -15,7 +17,10 @@ import (
 	"github.com/google/go-cmp/cmp"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/runtime/schema"
+	dynamicfake "k8s.io/client-go/dynamic/fake"
 	clientgofake "k8s.io/client-go/kubernetes/fake"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake" //nolint:staticcheck
 
@@ -850,8 +855,9 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 				IndexCache: indexcachetest.New(indexcachetest.Config{
 					GetIndexResponse: tc.index,
 				}),
-				Logger:     microloggertest.New(),
-				CtrlClient: fake.NewFakeClientWithScheme(s), //nolint:staticcheck
+				Logger:        microloggertest.New(),
+				CtrlClient:    fake.NewFakeClientWithScheme(s), //nolint:staticcheck
+				DynamicClient: dynamicfake.NewSimpleDynamicClient(s),
 
 				ChartNamespace:               "giantswarm",
 				DependencyWaitTimeoutMinutes: 30,
@@ -1349,9 +1355,10 @@ func Test_Resource_Bulid_TarballURL(t *testing.T) {
 			s.AddKnownTypes(v1alpha1.SchemeGroupVersion, &v1alpha1.AppList{})
 
 			c := Config{
-				IndexCache: indexcachetest.NewMap(tc.indices),
-				Logger:     microloggertest.New(),
-				CtrlClient: fake.NewFakeClientWithScheme(s), //nolint:staticcheck
+				IndexCache:    indexcachetest.NewMap(tc.indices),
+				Logger:        microloggertest.New(),
+				CtrlClient:    fake.NewFakeClientWithScheme(s), //nolint:staticcheck
+				DynamicClient: dynamicfake.NewSimpleDynamicClient(s),
 
 				ChartNamespace:               "giantswarm",
 				DependencyWaitTimeoutMinutes: 30,
@@ -1818,6 +1825,407 @@ func Test_getDependenciesFromCR(t *testing.T) {
 			}
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("getDependenciesFromCR() got = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func Test_checkDependencies(t *testing.T) {
+	tests := []struct {
+		name                     string
+		appToInstall             *v1alpha1.App
+		installedApps            []*v1alpha1.App
+		installedHelmReleases    []*unstructured.Unstructured
+		dependenciesNotInstalled []string
+	}{
+		{
+			name: " case 0: App does not have dependencies, no apps installed",
+			appToInstall: &v1alpha1.App{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "test-app-case-0",
+					Namespace: "org-giantswarm",
+				},
+				Spec: v1alpha1.AppSpec{
+					Namespace: "giantswarm",
+				},
+			},
+		},
+		{
+			name: " case 1: App does not have dependencies, other apps installed",
+			appToInstall: &v1alpha1.App{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "test-app-case-1",
+					Namespace: "org-giantswarm",
+				},
+				Spec: v1alpha1.AppSpec{
+					Namespace: "giantswarm",
+				},
+			},
+			installedApps: []*v1alpha1.App{
+				{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "test-app-1",
+						Namespace: "org-giantswarm",
+					},
+					Spec: v1alpha1.AppSpec{
+						Namespace: "giantswarm",
+					},
+				},
+			},
+		},
+		{
+			name: " case 2: App has 1 dependency, dependency is installed",
+			appToInstall: &v1alpha1.App{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "test-app-case-2",
+					Namespace: "org-giantswarm",
+					Annotations: map[string]string{
+						"app-operator.giantswarm.io/depends-on": "test-app-1",
+					},
+				},
+				Spec: v1alpha1.AppSpec{
+					Namespace: "giantswarm",
+				},
+			},
+			installedApps: []*v1alpha1.App{
+				{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "test-app-1",
+						Namespace: "org-giantswarm",
+					},
+					Spec: v1alpha1.AppSpec{
+						Namespace: "giantswarm",
+						Version:   "1.0.0",
+					},
+					Status: v1alpha1.AppStatus{
+						Version: "1.0.0",
+						Release: v1alpha1.AppStatusRelease{
+							Status: "deployed",
+						},
+					},
+				},
+			},
+		},
+		{
+			name: " case 3: App has 2 dependencies, 1 dependency is installed, 1 is not",
+			appToInstall: &v1alpha1.App{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "test-app-case-3",
+					Namespace: "org-giantswarm",
+					Annotations: map[string]string{
+						"app-operator.giantswarm.io/depends-on": "test-app-1,test-app-2",
+					},
+				},
+				Spec: v1alpha1.AppSpec{
+					Namespace: "giantswarm",
+				},
+			},
+			installedApps: []*v1alpha1.App{
+				{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "test-app-1",
+						Namespace: "org-giantswarm",
+					},
+					Spec: v1alpha1.AppSpec{
+						Namespace: "giantswarm",
+						Version:   "1.0.0",
+					},
+					Status: v1alpha1.AppStatus{
+						Version: "1.0.0",
+						Release: v1alpha1.AppStatusRelease{
+							Status: "deployed",
+						},
+					},
+				},
+			},
+			dependenciesNotInstalled: []string{
+				"test-app-2",
+			},
+		},
+		{
+			name: " case 4: App has 2 dependencies, both are installed",
+			appToInstall: &v1alpha1.App{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "test-app-case-4",
+					Namespace: "org-giantswarm",
+					Annotations: map[string]string{
+						"app-operator.giantswarm.io/depends-on": "test-app-1,test-app-2",
+					},
+				},
+				Spec: v1alpha1.AppSpec{
+					Namespace: "giantswarm",
+				},
+			},
+			installedApps: []*v1alpha1.App{
+				{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "test-app-1",
+						Namespace: "org-giantswarm",
+					},
+					Spec: v1alpha1.AppSpec{
+						Namespace: "giantswarm",
+						Version:   "1.0.0",
+					},
+					Status: v1alpha1.AppStatus{
+						Version: "1.0.0",
+						Release: v1alpha1.AppStatusRelease{
+							Status: "deployed",
+						},
+					},
+				},
+				{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "test-app-2",
+						Namespace: "org-giantswarm",
+					},
+					Spec: v1alpha1.AppSpec{
+						Namespace: "giantswarm",
+						Version:   "2.0.0",
+					},
+					Status: v1alpha1.AppStatus{
+						Version: "2.0.0",
+						Release: v1alpha1.AppStatusRelease{
+							Status: "deployed",
+						},
+					},
+				},
+			},
+			dependenciesNotInstalled: []string{},
+		},
+		{
+			name: " case 5: App has 1 HelmRelease dependency, dependency is installed",
+			appToInstall: &v1alpha1.App{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "test-app-case-5",
+					Namespace: "org-giantswarm",
+					Annotations: map[string]string{
+						annotationChartOperatorDependsOn:            "test-app-1",
+						annotationChartOperatorDependsOnHelmRelease: "true",
+					},
+				},
+				Spec: v1alpha1.AppSpec{
+					Namespace: "giantswarm",
+				},
+			},
+			installedApps: []*v1alpha1.App{},
+			installedHelmReleases: []*unstructured.Unstructured{
+				{
+					Object: map[string]interface{}{
+						"apiVersion": "helm.toolkit.fluxcd.io/v2beta1",
+						"kind":       "HelmRelease",
+						"metadata": map[string]interface{}{
+							"name":      "test-app-1",
+							"namespace": "org-giantswarm",
+						},
+						"spec": map[string]interface{}{
+							"chart": map[string]interface{}{
+								"spec": map[string]interface{}{
+									"version": "1.0.0",
+								},
+							},
+						},
+						"status": map[string]interface{}{
+							"lastAppliedRevision": "1.0.0",
+							"conditions": []interface{}{
+								map[string]interface{}{
+									"status": "True",
+									"type":   "Ready",
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: " case 6: App has 1 HelmRelease dependency, dependency is not installed",
+			appToInstall: &v1alpha1.App{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "test-app-case-6",
+					Namespace: "org-giantswarm",
+					Annotations: map[string]string{
+						annotationChartOperatorDependsOn:            "test-app-1",
+						annotationChartOperatorDependsOnHelmRelease: "true",
+					},
+				},
+				Spec: v1alpha1.AppSpec{
+					Namespace: "giantswarm",
+				},
+			},
+			installedApps:            []*v1alpha1.App{},
+			installedHelmReleases:    []*unstructured.Unstructured{},
+			dependenciesNotInstalled: []string{"test-app-1"},
+		},
+		{
+			name: " case 7: App has 1 HelmRelease dependency, dependency is applied but not installed",
+			appToInstall: &v1alpha1.App{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "test-app-case-6",
+					Namespace: "org-giantswarm",
+					Annotations: map[string]string{
+						annotationChartOperatorDependsOn:            "test-app-1",
+						annotationChartOperatorDependsOnHelmRelease: "true",
+					},
+				},
+				Spec: v1alpha1.AppSpec{
+					Namespace: "giantswarm",
+				},
+			},
+			installedApps: []*v1alpha1.App{},
+			installedHelmReleases: []*unstructured.Unstructured{
+				{
+					Object: map[string]interface{}{
+						"apiVersion": "helm.toolkit.fluxcd.io/v2beta1",
+						"kind":       "HelmRelease",
+						"metadata": map[string]interface{}{
+							"name":      "test-app-1",
+							"namespace": "org-giantswarm",
+						},
+						"spec": map[string]interface{}{
+							"chart": map[string]interface{}{
+								"spec": map[string]interface{}{
+									"version": "1.0.0",
+								},
+							},
+						},
+					},
+				},
+			},
+			dependenciesNotInstalled: []string{"test-app-1"},
+		},
+		{
+			name: " case 8: App has 1 HelmRelease dependency and 1 App dependency, both dependencies are installed",
+			appToInstall: &v1alpha1.App{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "test-app-case-7",
+					Namespace: "org-giantswarm",
+					Annotations: map[string]string{
+						annotationChartOperatorDependsOn:            "test-app-1,test-app-2",
+						annotationChartOperatorDependsOnHelmRelease: "true",
+					},
+				},
+				Spec: v1alpha1.AppSpec{
+					Namespace: "giantswarm",
+				},
+			},
+			installedApps: []*v1alpha1.App{
+				{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "test-app-2",
+						Namespace: "org-giantswarm",
+					},
+					Spec: v1alpha1.AppSpec{
+						Namespace: "giantswarm",
+						Version:   "2.0.0",
+					},
+					Status: v1alpha1.AppStatus{
+						Version: "2.0.0",
+						Release: v1alpha1.AppStatusRelease{
+							Status: "deployed",
+						},
+					},
+				},
+			},
+			installedHelmReleases: []*unstructured.Unstructured{
+				{
+					Object: map[string]interface{}{
+						"apiVersion": "helm.toolkit.fluxcd.io/v2beta1",
+						"kind":       "HelmRelease",
+						"metadata": map[string]interface{}{
+							"name":      "test-app-1",
+							"namespace": "org-giantswarm",
+						},
+						"spec": map[string]interface{}{
+							"chart": map[string]interface{}{
+								"spec": map[string]interface{}{
+									"version": "1.0.0",
+								},
+							},
+						},
+						"status": map[string]interface{}{
+							"lastAppliedRevision": "1.0.0",
+							"conditions": []interface{}{
+								map[string]interface{}{
+									"status": "True",
+									"type":   "Ready",
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			objs := make([]runtime.Object, 0)
+			objs = append(objs, tc.appToInstall)
+			for i := range tc.installedApps {
+				objs = append(objs, tc.installedApps[i])
+			}
+			unstructuredObjs := make([]runtime.Object, 0)
+			for i := range tc.installedHelmReleases {
+				unstructuredObjs = append(unstructuredObjs, tc.installedHelmReleases[i])
+			}
+
+			s := runtime.NewScheme()
+			s.AddKnownTypes(v1alpha1.SchemeGroupVersion, &v1alpha1.App{})
+			s.AddKnownTypes(v1alpha1.SchemeGroupVersion, &v1alpha1.AppList{})
+
+			helmReleaseGVR := schema.GroupVersionResource{
+				Group:    "helm.toolkit.fluxcd.io",
+				Version:  "v2beta1",
+				Resource: "helmreleases",
+			}
+
+			c := Config{
+				IndexCache: indexcachetest.New(indexcachetest.Config{
+					GetIndexResponse: newIndexWithApp("existing-app", "1.0.0", "https://giantswarm.github.io/app-catalog/existing-app-1.0.0.tgz"),
+				}),
+				Logger:     microloggertest.New(),
+				CtrlClient: fake.NewClientBuilder().WithScheme(s).WithRuntimeObjects(objs...).Build(),
+				DynamicClient: dynamicfake.NewSimpleDynamicClientWithCustomListKinds(
+					runtime.NewScheme(),
+					map[schema.GroupVersionResource]string{
+						helmReleaseGVR: "HelmReleaseList",
+					},
+					unstructuredObjs...),
+
+				ChartNamespace:               "giantswarm",
+				DependencyWaitTimeoutMinutes: 30,
+			}
+
+			r, err := New(c)
+			if err != nil {
+				t.Fatalf("error == %#v, want nil", err)
+			}
+
+			ctx := context.Background()
+			dependenciesNotInstalledResult, err := r.checkDependencies(ctx, *tc.appToInstall)
+			if err != nil {
+				errorMessage := err.Error()
+				expectedErrorMessageStart := fmt.Sprintf("Not creating chart for app %q: dependencies not satisfied", tc.appToInstall.Name)
+				if strings.Index(errorMessage, expectedErrorMessageStart) != 0 {
+					t.Fatal(err)
+				}
+			}
+
+			if len(tc.dependenciesNotInstalled) != len(dependenciesNotInstalledResult) {
+				t.Fatalf(
+					"expected %d not installed dependencies are [%s], got %d [%s]",
+					len(tc.dependenciesNotInstalled),
+					strings.Join(tc.dependenciesNotInstalled, ","),
+					len(dependenciesNotInstalledResult),
+					strings.Join(dependenciesNotInstalledResult, ","))
+			}
+
+			sort.Strings(tc.dependenciesNotInstalled)
+			sort.Strings(dependenciesNotInstalledResult)
+			for i, expectedDependencyNotInstalled := range tc.dependenciesNotInstalled {
+				if expectedDependencyNotInstalled != dependenciesNotInstalledResult[i] {
+					t.Fatalf("expected not installed dependencies are [%s], got [%s]", strings.Join(tc.dependenciesNotInstalled, ","), strings.Join(dependenciesNotInstalledResult, ","))
+				}
 			}
 		})
 	}

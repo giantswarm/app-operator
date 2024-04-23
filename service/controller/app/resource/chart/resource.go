@@ -10,6 +10,7 @@ import (
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/dynamic"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/giantswarm/app-operator/v6/service/controller/app/controllercontext"
@@ -28,9 +29,10 @@ const (
 // Config represents the configuration used to create a new chart resource.
 type Config struct {
 	// Dependencies.
-	IndexCache indexcache.Interface
-	Logger     micrologger.Logger
-	CtrlClient client.Client
+	IndexCache    indexcache.Interface
+	Logger        micrologger.Logger
+	CtrlClient    client.Client
+	DynamicClient dynamic.Interface
 
 	// Settings.
 	ChartNamespace               string
@@ -41,9 +43,10 @@ type Config struct {
 // Resource implements the chart resource.
 type Resource struct {
 	// Dependencies.
-	indexCache indexcache.Interface
-	logger     micrologger.Logger
-	ctrlClient client.Client
+	indexCache    indexcache.Interface
+	logger        micrologger.Logger
+	ctrlClient    client.Client
+	dynamicClient dynamic.Interface
 
 	// Settings.
 	chartNamespace               string
@@ -62,6 +65,9 @@ func New(config Config) (*Resource, error) {
 	if config.CtrlClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.CtrlClient must not be empty", config)
 	}
+	if config.DynamicClient == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.DynamicClient must not be empty", config)
+	}
 	if config.DependencyWaitTimeoutMinutes <= 0 {
 		return nil, microerror.Maskf(invalidConfigError, "%T.DependencyWaitTimeoutMinutes must be greater than 0", config)
 	}
@@ -71,9 +77,10 @@ func New(config Config) (*Resource, error) {
 	}
 
 	r := &Resource{
-		indexCache: config.IndexCache,
-		logger:     config.Logger,
-		ctrlClient: config.CtrlClient,
+		indexCache:    config.IndexCache,
+		logger:        config.Logger,
+		ctrlClient:    config.CtrlClient,
+		dynamicClient: config.DynamicClient,
 
 		chartNamespace:               config.ChartNamespace,
 		workloadClusterID:            config.WorkloadClusterID,

@@ -18,6 +18,8 @@ import (
 	"github.com/giantswarm/operatorkit/v8/pkg/controller/context/resourcecanceledcontext"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/kubernetes"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -31,10 +33,11 @@ import (
 const (
 	chartPullFailedStatus = "chart-pull-failed"
 
-	annotationChartOperatorPause        = "chart-operator.giantswarm.io/paused"
-	annotationChartOperatorPauseReason  = "app-operator.giantswarm.io/pause-reason"
-	annotationChartOperatorPauseStarted = "app-operator.giantswarm.io/pause-ts"
-	annotationChartOperatorDependsOn    = "app-operator.giantswarm.io/depends-on"
+	annotationChartOperatorPause                = "chart-operator.giantswarm.io/paused"
+	annotationChartOperatorPauseReason          = "app-operator.giantswarm.io/pause-reason"
+	annotationChartOperatorPauseStarted         = "app-operator.giantswarm.io/pause-ts"
+	annotationChartOperatorDependsOn            = "app-operator.giantswarm.io/depends-on"
+	annotationChartOperatorDependsOnHelmRelease = "app-operator.giantswarm.io/depends-on-helmrelease"
 )
 
 func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interface{}, error) {
@@ -156,6 +159,44 @@ func (r *Resource) checkDependencies(ctx context.Context, app v1alpha1.App) ([]s
 
 		for _, app := range appList.Items {
 			installedApps[app.Name] = app.Status.Release.Status == "deployed" && app.Status.Version == app.Spec.Version
+		}
+	}
+
+	// Get a list of installed and up-to-date HelmReleases in the same namespace.
+	helmReleaseGVR := schema.GroupVersionResource{
+		Group:    "helm.toolkit.fluxcd.io",
+		Version:  "v2beta1",
+		Resource: "helmreleases",
+	}
+	dependsOnHelmReleaseValue, ok := app.Annotations[annotationChartOperatorDependsOnHelmRelease]
+	if ok && dependsOnHelmReleaseValue != "" {
+		helmReleases, err := r.dynamicClient.Resource(helmReleaseGVR).Namespace(app.Namespace).List(ctx, metav1.ListOptions{})
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		for _, helmRelease := range helmReleases.Items {
+			desiredVersion, err := getUnstructuredProperty[string](helmRelease, "spec.chart.spec.version")
+			if err != nil {
+				return nil, microerror.Mask(err)
+			}
+			lastAppliedRevision, err := getUnstructuredProperty[string](helmRelease, "status.lastAppliedRevision")
+			if err != nil {
+				return nil, microerror.Mask(err)
+			}
+			isReady := false
+			conditions, err := getUnstructuredProperty[[]interface{}](helmRelease, "status.conditions")
+			if err != nil {
+				return nil, microerror.Mask(err)
+			}
+			for _, conditionRaw := range conditions {
+				condition := conditionRaw.(map[string]interface{})
+				if strings.ToLower(condition["type"].(string)) == "ready" && strings.ToLower(condition["status"].(string)) == "true" {
+					isReady = true
+				}
+			}
+
+			installedApps[helmRelease.GetName()] = isReady && desiredVersion == lastAppliedRevision
 		}
 	}
 
@@ -545,4 +586,49 @@ func setStatus(cc *controllercontext.Context, err error) {
 	default:
 		addStatusToContext(cc, err.Error(), status.UnknownError)
 	}
+}
+
+// getUnstructuredProperty returns the unstructured object's property from the specified path.
+func getUnstructuredProperty[T interface{}](o unstructured.Unstructured, propertyPath string) (T, error) {
+	var result T
+
+	// trim ".", so e.g. ".x.y.z" becomes "x.y.z"
+	propertyPath = strings.Trim(propertyPath, ".")
+
+	// e.g. for propertyPath "x.y.z", here we get ["x", "y", "z"]
+	propertyNames := strings.Split(propertyPath, ".")
+
+	// e.g. propertyPath "x.y.z" has a depth of 3
+	if len(propertyNames) == 0 {
+		return result, nil
+	}
+
+	var ok bool
+	property := o.UnstructuredContent()
+	for i, propertyName := range propertyNames {
+		if i < len(propertyNames)-1 {
+			// we are reading a parent property, e.g. if we want "x.y.z", here we read "x" or "x.y"
+			propertyRaw, foundProperty := property[propertyName]
+			if !foundProperty {
+				return result, nil
+			}
+			property, ok = propertyRaw.(map[string]interface{})
+			if !ok {
+				return result, microerror.Maskf(propertyNotFoundError, "trying to get property '%s' from the unstructured object, but property '%s' is of type %T and not an object", propertyPath, propertyName, propertyRaw)
+			}
+			continue
+		}
+
+		// we are reading desired property of type T at path "x.y.z" (this is the last loop iteration)
+		if property[propertyName] != nil {
+			result, ok = property[propertyName].(T)
+			if !ok {
+				// Returns error only when the property is set to some non-nil value. When the value is nil,
+				// the empty value of the desired type will be returned.
+				return result, microerror.Maskf(wrongTypeError, "property at path %s is of type %T, expected type %T", propertyPath, property[propertyName], result)
+			}
+		}
+	}
+
+	return result, nil
 }

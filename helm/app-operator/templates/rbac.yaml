@@ -59,6 +59,13 @@ rules:
   verbs:
     - "*"
 - apiGroups:
+    - helm.toolkit.fluxcd.io
+  resources:
+    - helmreleases
+  verbs:
+    - get
+    - list
+- apiGroups:
     - ""
   resources:
     - configmaps
