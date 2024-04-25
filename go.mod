@@ -35,7 +35,7 @@ require (
 	github.com/spf13/viper v1.19.0
 	k8s.io/api v0.26.15
 	k8s.io/apiextensions-apiserver v0.26.15
-	k8s.io/apimachinery v0.26.15
+	k8s.io/apimachinery v0.27.3
 	k8s.io/client-go v0.26.15
 	sigs.k8s.io/controller-runtime v0.14.7
 	sigs.k8s.io/yaml v1.4.0
@@ -68,6 +68,8 @@ require (
 	github.com/evanphx/json-patch/v5 v5.6.0 // indirect
 	github.com/exponent-io/jsonpath v0.0.0-20210407135951-1de76d718b3f // indirect
 	github.com/fatih/color v1.14.1 // indirect
+	github.com/fluxcd/pkg/apis/acl v0.1.0 // indirect
+	github.com/fluxcd/pkg/apis/kustomize v0.8.1 // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
 	github.com/getsentry/sentry-go v0.13.0 // indirect
 	github.com/giantswarm/exporterkit v1.0.0 // indirect
@@ -174,8 +176,8 @@ require (
 	k8s.io/apiserver v0.26.15 // indirect
 	k8s.io/cli-runtime v0.25.2 // indirect
 	k8s.io/component-base v0.26.15 // indirect
-	k8s.io/klog/v2 v2.90.0 // indirect
-	k8s.io/kube-openapi v0.0.0-20221012153701-172d655c2280 // indirect
+	k8s.io/klog/v2 v2.90.1 // indirect
+	k8s.io/kube-openapi v0.0.0-20230501164219-8b0f38b5fd1f // indirect
 	k8s.io/kubectl v0.25.2 // indirect
 	k8s.io/utils v0.0.0-20230209194617-a36077c30491 // indirect
 	oras.land/oras-go v1.2.1 // indirect
