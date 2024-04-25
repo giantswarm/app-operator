@@ -47,8 +47,10 @@ type Service struct {
 	bootOnce                 sync.Once
 
 	// Settings
-	helmControllerBackend bool
-	unique                bool
+	helmControllerBackend              bool
+	helmControllerBackendAutoMigration bool
+
+	unique bool
 }
 
 // New creates a new service with given configuration.
@@ -130,17 +132,18 @@ func New(config Config) (*Service, error) {
 			Logger:      config.Logger,
 			K8sClient:   config.K8sClient,
 
-			ChartNamespace:               config.Viper.GetString(config.Flag.Service.Chart.Namespace),
-			HelmControllerBackend:        config.Viper.GetBool(config.Flag.Service.App.HelmControllerBackend),
-			HTTPClientTimeout:            config.Viper.GetDuration(config.Flag.Service.Helm.HTTP.ClientTimeout),
-			ImageRegistry:                config.Viper.GetString(config.Flag.Service.Image.Registry),
-			PodNamespace:                 podNamespace,
-			Provider:                     config.Viper.GetString(config.Flag.Service.Provider.Kind),
-			ResyncPeriod:                 config.Viper.GetDuration(config.Flag.Service.Operatorkit.ResyncPeriod),
-			UniqueApp:                    config.Viper.GetBool(config.Flag.Service.App.Unique),
-			WatchNamespace:               config.Viper.GetString(config.Flag.Service.App.WatchNamespace),
-			WorkloadClusterID:            config.Viper.GetString(config.Flag.Service.App.WorkloadClusterID),
-			DependencyWaitTimeoutMinutes: config.Viper.GetInt(config.Flag.Service.App.DependencyWaitTimeoutMinutes),
+			ChartNamespace:                     config.Viper.GetString(config.Flag.Service.Chart.Namespace),
+			HelmControllerBackend:              config.Viper.GetBool(config.Flag.Service.App.HelmControllerBackend),
+			HelmControllerBackendAutoMigration: config.Viper.GetBool(config.Flag.Service.App.HelmControllerBackendAutoMigration),
+			HTTPClientTimeout:                  config.Viper.GetDuration(config.Flag.Service.Helm.HTTP.ClientTimeout),
+			ImageRegistry:                      config.Viper.GetString(config.Flag.Service.Image.Registry),
+			PodNamespace:                       podNamespace,
+			Provider:                           config.Viper.GetString(config.Flag.Service.Provider.Kind),
+			ResyncPeriod:                       config.Viper.GetDuration(config.Flag.Service.Operatorkit.ResyncPeriod),
+			UniqueApp:                          config.Viper.GetBool(config.Flag.Service.App.Unique),
+			WatchNamespace:                     config.Viper.GetString(config.Flag.Service.App.WatchNamespace),
+			WorkloadClusterID:                  config.Viper.GetString(config.Flag.Service.App.WorkloadClusterID),
+			DependencyWaitTimeoutMinutes:       config.Viper.GetInt(config.Flag.Service.App.DependencyWaitTimeoutMinutes),
 		}
 
 		appController, err = app.NewApp(c)

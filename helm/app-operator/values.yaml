@@ -8,7 +8,13 @@ port: 8000
 protocol: "TCP"
 
 app:
+  # helmControllerBackend switches App Operator from using Chart Operator
+  # as a downstream controller and make it use the Helm Controller.
   helmControllerBackend: false
+  # helmControllerBackendAutoMigration enables `migration` resource of the `app`
+  # controller of App Operator. It will be in charge of deleting Chart CRs from
+  # workload clusters.
+  helmControllerBackendAutoMigration: false
   watchNamespace: ""
   workloadClusterID: ""
   dependencyWaitTimeoutMinutes: 30

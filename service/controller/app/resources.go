@@ -41,15 +41,16 @@ type appResourcesConfig struct {
 	Logger      micrologger.Logger
 
 	// Settings.
-	ChartNamespace               string
-	HelmControllerBackend        bool
-	HTTPClientTimeout            time.Duration
-	ImageRegistry                string
-	ProjectName                  string
-	Provider                     string
-	UniqueApp                    bool
-	WorkloadClusterID            string
-	DependencyWaitTimeoutMinutes int
+	ChartNamespace                     string
+	HelmControllerBackend              bool
+	HelmControllerBackendAutoMigration bool
+	HTTPClientTimeout                  time.Duration
+	ImageRegistry                      string
+	ProjectName                        string
+	Provider                           string
+	UniqueApp                          bool
+	WorkloadClusterID                  string
+	DependencyWaitTimeoutMinutes       int
 }
 
 func newAppResources(config appResourcesConfig) ([]resource.Interface, error) {
@@ -406,17 +407,12 @@ func newAppResources(config appResourcesConfig) ([]resource.Interface, error) {
 		// chartResource resource creates Chart CR.
 		resources = append(resources, chartResource)
 	} else {
+		// append automated migration resource upon request
+		if config.HelmControllerBackendAutoMigration {
+			resources = append(resources, migrationResource)
+		}
 		// helmReleaseResource resource creates HelmRelease CR.
-		resources = append(
-			resources,
-			[]resource.Interface{
-				// The `migrationResource` is a temporary resource that is to be removed
-				// once we make sure all the clusters are migrated to the Helm Controller
-				// backend.
-				migrationResource,
-				helmReleaseResource,
-			}...,
-		)
+		resources = append(resources, helmReleaseResource)
 	}
 
 	resources = append(resources, statusResource)
