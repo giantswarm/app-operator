@@ -47,8 +47,7 @@ type Service struct {
 	bootOnce                 sync.Once
 
 	// Settings
-	helmControllerBackend              bool
-	helmControllerBackendAutoMigration bool
+	helmControllerBackend bool
 
 	unique bool
 }
