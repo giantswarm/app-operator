@@ -16,6 +16,7 @@ data:
     service:
       app:
         helmControllerBackend: {{  .Values.app.helmControllerBackend }}
+        helmControllerBackendAutoMigration: {{  .Values.app.helmControllerBackendAutoMigration }}
         unique: {{ include "resource.app.unique" . }}
         watchNamespace: '{{ .Values.app.watchNamespace }}'
         workloadClusterID: '{{ .Values.app.workloadClusterID }}'
