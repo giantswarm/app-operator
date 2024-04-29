@@ -19,10 +19,10 @@ require (
 	github.com/exponent-io/jsonpath v0.0.0-20210407135951-1de76d718b3f // indirect
 	github.com/getsentry/sentry-go v0.13.0 // indirect
 	github.com/ghodss/yaml v1.0.0
-	github.com/giantswarm/apiextensions-application v0.4.0
+	github.com/giantswarm/apiextensions-application v0.5.1
 	github.com/giantswarm/app/v6 v6.11.1
 	github.com/giantswarm/appcatalog v0.8.0
-	github.com/giantswarm/apptest v1.2.0
+	github.com/giantswarm/apptest v1.2.1
 	github.com/giantswarm/backoff v1.0.0
 	github.com/giantswarm/errors v0.3.0
 	github.com/giantswarm/exporterkit v1.0.0 // indirect
