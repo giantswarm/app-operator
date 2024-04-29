@@ -2,7 +2,6 @@ package appcatalogentry
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"sort"
 	"strconv"
@@ -289,7 +288,7 @@ func (r *Resource) getLatestEntry(ctx context.Context, entries []entry) (entry, 
 
 	for i := 0; i < len(entries); i++ {
 		v, err := semver.NewVersion(entries[i].Version)
-		if errors.As(err, &semver.ErrInvalidSemVer) {
+		if err != nil && err.Error() == semver.ErrInvalidSemVer.Error() {
 			r.logger.Debugf(ctx, "invalid semver from converting app entry %s, version is %s", entries[i].Name, entries[i].Version)
 			continue
 		} else if err != nil {
