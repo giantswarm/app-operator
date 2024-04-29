@@ -1,6 +1,6 @@
 version: 2.1
 orbs:
-  architect: giantswarm/architect@4.21.0
+  architect: giantswarm/architect@5.0.1
 
 workflows:
   build:
@@ -13,42 +13,12 @@ workflows:
             tags:
               only: /^v.*/
 
-      - architect/push-to-docker:
-          context: "architect"
-          name: push-app-operator-to-docker
-          image: "docker.io/giantswarm/app-operator"
-          username_envar: "DOCKER_USERNAME"
-          password_envar: "DOCKER_PASSWORD"
-          requires:
-            - go-build
-          # Needed to trigger job also on git tag.
-          filters:
-            tags:
-              only: /^v.*/
-
-      - architect/push-to-docker:
+      - architect/push-to-registries:
           context: architect
-          name: push-app-operator-to-quay
-          image: "quay.io/giantswarm/app-operator"
-          username_envar: "QUAY_USERNAME"
-          password_envar: "QUAY_PASSWORD"
+          name: push-to-registries
           requires:
             - go-build
           filters:
-            # Trigger the job also on git tag.
-            tags:
-              only: /^v.*/
-
-      - architect/push-to-docker:
-          context: architect
-          name: push-app-operator-to-aliyun
-          image: "registry-intl.cn-shanghai.aliyuncs.com/giantswarm/app-operator"
-          username_envar: "ALIYUN_USERNAME"
-          password_envar: "ALIYUN_PASSWORD"
-          requires:
-            - go-build
-          filters:
-            # Trigger the job also on git tag.
             tags:
               only: /^v.*/
 
@@ -59,7 +29,7 @@ workflows:
           app_catalog_test: "control-plane-test-catalog"
           chart: "app-operator"
           requires:
-            - push-app-operator-to-quay
+            - push-to-registries
           filters:
             tags:
               only: /^v.*/
@@ -67,6 +37,7 @@ workflows:
       - architect/integration-test:
           context: architect
           name: basic-integration-test
+          install-app-platform: false
           setup-script: "integration/setup/setup.sh"
           test-dir: "integration/test/app/basic"
           requires:
@@ -106,8 +77,8 @@ workflows:
           app_name: "app-operator"
           app_collection_repo: "aws-app-collection"
           requires:
-            - push-app-operator-to-aliyun
             - push-app-operator-to-control-plane-app-catalog
+            - push-to-registries
           filters:
             branches:
               ignore: /.*/
@@ -129,35 +100,62 @@ workflows:
 
       - architect/push-to-app-collection:
           context: architect
-          name: push-app-operator-to-openstack-app-collection
-          app_name: "app-operator"
-          app_collection_repo: "openstack-app-collection"
-          requires:
-            - push-app-operator-to-control-plane-app-catalog
-          filters:
-            branches:
-              ignore: /.*/
-            tags:
-              only: /^v.*/
-
-      - architect/push-to-app-collection:
-          context: architect
-          name: push-app-operator-to-kvm-app-collection
-          app_name: "app-operator"
-          app_collection_repo: "kvm-app-collection"
-          requires:
-            - push-app-operator-to-control-plane-app-catalog
-          filters:
-            branches:
-              ignore: /.*/
-            tags:
-              only: /^v.*/
-
-      - architect/push-to-app-collection:
-          context: architect
           name: push-app-operator-to-vsphere-app-collection
           app_name: "app-operator"
           app_collection_repo: "vsphere-app-collection"
+          requires:
+            - push-app-operator-to-control-plane-app-catalog
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^v.*/
+
+
+      - architect/push-to-app-collection:
+          name: push-to-cloud-director-app-collection
+          context: architect
+          app_name: "app-operator"
+          app_collection_repo: "cloud-director-app-collection"
+          requires:
+            - push-app-operator-to-control-plane-app-catalog
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^v.*/
+
+      - architect/push-to-app-collection:
+          context: architect
+          name: push-to-capa-app-collection
+          app_name: "app-operator"
+          app_collection_repo: "capa-app-collection"
+          requires:
+            - push-app-operator-to-control-plane-app-catalog
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^v.*/
+
+      - architect/push-to-app-collection:
+          context: architect
+          name: push-to-capz-app-collection
+          app_name: "app-operator"
+          app_collection_repo: "capz-app-collection"
+          requires:
+            - push-app-operator-to-control-plane-app-catalog
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^v.*/
+
+      - architect/push-to-app-collection:
+          context: architect
+          name: push-to-gcp-app-collection
+          app_name: "app-operator"
+          app_collection_repo: "gcp-app-collection"
           requires:
             - push-app-operator-to-control-plane-app-catalog
           filters:
