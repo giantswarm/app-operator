@@ -1,7 +1,7 @@
 {{- if .Values.kyvernoPolicyExceptions.enabled }}
 {{- if .Values.bootstrapMode.enabled }}
 {{- if .Capabilities.APIVersions.Has "kyverno.io/v2alpha1/PolicyException" -}}
-apiVersion: kyverno.io/v2alpha1
+apiVersion: kyverno.io/v2beta1
 kind: PolicyException
 metadata:
   name: {{ include "resource.default.name" . }}-bootstrap-mode
