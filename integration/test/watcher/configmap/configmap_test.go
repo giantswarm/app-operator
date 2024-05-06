@@ -73,14 +73,20 @@ func TestWatchingConfigMap(t *testing.T) {
 				},
 			},
 			Spec: v1alpha1.CatalogSpec{
+				Title:       key.DefaultCatalogName(),
+				Description: key.DefaultCatalogName(),
 				Config: &v1alpha1.CatalogSpecConfig{
 					ConfigMap: &v1alpha1.CatalogSpecConfigConfigMap{
 						Name:      key.CatalogConfigMapName(),
 						Namespace: key.GiantSwarmNamespace(),
 					},
 				},
-				Description: key.DefaultCatalogName(),
-				Title:       key.DefaultCatalogName(),
+				Repositories: []v1alpha1.CatalogSpecRepository{
+					{
+						Type: "helm",
+						URL:  key.DefaultCatalogStorageURL(),
+					},
+				},
 				Storage: v1alpha1.CatalogSpecStorage{
 					Type: "helm",
 					URL:  key.DefaultCatalogStorageURL(),
