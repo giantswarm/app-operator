@@ -7,6 +7,8 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+## [6.8.1-patch1] - 2024-05-06
+
 ### Added
 
 - [Backport] Add global.podSecurityStandards.enforced value for PSS migration.
@@ -707,7 +709,8 @@ from Helm 2 to Helm 3.
 
 - Flattening operator release structure.
 
-[Unreleased]: https://github.com/giantswarm/app-operator/compare/v6.8.1...HEAD
+[Unreleased]: https://github.com/giantswarm/app-operator/compare/v6.8.1-patch1...HEAD
+[6.8.1-patch1]: https://github.com/giantswarm/app-operator/compare/v6.8.1...v6.8.1-patch1
 [6.8.1]: https://github.com/giantswarm/app-operator/compare/v6.8.0...v6.8.1
 [6.8.0]: https://github.com/giantswarm/app-operator/compare/v6.7.0...v6.8.0
 [6.7.0]: https://github.com/giantswarm/app-operator/compare/v6.6.4...v6.7.0
