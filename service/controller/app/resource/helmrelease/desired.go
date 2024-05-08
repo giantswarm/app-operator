@@ -16,7 +16,7 @@ import (
 	"github.com/giantswarm/k8smetadata/pkg/annotation"
 	"github.com/giantswarm/k8smetadata/pkg/label"
 	"github.com/giantswarm/microerror"
-	"github.com/giantswarm/operatorkit/v8/pkg/controller/context/resourcecanceledcontext"
+	"github.com/giantswarm/operatorkit/v7/pkg/controller/context/resourcecanceledcontext"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	apimeta "k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"

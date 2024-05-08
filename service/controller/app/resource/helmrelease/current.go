@@ -6,7 +6,7 @@ import (
 	helmv2 "github.com/fluxcd/helm-controller/api/v2beta1"
 	"github.com/giantswarm/app/v7/pkg/key"
 	"github.com/giantswarm/microerror"
-	"github.com/giantswarm/operatorkit/v8/pkg/controller/context/resourcecanceledcontext"
+	"github.com/giantswarm/operatorkit/v7/pkg/controller/context/resourcecanceledcontext"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/types"
 

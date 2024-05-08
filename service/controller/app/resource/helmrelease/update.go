@@ -7,7 +7,7 @@ import (
 
 	helmv2 "github.com/fluxcd/helm-controller/api/v2beta1"
 	"github.com/giantswarm/microerror"
-	"github.com/giantswarm/operatorkit/v8/pkg/resource/crud"
+	"github.com/giantswarm/operatorkit/v7/pkg/resource/crud"
 	"github.com/google/go-cmp/cmp"
 
 	"github.com/giantswarm/app-operator/v6/service/controller/app/controllercontext"
