@@ -2,11 +2,10 @@ module github.com/giantswarm/app-operator/v6
 
 go 1.21
 
-<<<<<<< HEAD
-toolchain go1.22.3
-=======
 toolchain go1.21.6
->>>>>>> 1e90dc61 (Degrading to OperatorKit v7)
+=======
+toolchain go1.21.10
+>>>>>>> 6258a02a (Bumping replace for docker)
 
 require (
 	github.com/Masterminds/semver/v3 v3.2.1
@@ -21,24 +20,13 @@ require (
 	github.com/giantswarm/apptest v1.3.1
 	github.com/giantswarm/backoff v1.0.0
 	github.com/giantswarm/errors v0.3.0
-	github.com/giantswarm/helmclient/v4 v4.11.2
-<<<<<<< HEAD
-	github.com/giantswarm/k8sclient/v7 v7.0.1
-	github.com/giantswarm/k8smetadata v0.25.0
-	github.com/giantswarm/kubeconfig/v4 v4.1.1
-	github.com/giantswarm/microendpoint v1.0.0
-=======
+	github.com/giantswarm/helmclient/v4 v4.11.4-0.20240508180428-0778f69770a5
 	github.com/giantswarm/k8sclient/v7 v7.2.0
 	github.com/giantswarm/k8smetadata v0.24.0
 	github.com/giantswarm/kubeconfig/v4 v4.1.1
 	github.com/giantswarm/microendpoint v1.1.0
->>>>>>> 1e90dc61 (Degrading to OperatorKit v7)
 	github.com/giantswarm/microerror v0.4.1
-<<<<<<< HEAD
-	github.com/giantswarm/microkit v1.0.1
-=======
 	github.com/giantswarm/microkit v1.0.0
->>>>>>> c0419a4c (Bumping apptest)
 	github.com/giantswarm/micrologger v1.1.1
 	github.com/giantswarm/operatorkit/v7 v7.2.0
 	github.com/giantswarm/to v0.4.0
@@ -47,29 +35,12 @@ require (
 	github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring v0.64.0
 	github.com/prometheus/client_golang v1.19.1
 	github.com/spf13/afero v1.11.0
-<<<<<<< HEAD
-	github.com/spf13/viper v1.19.0
-	k8s.io/api v0.26.15
-	k8s.io/apiextensions-apiserver v0.26.15
-	k8s.io/apimachinery v0.27.3
-	k8s.io/client-go v0.26.15
-	sigs.k8s.io/controller-runtime v0.14.7
-=======
 	github.com/spf13/viper v1.18.2
-<<<<<<< HEAD
-	k8s.io/api v0.27.4
-	k8s.io/apiextensions-apiserver v0.27.4
-	k8s.io/apimachinery v0.27.4
-	k8s.io/client-go v0.27.4
-	sigs.k8s.io/controller-runtime v0.15.1
->>>>>>> bbdfb6a8 (Bumping libs)
-=======
 	k8s.io/api v0.29.0
 	k8s.io/apiextensions-apiserver v0.29.0
 	k8s.io/apimachinery v0.29.0
 	k8s.io/client-go v0.29.0
 	sigs.k8s.io/controller-runtime v0.16.3
->>>>>>> 1e90dc61 (Degrading to OperatorKit v7)
 	sigs.k8s.io/yaml v1.4.0
 )
 
@@ -86,24 +57,18 @@ require (
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/chai2010/gettext-go v1.0.2 // indirect
-<<<<<<< HEAD
-	github.com/containerd/containerd v1.6.18 // indirect
-	github.com/coreos/go-semver v0.3.1 // indirect
-	github.com/cyphar/filepath-securejoin v0.2.3 // indirect
-=======
 	github.com/containerd/containerd v1.7.12 // indirect
 	github.com/containerd/log v0.1.0 // indirect
 	github.com/coreos/go-semver v0.3.1 // indirect
 	github.com/cyphar/filepath-securejoin v0.2.4 // indirect
->>>>>>> 1e90dc61 (Degrading to OperatorKit v7)
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
+	github.com/distribution/reference v0.5.0 // indirect
 	github.com/docker/cli v25.0.1+incompatible // indirect
 	github.com/docker/distribution v2.8.3+incompatible // indirect
 	github.com/docker/docker v25.0.1+incompatible // indirect
 	github.com/docker/docker-credential-helpers v0.7.0 // indirect
 	github.com/docker/go-connections v0.5.0 // indirect
 	github.com/docker/go-metrics v0.0.1 // indirect
-	github.com/docker/go-units v0.5.0 // indirect
 	github.com/emicklei/go-restful/v3 v3.11.0 // indirect
 	github.com/evanphx/json-patch v5.7.0+incompatible // indirect
 	github.com/evanphx/json-patch/v5 v5.7.0 // indirect
@@ -113,19 +78,11 @@ require (
 	github.com/fluxcd/pkg/apis/acl v0.1.0 // indirect
 	github.com/fluxcd/pkg/apis/kustomize v1.1.1 // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
-<<<<<<< HEAD
-	github.com/getsentry/sentry-go v0.13.0 // indirect
-	github.com/giantswarm/exporterkit v1.0.0 // indirect
-	github.com/giantswarm/versionbundle v1.1.0 // indirect
-	github.com/go-errors/errors v1.4.2 // indirect
-	github.com/go-gorp/gorp/v3 v3.0.2 // indirect
-=======
 	github.com/getsentry/sentry-go v0.25.0 // indirect
 	github.com/giantswarm/exporterkit v1.1.0 // indirect
 	github.com/giantswarm/versionbundle v1.1.0 // indirect
 	github.com/go-errors/errors v1.4.2 // indirect
 	github.com/go-gorp/gorp/v3 v3.1.0 // indirect
->>>>>>> 1e90dc61 (Degrading to OperatorKit v7)
 	github.com/go-kit/kit v0.13.0 // indirect
 	github.com/go-kit/log v0.2.1 // indirect
 	github.com/go-logfmt/logfmt v0.6.0 // indirect
@@ -143,14 +100,9 @@ require (
 	github.com/google/gnostic-models v0.6.8 // indirect
 	github.com/google/gofuzz v1.2.0 // indirect
 	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510 // indirect
-<<<<<<< HEAD
-	github.com/google/uuid v1.6.0 // indirect
-	github.com/gorilla/mux v1.8.1 // indirect
-=======
 	github.com/google/uuid v1.4.0 // indirect
 	github.com/gorilla/mux v1.8.1 // indirect
 	github.com/gorilla/websocket v1.5.0 // indirect
->>>>>>> 1e90dc61 (Degrading to OperatorKit v7)
 	github.com/gosuri/uitable v0.0.4 // indirect
 	github.com/gregjones/httpcache v0.0.0-20190611155906-901d90724c79 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
@@ -182,17 +134,11 @@ require (
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/monochromegane/go-gitignore v0.0.0-20200626010858-205db1a8cc00 // indirect
-	github.com/morikuni/aec v1.0.0 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/mxk/go-flowrate v0.0.0-20140419014527-cca7078d478f // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
-<<<<<<< HEAD
-	github.com/opencontainers/image-spec v1.1.0-rc2.0.20221116213201-188d3a4e1942 // indirect
-	github.com/pelletier/go-toml/v2 v2.2.2 // indirect
-=======
 	github.com/opencontainers/image-spec v1.1.0 // indirect
 	github.com/pelletier/go-toml/v2 v2.1.0 // indirect
->>>>>>> 1e90dc61 (Degrading to OperatorKit v7)
 	github.com/peterbourgon/diskv v2.0.1+incompatible // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/prometheus/client_model v0.5.0 // indirect
@@ -213,24 +159,9 @@ require (
 	github.com/xeipuuv/gojsonpointer v0.0.0-20190905194746-02993c407bfb // indirect
 	github.com/xeipuuv/gojsonreference v0.0.0-20180127040603-bd5ef7bd5415 // indirect
 	github.com/xeipuuv/gojsonschema v1.2.0 // indirect
-<<<<<<< HEAD
-	github.com/xlab/treeprint v1.1.0 // indirect
-	go.etcd.io/etcd/api/v3 v3.5.12 // indirect
-	go.starlark.net v0.0.0-20220328144851-d1966c6b9fcd // indirect
-	go.uber.org/atomic v1.9.0 // indirect
-	go.uber.org/multierr v1.9.0 // indirect
-	golang.org/x/crypto v0.22.0 // indirect
-	golang.org/x/exp v0.0.0-20230905200255-921286631fa9 // indirect
-<<<<<<< HEAD
-	golang.org/x/net v0.23.0 // indirect
-	golang.org/x/oauth2 v0.19.0 // indirect
-	golang.org/x/sync v0.6.0 // indirect
-=======
 	golang.org/x/net v0.21.0 // indirect
 	golang.org/x/oauth2 v0.16.0 // indirect
 	golang.org/x/sync v0.5.0 // indirect
->>>>>>> c0419a4c (Bumping apptest)
-=======
 	github.com/xlab/treeprint v1.2.0 // indirect
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.45.0 // indirect
 	go.opentelemetry.io/otel v1.19.0 // indirect
@@ -243,26 +174,16 @@ require (
 	golang.org/x/net v0.21.0 // indirect
 	golang.org/x/oauth2 v0.17.0 // indirect
 	golang.org/x/sync v0.6.0 // indirect
->>>>>>> 1e90dc61 (Degrading to OperatorKit v7)
 	golang.org/x/sys v0.19.0 // indirect
 	golang.org/x/term v0.19.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 	golang.org/x/time v0.5.0 // indirect
-<<<<<<< HEAD
-<<<<<<< HEAD
-	gomodules.xyz/jsonpatch/v2 v2.2.0 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20240314234333-6e1732d8331c // indirect
-	google.golang.org/grpc v1.62.1 // indirect
-=======
 	gomodules.xyz/jsonpatch/v2 v2.3.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
-=======
 	gomodules.xyz/jsonpatch/v2 v2.4.0 // indirect
 	google.golang.org/appengine v1.6.8 // indirect
->>>>>>> 1e90dc61 (Degrading to OperatorKit v7)
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20231120223509-83a465c0220f // indirect
 	google.golang.org/grpc v1.59.0 // indirect
->>>>>>> bbdfb6a8 (Bumping libs)
 	google.golang.org/protobuf v1.33.0 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
@@ -285,10 +206,11 @@ require (
 )
 
 replace (
+	/github.com/docker/docker => github.com/moby/moby v26.1.0+incompatible
 	github.com/bketelsen/crypt => github.com/bketelsen/crypt v0.0.5
 	github.com/dgrijalva/jwt-go => github.com/dgrijalva/jwt-go/v4 v4.0.0-preview1
 	github.com/docker/distribution => github.com/docker/distribution v0.0.0-20191216044856-a8371794149d
-	github.com/docker/docker => github.com/moby/moby v20.10.27+incompatible
+	github.com/docker/docker => github.com/moby/moby v26.1.1+incompatible
 	github.com/gogo/protobuf v1.3.1 => github.com/gogo/protobuf v1.3.2
 	github.com/imdario/mergo => github.com/imdario/mergo v0.3.16
 )
