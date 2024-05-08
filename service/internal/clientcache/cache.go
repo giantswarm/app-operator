@@ -163,9 +163,15 @@ func (r *Resource) generateK8sClient(ctx context.Context, config *v1alpha1.AppSp
 }
 
 func (r *Resource) generateHelmClient(k8sClient k8sclient.Interface) (helmclient.Interface, error) {
+	config := rest.CopyConfig(k8sClient.RESTConfig())
+	httpClient, err := rest.HTTPClientFor(config)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
 	var helmClient *helmclient.Client
 	{
-		restMapper, err := apiutil.NewDynamicRESTMapper(rest.CopyConfig(k8sClient.RESTConfig()))
+		restMapper, err := apiutil.NewDynamicRESTMapper(config, httpClient)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
