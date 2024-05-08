@@ -7,9 +7,9 @@ toolchain go1.22.3
 require (
 	github.com/Masterminds/semver/v3 v3.2.1
 	github.com/cenkalti/backoff/v4 v4.1.3
-	github.com/fluxcd/helm-controller/api v0.31.2
-	github.com/fluxcd/pkg/apis/meta v1.1.1
-	github.com/fluxcd/source-controller/api v0.36.1
+	github.com/fluxcd/helm-controller/api v0.36.2
+	github.com/fluxcd/pkg/apis/meta v1.1.2
+	github.com/fluxcd/source-controller/api v1.1.2
 	github.com/ghodss/yaml v1.0.0
 	github.com/giantswarm/apiextensions-application v0.6.1-0.20230720103005-d154300cf25a
 	github.com/giantswarm/app/v7 v7.0.0
@@ -36,12 +36,21 @@ require (
 	github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring v0.64.0
 	github.com/prometheus/client_golang v1.19.1
 	github.com/spf13/afero v1.11.0
+<<<<<<< HEAD
 	github.com/spf13/viper v1.19.0
 	k8s.io/api v0.26.15
 	k8s.io/apiextensions-apiserver v0.26.15
 	k8s.io/apimachinery v0.27.3
 	k8s.io/client-go v0.26.15
 	sigs.k8s.io/controller-runtime v0.14.7
+=======
+	github.com/spf13/viper v1.18.2
+	k8s.io/api v0.27.4
+	k8s.io/apiextensions-apiserver v0.27.4
+	k8s.io/apimachinery v0.27.4
+	k8s.io/client-go v0.27.4
+	sigs.k8s.io/controller-runtime v0.15.1
+>>>>>>> bbdfb6a8 (Bumping libs)
 	sigs.k8s.io/yaml v1.4.0
 )
 
@@ -73,7 +82,7 @@ require (
 	github.com/exponent-io/jsonpath v0.0.0-20210407135951-1de76d718b3f // indirect
 	github.com/fatih/color v1.14.1 // indirect
 	github.com/fluxcd/pkg/apis/acl v0.1.0 // indirect
-	github.com/fluxcd/pkg/apis/kustomize v0.8.1 // indirect
+	github.com/fluxcd/pkg/apis/kustomize v1.1.1 // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
 	github.com/getsentry/sentry-go v0.13.0 // indirect
 	github.com/giantswarm/exporterkit v1.0.0 // indirect
@@ -124,7 +133,7 @@ require (
 	github.com/moby/locker v1.0.1 // indirect
 	github.com/moby/spdystream v0.2.0 // indirect
 	github.com/moby/sys/mountinfo v0.6.2 // indirect
-	github.com/moby/term v0.0.0-20220808134915-39b0c02b01ae // indirect
+	github.com/moby/term v0.0.0-20221205130635-1aeaba878587 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/monochromegane/go-gitignore v0.0.0-20200626010858-205db1a8cc00 // indirect
@@ -144,7 +153,7 @@ require (
 	github.com/sagikazarmark/locafero v0.4.0 // indirect
 	github.com/sagikazarmark/slog-shim v0.1.0 // indirect
 	github.com/shopspring/decimal v1.3.1 // indirect
-	github.com/sirupsen/logrus v1.8.1 // indirect
+	github.com/sirupsen/logrus v1.9.0 // indirect
 	github.com/sourcegraph/conc v0.3.0 // indirect
 	github.com/spf13/cast v1.6.0 // indirect
 	github.com/spf13/cobra v1.8.0 // indirect
@@ -173,9 +182,16 @@ require (
 	golang.org/x/term v0.19.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 	golang.org/x/time v0.5.0 // indirect
+<<<<<<< HEAD
 	gomodules.xyz/jsonpatch/v2 v2.2.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240314234333-6e1732d8331c // indirect
 	google.golang.org/grpc v1.62.1 // indirect
+=======
+	gomodules.xyz/jsonpatch/v2 v2.3.0 // indirect
+	google.golang.org/appengine v1.6.7 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20231120223509-83a465c0220f // indirect
+	google.golang.org/grpc v1.59.0 // indirect
+>>>>>>> bbdfb6a8 (Bumping libs)
 	google.golang.org/protobuf v1.33.0 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
@@ -183,9 +199,9 @@ require (
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	helm.sh/helm/v3 v3.10.3 // indirect
-	k8s.io/apiserver v0.26.15 // indirect
+	k8s.io/apiserver v0.27.4 // indirect
 	k8s.io/cli-runtime v0.25.2 // indirect
-	k8s.io/component-base v0.26.15 // indirect
+	k8s.io/component-base v0.27.4 // indirect
 	k8s.io/klog/v2 v2.90.1 // indirect
 	k8s.io/kube-openapi v0.0.0-20230501164219-8b0f38b5fd1f // indirect
 	k8s.io/kubectl v0.25.2 // indirect
