@@ -2,10 +2,7 @@ module github.com/giantswarm/app-operator/v6
 
 go 1.21
 
-toolchain go1.21.6
-=======
 toolchain go1.21.10
->>>>>>> 6258a02a (Bumping replace for docker)
 
 require (
 	github.com/Masterminds/semver/v3 v3.2.1
