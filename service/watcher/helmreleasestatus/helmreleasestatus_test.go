@@ -23,6 +23,7 @@ import (
 	"k8s.io/apimachinery/pkg/watch"
 	dynamicfake "k8s.io/client-go/dynamic/fake"
 	k8stest "k8s.io/client-go/testing"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 	clientfake "sigs.k8s.io/controller-runtime/pkg/client/fake"
 
 	"github.com/giantswarm/app-operator/v6/pkg/project"
@@ -109,6 +110,7 @@ func Test_doWatchStatus_CAPI(t *testing.T) {
 			ctrlClient := clientfake.NewClientBuilder().
 				WithScheme(scheme).
 				WithRuntimeObjects(objs...).
+				WithStatusSubresource([]client.Object{tc.app, tc.helmRelease}...).
 				Build()
 
 			dynClient := dynamicfake.NewSimpleDynamicClient(scheme, objs...)
