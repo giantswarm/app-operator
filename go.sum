@@ -153,8 +153,8 @@ github.com/giantswarm/errors v0.3.0 h1:8y3L4496su7mqUjCb79edyXFkli9ythdXoFVaes44
 github.com/giantswarm/errors v0.3.0/go.mod h1:Oj1LIWs9Uoj6JGtK5HxTb50iZuqe9f60LDI0nLXA5vU=
 github.com/giantswarm/exporterkit v1.1.0 h1:It+tps930KykISVLtwrn9dKq4kVHLk0rnjaQvKHOV0o=
 github.com/giantswarm/exporterkit v1.1.0/go.mod h1:nzlgQdEZ29umzo6cY/ggVqSanQumkS0aLU1Kckv2ZSk=
-github.com/giantswarm/helmclient/v4 v4.11.4-0.20240508180428-0778f69770a5 h1:WvvB0qqQN8yV+l5urwuHIaYVIXLlicGrNQOU06v7CWQ=
-github.com/giantswarm/helmclient/v4 v4.11.4-0.20240508180428-0778f69770a5/go.mod h1:qrtnKRqs1iaqmy2sOEItfzJfICQz9E9j/nhF55gobis=
+github.com/giantswarm/helmclient/v4 v4.11.4-0.20240509081254-1b7870465eba h1:619IJpxUTHyEohNkUFBly9gQ6VZFvsF1HaqxQQoZ4LI=
+github.com/giantswarm/helmclient/v4 v4.11.4-0.20240509081254-1b7870465eba/go.mod h1:nwTpR989EDe7UJTHQZVCdD4yA1e/R/fYZZh1nggnLo4=
 github.com/giantswarm/k8sclient/v7 v7.2.0 h1:twh4egNcuTJEH7R/hYVhs8nwEXPlr0u/o9CB1Kv9H9A=
 github.com/giantswarm/k8sclient/v7 v7.2.0/go.mod h1:kZGRtOqe4vAKXtWm69tsj2Q9CpWlwzpa1uP1lfDtjlE=
 github.com/giantswarm/k8smetadata v0.24.0 h1:mAIgH4W06qx8X5rV9QEtJhCJLn8DMXfTfNVZi5ROp4c=

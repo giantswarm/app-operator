@@ -17,7 +17,7 @@ require (
 	github.com/giantswarm/apptest v1.3.1
 	github.com/giantswarm/backoff v1.0.0
 	github.com/giantswarm/errors v0.3.0
-	github.com/giantswarm/helmclient/v4 v4.11.4-0.20240508180428-0778f69770a5
+	github.com/giantswarm/helmclient/v4 v4.11.4-0.20240509081254-1b7870465eba
 	github.com/giantswarm/k8sclient/v7 v7.2.0
 	github.com/giantswarm/k8smetadata v0.24.0
 	github.com/giantswarm/kubeconfig/v4 v4.1.1

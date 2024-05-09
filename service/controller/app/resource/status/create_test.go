@@ -18,6 +18,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	clientgofake "k8s.io/client-go/kubernetes/fake"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake" //nolint:staticcheck
 
 	"github.com/giantswarm/app-operator/v6/pkg/status"
@@ -235,7 +236,7 @@ func Test_EnsureCreated_Chart(t *testing.T) {
 	}
 	for c, tc := range tests {
 		t.Run(fmt.Sprintf("case %d: %s", c, tc.name), func(t *testing.T) {
-			mcObjs := make([]runtime.Object, 0)
+			mcObjs := make([]client.Object, 0)
 			if tc.app != nil {
 				mcObjs = append(mcObjs, tc.app)
 			}
@@ -245,7 +246,8 @@ func Test_EnsureCreated_Chart(t *testing.T) {
 
 			resourceClient := fake.NewClientBuilder().
 				WithScheme(scheme).
-				WithRuntimeObjects(mcObjs...).
+				WithObjects(mcObjs...).
+				WithStatusSubresource(mcObjs...).
 				Build()
 
 			c := Config{
@@ -948,7 +950,7 @@ func Test_EnsureCreated_HelmRelease(t *testing.T) {
 	}
 	for c, tc := range tests {
 		t.Run(fmt.Sprintf("case %d: %s", c, tc.name), func(t *testing.T) {
-			mcObjs := make([]runtime.Object, 0)
+			mcObjs := make([]client.Object, 0)
 			if tc.app != nil {
 				mcObjs = append(mcObjs, tc.app)
 			}
@@ -963,7 +965,8 @@ func Test_EnsureCreated_HelmRelease(t *testing.T) {
 
 			resourceClient := fake.NewClientBuilder().
 				WithScheme(scheme).
-				WithRuntimeObjects(mcObjs...).
+				WithObjects(mcObjs...).
+				WithStatusSubresource(mcObjs...).
 				Build()
 
 			c := Config{
