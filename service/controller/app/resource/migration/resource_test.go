@@ -67,7 +67,7 @@ func Test_removeFinalizer(t *testing.T) {
 				s.AddKnownTypes(v1alpha1.SchemeGroupVersion, &v1alpha1.Chart{})
 
 				config := k8sclienttest.ClientsConfig{
-					CtrlClient: fake.NewFakeClientWithScheme(s, objs...), //nolint:staticcheck
+					CtrlClient: fake.NewClientBuilder().WithScheme(s).WithRuntimeObjects(objs...).Build(),
 					K8sClient:  clientgofake.NewSimpleClientset(),
 				}
 				client = k8sclienttest.NewClients(config)

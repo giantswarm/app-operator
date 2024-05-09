@@ -856,7 +856,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					GetIndexResponse: tc.index,
 				}),
 				Logger:        microloggertest.New(),
-				CtrlClient:    fake.NewFakeClientWithScheme(s), //nolint:staticcheck
+				CtrlClient:    fake.NewClientBuilder().WithScheme(s).Build(),
 				DynamicClient: dynamicfake.NewSimpleDynamicClient(s),
 
 				ChartNamespace:               "giantswarm",
@@ -877,7 +877,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 				s := runtime.NewScheme()
 				s.AddKnownTypes(v1alpha1.SchemeGroupVersion, &v1alpha1.Chart{}, &v1alpha1.ChartList{})
 				config := k8sclienttest.ClientsConfig{
-					CtrlClient: fake.NewFakeClientWithScheme(s), //nolint:staticcheck
+					CtrlClient: fake.NewClientBuilder().WithScheme(s).Build(),
 					K8sClient:  clientgofake.NewSimpleClientset(objs...),
 				}
 				client := k8sclienttest.NewClients(config)
@@ -1357,7 +1357,7 @@ func Test_Resource_Bulid_TarballURL(t *testing.T) {
 			c := Config{
 				IndexCache:    indexcachetest.NewMap(tc.indices),
 				Logger:        microloggertest.New(),
-				CtrlClient:    fake.NewFakeClientWithScheme(s), //nolint:staticcheck
+				CtrlClient:    fake.NewClientBuilder().WithScheme(s).Build(),
 				DynamicClient: dynamicfake.NewSimpleDynamicClient(s),
 
 				ChartNamespace:               "giantswarm",
@@ -1373,7 +1373,7 @@ func Test_Resource_Bulid_TarballURL(t *testing.T) {
 				s := runtime.NewScheme()
 				s.AddKnownTypes(v1alpha1.SchemeGroupVersion, &v1alpha1.Chart{}, &v1alpha1.ChartList{})
 				config := k8sclienttest.ClientsConfig{
-					CtrlClient: fake.NewFakeClientWithScheme(s, objs...), //nolint:staticcheck
+					CtrlClient: fake.NewClientBuilder().WithScheme(s).WithRuntimeObjects(objs...).Build(),
 					K8sClient:  clientgofake.NewSimpleClientset(),
 				}
 				client := k8sclienttest.NewClients(config)

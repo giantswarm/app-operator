@@ -827,7 +827,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					GetIndexResponse: tc.index,
 				}),
 				Logger:     microloggertest.New(),
-				CtrlClient: fake.NewFakeClientWithScheme(s), //nolint:staticcheck
+				CtrlClient: fake.NewClientBuilder().WithScheme(s).Build(),
 
 				DependencyWaitTimeoutMinutes: 30,
 			}
@@ -839,7 +839,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 			var ctx context.Context
 			{
 				config := k8sclienttest.ClientsConfig{
-					CtrlClient: fake.NewFakeClientWithScheme(s), //nolint:staticcheck
+					CtrlClient: fake.NewClientBuilder().WithScheme(s).Build(),
 					K8sClient:  clientgofake.NewSimpleClientset(objs...),
 				}
 				client := k8sclienttest.NewClients(config)
@@ -1331,7 +1331,7 @@ func Test_Resource_Bulid_TarballURL(t *testing.T) {
 			c := Config{
 				IndexCache: indexcachetest.NewMap(tc.indices),
 				Logger:     microloggertest.New(),
-				CtrlClient: fake.NewFakeClientWithScheme(s, objs...), //nolint:staticcheck
+				CtrlClient: fake.NewClientBuilder().WithScheme(s).WithRuntimeObjects(objs...).Build(),
 
 				DependencyWaitTimeoutMinutes: 30,
 			}
@@ -1343,7 +1343,7 @@ func Test_Resource_Bulid_TarballURL(t *testing.T) {
 			var ctx context.Context
 			{
 				config := k8sclienttest.ClientsConfig{
-					CtrlClient: fake.NewFakeClientWithScheme(s, objs...), //nolint:staticcheck
+					CtrlClient: fake.NewClientBuilder().WithScheme(s).WithRuntimeObjects(objs...).Build(),
 					K8sClient:  clientgofake.NewSimpleClientset(),
 				}
 				client := k8sclienttest.NewClients(config)
