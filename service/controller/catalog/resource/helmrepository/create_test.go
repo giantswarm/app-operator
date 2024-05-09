@@ -15,6 +15,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake" //nolint:staticcheck
 )
 
@@ -527,12 +528,13 @@ func Test_updateCatalogStatus(t *testing.T) {
 			_ = v1alpha1.AddToScheme(scheme)
 			_ = sourcev1.AddToScheme(scheme)
 
-			objs := []runtime.Object{tc.catalog}
+			objs := []client.Object{tc.catalog}
 
 			c := Config{
 				CtrlClient: fake.NewClientBuilder().
 					WithScheme(scheme).
-					WithRuntimeObjects(objs...).
+					WithObjects(objs...).
+					WithStatusSubresource(objs...).
 					Build(),
 				Logger: microloggertest.New(),
 			}
