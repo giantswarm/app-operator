@@ -14,7 +14,7 @@ require (
 	github.com/giantswarm/apiextensions-application v0.6.1-0.20230720103005-d154300cf25a
 	github.com/giantswarm/app/v7 v7.0.0
 	github.com/giantswarm/appcatalog v1.0.0
-	github.com/giantswarm/apptest v1.3.1
+	github.com/giantswarm/apptest v1.3.2-0.20240509101900-04113cf62c4a
 	github.com/giantswarm/backoff v1.0.0
 	github.com/giantswarm/errors v0.3.0
 	github.com/giantswarm/helmclient/v4 v4.11.4-0.20240509081254-1b7870465eba
@@ -166,14 +166,14 @@ require (
 	go.opentelemetry.io/otel/trace v1.19.0 // indirect
 	go.starlark.net v0.0.0-20230525235612-a134d8f9ddca // indirect
 	go.uber.org/multierr v1.11.0 // indirect
-	golang.org/x/crypto v0.22.0 // indirect
+	golang.org/x/crypto v0.23.0 // indirect
 	golang.org/x/exp v0.0.0-20231110203233-9a3e6036ecaa // indirect
 	golang.org/x/net v0.21.0 // indirect
 	golang.org/x/oauth2 v0.17.0 // indirect
 	golang.org/x/sync v0.6.0 // indirect
-	golang.org/x/sys v0.19.0 // indirect
-	golang.org/x/term v0.19.0 // indirect
-	golang.org/x/text v0.14.0 // indirect
+	golang.org/x/sys v0.20.0 // indirect
+	golang.org/x/term v0.20.0 // indirect
+	golang.org/x/text v0.15.0 // indirect
 	golang.org/x/time v0.5.0 // indirect
 	gomodules.xyz/jsonpatch/v2 v2.3.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
