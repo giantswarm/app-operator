@@ -19,6 +19,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	clientgofake "k8s.io/client-go/kubernetes/fake"
+	"k8s.io/utils/ptr"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake" //nolint:staticcheck
 
 	"github.com/giantswarm/app-operator/v6/service/controller/app/controllercontext"
@@ -151,9 +152,11 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 						DisableOpenAPIValidation: true,
 						CreateNamespace:          true,
 					},
-					Upgrade:   &helmv2.Upgrade{},
-					Rollback:  &helmv2.Rollback{},
-					Uninstall: &helmv2.Uninstall{},
+					Upgrade:  &helmv2.Upgrade{},
+					Rollback: &helmv2.Rollback{},
+					Uninstall: &helmv2.Uninstall{
+						DeletionPropagation: ptr.To("background"),
+					},
 					ValuesFrom: []helmv2.ValuesReference{
 						helmv2.ValuesReference{
 							Kind: "ConfigMap",
@@ -343,9 +346,11 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 						DisableOpenAPIValidation: true,
 						CreateNamespace:          true,
 					},
-					Upgrade:   &helmv2.Upgrade{},
-					Rollback:  &helmv2.Rollback{},
-					Uninstall: &helmv2.Uninstall{},
+					Upgrade:  &helmv2.Upgrade{},
+					Rollback: &helmv2.Rollback{},
+					Uninstall: &helmv2.Uninstall{
+						DeletionPropagation: ptr.To("background"),
+					},
 					ValuesFrom: []helmv2.ValuesReference{
 						helmv2.ValuesReference{
 							Kind: "ConfigMap",
@@ -445,9 +450,11 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 						DisableOpenAPIValidation: true,
 						CreateNamespace:          true,
 					},
-					Upgrade:   &helmv2.Upgrade{},
-					Rollback:  &helmv2.Rollback{},
-					Uninstall: &helmv2.Uninstall{},
+					Upgrade:  &helmv2.Upgrade{},
+					Rollback: &helmv2.Rollback{},
+					Uninstall: &helmv2.Uninstall{
+						DeletionPropagation: ptr.To("background"),
+					},
 				},
 			},
 		},
@@ -551,7 +558,8 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 						Timeout: &metav1.Duration{Duration: 7 * time.Minute},
 					},
 					Uninstall: &helmv2.Uninstall{
-						Timeout: &metav1.Duration{Duration: 8 * time.Minute},
+						DeletionPropagation: ptr.To("background"),
+						Timeout:             &metav1.Duration{Duration: 8 * time.Minute},
 					},
 				},
 			},
@@ -680,9 +688,11 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 						CreateNamespace:          true,
 						DisableOpenAPIValidation: true,
 					},
-					Upgrade:   &helmv2.Upgrade{},
-					Rollback:  &helmv2.Rollback{},
-					Uninstall: &helmv2.Uninstall{},
+					Upgrade:  &helmv2.Upgrade{},
+					Rollback: &helmv2.Rollback{},
+					Uninstall: &helmv2.Uninstall{
+						DeletionPropagation: ptr.To("background"),
+					},
 					ValuesFrom: []helmv2.ValuesReference{
 						helmv2.ValuesReference{
 							Kind: "ConfigMap",
@@ -1044,9 +1054,11 @@ func Test_Resource_Bulid_TarballURL(t *testing.T) {
 					Rollback:         &helmv2.Rollback{},
 					StorageNamespace: "monitoring",
 					TargetNamespace:  "monitoring",
-					Uninstall:        &helmv2.Uninstall{},
-					Upgrade:          &helmv2.Upgrade{},
-					ReleaseName:      "my-cool-prometheus",
+					Uninstall: &helmv2.Uninstall{
+						DeletionPropagation: ptr.To("background"),
+					},
+					Upgrade:     &helmv2.Upgrade{},
+					ReleaseName: "my-cool-prometheus",
 				},
 			},
 		},
@@ -1095,9 +1107,11 @@ func Test_Resource_Bulid_TarballURL(t *testing.T) {
 					Rollback:         &helmv2.Rollback{},
 					StorageNamespace: "monitoring",
 					TargetNamespace:  "monitoring",
-					Uninstall:        &helmv2.Uninstall{},
-					Upgrade:          &helmv2.Upgrade{},
-					ReleaseName:      "my-cool-prometheus",
+					Uninstall: &helmv2.Uninstall{
+						DeletionPropagation: ptr.To("background"),
+					},
+					Upgrade:     &helmv2.Upgrade{},
+					ReleaseName: "my-cool-prometheus",
 				},
 			},
 			expectedHelmRelease: &helmv2.HelmRelease{
@@ -1140,9 +1154,11 @@ func Test_Resource_Bulid_TarballURL(t *testing.T) {
 					Rollback:         &helmv2.Rollback{},
 					StorageNamespace: "monitoring",
 					TargetNamespace:  "monitoring",
-					Uninstall:        &helmv2.Uninstall{},
-					Upgrade:          &helmv2.Upgrade{},
-					ReleaseName:      "my-cool-prometheus",
+					Uninstall: &helmv2.Uninstall{
+						DeletionPropagation: ptr.To("background"),
+					},
+					Upgrade:     &helmv2.Upgrade{},
+					ReleaseName: "my-cool-prometheus",
 				},
 			},
 		},
@@ -1191,9 +1207,11 @@ func Test_Resource_Bulid_TarballURL(t *testing.T) {
 					Rollback:         &helmv2.Rollback{},
 					StorageNamespace: "monitoring",
 					TargetNamespace:  "monitoring",
-					Uninstall:        &helmv2.Uninstall{},
-					Upgrade:          &helmv2.Upgrade{},
-					ReleaseName:      "my-cool-prometheus",
+					Uninstall: &helmv2.Uninstall{
+						DeletionPropagation: ptr.To("background"),
+					},
+					Upgrade:     &helmv2.Upgrade{},
+					ReleaseName: "my-cool-prometheus",
 				},
 				Status: helmv2.HelmReleaseStatus{
 					Conditions: []metav1.Condition{
@@ -1255,9 +1273,11 @@ func Test_Resource_Bulid_TarballURL(t *testing.T) {
 					Rollback:         &helmv2.Rollback{},
 					StorageNamespace: "monitoring",
 					TargetNamespace:  "monitoring",
-					Uninstall:        &helmv2.Uninstall{},
-					Upgrade:          &helmv2.Upgrade{},
-					ReleaseName:      "my-cool-prometheus",
+					Uninstall: &helmv2.Uninstall{
+						DeletionPropagation: ptr.To("background"),
+					},
+					Upgrade:     &helmv2.Upgrade{},
+					ReleaseName: "my-cool-prometheus",
 				},
 			},
 		},
@@ -1310,9 +1330,11 @@ func Test_Resource_Bulid_TarballURL(t *testing.T) {
 					Rollback:         &helmv2.Rollback{},
 					StorageNamespace: "monitoring",
 					TargetNamespace:  "monitoring",
-					Uninstall:        &helmv2.Uninstall{},
-					Upgrade:          &helmv2.Upgrade{},
-					ReleaseName:      "my-cool-prometheus",
+					Uninstall: &helmv2.Uninstall{
+						DeletionPropagation: ptr.To("background"),
+					},
+					Upgrade:     &helmv2.Upgrade{},
+					ReleaseName: "my-cool-prometheus",
 				},
 			},
 		},

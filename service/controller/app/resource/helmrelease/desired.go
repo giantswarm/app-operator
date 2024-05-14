@@ -22,6 +22,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/kubernetes"
+	"k8s.io/utils/ptr"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	appopkey "github.com/giantswarm/app-operator/v6/pkg/key"
@@ -503,6 +504,8 @@ func generateUninstall(cr v1alpha1.App) *helmv2.Uninstall {
 	if timeout != nil {
 		uninstall.Timeout = timeout
 	}
+
+	uninstall.DeletionPropagation = ptr.To("background")
 
 	return &uninstall
 }
