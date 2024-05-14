@@ -407,10 +407,7 @@ func newAppResources(config appResourcesConfig) ([]resource.Interface, error) {
 		// chartResource resource creates Chart CR.
 		resources = append(resources, chartResource)
 	} else {
-		// append automated migration resource upon request
-		if config.HelmControllerBackendAutoMigration {
-			resources = append(resources, migrationResource)
-		}
+		resources = append(resources, migrationResource)
 		// helmReleaseResource resource creates HelmRelease CR.
 		resources = append(resources, helmReleaseResource)
 	}

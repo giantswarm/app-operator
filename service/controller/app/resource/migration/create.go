@@ -9,6 +9,7 @@ import (
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/giantswarm/app-operator/v6/service/controller/app/controllercontext"
 )
@@ -41,6 +42,43 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return nil
 	}
 
+	// In any case we pause reconciliation for Chart CR. In case Chart Operator is still
+	// running, this allows us to migrate the ownership over the Helm release to the
+	// HelmRelease CR.
+	var chart v1alpha1.Chart
+	{
+		chartCRName := key.ChartName(cr, r.workloadClusterID)
+
+		r.logger.Debugf(ctx, "pausing reconciliation for %#q Chart CR", chartCRName)
+
+		err = cc.MigrationClients.K8s.CtrlClient().Get(
+			ctx,
+			types.NamespacedName{Name: chartCRName, Namespace: r.chartNamespace},
+			&chart,
+		)
+		if apierrors.IsNotFound(err) {
+			r.logger.Debugf(ctx, "%#q Chart CR is already gone", key.ChartName(cr, r.workloadClusterID))
+			return nil
+		} else if err != nil {
+			return microerror.Mask(err)
+		}
+
+		modifiedChart := chart.DeepCopy()
+
+		if len(modifiedChart.Annotations) == 0 {
+			modifiedChart.Annotations = map[string]string{}
+		}
+		modifiedChart.Annotations[ChartOperatorPaused] = "true"
+
+		err := cc.MigrationClients.K8s.CtrlClient().Patch(ctx, modifiedChart, client.MergeFrom(&cr))
+		if err != nil {
+			return microerror.Mask(err)
+		}
+
+		r.logger.Debugf(ctx, "paused reconciliation for %#q Chart CR", chartCRName)
+
+	}
+
 	// As a fail safe we check for Chart Operator, which we need to be gone in order
 	// to safely remove the Chart CR without removing an app.
 	{
@@ -61,25 +99,10 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	}
 
 	// The Chart Operator is gone, hence we may remove the Chart CR safely. Since there is nothing to
-	// process it we need to remove its finalizer first, otherwise it will get stuck in a deletion state.
-	var chart v1alpha1.Chart
-	{
-		err = cc.MigrationClients.K8s.CtrlClient().Get(
-			ctx,
-			types.NamespacedName{Name: key.ChartName(cr, r.workloadClusterID), Namespace: r.chartNamespace},
-			&chart,
-		)
-		if apierrors.IsNotFound(err) {
-			r.logger.Debugf(ctx, "%#q Chart CR is already gone", key.ChartName(cr, r.workloadClusterID))
-			return nil
-		} else if err != nil {
-			return microerror.Mask(err)
-		}
-
-		err = r.removeFinalizer(ctx, &chart)
-		if err != nil {
-			return microerror.Mask(err)
-		}
+	// process it, we need to remove its finalizer first, otherwise it will get stuck in a deletion state.
+	err = r.removeFinalizer(ctx, &chart)
+	if err != nil {
+		return microerror.Mask(err)
 	}
 
 	// Deleting Chart CR

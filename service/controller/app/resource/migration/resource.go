@@ -12,6 +12,8 @@ import (
 )
 
 const (
+	ChartOperatorPaused = "chart-operator.giantswarm.io/paused"
+
 	Name = "migration"
 )
 
