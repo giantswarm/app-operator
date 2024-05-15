@@ -14,6 +14,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/yaml"
 
+	appopkey "github.com/giantswarm/app-operator/v6/pkg/key"
 	"github.com/giantswarm/app-operator/v6/pkg/project"
 	"github.com/giantswarm/app-operator/v6/pkg/status"
 	"github.com/giantswarm/app-operator/v6/service/controller/app/controllercontext"
@@ -101,7 +102,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 			secretKey: bytes,
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      key.ChartSecretName(cr),
+			Name:      appopkey.HelmReleaseSecretName(cr),
 			Namespace: namespace,
 			Annotations: map[string]string{
 				annotation.Notes: fmt.Sprintf("DO NOT EDIT. Values managed by %s.", project.Name()),

@@ -425,33 +425,29 @@ func generateConfig(ctx context.Context, k8sClient kubernetes.Interface, cr v1al
 	version := map[string]string{}
 
 	if hasConfigMap(cr, catalog) {
-		configMapName := key.ChartConfigMapName(cr)
+		configMapName := appopkey.HelmReleaseConfigMapName(cr)
+
+		config = append(config, helmv2.ValuesReference{
+			Kind: "ConfigMap",
+			Name: configMapName,
+		})
+
 		cm, err := k8sClient.CoreV1().ConfigMaps(cr.Namespace).Get(ctx, configMapName, metav1.GetOptions{})
-		if apierrors.IsNotFound(err) {
-			// no-op
-		} else if err != nil {
-			return []helmv2.ValuesReference{}, map[string]string{}, microerror.Mask(err)
-		} else {
-			config = append(config, helmv2.ValuesReference{
-				Kind: "ConfigMap",
-				Name: configMapName,
-			})
+		if err == nil {
 			version[annotation.AppOperatorLatestConfigMapVersion] = cm.GetResourceVersion()
 		}
 	}
 
 	if hasSecret(cr, catalog) {
-		secretName := key.ChartSecretName(cr)
+		secretName := appopkey.HelmReleaseSecretName(cr)
+
+		config = append(config, helmv2.ValuesReference{
+			Kind: "Secret",
+			Name: secretName,
+		})
+
 		secret, err := k8sClient.CoreV1().Secrets(cr.Namespace).Get(ctx, secretName, metav1.GetOptions{})
-		if apierrors.IsNotFound(err) {
-			// no-op
-		} else if err != nil {
-			return []helmv2.ValuesReference{}, map[string]string{}, microerror.Mask(err)
-		} else {
-			config = append(config, helmv2.ValuesReference{
-				Kind: "Secret",
-				Name: secretName,
-			})
+		if err == nil {
 			version[annotation.AppOperatorLatestSecretVersion] = secret.GetResourceVersion()
 		}
 	}

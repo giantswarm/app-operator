@@ -102,7 +102,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 			},
 			configMap: &corev1.ConfigMap{
 				ObjectMeta: metav1.ObjectMeta{
-					Name:            "my-cool-prometheus-chart-values",
+					Name:            "my-cool-prometheus-helmrelease-values",
 					Namespace:       "default",
 					ResourceVersion: "1234",
 				},
@@ -160,7 +160,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					ValuesFrom: []helmv2.ValuesReference{
 						helmv2.ValuesReference{
 							Kind: "ConfigMap",
-							Name: "my-cool-prometheus-chart-values",
+							Name: "my-cool-prometheus-helmrelease-values",
 						},
 					},
 				},
@@ -223,7 +223,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 			},
 			configMap: &corev1.ConfigMap{
 				ObjectMeta: metav1.ObjectMeta{
-					Name:      "my-cool-prometheus-chart-values",
+					Name:      "my-cool-prometheus-helmrelease-values",
 					Namespace: "default",
 				},
 			},
@@ -296,7 +296,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 			},
 			configMap: &corev1.ConfigMap{
 				ObjectMeta: metav1.ObjectMeta{
-					Name:            "my-cool-prometheus-chart-values",
+					Name:            "my-cool-prometheus-helmrelease-values",
 					Namespace:       "default",
 					ResourceVersion: "1234",
 				},
@@ -354,7 +354,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					ValuesFrom: []helmv2.ValuesReference{
 						helmv2.ValuesReference{
 							Kind: "ConfigMap",
-							Name: "my-cool-prometheus-chart-values",
+							Name: "my-cool-prometheus-helmrelease-values",
 						},
 					},
 				},
@@ -603,14 +603,14 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 			},
 			configMap: &corev1.ConfigMap{
 				ObjectMeta: metav1.ObjectMeta{
-					Name:            "my-cool-prometheus-chart-values",
+					Name:            "my-cool-prometheus-helmrelease-values",
 					Namespace:       "default",
 					ResourceVersion: "1234",
 				},
 			},
 			secret: &corev1.Secret{
 				ObjectMeta: metav1.ObjectMeta{
-					Name:            "my-cool-prometheus-chart-secrets",
+					Name:            "my-cool-prometheus-helmrelease-secrets",
 					Namespace:       "default",
 					ResourceVersion: "4321",
 				},
@@ -696,11 +696,11 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					ValuesFrom: []helmv2.ValuesReference{
 						helmv2.ValuesReference{
 							Kind: "ConfigMap",
-							Name: "my-cool-prometheus-chart-values",
+							Name: "my-cool-prometheus-helmrelease-values",
 						},
 						helmv2.ValuesReference{
 							Kind: "Secret",
-							Name: "my-cool-prometheus-chart-secrets",
+							Name: "my-cool-prometheus-helmrelease-secrets",
 						},
 					},
 				},
@@ -1448,7 +1448,7 @@ func Test_generateConfig(t *testing.T) {
 			catalog: v1alpha1.Catalog{},
 			configMap: &corev1.ConfigMap{
 				ObjectMeta: metav1.ObjectMeta{
-					Name:            "test-app-chart-values",
+					Name:            "test-app-helmrelease-values",
 					Namespace:       "default",
 					ResourceVersion: "1234",
 				},
@@ -1456,7 +1456,7 @@ func Test_generateConfig(t *testing.T) {
 			expectedConfig: []helmv2.ValuesReference{
 				helmv2.ValuesReference{
 					Kind: "ConfigMap",
-					Name: "test-app-chart-values",
+					Name: "test-app-helmrelease-values",
 				},
 			},
 			expectedRevision: map[string]string{
@@ -1483,7 +1483,7 @@ func Test_generateConfig(t *testing.T) {
 			catalog: v1alpha1.Catalog{},
 			secret: &corev1.Secret{
 				ObjectMeta: metav1.ObjectMeta{
-					Name:            "test-app-chart-secrets",
+					Name:            "test-app-helmrelease-secrets",
 					Namespace:       "default",
 					ResourceVersion: "4321",
 				},
@@ -1491,7 +1491,7 @@ func Test_generateConfig(t *testing.T) {
 			expectedConfig: []helmv2.ValuesReference{
 				helmv2.ValuesReference{
 					Kind: "Secret",
-					Name: "test-app-chart-secrets",
+					Name: "test-app-helmrelease-secrets",
 				},
 			},
 			expectedRevision: map[string]string{
@@ -1522,14 +1522,14 @@ func Test_generateConfig(t *testing.T) {
 			catalog: v1alpha1.Catalog{},
 			configMap: &corev1.ConfigMap{
 				ObjectMeta: metav1.ObjectMeta{
-					Name:            "test-app-chart-values",
+					Name:            "test-app-helmrelease-values",
 					Namespace:       "default",
 					ResourceVersion: "1234",
 				},
 			},
 			secret: &corev1.Secret{
 				ObjectMeta: metav1.ObjectMeta{
-					Name:            "test-app-chart-secrets",
+					Name:            "test-app-helmrelease-secrets",
 					Namespace:       "default",
 					ResourceVersion: "4321",
 				},
@@ -1537,11 +1537,11 @@ func Test_generateConfig(t *testing.T) {
 			expectedConfig: []helmv2.ValuesReference{
 				helmv2.ValuesReference{
 					Kind: "ConfigMap",
-					Name: "test-app-chart-values",
+					Name: "test-app-helmrelease-values",
 				},
 				helmv2.ValuesReference{
 					Kind: "Secret",
-					Name: "test-app-chart-secrets",
+					Name: "test-app-helmrelease-secrets",
 				},
 			},
 			expectedRevision: map[string]string{
@@ -1572,7 +1572,7 @@ func Test_generateConfig(t *testing.T) {
 			},
 			configMap: &corev1.ConfigMap{
 				ObjectMeta: metav1.ObjectMeta{
-					Name:            "test-app-chart-values",
+					Name:            "test-app-helmrelease-values",
 					Namespace:       "default",
 					ResourceVersion: "1234",
 				},
@@ -1580,7 +1580,7 @@ func Test_generateConfig(t *testing.T) {
 			expectedConfig: []helmv2.ValuesReference{
 				helmv2.ValuesReference{
 					Kind: "ConfigMap",
-					Name: "test-app-chart-values",
+					Name: "test-app-helmrelease-values",
 				},
 			},
 			expectedRevision: map[string]string{
@@ -1610,7 +1610,7 @@ func Test_generateConfig(t *testing.T) {
 			},
 			secret: &corev1.Secret{
 				ObjectMeta: metav1.ObjectMeta{
-					Name:            "test-app-chart-secrets",
+					Name:            "test-app-helmrelease-secrets",
 					Namespace:       "default",
 					ResourceVersion: "4321",
 				},
@@ -1618,7 +1618,7 @@ func Test_generateConfig(t *testing.T) {
 			expectedConfig: []helmv2.ValuesReference{
 				helmv2.ValuesReference{
 					Kind: "Secret",
-					Name: "test-app-chart-secrets",
+					Name: "test-app-helmrelease-secrets",
 				},
 			},
 			expectedRevision: map[string]string{
@@ -1652,14 +1652,14 @@ func Test_generateConfig(t *testing.T) {
 			},
 			configMap: &corev1.ConfigMap{
 				ObjectMeta: metav1.ObjectMeta{
-					Name:            "test-app-chart-values",
+					Name:            "test-app-helmrelease-values",
 					Namespace:       "default",
 					ResourceVersion: "1234",
 				},
 			},
 			secret: &corev1.Secret{
 				ObjectMeta: metav1.ObjectMeta{
-					Name:            "test-app-chart-secrets",
+					Name:            "test-app-helmrelease-secrets",
 					Namespace:       "default",
 					ResourceVersion: "4321",
 				},
@@ -1667,11 +1667,11 @@ func Test_generateConfig(t *testing.T) {
 			expectedConfig: []helmv2.ValuesReference{
 				helmv2.ValuesReference{
 					Kind: "ConfigMap",
-					Name: "test-app-chart-values",
+					Name: "test-app-helmrelease-values",
 				},
 				helmv2.ValuesReference{
 					Kind: "Secret",
-					Name: "test-app-chart-secrets",
+					Name: "test-app-helmrelease-secrets",
 				},
 			},
 			expectedRevision: map[string]string{

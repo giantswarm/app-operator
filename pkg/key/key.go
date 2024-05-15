@@ -9,22 +9,16 @@ import (
 	"github.com/giantswarm/microerror"
 )
 
-// GetRepositoryConfiguration returns Catalog CR supported repository details
-// which are type and URL.
-func GetRepositoryConfiguration(r interface{}) (string, string, error) {
-	switch cr := r.(type) {
-	case v1alpha1.CatalogSpecStorage:
-		return cr.Type, cr.URL, nil
-	case v1alpha1.CatalogSpecRepository:
-		return cr.Type, cr.URL, nil
-	default:
-		return "", "", microerror.Maskf(
-			wrongTypeError,
-			"expected '%T' or '%T', got '%T'",
-			v1alpha1.CatalogSpecStorage{}, v1alpha1.CatalogSpecRepository{},
-			r,
-		)
-	}
+// HelmReleaseConfigMapName implements what previously the
+// github.com/giantswarm/app/key implemented for Chart CR
+func HelmReleaseConfigMapName(customResource v1alpha1.App) string {
+	return fmt.Sprintf("%s-helmrelease-values", customResource.GetName())
+}
+
+// HelmReleaseSecretName implements what previously the
+// github.com/giantswarm/app/key implemented for Chart CR
+func HelmReleaseSecretName(customResource v1alpha1.App) string {
+	return fmt.Sprintf("%s-helmrelease-secrets", customResource.GetName())
 }
 
 // GetHelmRepositoryName turns repository type and URL into a name that
@@ -46,4 +40,22 @@ func GetHelmRepositoryName(c, t, u string) (string, error) {
 	path := path.Base(url.Path)
 
 	return fmt.Sprintf("%s-%s-%s-%s", c, t, hostname, path), nil
+}
+
+// GetRepositoryConfiguration returns Catalog CR supported repository details
+// which are type and URL.
+func GetRepositoryConfiguration(r interface{}) (string, string, error) {
+	switch cr := r.(type) {
+	case v1alpha1.CatalogSpecStorage:
+		return cr.Type, cr.URL, nil
+	case v1alpha1.CatalogSpecRepository:
+		return cr.Type, cr.URL, nil
+	default:
+		return "", "", microerror.Maskf(
+			wrongTypeError,
+			"expected '%T' or '%T', got '%T'",
+			v1alpha1.CatalogSpecStorage{}, v1alpha1.CatalogSpecRepository{},
+			r,
+		)
+	}
 }
