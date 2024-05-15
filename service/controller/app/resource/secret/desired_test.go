@@ -95,7 +95,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					"values": []byte("cluster: yaml\n"),
 				},
 				ObjectMeta: metav1.ObjectMeta{
-					Name:      "my-prometheus-helmrelease-secrets",
+					Name:      "my-prometheus-chart-secrets",
 					Namespace: "giantswarm",
 					Annotations: map[string]string{
 						annotation.Notes: "DO NOT EDIT. Values managed by app-operator.",
@@ -141,7 +141,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					"values": []byte("cluster: yaml\n"),
 				},
 				ObjectMeta: metav1.ObjectMeta{
-					Name:      "test-app-helmrelease-secrets",
+					Name:      "test-app-chart-secrets",
 					Namespace: "giantswarm",
 					Annotations: map[string]string{
 						annotation.Notes: "DO NOT EDIT. Values managed by app-operator.",
@@ -198,7 +198,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					"values": []byte("cluster: yaml\n"),
 				},
 				ObjectMeta: metav1.ObjectMeta{
-					Name:      "test-app-helmrelease-secrets",
+					Name:      "test-app-chart-secrets",
 					Namespace: "giantswarm",
 					Annotations: map[string]string{
 						annotation.Notes: "DO NOT EDIT. Values managed by app-operator.",
@@ -264,7 +264,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					"values": []byte("cluster: yaml\n"),
 				},
 				ObjectMeta: metav1.ObjectMeta{
-					Name:      "test-app-helmrelease-secrets",
+					Name:      "test-app-chart-secrets",
 					Namespace: "giantswarm",
 					Annotations: map[string]string{
 						annotation.Notes: "DO NOT EDIT. Values managed by app-operator.",

@@ -34,11 +34,13 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 	// the App CR is located at. Also, the Config Map key the values are located at must be
 	// the `values.yaml`. Note, it may also remain to be the `values` and then it can be
 	// configured in the HelmRelease CR spec, but it feels less fuss to do it here.
-	var namespace, secretKey string
+	var name, namespace, secretKey string
 	if r.helmControllerBackend {
+		name = appopkey.HelmReleaseSecretName(cr)
 		namespace = cr.Namespace
 		secretKey = "values.yaml"
 	} else {
+		name = key.ChartSecretName(cr)
 		namespace = r.chartNamespace
 		secretKey = "values"
 	}
@@ -102,7 +104,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 			secretKey: bytes,
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      appopkey.HelmReleaseSecretName(cr),
+			Name:      name,
 			Namespace: namespace,
 			Annotations: map[string]string{
 				annotation.Notes: fmt.Sprintf("DO NOT EDIT. Values managed by %s.", project.Name()),
