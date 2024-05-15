@@ -80,7 +80,7 @@ func FluxAppName() string {
 }
 
 func FluxAppVersion() string {
-	return "0.23.1"
+	return "1.4.1"
 }
 
 func FluxSystemNamespace() string {
