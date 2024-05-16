@@ -10,6 +10,7 @@ import (
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
+	appopkey "github.com/giantswarm/app-operator/v6/pkg/key"
 	"github.com/giantswarm/app-operator/v6/service/controller/app/controllercontext"
 )
 
@@ -19,14 +20,14 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 		return nil, microerror.Mask(err)
 	}
 
-	name := key.ChartSecretName(cr)
-
 	// When the Helm Controller backend is enable, config is located in the same namespace
 	// the App CR is located at.
-	var namespace string
+	var name, namespace string
 	if r.helmControllerBackend {
+		name = appopkey.HelmReleaseSecretName(cr)
 		namespace = cr.Namespace
 	} else {
+		name = key.ChartSecretName(cr)
 		namespace = r.chartNamespace
 	}
 

@@ -49,7 +49,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		// Return empty chart configmap so it is deleted.
 		configMap := &corev1.ConfigMap{
 			ObjectMeta: metav1.ObjectMeta{
-				Name:      key.ChartConfigMapName(cr),
+				Name:      name,
 				Namespace: namespace,
 			},
 		}

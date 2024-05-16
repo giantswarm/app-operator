@@ -49,7 +49,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		// Return empty chart secret so it is deleted.
 		secret := &corev1.Secret{
 			ObjectMeta: metav1.ObjectMeta{
-				Name:      key.ChartSecretName(cr),
+				Name:      name,
 				Namespace: namespace,
 			},
 		}
