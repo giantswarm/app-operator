@@ -180,6 +180,11 @@ func (r *Resource) ensureCreatedHelmRelease(ctx context.Context, cc *controllerc
 		currentCR.Status = desiredStatus
 
 		err = r.ctrlClient.Status().Update(ctx, &currentCR)
+		if apierrors.IsConflict(err) {
+			r.logger.Errorf(ctx, err, "failed to update status for app '%s/%s' due to conflict", cr.Namespace, cr.Name)
+			return nil
+		}
+
 		if err != nil {
 			return microerror.Mask(err)
 		}
