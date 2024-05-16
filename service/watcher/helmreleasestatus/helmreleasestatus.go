@@ -173,7 +173,7 @@ func (c *HelmReleaseStatusWatcher) doWatchStatus(ctx context.Context, client dyn
 		}
 
 		// The HelmRelease CR is named after the App CR and placed in the same namespace,
-		// hence its metadata can be used to locate the former.
+		// hence its metadata can be used to locate the latter.
 		app := v1alpha1.App{}
 		err = c.k8sClient.CtrlClient().Get(ctx,
 			types.NamespacedName{Name: helmRelease.Name, Namespace: helmRelease.Namespace},
@@ -200,7 +200,7 @@ func (c *HelmReleaseStatusWatcher) doWatchStatus(ctx context.Context, client dyn
 				continue
 			}
 
-			c.logger.Debugf(ctx, "status set for app '%s/%s'", app.Namespace, app.Name)
+			c.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("status set for app '%s/%s'", app.Namespace, app.Name))
 		}
 	}
 

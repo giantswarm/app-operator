@@ -161,7 +161,6 @@ func (r *Resource) addClientsToContext(ctx context.Context, cr v1alpha1.App) err
 			K8s:  clients.K8sClient,
 			Helm: clients.HelmClient,
 		}
-		r.logger.Debugf(ctx, "clients %#q", clients)
 
 		return nil
 	}
