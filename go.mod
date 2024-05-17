@@ -14,10 +14,10 @@ require (
 	github.com/giantswarm/apiextensions-application v0.6.1-0.20230720103005-d154300cf25a
 	github.com/giantswarm/app/v7 v7.0.0
 	github.com/giantswarm/appcatalog v1.0.0
-	github.com/giantswarm/apptest v1.3.2-0.20240509101900-04113cf62c4a
+	github.com/giantswarm/apptest v1.4.0
 	github.com/giantswarm/backoff v1.0.0
 	github.com/giantswarm/errors v0.3.0
-	github.com/giantswarm/helmclient/v4 v4.11.4-0.20240509081254-1b7870465eba
+	github.com/giantswarm/helmclient/v4 v4.12.0
 	github.com/giantswarm/k8sclient/v7 v7.2.0
 	github.com/giantswarm/k8smetadata v0.24.0
 	github.com/giantswarm/kubeconfig/v4 v4.1.1
