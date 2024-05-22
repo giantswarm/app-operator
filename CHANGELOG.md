@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Changed
+
+- Update `PolicyExceptions` to `v2` and failover to `v2beta1`.
+
 ## [6.11.0] - 2024-04-23
 
 ### Added

@@ -1,6 +1,10 @@
 {{- if .Values.kyvernoPolicyExceptions.enabled }}
 {{- if .Values.bootstrapMode.enabled }}
-{{- if .Capabilities.APIVersions.Has "kyverno.io/v2alpha1/PolicyException" -}}
+{{- if .Capabilities.APIVersions.Has "kyverno.io/v2/PolicyException" -}}
+apiVersion: kyverno.io/v2
+{{- else if .Capabilities.APIVersions.Has "kyverno.io/v2beta1/PolicyException" -}}
+apiVersion: kyverno.io/v2beta1
+{{- end -}}
 apiVersion: kyverno.io/v2beta1
 kind: PolicyException
 metadata:
@@ -27,6 +31,5 @@ spec:
           - {{ include "resource.default.namespace" . }}
         names:
           - "{{ include "resource.default.name" . }}*"
-{{- end -}}
 {{- end -}}
 {{- end -}}
