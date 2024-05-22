@@ -1,11 +1,12 @@
 {{- if .Values.kyvernoPolicyExceptions.enabled }}
 {{- if .Values.bootstrapMode.enabled }}
-{{- if .Capabilities.APIVersions.Has "kyverno.io/v2/PolicyException" -}}
+{{- if .Capabilities.APIVersions.Has "kyverno.io/v2/PolicyException" }}
 apiVersion: kyverno.io/v2
-{{- else if .Capabilities.APIVersions.Has "kyverno.io/v2beta1/PolicyException" -}}
+{{- else if .Capabilities.APIVersions.Has "kyverno.io/v2beta1/PolicyException" }}
 apiVersion: kyverno.io/v2beta1
-{{- end -}}
-apiVersion: kyverno.io/v2beta1
+{{- else }}
+apiVersion: kyverno.io/v2alpha1
+{{- end }}
 kind: PolicyException
 metadata:
   name: {{ include "resource.default.name" . }}-bootstrap-mode
