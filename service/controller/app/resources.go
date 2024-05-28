@@ -41,16 +41,15 @@ type appResourcesConfig struct {
 	Logger      micrologger.Logger
 
 	// Settings.
-	ChartNamespace                     string
-	HelmControllerBackend              bool
-	HelmControllerBackendAutoMigration bool
-	HTTPClientTimeout                  time.Duration
-	ImageRegistry                      string
-	ProjectName                        string
-	Provider                           string
-	UniqueApp                          bool
-	WorkloadClusterID                  string
-	DependencyWaitTimeoutMinutes       int
+	ChartNamespace               string
+	HelmControllerBackend        bool
+	HTTPClientTimeout            time.Duration
+	ImageRegistry                string
+	ProjectName                  string
+	Provider                     string
+	UniqueApp                    bool
+	WorkloadClusterID            string
+	DependencyWaitTimeoutMinutes int
 }
 
 func newAppResources(config appResourcesConfig) ([]resource.Interface, error) {

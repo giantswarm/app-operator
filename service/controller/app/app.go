@@ -31,18 +31,17 @@ type Config struct {
 	IndexCache  indexcache.Interface
 	Logger      micrologger.Logger
 
-	ChartNamespace                     string
-	HelmControllerBackend              bool
-	HelmControllerBackendAutoMigration bool
-	HTTPClientTimeout                  time.Duration
-	ImageRegistry                      string
-	PodNamespace                       string
-	Provider                           string
-	ResyncPeriod                       time.Duration
-	UniqueApp                          bool
-	WatchNamespace                     string
-	WorkloadClusterID                  string
-	DependencyWaitTimeoutMinutes       int
+	ChartNamespace               string
+	HelmControllerBackend        bool
+	HTTPClientTimeout            time.Duration
+	ImageRegistry                string
+	PodNamespace                 string
+	Provider                     string
+	ResyncPeriod                 time.Duration
+	UniqueApp                    bool
+	WatchNamespace               string
+	WorkloadClusterID            string
+	DependencyWaitTimeoutMinutes int
 }
 
 type App struct {
@@ -118,16 +117,15 @@ func NewApp(config Config) (*App, error) {
 			K8sClient:   config.K8sClient,
 			Logger:      config.Logger,
 
-			ChartNamespace:                     config.ChartNamespace,
-			HelmControllerBackend:              config.HelmControllerBackend,
-			HelmControllerBackendAutoMigration: config.HelmControllerBackendAutoMigration,
-			HTTPClientTimeout:                  config.HTTPClientTimeout,
-			ImageRegistry:                      config.ImageRegistry,
-			ProjectName:                        project.Name(),
-			Provider:                           config.Provider,
-			UniqueApp:                          config.UniqueApp,
-			WorkloadClusterID:                  config.WorkloadClusterID,
-			DependencyWaitTimeoutMinutes:       config.DependencyWaitTimeoutMinutes,
+			ChartNamespace:               config.ChartNamespace,
+			HelmControllerBackend:        config.HelmControllerBackend,
+			HTTPClientTimeout:            config.HTTPClientTimeout,
+			ImageRegistry:                config.ImageRegistry,
+			ProjectName:                  project.Name(),
+			Provider:                     config.Provider,
+			UniqueApp:                    config.UniqueApp,
+			WorkloadClusterID:            config.WorkloadClusterID,
+			DependencyWaitTimeoutMinutes: config.DependencyWaitTimeoutMinutes,
 		}
 
 		resources, err = newAppResources(c)
