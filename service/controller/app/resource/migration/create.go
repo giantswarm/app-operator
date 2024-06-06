@@ -31,7 +31,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	}
 
 	if cc.Status.ClusterStatus.IsDeleting {
-		r.logger.Debugf(ctx, "namespace %#q is being deleted, no migrate resources", cr.Namespace)
+		r.logger.Debugf(ctx, "namespace %#q is being deleted, no need to migrate resources", cr.Namespace)
 		r.logger.Debugf(ctx, "canceling resource")
 		return nil
 	}
@@ -40,6 +40,23 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		r.logger.Debugf(ctx, "workload cluster is unavailable")
 		r.logger.Debugf(ctx, "canceling resource")
 		return nil
+	}
+
+	// Clusters created after the migration have never had Chart Operator nor Chart CRD,
+	// so let's check that is the case and skip further processing.
+	{
+		_, err := cc.MigrationClients.K8s.ExtClient().ApiextensionsV1().CustomResourceDefinitions().Get(
+			ctx,
+			chartCRDName,
+			metav1.GetOptions{},
+		)
+
+		if apierrors.IsNotFound(err) {
+			r.logger.Debugf(ctx, "%#q Chart CDR not found, no need to migrate anything", key.ChartName(cr, r.workloadClusterID))
+			return nil
+		} else if err != nil {
+			return microerror.Mask(err)
+		}
 	}
 
 	// In any case we pause reconciliation for Chart CR. In case Chart Operator is still

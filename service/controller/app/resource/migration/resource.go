@@ -14,6 +14,8 @@ import (
 const (
 	ChartOperatorPaused = "chart-operator.giantswarm.io/paused"
 
+	chartCRDName = "charts.application.giantswarm.io"
+
 	Name = "migration"
 )
 

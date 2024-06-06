@@ -9,6 +9,8 @@ import (
 	"github.com/giantswarm/micrologger/microloggertest"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
+	apiextv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
+	apiextclientfake "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset/fake"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -124,6 +126,14 @@ func Test_EnsureCreated(t *testing.T) {
 				tc.chart,
 			}
 
+			crdsObjs := []runtime.Object{
+				&apiextv1.CustomResourceDefinition{
+					ObjectMeta: metav1.ObjectMeta{
+						Name: chartCRDName,
+					},
+				},
+			}
+
 			c := Config{
 				Logger:     microloggertest.New(),
 				CtrlClient: fake.NewFakeClient(), //nolint:staticcheck
@@ -144,6 +154,7 @@ func Test_EnsureCreated(t *testing.T) {
 
 				config := k8sclienttest.ClientsConfig{
 					CtrlClient: fake.NewClientBuilder().WithScheme(s).WithRuntimeObjects(customObjs...).Build(),
+					ExtClient:  apiextclientfake.NewSimpleClientset(crdsObjs...),
 					K8sClient:  clientgofake.NewSimpleClientset(tc.nativeResources...),
 				}
 				client = k8sclienttest.NewClients(config)
