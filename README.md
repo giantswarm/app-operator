@@ -1,5 +1,7 @@
 [![CircleCI](https://dl.circleci.com/status-badge/img/gh/giantswarm/app-operator/tree/master.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/giantswarm/app-operator/tree/master)
 
+for science...
+
 # app-operator
 
 The app-operator manages apps in Kubernetes clusters. It is implemented
