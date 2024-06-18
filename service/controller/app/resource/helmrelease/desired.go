@@ -517,6 +517,10 @@ func generateUpgrade(cr v1alpha1.App) *helmv2.Upgrade {
 	upgrade.DisableOpenAPIValidation = false
 	upgrade.Force = false
 
+	upgrade.Remediation = &helmv2.UpgradeRemediation{
+		Retries: 3,
+	}
+
 	return &upgrade
 }
 

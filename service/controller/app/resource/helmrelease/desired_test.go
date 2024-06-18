@@ -152,7 +152,11 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 						DisableOpenAPIValidation: true,
 						CreateNamespace:          true,
 					},
-					Upgrade:  &helmv2.Upgrade{},
+					Upgrade: &helmv2.Upgrade{
+						Remediation: &helmv2.UpgradeRemediation{
+							Retries: 3,
+						},
+					},
 					Rollback: &helmv2.Rollback{},
 					Uninstall: &helmv2.Uninstall{
 						DeletionPropagation: ptr.To("background"),
@@ -346,7 +350,11 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 						DisableOpenAPIValidation: true,
 						CreateNamespace:          true,
 					},
-					Upgrade:  &helmv2.Upgrade{},
+					Upgrade: &helmv2.Upgrade{
+						Remediation: &helmv2.UpgradeRemediation{
+							Retries: 3,
+						},
+					},
 					Rollback: &helmv2.Rollback{},
 					Uninstall: &helmv2.Uninstall{
 						DeletionPropagation: ptr.To("background"),
@@ -450,7 +458,11 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 						DisableOpenAPIValidation: true,
 						CreateNamespace:          true,
 					},
-					Upgrade:  &helmv2.Upgrade{},
+					Upgrade: &helmv2.Upgrade{
+						Remediation: &helmv2.UpgradeRemediation{
+							Retries: 3,
+						},
+					},
 					Rollback: &helmv2.Rollback{},
 					Uninstall: &helmv2.Uninstall{
 						DeletionPropagation: ptr.To("background"),
@@ -553,6 +565,9 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					},
 					Upgrade: &helmv2.Upgrade{
 						Timeout: &metav1.Duration{Duration: 9 * time.Minute},
+						Remediation: &helmv2.UpgradeRemediation{
+							Retries: 3,
+						},
 					},
 					Rollback: &helmv2.Rollback{
 						Timeout: &metav1.Duration{Duration: 7 * time.Minute},
@@ -688,7 +703,11 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 						CreateNamespace:          true,
 						DisableOpenAPIValidation: true,
 					},
-					Upgrade:  &helmv2.Upgrade{},
+					Upgrade: &helmv2.Upgrade{
+						Remediation: &helmv2.UpgradeRemediation{
+							Retries: 3,
+						},
+					},
 					Rollback: &helmv2.Rollback{},
 					Uninstall: &helmv2.Uninstall{
 						DeletionPropagation: ptr.To("background"),
@@ -1057,7 +1076,11 @@ func Test_Resource_Bulid_TarballURL(t *testing.T) {
 					Uninstall: &helmv2.Uninstall{
 						DeletionPropagation: ptr.To("background"),
 					},
-					Upgrade:     &helmv2.Upgrade{},
+					Upgrade: &helmv2.Upgrade{
+						Remediation: &helmv2.UpgradeRemediation{
+							Retries: 3,
+						},
+					},
 					ReleaseName: "my-cool-prometheus",
 				},
 			},
@@ -1110,7 +1133,11 @@ func Test_Resource_Bulid_TarballURL(t *testing.T) {
 					Uninstall: &helmv2.Uninstall{
 						DeletionPropagation: ptr.To("background"),
 					},
-					Upgrade:     &helmv2.Upgrade{},
+					Upgrade: &helmv2.Upgrade{
+						Remediation: &helmv2.UpgradeRemediation{
+							Retries: 3,
+						},
+					},
 					ReleaseName: "my-cool-prometheus",
 				},
 			},
@@ -1157,7 +1184,11 @@ func Test_Resource_Bulid_TarballURL(t *testing.T) {
 					Uninstall: &helmv2.Uninstall{
 						DeletionPropagation: ptr.To("background"),
 					},
-					Upgrade:     &helmv2.Upgrade{},
+					Upgrade: &helmv2.Upgrade{
+						Remediation: &helmv2.UpgradeRemediation{
+							Retries: 3,
+						},
+					},
 					ReleaseName: "my-cool-prometheus",
 				},
 			},
@@ -1210,7 +1241,11 @@ func Test_Resource_Bulid_TarballURL(t *testing.T) {
 					Uninstall: &helmv2.Uninstall{
 						DeletionPropagation: ptr.To("background"),
 					},
-					Upgrade:     &helmv2.Upgrade{},
+					Upgrade: &helmv2.Upgrade{
+						Remediation: &helmv2.UpgradeRemediation{
+							Retries: 3,
+						},
+					},
 					ReleaseName: "my-cool-prometheus",
 				},
 				Status: helmv2.HelmReleaseStatus{
@@ -1276,7 +1311,11 @@ func Test_Resource_Bulid_TarballURL(t *testing.T) {
 					Uninstall: &helmv2.Uninstall{
 						DeletionPropagation: ptr.To("background"),
 					},
-					Upgrade:     &helmv2.Upgrade{},
+					Upgrade: &helmv2.Upgrade{
+						Remediation: &helmv2.UpgradeRemediation{
+							Retries: 3,
+						},
+					},
 					ReleaseName: "my-cool-prometheus",
 				},
 			},
@@ -1333,7 +1372,11 @@ func Test_Resource_Bulid_TarballURL(t *testing.T) {
 					Uninstall: &helmv2.Uninstall{
 						DeletionPropagation: ptr.To("background"),
 					},
-					Upgrade:     &helmv2.Upgrade{},
+					Upgrade: &helmv2.Upgrade{
+						Remediation: &helmv2.UpgradeRemediation{
+							Retries: 3,
+						},
+					},
 					ReleaseName: "my-cool-prometheus",
 				},
 			},
