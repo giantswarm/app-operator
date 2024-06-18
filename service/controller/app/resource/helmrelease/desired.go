@@ -479,6 +479,10 @@ func generateInstall(cr v1alpha1.App) *helmv2.Install {
 	// to really know the status, is to wait for Helm actions to report it.
 	install.DisableOpenAPIValidation = true
 
+	install.Remediation = &helmv2.InstallRemediation{
+		Retries: 3,
+	}
+
 	return &install
 }
 

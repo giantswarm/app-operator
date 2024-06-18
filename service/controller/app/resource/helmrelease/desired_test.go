@@ -151,6 +151,9 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					Install: &helmv2.Install{
 						DisableOpenAPIValidation: true,
 						CreateNamespace:          true,
+						Remediation: &helmv2.InstallRemediation{
+							Retries: 3,
+						},
 					},
 					Upgrade: &helmv2.Upgrade{
 						Remediation: &helmv2.UpgradeRemediation{
@@ -349,6 +352,9 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					Install: &helmv2.Install{
 						DisableOpenAPIValidation: true,
 						CreateNamespace:          true,
+						Remediation: &helmv2.InstallRemediation{
+							Retries: 3,
+						},
 					},
 					Upgrade: &helmv2.Upgrade{
 						Remediation: &helmv2.UpgradeRemediation{
@@ -457,6 +463,9 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					Install: &helmv2.Install{
 						DisableOpenAPIValidation: true,
 						CreateNamespace:          true,
+						Remediation: &helmv2.InstallRemediation{
+							Retries: 3,
+						},
 					},
 					Upgrade: &helmv2.Upgrade{
 						Remediation: &helmv2.UpgradeRemediation{
@@ -561,7 +570,10 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					Install: &helmv2.Install{
 						CreateNamespace:          true,
 						DisableOpenAPIValidation: true,
-						Timeout:                  &metav1.Duration{Duration: 6 * time.Minute},
+						Remediation: &helmv2.InstallRemediation{
+							Retries: 3,
+						},
+						Timeout: &metav1.Duration{Duration: 6 * time.Minute},
 					},
 					Upgrade: &helmv2.Upgrade{
 						Timeout: &metav1.Duration{Duration: 9 * time.Minute},
@@ -702,6 +714,9 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					Install: &helmv2.Install{
 						CreateNamespace:          true,
 						DisableOpenAPIValidation: true,
+						Remediation: &helmv2.InstallRemediation{
+							Retries: 3,
+						},
 					},
 					Upgrade: &helmv2.Upgrade{
 						Remediation: &helmv2.UpgradeRemediation{
@@ -1069,6 +1084,9 @@ func Test_Resource_Bulid_TarballURL(t *testing.T) {
 					Install: &helmv2.Install{
 						CreateNamespace:          true,
 						DisableOpenAPIValidation: true,
+						Remediation: &helmv2.InstallRemediation{
+							Retries: 3,
+						},
 					},
 					Rollback:         &helmv2.Rollback{},
 					StorageNamespace: "monitoring",
@@ -1126,6 +1144,9 @@ func Test_Resource_Bulid_TarballURL(t *testing.T) {
 					Install: &helmv2.Install{
 						CreateNamespace:          true,
 						DisableOpenAPIValidation: true,
+						Remediation: &helmv2.InstallRemediation{
+							Retries: 3,
+						},
 					},
 					Rollback:         &helmv2.Rollback{},
 					StorageNamespace: "monitoring",
@@ -1177,6 +1198,9 @@ func Test_Resource_Bulid_TarballURL(t *testing.T) {
 					Install: &helmv2.Install{
 						CreateNamespace:          true,
 						DisableOpenAPIValidation: true,
+						Remediation: &helmv2.InstallRemediation{
+							Retries: 3,
+						},
 					},
 					Rollback:         &helmv2.Rollback{},
 					StorageNamespace: "monitoring",
@@ -1234,6 +1258,9 @@ func Test_Resource_Bulid_TarballURL(t *testing.T) {
 					Install: &helmv2.Install{
 						CreateNamespace:          true,
 						DisableOpenAPIValidation: true,
+						Remediation: &helmv2.InstallRemediation{
+							Retries: 3,
+						},
 					},
 					Rollback:         &helmv2.Rollback{},
 					StorageNamespace: "monitoring",
@@ -1304,6 +1331,9 @@ func Test_Resource_Bulid_TarballURL(t *testing.T) {
 					Install: &helmv2.Install{
 						CreateNamespace:          true,
 						DisableOpenAPIValidation: true,
+						Remediation: &helmv2.InstallRemediation{
+							Retries: 3,
+						},
 					},
 					Rollback:         &helmv2.Rollback{},
 					StorageNamespace: "monitoring",
@@ -1365,6 +1395,9 @@ func Test_Resource_Bulid_TarballURL(t *testing.T) {
 					Install: &helmv2.Install{
 						CreateNamespace:          true,
 						DisableOpenAPIValidation: true,
+						Remediation: &helmv2.InstallRemediation{
+							Retries: 3,
+						},
 					},
 					Rollback:         &helmv2.Rollback{},
 					StorageNamespace: "monitoring",
