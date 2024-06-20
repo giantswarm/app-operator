@@ -44,6 +44,10 @@ const (
 	// HelmRelease CR is known to be progressing without any further information.
 	PendingStatus = "pending"
 
+	// PendingStatusReason is reason we set on App CR status whenever we set the
+	// PendingStatus status
+	PendingStatusReason = "Reconciliation in progress"
+
 	// ReleaseNotInstalledStatus is set in the CR status when there is no Helm
 	// Release to check.
 	ReleaseNotInstalledStatus = "not-installed"

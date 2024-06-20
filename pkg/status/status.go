@@ -126,7 +126,7 @@ func GetDesiredStatus(hrStatus helmv2.HelmReleaseStatus, hcStatus sourcev1.HelmC
 				AppVersion: hrStatus.LastAppliedRevision,
 				Release: v1alpha1.AppStatusRelease{
 					LastDeployed: condition.LastTransitionTime,
-					Reason:       condition.Message,
+					Reason:       PendingStatusReason,
 					Status:       PendingStatus,
 				},
 				Version: hrStatus.LastAppliedRevision,

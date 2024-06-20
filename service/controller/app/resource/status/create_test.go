@@ -605,7 +605,7 @@ func Test_EnsureCreated_HelmRelease(t *testing.T) {
 			expectedStatus: v1alpha1.AppStatus{
 				AppVersion: "1.0.0",
 				Release: v1alpha1.AppStatusRelease{
-					Reason: "HelmChart 'org-test/org-test-hello-world' is not ready",
+					Reason: "Reconciliation in progress",
 					Status: status.PendingStatus,
 				},
 				Version: "1.0.0",
