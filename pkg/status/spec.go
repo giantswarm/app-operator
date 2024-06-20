@@ -90,19 +90,6 @@ var (
 	}
 
 	readyReasonMapping = map[string]string{
-		// The ArtifactFailedReason does not provide any granularity unfortunately.
-		// It just informs of problem with the artifact, but does not say anything
-		// about its nature, hence we can't infer from it wheather it is a pulling
-		// problem, missing version, missing chart, or something else.
-		// Fortunately, the "helmrelease" resource of App Operator supports the
-		// feature of fallback repositories the same way the "chart" resource does it,
-		// what means it checks for availability of Helm Chart in repository and hence
-		// recognizes some of the possible problems. Hence we should not have many hits
-		// for this reason here, if any. In case we get to this point, I believe we can
-		// rely on the "chart-pull-failed" which according to its description, and
-		// Chart Operator's code, has previously been used as a general indicator of
-		// artifact-related problem, hence it may be continue to be used as such.
-		helmv2.ArtifactFailedReason:       ChartPullFailedStatus,
 		helmv2.InitFailedReason:           helmclient.StatusFailed,
 		helmv2.GetLastReleaseFailedReason: helmclient.StatusFailed,
 

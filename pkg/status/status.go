@@ -3,6 +3,7 @@ package status
 import (
 	helmv2 "github.com/fluxcd/helm-controller/api/v2beta1"
 	fluxmeta "github.com/fluxcd/pkg/apis/meta"
+	sourcev1 "github.com/fluxcd/source-controller/api/v1beta2"
 	"github.com/giantswarm/apiextensions-application/api/v1alpha1"
 	"github.com/giantswarm/helmclient/v4/pkg/helmclient"
 	apimeta "k8s.io/apimachinery/pkg/api/meta"
@@ -14,10 +15,10 @@ import (
 // for this first. We then try to map it into known App Platform statuses.
 // If no `Released` condition is found, we then look for `Ready` condition,
 // for it informs of general problems encountered on reconciliation.
-func GetDesiredStatus(status helmv2.HelmReleaseStatus) v1alpha1.AppStatus {
+func GetDesiredStatus(hrStatus helmv2.HelmReleaseStatus, hcStatus sourcev1.HelmChartStatus) v1alpha1.AppStatus {
 	// We are primarily interested in the Helm release status, not the HelmRelease CR status
 	// that only represents the former, therefore we first look for the "Released" condition type.
-	condition := apimeta.FindStatusCondition(status.Conditions, helmv2.ReleasedCondition)
+	condition := apimeta.FindStatusCondition(hrStatus.Conditions, helmv2.ReleasedCondition)
 
 	if condition != nil {
 		// We start with successful reasons for these indicate desired state we want
@@ -26,13 +27,13 @@ func GetDesiredStatus(status helmv2.HelmReleaseStatus) v1alpha1.AppStatus {
 		s, ok := releasedReasonSuccessMapping[condition.Reason]
 		if ok {
 			return v1alpha1.AppStatus{
-				AppVersion: status.LastAppliedRevision,
+				AppVersion: hrStatus.LastAppliedRevision,
 				Release: v1alpha1.AppStatusRelease{
 					LastDeployed: condition.LastTransitionTime,
 					Reason:       condition.Message,
 					Status:       s,
 				},
-				Version: status.LastAppliedRevision,
+				Version: hrStatus.LastAppliedRevision,
 			}
 		}
 
@@ -43,25 +44,25 @@ func GetDesiredStatus(status helmv2.HelmReleaseStatus) v1alpha1.AppStatus {
 			s = lookForKnownStatus(s, condition.Message)
 
 			return v1alpha1.AppStatus{
-				AppVersion: status.LastAppliedRevision,
+				AppVersion: hrStatus.LastAppliedRevision,
 				Release: v1alpha1.AppStatusRelease{
 					LastDeployed: condition.LastTransitionTime,
 					Reason:       condition.Message,
 					Status:       s,
 				},
-				Version: status.LastAppliedRevision,
+				Version: hrStatus.LastAppliedRevision,
 			}
 		}
 
 		// Otherwise, if no mapping is found, we return an unknown status.
 		return v1alpha1.AppStatus{
-			AppVersion: status.LastAppliedRevision,
+			AppVersion: hrStatus.LastAppliedRevision,
 			Release: v1alpha1.AppStatusRelease{
 				LastDeployed: condition.LastTransitionTime,
 				Reason:       condition.Message,
 				Status:       helmclient.StatusUnknown,
 			},
-			Version: status.LastAppliedRevision,
+			Version: hrStatus.LastAppliedRevision,
 		}
 	}
 
@@ -70,30 +71,76 @@ func GetDesiredStatus(status helmv2.HelmReleaseStatus) v1alpha1.AppStatus {
 	// we try to use to infer information from. This condition does not necessarily tell us
 	// the Helm release status, but can tell us what got in the way of successfully reconciling
 	// HelmRelease CR.
-	condition = apimeta.FindStatusCondition(status.Conditions, fluxmeta.ReadyCondition)
+	condition = apimeta.FindStatusCondition(hrStatus.Conditions, fluxmeta.ReadyCondition)
 	if condition != nil {
 		// We again try to map this condition reason to a known types to App Platform.
 		s, ok := readyReasonMapping[condition.Reason]
 		if ok {
 			return v1alpha1.AppStatus{
-				AppVersion: status.LastAppliedRevision,
+				AppVersion: hrStatus.LastAppliedRevision,
 				Release: v1alpha1.AppStatusRelease{
 					LastDeployed: condition.LastTransitionTime,
 					Reason:       condition.Message,
 					Status:       s,
 				},
-				Version: status.LastAppliedRevision,
+				Version: hrStatus.LastAppliedRevision,
+			}
+		}
+
+		// The ArtifactFailedReason does not provide any granularity unfortunately.
+		// In general it informs of problem with the artifact, but does not say anything
+		// about its nature, hence we can't infer from it wheather it is a pulling
+		// problem, missing version, missing chart, or something else. Worse so, it also
+		// plays a role of transient state used by Helm Controller whenever it sees artifact
+		// is not ready what has nothing to do with any probmes, but with the fact HelmChart
+		// CR is being reconciled.
+		// Because of that, this reason is not really good for us and breaks the repository
+		// failover mechanism, by tricking App Operator falsely switch repositories sometimes.
+		// Hence this reason needs special attention.
+		if condition.Reason == helmv2.ArtifactFailedReason {
+			if apimeta.IsStatusConditionTrue(hcStatus.Conditions, sourcev1.FetchFailedCondition) {
+				return v1alpha1.AppStatus{
+					AppVersion: hrStatus.LastAppliedRevision,
+					Release: v1alpha1.AppStatusRelease{
+						LastDeployed: condition.LastTransitionTime,
+						Reason:       condition.Message,
+						Status:       ChartPullFailedStatus,
+					},
+					Version: hrStatus.LastAppliedRevision,
+				}
+			}
+
+			if apimeta.IsStatusConditionTrue(hcStatus.Conditions, sourcev1.StorageOperationFailedCondition) {
+				return v1alpha1.AppStatus{
+					AppVersion: hrStatus.LastAppliedRevision,
+					Release: v1alpha1.AppStatusRelease{
+						LastDeployed: condition.LastTransitionTime,
+						Reason:       condition.Message,
+						Status:       ChartPullFailedStatus,
+					},
+					Version: hrStatus.LastAppliedRevision,
+				}
+			}
+
+			return v1alpha1.AppStatus{
+				AppVersion: hrStatus.LastAppliedRevision,
+				Release: v1alpha1.AppStatusRelease{
+					LastDeployed: condition.LastTransitionTime,
+					Reason:       condition.Message,
+					Status:       PendingStatus,
+				},
+				Version: hrStatus.LastAppliedRevision,
 			}
 		}
 
 		return v1alpha1.AppStatus{
-			AppVersion: status.LastAppliedRevision,
+			AppVersion: hrStatus.LastAppliedRevision,
 			Release: v1alpha1.AppStatusRelease{
 				LastDeployed: condition.LastTransitionTime,
 				Reason:       condition.Message,
 				Status:       helmclient.StatusUnknown,
 			},
-			Version: status.LastAppliedRevision,
+			Version: hrStatus.LastAppliedRevision,
 		}
 	}
 

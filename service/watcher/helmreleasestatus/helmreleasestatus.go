@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	helmv2 "github.com/fluxcd/helm-controller/api/v2beta1"
+	sourcev1 "github.com/fluxcd/source-controller/api/v1beta2"
 	"github.com/giantswarm/apiextensions-application/api/v1alpha1"
 	"github.com/giantswarm/app/v7/pkg/key"
 	"github.com/giantswarm/k8sclient/v7/pkg/k8sclient"
@@ -12,6 +13,7 @@ import (
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/google/go-cmp/cmp"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -172,6 +174,22 @@ func (c *HelmReleaseStatusWatcher) doWatchStatus(ctx context.Context, client dyn
 			continue
 		}
 
+		helmChartName := helmRelease.GetHelmChartName()
+		helmChartNamespace := helmRelease.Spec.Chart.GetNamespace(helmRelease.Namespace)
+		var helmChart sourcev1.HelmChart
+		err = c.k8sClient.CtrlClient().Get(
+			ctx,
+			types.NamespacedName{
+				Name:      helmChartName,
+				Namespace: helmChartNamespace,
+			},
+			&helmChart,
+		)
+		if err != nil && !apierrors.IsNotFound(err) {
+			c.logger.Errorf(ctx, err, "failed to get HelmChart CR status '%s/%s'", helmChartNamespace, helmChartName)
+			continue
+		}
+
 		// The HelmRelease CR is named after the App CR and placed in the same namespace,
 		// hence its metadata can be used to locate the latter.
 		app := v1alpha1.App{}
@@ -185,7 +203,7 @@ func (c *HelmReleaseStatusWatcher) doWatchStatus(ctx context.Context, client dyn
 
 		// We get desired status the same way we get it in the `status` resource,
 		// and then we compare it with the current status.
-		desiredStatus := status.GetDesiredStatus(helmRelease.Status)
+		desiredStatus := status.GetDesiredStatus(helmRelease.Status, helmChart.Status)
 		currentStatus := key.AppStatus(app)
 
 		if !equals(currentStatus, desiredStatus) {

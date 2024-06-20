@@ -10,6 +10,7 @@ import (
 	backoff "github.com/cenkalti/backoff/v4"
 	helmv2 "github.com/fluxcd/helm-controller/api/v2beta1"
 	fluxmeta "github.com/fluxcd/pkg/apis/meta"
+	sourcev1 "github.com/fluxcd/source-controller/api/v1beta2"
 	"github.com/giantswarm/apiextensions-application/api/v1alpha1"
 	"github.com/giantswarm/helmclient/v4/pkg/helmclient"
 	"github.com/giantswarm/k8sclient/v7/pkg/k8sclienttest"
@@ -106,6 +107,7 @@ func Test_doWatchStatus_CAPI(t *testing.T) {
 			scheme := runtime.NewScheme()
 			_ = v1alpha1.AddToScheme(scheme)
 			_ = helmv2.AddToScheme(scheme)
+			_ = sourcev1.AddToScheme(scheme)
 
 			ctrlClient := clientfake.NewClientBuilder().
 				WithScheme(scheme).

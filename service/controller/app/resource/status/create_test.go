@@ -8,6 +8,7 @@ import (
 
 	helmv2 "github.com/fluxcd/helm-controller/api/v2beta1"
 	fluxmeta "github.com/fluxcd/pkg/apis/meta"
+	sourcev1 "github.com/fluxcd/source-controller/api/v1beta2"
 	"github.com/giantswarm/apiextensions-application/api/v1alpha1"
 	"github.com/giantswarm/app/v7/pkg/key"
 	"github.com/giantswarm/helmclient/v4/pkg/helmclient"
@@ -321,6 +322,7 @@ func Test_EnsureCreated_HelmRelease(t *testing.T) {
 	tests := []struct {
 		app            *v1alpha1.App
 		expectedStatus v1alpha1.AppStatus
+		helmChart      *sourcev1.HelmChart
 		helmRelease    *helmv2.HelmRelease
 		name           string
 	}{
@@ -458,10 +460,36 @@ func Test_EnsureCreated_HelmRelease(t *testing.T) {
 				},
 				Version: "1.0.0",
 			},
+			helmChart: &sourcev1.HelmChart{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "org-test-hello-world",
+					Namespace: "default",
+				},
+				Status: sourcev1.HelmChartStatus{
+					Conditions: []metav1.Condition{
+						metav1.Condition{
+							Type:    sourcev1.StorageOperationFailedCondition,
+							Status:  metav1.ConditionTrue,
+							Message: "unable to copy Helm chart to storage",
+							Reason:  sourcev1.ArchiveOperationFailedReason,
+						},
+					},
+				},
+			},
 			helmRelease: &helmv2.HelmRelease{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "hello-world",
 					Namespace: "org-test",
+				},
+				Spec: helmv2.HelmReleaseSpec{
+					Chart: helmv2.HelmChartTemplate{
+						Spec: helmv2.HelmChartTemplateSpec{
+							SourceRef: helmv2.CrossNamespaceObjectReference{
+								Kind:      "HelmRepository",
+								Namespace: "default",
+							},
+						},
+					},
 				},
 				Status: helmv2.HelmReleaseStatus{
 					LastAppliedRevision: "1.0.0",
@@ -474,7 +502,157 @@ func Test_EnsureCreated_HelmRelease(t *testing.T) {
 					},
 				},
 			},
-			name: "Released condition missing, artifact failure",
+			name: "Released condition missing, artifact creation failure",
+		},
+		{
+			app: &v1alpha1.App{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "hello-world",
+					Namespace: "org-test",
+					Labels: map[string]string{
+						"app":                                "hello-world",
+						"app-operator.giantswarm.io/version": "7.0.0",
+					},
+				},
+				Spec: v1alpha1.AppSpec{
+					Catalog:   "giantswarm",
+					Name:      "hello-world-app",
+					Namespace: "default",
+					Version:   "1.0.0",
+					KubeConfig: v1alpha1.AppSpecKubeConfig{
+						Secret: v1alpha1.AppSpecKubeConfigSecret{
+							Name:      "12345-kubeconfig",
+							Namespace: "org-test",
+						},
+					},
+				},
+			},
+			expectedStatus: v1alpha1.AppStatus{
+				AppVersion: "1.0.0",
+				Release: v1alpha1.AppStatusRelease{
+					Reason: "HelmChart 'org-test/org-test-hello-world' is not ready",
+					Status: status.ChartPullFailedStatus,
+				},
+				Version: "1.0.0",
+			},
+			helmChart: &sourcev1.HelmChart{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "org-test-hello-world",
+					Namespace: "default",
+				},
+				Status: sourcev1.HelmChartStatus{
+					Conditions: []metav1.Condition{
+						metav1.Condition{
+							Type:    sourcev1.FetchFailedCondition,
+							Status:  metav1.ConditionTrue,
+							Message: "failed to get source",
+							Reason:  "SourceUnavailable",
+						},
+					},
+				},
+			},
+			helmRelease: &helmv2.HelmRelease{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "hello-world",
+					Namespace: "org-test",
+				},
+				Spec: helmv2.HelmReleaseSpec{
+					Chart: helmv2.HelmChartTemplate{
+						Spec: helmv2.HelmChartTemplateSpec{
+							SourceRef: helmv2.CrossNamespaceObjectReference{
+								Kind:      "HelmRepository",
+								Namespace: "default",
+							},
+						},
+					},
+				},
+				Status: helmv2.HelmReleaseStatus{
+					LastAppliedRevision: "1.0.0",
+					Conditions: []metav1.Condition{
+						metav1.Condition{
+							Type:    fluxmeta.ReadyCondition,
+							Message: "HelmChart 'org-test/org-test-hello-world' is not ready",
+							Reason:  helmv2.ArtifactFailedReason,
+						},
+					},
+				},
+			},
+			name: "Released condition missing, artifact fetching failure",
+		},
+		{
+			app: &v1alpha1.App{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "hello-world",
+					Namespace: "org-test",
+					Labels: map[string]string{
+						"app":                                "hello-world",
+						"app-operator.giantswarm.io/version": "7.0.0",
+					},
+				},
+				Spec: v1alpha1.AppSpec{
+					Catalog:   "giantswarm",
+					Name:      "hello-world-app",
+					Namespace: "default",
+					Version:   "1.0.0",
+					KubeConfig: v1alpha1.AppSpecKubeConfig{
+						Secret: v1alpha1.AppSpecKubeConfigSecret{
+							Name:      "12345-kubeconfig",
+							Namespace: "org-test",
+						},
+					},
+				},
+			},
+			expectedStatus: v1alpha1.AppStatus{
+				AppVersion: "1.0.0",
+				Release: v1alpha1.AppStatusRelease{
+					Reason: "HelmChart 'org-test/org-test-hello-world' is not ready",
+					Status: status.PendingStatus,
+				},
+				Version: "1.0.0",
+			},
+			helmChart: &sourcev1.HelmChart{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "org-test-hello-world",
+					Namespace: "default",
+				},
+				Status: sourcev1.HelmChartStatus{
+					Conditions: []metav1.Condition{
+						metav1.Condition{
+							Type:    fluxmeta.ReadyCondition,
+							Status:  metav1.ConditionFalse,
+							Message: "Reconciliation is in progress",
+							Reason:  "ReconciliationInProgress",
+						},
+					},
+				},
+			},
+			helmRelease: &helmv2.HelmRelease{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "hello-world",
+					Namespace: "org-test",
+				},
+				Spec: helmv2.HelmReleaseSpec{
+					Chart: helmv2.HelmChartTemplate{
+						Spec: helmv2.HelmChartTemplateSpec{
+							SourceRef: helmv2.CrossNamespaceObjectReference{
+								Kind:      "HelmRepository",
+								Namespace: "default",
+							},
+						},
+					},
+				},
+				Status: helmv2.HelmReleaseStatus{
+					LastAppliedRevision: "1.0.0",
+					Conditions: []metav1.Condition{
+						metav1.Condition{
+							Type:    fluxmeta.ReadyCondition,
+							Message: "HelmChart 'org-test/org-test-hello-world' is not ready",
+							Reason:  helmv2.ArtifactFailedReason,
+						},
+					},
+				},
+			},
+			name: "Released condition missing, artifact under construction",
 		},
 		{
 			app: &v1alpha1.App{
@@ -959,9 +1137,14 @@ func Test_EnsureCreated_HelmRelease(t *testing.T) {
 				mcObjs = append(mcObjs, tc.helmRelease)
 			}
 
+			if tc.helmChart != nil {
+				mcObjs = append(mcObjs, tc.helmChart)
+			}
+
 			scheme := runtime.NewScheme()
 			_ = v1alpha1.AddToScheme(scheme)
 			_ = helmv2.AddToScheme(scheme)
+			_ = sourcev1.AddToScheme(scheme)
 
 			resourceClient := fake.NewClientBuilder().
 				WithScheme(scheme).

@@ -4,6 +4,7 @@ import (
 	"context"
 
 	helmv2 "github.com/fluxcd/helm-controller/api/v2beta1"
+	sourcev1 "github.com/fluxcd/source-controller/api/v1beta2"
 	"github.com/giantswarm/apiextensions-application/api/v1alpha1"
 	"github.com/giantswarm/app/v7/pkg/key"
 	"github.com/giantswarm/errors/tenant"
@@ -159,7 +160,27 @@ func (r *Resource) ensureCreatedHelmRelease(ctx context.Context, cc *controllerc
 
 		r.logger.Debugf(ctx, "found status for HelmRelease CR %#q in namespace %#q", cr.Name, cr.Namespace)
 
-		desiredStatus = status.GetDesiredStatus(helmRelease.Status)
+		helmChartName := helmRelease.GetHelmChartName()
+		helmChartNamespace := helmRelease.Spec.Chart.GetNamespace(helmRelease.Namespace)
+
+		r.logger.Debugf(ctx, "finding status for HelmChart CR %#q in namespace %#q", helmChartName, helmChartNamespace)
+
+		var helmChart sourcev1.HelmChart
+		err = cc.Clients.K8s.CtrlClient().Get(
+			ctx,
+			types.NamespacedName{
+				Name:      helmChartName,
+				Namespace: helmChartNamespace,
+			},
+			&helmChart,
+		)
+		if err != nil && !apierrors.IsNotFound(err) {
+			return microerror.Mask(err)
+		}
+
+		r.logger.Debugf(ctx, "found status for HelmChart CR %#q in namespace %#q", helmChartName, helmChartNamespace)
+
+		desiredStatus = status.GetDesiredStatus(helmRelease.Status, helmChart.Status)
 	}
 
 	if !equals(desiredStatus, key.AppStatus(cr)) {
