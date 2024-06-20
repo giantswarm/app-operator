@@ -9,6 +9,7 @@ import (
 
 	helmv2 "github.com/fluxcd/helm-controller/api/v2beta1"
 	fluxmeta "github.com/fluxcd/pkg/apis/meta"
+	sourcev1 "github.com/fluxcd/source-controller/api/v1beta2"
 	"github.com/giantswarm/apiextensions-application/api/v1alpha1"
 	"github.com/giantswarm/k8sclient/v7/pkg/k8sclienttest"
 	"github.com/giantswarm/k8smetadata/pkg/annotation"
@@ -1038,13 +1039,14 @@ func Test_Resource_Bulid_TarballURL(t *testing.T) {
 		obj                 *v1alpha1.App
 		catalog             v1alpha1.Catalog
 		indices             map[string]indexcachetest.Config
+		existingHelmChart   *sourcev1.HelmChart
 		existingHelmRelease *helmv2.HelmRelease
 		expectedHelmRelease *helmv2.HelmRelease
 		errorPattern        *regexp.Regexp
 		error               bool
 	}{
 		{
-			name:    "case 0: [internal] chart does not exist yet, pick first repository",
+			name:    "case 0: HelmRelease CR does not exist yet, pick first repository",
 			obj:     app,
 			catalog: internalCatalog,
 			indices: map[string]indexcachetest.Config{},
@@ -1104,7 +1106,7 @@ func Test_Resource_Bulid_TarballURL(t *testing.T) {
 			},
 		},
 		{
-			name:    "case 1: [internal] chart exists with unknown repository, pick first",
+			name:    "case 1: HelmRelease CR exists with unknown repository, pick first",
 			obj:     app,
 			catalog: internalCatalog,
 			indices: map[string]indexcachetest.Config{},
@@ -1218,10 +1220,26 @@ func Test_Resource_Bulid_TarballURL(t *testing.T) {
 			},
 		},
 		{
-			name:    "case 2: [internal] chart exists with a known repository but chart pull failed, pick next",
+			name:    "case 2: HelmRelease CR and HelmChart CR both report tarball problems, use next in line repository",
 			obj:     app,
 			catalog: internalCatalog,
 			indices: map[string]indexcachetest.Config{},
+			existingHelmChart: &sourcev1.HelmChart{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "default-my-cool-prometheus",
+					Namespace: "default",
+				},
+				Status: sourcev1.HelmChartStatus{
+					Conditions: []metav1.Condition{
+						metav1.Condition{
+							Type:    sourcev1.StorageOperationFailedCondition,
+							Status:  metav1.ConditionTrue,
+							Message: "unable to copy Helm chart to storage",
+							Reason:  sourcev1.ArchiveOperationFailedReason,
+						},
+					},
+				},
+			},
 			existingHelmRelease: &helmv2.HelmRelease{
 				TypeMeta: metav1.TypeMeta{
 					Kind:       helmv2.HelmReleaseKind,
@@ -1351,7 +1369,149 @@ func Test_Resource_Bulid_TarballURL(t *testing.T) {
 			},
 		},
 		{
-			name:    "case 3: [external] walk through fallback repositories until one works",
+			name:    "case 3: HelmRelease CR reports tarball problems, but HelmChart CR doesn't, re-use old repository",
+			obj:     app,
+			catalog: internalCatalog,
+			indices: map[string]indexcachetest.Config{},
+			existingHelmChart: &sourcev1.HelmChart{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "default-my-cool-prometheus",
+					Namespace: "default",
+				},
+				Status: sourcev1.HelmChartStatus{
+					Conditions: []metav1.Condition{},
+				},
+			},
+			existingHelmRelease: &helmv2.HelmRelease{
+				TypeMeta: metav1.TypeMeta{
+					Kind:       helmv2.HelmReleaseKind,
+					APIVersion: helmv2.GroupVersion.Group,
+				},
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "my-cool-prometheus",
+					Namespace: "default",
+					Labels: map[string]string{
+						"app":                                "prometheus",
+						"app-operator.giantswarm.io/version": "1.0.0",
+						"giantswarm.io/managed-by":           "app-operator",
+					},
+				},
+				Spec: helmv2.HelmReleaseSpec{
+					Chart: helmv2.HelmChartTemplate{
+						Spec: helmv2.HelmChartTemplateSpec{
+							Chart:             "prometheus",
+							ReconcileStrategy: "ChartVersion",
+							Version:           "1.0.0",
+							SourceRef: helmv2.CrossNamespaceObjectReference{
+								Kind:      "HelmRepository",
+								Name:      "giantswarm-helm-giantswarm.github.io-app-catalog",
+								Namespace: "default",
+							},
+						},
+					},
+					Interval: metav1.Duration{Duration: 10 * time.Minute},
+					KubeConfig: &fluxmeta.KubeConfigReference{
+						SecretRef: fluxmeta.SecretKeyReference{
+							Name: "giantswarm-12345",
+						},
+					},
+					Install: &helmv2.Install{
+						CreateNamespace:          true,
+						DisableOpenAPIValidation: true,
+						Remediation: &helmv2.InstallRemediation{
+							Retries: 3,
+						},
+					},
+					Rollback:         &helmv2.Rollback{},
+					StorageNamespace: "monitoring",
+					TargetNamespace:  "monitoring",
+					Uninstall: &helmv2.Uninstall{
+						DeletionPropagation: ptr.To("background"),
+					},
+					Upgrade: &helmv2.Upgrade{
+						Remediation: &helmv2.UpgradeRemediation{
+							Retries: 3,
+						},
+					},
+					ReleaseName: "my-cool-prometheus",
+				},
+				Status: helmv2.HelmReleaseStatus{
+					Conditions: []metav1.Condition{
+						metav1.Condition{
+							Reason:             helmv2.UpgradeSucceededReason,
+							LastTransitionTime: metav1.NewTime(now.Add(-12 * time.Minute)),
+							Type:               helmv2.ReleasedCondition,
+						},
+						metav1.Condition{
+							Reason:             helmv2.ArtifactFailedReason,
+							LastTransitionTime: metav1.NewTime(now.Add(-10 * time.Minute)),
+							Type:               fluxmeta.ReadyCondition,
+						},
+						metav1.Condition{
+							Reason:             helmv2.InstallSucceededReason,
+							LastTransitionTime: metav1.NewTime(now.Add(-15 * time.Minute)),
+							Type:               helmv2.ReleasedCondition,
+						},
+					},
+				},
+			},
+			expectedHelmRelease: &helmv2.HelmRelease{
+				TypeMeta: metav1.TypeMeta{
+					Kind:       helmv2.HelmReleaseKind,
+					APIVersion: helmv2.GroupVersion.Group,
+				},
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "my-cool-prometheus",
+					Namespace: "default",
+					Labels: map[string]string{
+						"app":                                "prometheus",
+						"app-operator.giantswarm.io/version": "1.0.0",
+						"giantswarm.io/managed-by":           "app-operator",
+					},
+				},
+				Spec: helmv2.HelmReleaseSpec{
+					Chart: helmv2.HelmChartTemplate{
+						Spec: helmv2.HelmChartTemplateSpec{
+							Chart:             "prometheus",
+							ReconcileStrategy: "ChartVersion",
+							Version:           "1.0.0",
+							SourceRef: helmv2.CrossNamespaceObjectReference{
+								Kind:      "HelmRepository",
+								Name:      "giantswarm-helm-giantswarm.github.io-app-catalog",
+								Namespace: "default",
+							},
+						},
+					},
+					Interval: metav1.Duration{Duration: 10 * time.Minute},
+					KubeConfig: &fluxmeta.KubeConfigReference{
+						SecretRef: fluxmeta.SecretKeyReference{
+							Name: "giantswarm-12345",
+						},
+					},
+					Install: &helmv2.Install{
+						CreateNamespace:          true,
+						DisableOpenAPIValidation: true,
+						Remediation: &helmv2.InstallRemediation{
+							Retries: 3,
+						},
+					},
+					Rollback:         &helmv2.Rollback{},
+					StorageNamespace: "monitoring",
+					TargetNamespace:  "monitoring",
+					Uninstall: &helmv2.Uninstall{
+						DeletionPropagation: ptr.To("background"),
+					},
+					Upgrade: &helmv2.Upgrade{
+						Remediation: &helmv2.UpgradeRemediation{
+							Retries: 3,
+						},
+					},
+					ReleaseName: "my-cool-prometheus",
+				},
+			},
+		},
+		{
+			name:    "case 4: Walk through fallback repositories until one works",
 			obj:     app,
 			catalog: externalCatalog,
 			indices: map[string]indexcachetest.Config{
@@ -1423,8 +1583,13 @@ func Test_Resource_Bulid_TarballURL(t *testing.T) {
 				objs = append(objs, tc.existingHelmRelease)
 			}
 
+			if tc.existingHelmChart != nil {
+				objs = append(objs, tc.existingHelmChart)
+			}
+
 			s := runtime.NewScheme()
 			_ = helmv2.AddToScheme(s)
+			_ = sourcev1.AddToScheme(s)
 
 			c := Config{
 				IndexCache: indexcachetest.NewMap(tc.indices),
@@ -1466,21 +1631,21 @@ func Test_Resource_Bulid_TarballURL(t *testing.T) {
 			}
 
 			if err == nil && !tc.error {
-				chart, err := toHelmRelease(result)
+				hr, err := toHelmRelease(result)
 				if err != nil {
 					t.Fatalf("error == %#v, want nil", err)
 				}
 
-				if !reflect.DeepEqual(chart.ObjectMeta, tc.expectedHelmRelease.ObjectMeta) {
-					t.Fatalf("want matching objectmeta \n %s", cmp.Diff(chart.ObjectMeta, tc.expectedHelmRelease.ObjectMeta))
+				if !reflect.DeepEqual(hr.ObjectMeta, tc.expectedHelmRelease.ObjectMeta) {
+					t.Fatalf("want matching objectmeta \n %s", cmp.Diff(hr.ObjectMeta, tc.expectedHelmRelease.ObjectMeta))
 				}
 
-				if !reflect.DeepEqual(chart.Spec, tc.expectedHelmRelease.Spec) {
-					t.Fatalf("want matching spec \n %s", cmp.Diff(chart.Spec, tc.expectedHelmRelease.Spec))
+				if !reflect.DeepEqual(hr.Spec, tc.expectedHelmRelease.Spec) {
+					t.Fatalf("want matching spec \n %s", cmp.Diff(hr.Spec, tc.expectedHelmRelease.Spec))
 				}
 
-				if !reflect.DeepEqual(chart.TypeMeta, tc.expectedHelmRelease.TypeMeta) {
-					t.Fatalf("want matching typemeta \n %s", cmp.Diff(chart.TypeMeta, tc.expectedHelmRelease.TypeMeta))
+				if !reflect.DeepEqual(hr.TypeMeta, tc.expectedHelmRelease.TypeMeta) {
+					t.Fatalf("want matching typemeta \n %s", cmp.Diff(hr.TypeMeta, tc.expectedHelmRelease.TypeMeta))
 				}
 			}
 		})

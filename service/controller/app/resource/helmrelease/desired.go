@@ -10,6 +10,7 @@ import (
 
 	helmv2 "github.com/fluxcd/helm-controller/api/v2beta1"
 	fluxmeta "github.com/fluxcd/pkg/apis/meta"
+	sourcev1 "github.com/fluxcd/source-controller/api/v1beta2"
 	"github.com/giantswarm/apiextensions-application/api/v1alpha1"
 	"github.com/giantswarm/app/v7/pkg/key"
 	"github.com/giantswarm/appcatalog"
@@ -277,11 +278,11 @@ func (r *Resource) checkDependencies(ctx context.Context, app v1alpha1.App) ([]s
 //     does not match any of the Catalog repositories, use the first one from the
 //     Catalog's .spec.repositories list.
 //  6. If HelmRelease of given name and namespace is found, and HelmRepository referenced
-//     matches one of the Catalog's repositories, but artifact failure is reported, use
-//     next item from Catalog's repositories list.
+//     matches one of the Catalog's repositories, but artifact failure is reported
+//     by the corresponding HelmChart CR, use next item from Catalog's repositories list.
 //  7. If HelmRelease of given name and namespace is found, and HelmRepository referenced
-//     matches one of the Catalog's repositories, and no artifact failure is reported, re-use
-//     this repository.
+//     matches one of the Catalog's repositories, and no artifact failure is reported by
+//     HelmChart CR, re-use this repository.
 func (r *Resource) pickHelmRepository(ctx context.Context, cc *controllercontext.Context, cr v1alpha1.App) (helmRepository, error) {
 	switch len(cc.Catalog.Spec.Repositories) {
 	case 0:
@@ -329,10 +330,28 @@ func (r *Resource) pickHelmRepository(ctx context.Context, cc *controllercontext
 		return helmRepository{cc.Catalog.Spec.Repositories[0].Type, cc.Catalog.Spec.Repositories[0].URL}, nil
 	}
 
-	condition := apimeta.FindStatusCondition(helmRelease.Status.Conditions, fluxmeta.ReadyCondition)
-	if condition != nil && condition.Reason == helmv2.ArtifactFailedReason {
-		// ArtifactFailedReason condition has been observed as the latest condition on the
-		// HelmRelease CR indicating problems with the Helm Chart for an app.
+	var helmChart sourcev1.HelmChart
+
+	helmChartName := helmRelease.GetHelmChartName()
+	helmChartNamespace := helmRelease.Spec.Chart.GetNamespace(helmRelease.Namespace)
+
+	err = cc.Clients.K8s.CtrlClient().Get(
+		ctx,
+		types.NamespacedName{Name: helmChartName, Namespace: helmChartNamespace},
+		&helmChart,
+	)
+	if apierrors.IsNotFound(err) {
+		return helmRepository{cc.Catalog.Spec.Repositories[repositoryIndex].Type, cc.Catalog.Spec.Repositories[repositoryIndex].URL}, nil
+	} else if err != nil {
+		return helmRepository{}, microerror.Mask(err)
+	}
+
+	artifactFailure := apimeta.IsStatusConditionTrue(helmChart.Status.Conditions, sourcev1.FetchFailedCondition) ||
+		apimeta.IsStatusConditionTrue(helmChart.Status.Conditions, sourcev1.StorageOperationFailedCondition)
+
+	if artifactFailure {
+		// HelmChart failure condition has been observed as the latest condition on the
+		// HelmChart CR indicating problems with the Helm Chart for an app.
 		repositoryIndex = (repositoryIndex + 1) % len(cc.Catalog.Spec.Repositories)
 	}
 	return helmRepository{cc.Catalog.Spec.Repositories[repositoryIndex].Type, cc.Catalog.Spec.Repositories[repositoryIndex].URL}, nil
