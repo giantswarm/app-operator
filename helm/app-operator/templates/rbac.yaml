@@ -74,6 +74,13 @@ rules:
     - get
     - list
 - apiGroups:
+    - source.toolkit.fluxcd.io
+  resources:
+    - helmcharts
+  verbs:
+    - get
+    - list
+- apiGroups:
     - ""
   resources:
     - configmaps
