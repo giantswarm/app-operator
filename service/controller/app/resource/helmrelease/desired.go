@@ -256,7 +256,7 @@ func (r *Resource) checkDependencies(ctx context.Context, app v1alpha1.App) ([]s
 	}
 
 	if len(dependenciesNotInstalled) > 0 {
-		r.logger.Debugf(ctx, "Not creating chart for app %q: dependencies not satisfied %v", app.Name, dependenciesNotInstalled)
+		r.logger.Debugf(ctx, "Not creating HelmRelease CR for app %q: dependencies not satisfied %v", app.Name, dependenciesNotInstalled)
 		return dependenciesNotInstalled, nil
 	}
 

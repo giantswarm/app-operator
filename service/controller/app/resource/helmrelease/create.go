@@ -57,7 +57,7 @@ func (r *Resource) newCreateChange(ctx context.Context, currentResource, desired
 	// If current release is empty, we need to create it, hence we return
 	// desired release from this method.
 	if reflect.DeepEqual(currentHelmReleae, &helmv2.HelmRelease{}) {
-		r.logger.Debugf(ctx, "the %#q chart needs to be created", desiredHelmRelease.Name)
+		r.logger.Debugf(ctx, "the %#q HelmRelease CR needs to be created", desiredHelmRelease.Name)
 		createHelmRelease = desiredHelmRelease
 	}
 

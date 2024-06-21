@@ -20,7 +20,7 @@ const (
 	helmRepositoryKind = "HelmRepository"
 )
 
-// Config represents the configuration used to create a new chart resource.
+// Config represents the configuration used to create a new HelmRelease custom resource.
 type Config struct {
 	// Dependencies.
 	IndexCache indexcache.Interface
@@ -32,7 +32,7 @@ type Config struct {
 	DependencyWaitTimeoutMinutes int
 }
 
-// Resource implements the chart resource.
+// Resource implements the HelmRelease custom resource.
 type Resource struct {
 	// Dependencies.
 	indexCache indexcache.Interface
@@ -44,7 +44,7 @@ type Resource struct {
 	dependencyWaitTimeoutMinutes int
 }
 
-// New creates a new configured chart resource.
+// New creates a new configured HelmRelease custom resource.
 func New(config Config) (*Resource, error) {
 	if config.IndexCache == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.IndexCache$ must not be empty", config)
@@ -118,7 +118,7 @@ func (r *Resource) configurePause(current, desired *helmv2.HelmRelease) {
 	}
 }
 
-// copyHelmRelease creates a new chart object based on the current resource,
+// copyHelmRelease creates a new HelmRelease CR object based on the current resource,
 // so later we don't need to show unnecessary differences.
 func copyHelmRelease(current *helmv2.HelmRelease) *helmv2.HelmRelease {
 	newHelmRelease := &helmv2.HelmRelease{

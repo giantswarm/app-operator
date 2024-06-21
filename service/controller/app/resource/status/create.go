@@ -99,7 +99,7 @@ func (r *Resource) ensureCreatedChart(ctx context.Context, cc *controllercontext
 		}
 	}
 
-	if !equals(desiredStatus, key.AppStatus(cr)) {
+	if !equals(desiredStatus, key.AppStatus(cr), false) {
 		r.logger.Debugf(ctx, "setting status for app %#q in namespace %#q", cr.Name, cr.Namespace)
 
 		// Get app CR again to ensure the resource version is correct.
@@ -183,7 +183,7 @@ func (r *Resource) ensureCreatedHelmRelease(ctx context.Context, cc *controllerc
 		desiredStatus = status.GetDesiredStatus(helmRelease.Status, helmChart.Status)
 	}
 
-	if !equals(desiredStatus, key.AppStatus(cr)) {
+	if !equals(desiredStatus, key.AppStatus(cr), true) {
 		r.logger.Debugf(ctx, "setting status for app %#q in namespace %#q", cr.Name, cr.Namespace)
 
 		// Get app CR again to ensure the resource version is correct.
