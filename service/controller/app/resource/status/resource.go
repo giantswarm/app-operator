@@ -58,11 +58,11 @@ func (r Resource) Name() string {
 
 // equals asseses the equality of AppStatuses with regards to distinguishing
 // fields.
-func equals(a, b v1alpha1.AppStatus, skipDate bool) bool {
+func equals(a, b v1alpha1.AppStatus) bool {
 	if a.AppVersion != b.AppVersion {
 		return false
 	}
-	if !skipDate && a.Release.LastDeployed != b.Release.LastDeployed {
+	if a.Release.LastDeployed != b.Release.LastDeployed {
 		return false
 	}
 	if a.Release.Reason != b.Release.Reason {
