@@ -153,12 +153,12 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 						DisableOpenAPIValidation: true,
 						CreateNamespace:          true,
 						Remediation: &helmv2.InstallRemediation{
-							Retries: 3,
+							Retries: 10,
 						},
 					},
 					Upgrade: &helmv2.Upgrade{
 						Remediation: &helmv2.UpgradeRemediation{
-							Retries: 3,
+							Retries: 10,
 						},
 					},
 					Rollback: &helmv2.Rollback{},
@@ -354,12 +354,12 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 						DisableOpenAPIValidation: true,
 						CreateNamespace:          true,
 						Remediation: &helmv2.InstallRemediation{
-							Retries: 3,
+							Retries: 10,
 						},
 					},
 					Upgrade: &helmv2.Upgrade{
 						Remediation: &helmv2.UpgradeRemediation{
-							Retries: 3,
+							Retries: 10,
 						},
 					},
 					Rollback: &helmv2.Rollback{},
@@ -465,12 +465,12 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 						DisableOpenAPIValidation: true,
 						CreateNamespace:          true,
 						Remediation: &helmv2.InstallRemediation{
-							Retries: 3,
+							Retries: 10,
 						},
 					},
 					Upgrade: &helmv2.Upgrade{
 						Remediation: &helmv2.UpgradeRemediation{
-							Retries: 3,
+							Retries: 10,
 						},
 					},
 					Rollback: &helmv2.Rollback{},
@@ -572,14 +572,14 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 						CreateNamespace:          true,
 						DisableOpenAPIValidation: true,
 						Remediation: &helmv2.InstallRemediation{
-							Retries: 3,
+							Retries: 10,
 						},
 						Timeout: &metav1.Duration{Duration: 6 * time.Minute},
 					},
 					Upgrade: &helmv2.Upgrade{
 						Timeout: &metav1.Duration{Duration: 9 * time.Minute},
 						Remediation: &helmv2.UpgradeRemediation{
-							Retries: 3,
+							Retries: 10,
 						},
 					},
 					Rollback: &helmv2.Rollback{
@@ -716,12 +716,12 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 						CreateNamespace:          true,
 						DisableOpenAPIValidation: true,
 						Remediation: &helmv2.InstallRemediation{
-							Retries: 3,
+							Retries: 10,
 						},
 					},
 					Upgrade: &helmv2.Upgrade{
 						Remediation: &helmv2.UpgradeRemediation{
-							Retries: 3,
+							Retries: 10,
 						},
 					},
 					Rollback: &helmv2.Rollback{},
@@ -1087,7 +1087,7 @@ func Test_Resource_Bulid_TarballURL(t *testing.T) {
 						CreateNamespace:          true,
 						DisableOpenAPIValidation: true,
 						Remediation: &helmv2.InstallRemediation{
-							Retries: 3,
+							Retries: 10,
 						},
 					},
 					Rollback:         &helmv2.Rollback{},
@@ -1098,7 +1098,7 @@ func Test_Resource_Bulid_TarballURL(t *testing.T) {
 					},
 					Upgrade: &helmv2.Upgrade{
 						Remediation: &helmv2.UpgradeRemediation{
-							Retries: 3,
+							Retries: 10,
 						},
 					},
 					ReleaseName: "my-cool-prometheus",
@@ -1147,7 +1147,7 @@ func Test_Resource_Bulid_TarballURL(t *testing.T) {
 						CreateNamespace:          true,
 						DisableOpenAPIValidation: true,
 						Remediation: &helmv2.InstallRemediation{
-							Retries: 3,
+							Retries: 10,
 						},
 					},
 					Rollback:         &helmv2.Rollback{},
@@ -1158,7 +1158,7 @@ func Test_Resource_Bulid_TarballURL(t *testing.T) {
 					},
 					Upgrade: &helmv2.Upgrade{
 						Remediation: &helmv2.UpgradeRemediation{
-							Retries: 3,
+							Retries: 10,
 						},
 					},
 					ReleaseName: "my-cool-prometheus",
@@ -1201,7 +1201,7 @@ func Test_Resource_Bulid_TarballURL(t *testing.T) {
 						CreateNamespace:          true,
 						DisableOpenAPIValidation: true,
 						Remediation: &helmv2.InstallRemediation{
-							Retries: 3,
+							Retries: 10,
 						},
 					},
 					Rollback:         &helmv2.Rollback{},
@@ -1212,7 +1212,7 @@ func Test_Resource_Bulid_TarballURL(t *testing.T) {
 					},
 					Upgrade: &helmv2.Upgrade{
 						Remediation: &helmv2.UpgradeRemediation{
-							Retries: 3,
+							Retries: 10,
 						},
 					},
 					ReleaseName: "my-cool-prometheus",
@@ -1277,7 +1277,7 @@ func Test_Resource_Bulid_TarballURL(t *testing.T) {
 						CreateNamespace:          true,
 						DisableOpenAPIValidation: true,
 						Remediation: &helmv2.InstallRemediation{
-							Retries: 3,
+							Retries: 10,
 						},
 					},
 					Rollback:         &helmv2.Rollback{},
@@ -1288,7 +1288,7 @@ func Test_Resource_Bulid_TarballURL(t *testing.T) {
 					},
 					Upgrade: &helmv2.Upgrade{
 						Remediation: &helmv2.UpgradeRemediation{
-							Retries: 3,
+							Retries: 10,
 						},
 					},
 					ReleaseName: "my-cool-prometheus",
@@ -1350,7 +1350,7 @@ func Test_Resource_Bulid_TarballURL(t *testing.T) {
 						CreateNamespace:          true,
 						DisableOpenAPIValidation: true,
 						Remediation: &helmv2.InstallRemediation{
-							Retries: 3,
+							Retries: 10,
 						},
 					},
 					Rollback:         &helmv2.Rollback{},
@@ -1361,7 +1361,7 @@ func Test_Resource_Bulid_TarballURL(t *testing.T) {
 					},
 					Upgrade: &helmv2.Upgrade{
 						Remediation: &helmv2.UpgradeRemediation{
-							Retries: 3,
+							Retries: 10,
 						},
 					},
 					ReleaseName: "my-cool-prometheus",
@@ -1419,7 +1419,7 @@ func Test_Resource_Bulid_TarballURL(t *testing.T) {
 						CreateNamespace:          true,
 						DisableOpenAPIValidation: true,
 						Remediation: &helmv2.InstallRemediation{
-							Retries: 3,
+							Retries: 10,
 						},
 					},
 					Rollback:         &helmv2.Rollback{},
@@ -1430,7 +1430,7 @@ func Test_Resource_Bulid_TarballURL(t *testing.T) {
 					},
 					Upgrade: &helmv2.Upgrade{
 						Remediation: &helmv2.UpgradeRemediation{
-							Retries: 3,
+							Retries: 10,
 						},
 					},
 					ReleaseName: "my-cool-prometheus",
@@ -1492,7 +1492,7 @@ func Test_Resource_Bulid_TarballURL(t *testing.T) {
 						CreateNamespace:          true,
 						DisableOpenAPIValidation: true,
 						Remediation: &helmv2.InstallRemediation{
-							Retries: 3,
+							Retries: 10,
 						},
 					},
 					Rollback:         &helmv2.Rollback{},
@@ -1503,7 +1503,7 @@ func Test_Resource_Bulid_TarballURL(t *testing.T) {
 					},
 					Upgrade: &helmv2.Upgrade{
 						Remediation: &helmv2.UpgradeRemediation{
-							Retries: 3,
+							Retries: 10,
 						},
 					},
 					ReleaseName: "my-cool-prometheus",
@@ -1556,7 +1556,7 @@ func Test_Resource_Bulid_TarballURL(t *testing.T) {
 						CreateNamespace:          true,
 						DisableOpenAPIValidation: true,
 						Remediation: &helmv2.InstallRemediation{
-							Retries: 3,
+							Retries: 10,
 						},
 					},
 					Rollback:         &helmv2.Rollback{},
@@ -1567,7 +1567,7 @@ func Test_Resource_Bulid_TarballURL(t *testing.T) {
 					},
 					Upgrade: &helmv2.Upgrade{
 						Remediation: &helmv2.UpgradeRemediation{
-							Retries: 3,
+							Retries: 10,
 						},
 					},
 					ReleaseName: "my-cool-prometheus",

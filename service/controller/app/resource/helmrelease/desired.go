@@ -499,7 +499,7 @@ func generateInstall(cr v1alpha1.App) *helmv2.Install {
 	install.DisableOpenAPIValidation = true
 
 	install.Remediation = &helmv2.InstallRemediation{
-		Retries: 3,
+		Retries: 10,
 	}
 
 	return &install
@@ -541,7 +541,7 @@ func generateUpgrade(cr v1alpha1.App) *helmv2.Upgrade {
 	upgrade.Force = false
 
 	upgrade.Remediation = &helmv2.UpgradeRemediation{
-		Retries: 3,
+		Retries: 10,
 	}
 
 	return &upgrade
