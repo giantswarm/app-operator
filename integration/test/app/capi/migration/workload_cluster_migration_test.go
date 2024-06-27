@@ -145,27 +145,10 @@ func TestWorkloadClusterMigration(t *testing.T) {
 	// - Test App installed for the cluster from the `org-test` namespace
 	//
 	// What we want to do is to:
-	// - install Flux App
 	// - remove Chart Operator
 	// - reconfigure unique App Operator by switching it to Helm Controller
 	// - reconfigure `org-test` App Operator by switching it to Helm Controller
 	// - check releases have been imported by Helm Controller
-
-	// Install Flux
-	{
-		flux := release.AppConfiguration{
-			AppName:      key.FluxAppName(),
-			AppNamespace: key.FluxSystemNamespace(),
-			AppValues:    "",
-			AppVersion:   key.FluxAppVersion(),
-			CatalogURL:   key.StableCatalogStorageHelmURL(),
-		}
-
-		err = config.Release.InstallFromTarball(ctx, flux)
-		if err != nil {
-			t.Fatalf("expected %#v got %#v", nil, err)
-		}
-	}
 
 	// Remove Chart Operator
 	{
