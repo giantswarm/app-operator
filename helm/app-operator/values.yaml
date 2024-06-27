@@ -8,6 +8,9 @@ port: 8000
 protocol: "TCP"
 
 app:
+  # helmControllerBackend switches App Operator from using Chart Operator
+  # as a downstream controller and make it use the Helm Controller.
+  helmControllerBackend: false
   watchNamespace: ""
   workloadClusterID: ""
   dependencyWaitTimeoutMinutes: 30

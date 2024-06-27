@@ -62,10 +62,10 @@ func New(config Config) (*Resource, error) {
 	if config.FileSystem == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.FileSystem must not be empty", config)
 	}
-	if config.CtrlClient == nil {
+	if config.CtrlClient == client.Client(nil) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.CtrlClient must not be empty", config)
 	}
-	if config.K8sClient == nil {
+	if config.K8sClient == kubernetes.Interface(nil) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
 	}
 	if config.Logger == nil {

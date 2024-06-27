@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 
+	helmv2 "github.com/fluxcd/helm-controller/api/v2beta1"
+	sourcev1beta2 "github.com/fluxcd/source-controller/api/v1beta2"
 	applicationv1alpha1 "github.com/giantswarm/apiextensions-application/api/v1alpha1"
 	"github.com/giantswarm/k8sclient/v7/pkg/k8sclient"
 	"github.com/giantswarm/k8sclient/v7/pkg/k8srestconfig"
@@ -77,6 +79,8 @@ func mainWithError() (err error) {
 				SchemeBuilder: k8sclient.SchemeBuilder{
 					prometheusMonitoringV1.AddToScheme,
 					applicationv1alpha1.AddToScheme,
+					sourcev1beta2.AddToScheme,
+					helmv2.AddToScheme,
 				},
 
 				RestConfig: restConfig,
@@ -146,10 +150,11 @@ func mainWithError() (err error) {
 
 	daemonCommand := newCommand.DaemonCommand().CobraCommand()
 
+	daemonCommand.PersistentFlags().Int(f.Service.App.DependencyWaitTimeoutMinutes, 30, "Timeout in seconds after which to ignore dependencies and make app installation to move on.")
+	daemonCommand.PersistentFlags().Bool(f.Service.App.HelmControllerBackend, false, "Whether to use Helm Controller as a downstream operator instead of Chart Operator.")
 	daemonCommand.PersistentFlags().Bool(f.Service.App.Unique, false, "Whether the operator is deployed as a unique app.")
 	daemonCommand.PersistentFlags().String(f.Service.App.WatchNamespace, "", "Namespace to watch for app CRs.")
 	daemonCommand.PersistentFlags().String(f.Service.App.WorkloadClusterID, "", "Workload cluster ID for app CR label selector.")
-	daemonCommand.PersistentFlags().Int(f.Service.App.DependencyWaitTimeoutMinutes, 30, "Timeout in seconds after which to ignore dependencies and make app installation to move on.")
 	daemonCommand.PersistentFlags().Int(f.Service.AppCatalog.MaxEntriesPerApp, 5, "The maximum number of appCatalogEntries per app.")
 	daemonCommand.PersistentFlags().String(f.Service.Chart.Namespace, "giantswarm", "The namespace where chart CRs are located.")
 	daemonCommand.PersistentFlags().String(f.Service.Helm.HTTP.ClientTimeout, "5s", "HTTP timeout for pulling chart tarballs.")

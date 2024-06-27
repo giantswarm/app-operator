@@ -3,6 +3,8 @@ package status
 import (
 	"context"
 
+	helmv2 "github.com/fluxcd/helm-controller/api/v2beta1"
+	sourcev1 "github.com/fluxcd/source-controller/api/v1beta2"
 	"github.com/giantswarm/apiextensions-application/api/v1alpha1"
 	"github.com/giantswarm/app/v7/pkg/key"
 	"github.com/giantswarm/errors/tenant"
@@ -10,6 +12,7 @@ import (
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/types"
 
+	"github.com/giantswarm/app-operator/v6/pkg/status"
 	"github.com/giantswarm/app-operator/v6/service/controller/app/controllercontext"
 )
 
@@ -30,6 +33,16 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return nil
 	}
 
+	if r.helmControllerBackend {
+		return r.ensureCreatedHelmRelease(ctx, cc, cr)
+	}
+
+	return r.ensureCreatedChart(ctx, cc, cr)
+}
+
+// ensureCreatedChart takes the status from Chart CR and sets it on the
+// App CR.
+func (r *Resource) ensureCreatedChart(ctx context.Context, cc *controllercontext.Context, cr v1alpha1.App) error {
 	var chart v1alpha1.Chart
 	var desiredStatus v1alpha1.AppStatus
 
@@ -51,7 +64,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 		chartName := key.ChartName(cr, r.workloadClusterID)
 
-		err = cc.Clients.K8s.CtrlClient().Get(
+		err := cc.Clients.K8s.CtrlClient().Get(
 			ctx,
 			types.NamespacedName{Name: chartName, Namespace: r.chartNamespace},
 			&chart,
@@ -92,7 +105,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		// Get app CR again to ensure the resource version is correct.
 		var currentCR v1alpha1.App
 
-		err = r.ctrlClient.Get(
+		err := r.ctrlClient.Get(
 			ctx,
 			types.NamespacedName{Name: cr.Name, Namespace: cr.Namespace},
 			&currentCR,
@@ -104,6 +117,95 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		currentCR.Status = desiredStatus
 
 		err = r.ctrlClient.Status().Update(ctx, &currentCR)
+		if err != nil {
+			return microerror.Mask(err)
+		}
+
+		r.logger.Debugf(ctx, "status set for app %#q in namespace %#q", cr.Name, cr.Namespace)
+	} else {
+		r.logger.Debugf(ctx, "status already set for app %#q in namespace %#q", cr.Name, cr.Namespace)
+	}
+
+	return nil
+}
+
+// ensureCreatedHelmRelease takes the status from HelmRelease CR, translates it
+// to a desired status, and populates App CR status with it.
+func (r *Resource) ensureCreatedHelmRelease(ctx context.Context, cc *controllercontext.Context, cr v1alpha1.App) error {
+	var helmRelease helmv2.HelmRelease
+	var desiredStatus v1alpha1.AppStatus
+
+	if cc.Status.ChartStatus.Status != "" {
+		desiredStatus = v1alpha1.AppStatus{
+			Release: v1alpha1.AppStatusRelease{
+				Reason: cc.Status.ChartStatus.Reason,
+				Status: cc.Status.ChartStatus.Status,
+			},
+		}
+	} else {
+		r.logger.Debugf(ctx, "finding status for HelmRelease CR %#q in namespace %#q", cr.Name, cr.Namespace)
+
+		err := cc.Clients.K8s.CtrlClient().Get(
+			ctx,
+			types.NamespacedName{Name: cr.Name, Namespace: cr.Namespace},
+			&helmRelease,
+		)
+		if apierrors.IsNotFound(err) {
+			r.logger.Debugf(ctx, "did not find HelmRelease CR %#q in namespace %#q", cr.Name, cr.Namespace)
+			r.logger.Debugf(ctx, "canceling resource")
+			return nil
+		} else if err != nil {
+			return microerror.Mask(err)
+		}
+
+		r.logger.Debugf(ctx, "found status for HelmRelease CR %#q in namespace %#q", cr.Name, cr.Namespace)
+
+		helmChartName := helmRelease.GetHelmChartName()
+		helmChartNamespace := helmRelease.Spec.Chart.GetNamespace(helmRelease.Namespace)
+
+		r.logger.Debugf(ctx, "finding status for HelmChart CR %#q in namespace %#q", helmChartName, helmChartNamespace)
+
+		var helmChart sourcev1.HelmChart
+		err = cc.Clients.K8s.CtrlClient().Get(
+			ctx,
+			types.NamespacedName{
+				Name:      helmChartName,
+				Namespace: helmChartNamespace,
+			},
+			&helmChart,
+		)
+		if err != nil && !apierrors.IsNotFound(err) {
+			return microerror.Mask(err)
+		}
+
+		r.logger.Debugf(ctx, "found status for HelmChart CR %#q in namespace %#q", helmChartName, helmChartNamespace)
+
+		desiredStatus = status.GetDesiredStatus(helmRelease.Status, helmChart.Status)
+	}
+
+	if !equals(desiredStatus, key.AppStatus(cr)) {
+		r.logger.Debugf(ctx, "setting status for app %#q in namespace %#q", cr.Name, cr.Namespace)
+
+		// Get app CR again to ensure the resource version is correct.
+		var currentCR v1alpha1.App
+
+		err := r.ctrlClient.Get(
+			ctx,
+			types.NamespacedName{Name: cr.Name, Namespace: cr.Namespace},
+			&currentCR,
+		)
+		if err != nil {
+			return microerror.Mask(err)
+		}
+
+		currentCR.Status = desiredStatus
+
+		err = r.ctrlClient.Status().Update(ctx, &currentCR)
+		if apierrors.IsConflict(err) {
+			r.logger.Errorf(ctx, err, "failed to update status for app '%s/%s' due to conflict", cr.Namespace, cr.Name)
+			return nil
+		}
+
 		if err != nil {
 			return microerror.Mask(err)
 		}

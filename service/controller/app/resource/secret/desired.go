@@ -9,11 +9,12 @@ import (
 	"github.com/giantswarm/k8smetadata/pkg/annotation"
 	"github.com/giantswarm/k8smetadata/pkg/label"
 	"github.com/giantswarm/microerror"
-	"github.com/giantswarm/operatorkit/v8/pkg/controller/context/resourcecanceledcontext"
+	"github.com/giantswarm/operatorkit/v7/pkg/controller/context/resourcecanceledcontext"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/yaml"
 
+	appopkey "github.com/giantswarm/app-operator/v6/pkg/key"
 	"github.com/giantswarm/app-operator/v6/pkg/project"
 	"github.com/giantswarm/app-operator/v6/pkg/status"
 	"github.com/giantswarm/app-operator/v6/service/controller/app/controllercontext"
@@ -29,12 +30,27 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		return nil, microerror.Mask(err)
 	}
 
+	// When the Helm Controller backend is enable, config is located in the same namespace
+	// the App CR is located at. Also, the Config Map key the values are located at must be
+	// the `values.yaml`. Note, it may also remain to be the `values` and then it can be
+	// configured in the HelmRelease CR spec, but it feels less fuss to do it here.
+	var name, namespace, secretKey string
+	if r.helmControllerBackend {
+		name = appopkey.HelmReleaseSecretName(cr)
+		namespace = cr.Namespace
+		secretKey = "values.yaml"
+	} else {
+		name = key.ChartSecretName(cr)
+		namespace = r.chartNamespace
+		secretKey = "values"
+	}
+
 	if key.IsDeleted(cr) {
 		// Return empty chart secret so it is deleted.
 		secret := &corev1.Secret{
 			ObjectMeta: metav1.ObjectMeta{
-				Name:      key.ChartSecretName(cr),
-				Namespace: r.chartNamespace,
+				Name:      name,
+				Namespace: namespace,
 			},
 		}
 
@@ -43,7 +59,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 
 	// If no user-provided secret name is present, check if a *-user-values config map exists and set the reference
 	if key.UserSecretName(cr) == "" {
-		userSec, err := cc.Clients.K8s.K8sClient().CoreV1().Secrets(r.chartNamespace).Get(ctx, fmt.Sprintf("%s-user-secrets", cr.Name), metav1.GetOptions{})
+		userSec, err := cc.Clients.K8s.K8sClient().CoreV1().Secrets(namespace).Get(ctx, fmt.Sprintf("%s-user-secrets", cr.Name), metav1.GetOptions{})
 		if err == nil {
 			cr.Spec.UserConfig.Secret.Name = userSec.GetName()
 			cr.Spec.UserConfig.Secret.Namespace = userSec.GetNamespace()
@@ -85,11 +101,11 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 
 	secret := &corev1.Secret{
 		Data: map[string][]byte{
-			"values": bytes,
+			secretKey: bytes,
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      key.ChartSecretName(cr),
-			Namespace: r.chartNamespace,
+			Name:      name,
+			Namespace: namespace,
 			Annotations: map[string]string{
 				annotation.Notes: fmt.Sprintf("DO NOT EDIT. Values managed by %s.", project.Name()),
 			},

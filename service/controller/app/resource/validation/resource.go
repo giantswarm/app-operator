@@ -30,7 +30,7 @@ type Resource struct {
 }
 
 func New(config Config) (*Resource, error) {
-	if config.K8sClient == nil {
+	if config.K8sClient == kubernetes.Interface(nil) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
 	}
 	if config.Logger == nil {

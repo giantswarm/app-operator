@@ -15,6 +15,8 @@ data:
         address: 'http://0.0.0.0:{{ .Values.port }}'
     service:
       app:
+        helmControllerBackend: {{  .Values.app.helmControllerBackend }}
+        helmControllerBackendAutoMigration: {{  .Values.app.helmControllerBackendAutoMigration }}
         unique: {{ include "resource.app.unique" . }}
         watchNamespace: '{{ .Values.app.watchNamespace }}'
         workloadClusterID: '{{ .Values.app.workloadClusterID }}'

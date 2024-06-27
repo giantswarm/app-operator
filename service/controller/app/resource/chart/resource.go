@@ -62,7 +62,7 @@ func New(config Config) (*Resource, error) {
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
-	if config.CtrlClient == nil {
+	if config.CtrlClient == client.Client(nil) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.CtrlClient must not be empty", config)
 	}
 	if config.DynamicClient == nil {

@@ -6,10 +6,11 @@ import (
 	"github.com/giantswarm/app/v7/pkg/key"
 	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/microerror"
-	"github.com/giantswarm/operatorkit/v8/pkg/controller/context/resourcecanceledcontext"
+	"github.com/giantswarm/operatorkit/v7/pkg/controller/context/resourcecanceledcontext"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
+	appopkey "github.com/giantswarm/app-operator/v6/pkg/key"
 	"github.com/giantswarm/app-operator/v6/service/controller/app/controllercontext"
 )
 
@@ -19,7 +20,16 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 		return nil, microerror.Mask(err)
 	}
 
-	name := key.ChartSecretName(cr)
+	// When the Helm Controller backend is enable, config is located in the same namespace
+	// the App CR is located at.
+	var name, namespace string
+	if r.helmControllerBackend {
+		name = appopkey.HelmReleaseSecretName(cr)
+		namespace = cr.Namespace
+	} else {
+		name = key.ChartSecretName(cr)
+		namespace = r.chartNamespace
+	}
 
 	cc, err := controllercontext.FromContext(ctx)
 	if err != nil {
@@ -47,12 +57,12 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 		return nil, nil
 	}
 
-	r.logger.Debugf(ctx, "finding secret %#q in namespace %#q", name, r.chartNamespace)
+	r.logger.Debugf(ctx, "finding secret %#q in namespace %#q", name, namespace)
 
-	secret, err := cc.Clients.K8s.K8sClient().CoreV1().Secrets(r.chartNamespace).Get(ctx, name, metav1.GetOptions{})
+	secret, err := cc.Clients.K8s.K8sClient().CoreV1().Secrets(namespace).Get(ctx, name, metav1.GetOptions{})
 	if apierrors.IsNotFound(err) {
 		// Return early as secret does not exist.
-		r.logger.Debugf(ctx, "did not find secret %#q in namespace %#q", name, r.chartNamespace)
+		r.logger.Debugf(ctx, "did not find secret %#q in namespace %#q", name, namespace)
 		return nil, nil
 	} else if tenant.IsAPINotAvailable(err) {
 		// We should not hammer workload API if it is not available, the tenant cluster
@@ -65,7 +75,7 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 		return nil, microerror.Mask(err)
 	}
 
-	r.logger.Debugf(ctx, "found secret %#q in namespace %#q", name, r.chartNamespace)
+	r.logger.Debugf(ctx, "found secret %#q in namespace %#q", name, namespace)
 
 	return secret, nil
 }
