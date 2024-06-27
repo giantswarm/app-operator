@@ -86,18 +86,16 @@ func installResources(ctx context.Context, config Config) error {
 		apps[0].appValues = templates.AppOperatorCAPIValues
 	}
 
-	if config.HelmControllerBackend {
-		apps = append(
-			apps,
-			appConfiguration{
-				appName:      key.FluxAppName(),
-				appNamespace: key.FluxSystemNamespace(),
-				appValues:    "",
-				appVersion:   key.FluxAppVersion(),
-				catalogURL:   key.StableCatalogStorageHelmURL(),
-			},
-		)
-	}
+	apps = append(
+		apps,
+		appConfiguration{
+			appName:      key.FluxAppName(),
+			appNamespace: key.FluxSystemNamespace(),
+			appValues:    "",
+			appVersion:   key.FluxAppVersion(),
+			catalogURL:   key.StableCatalogStorageHelmURL(),
+		},
+	)
 
 	for _, app := range apps {
 		var tarballURL string
