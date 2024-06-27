@@ -84,7 +84,7 @@ func newCatalogResources(config catalogResourcesConfig) ([]resource.Interface, e
 		appCatalogSyncResource,
 	}
 
-	if config.UniqueApp && config.HelmControllerBackend {
+	if config.UniqueApp {
 		resources = append(resources, helmRepositoryResource)
 	}
 
