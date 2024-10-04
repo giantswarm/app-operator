@@ -148,6 +148,7 @@ func copyChart(current *v1alpha1.Chart) *v1alpha1.Chart {
 	newChart.Namespace = current.Namespace
 
 	newChart.Annotations = current.Annotations
+	newChart.Finalizers = current.Finalizers
 	newChart.Labels = current.Labels
 	newChart.Spec = *current.Spec.DeepCopy()
 
