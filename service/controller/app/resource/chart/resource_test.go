@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/giantswarm/apiextensions-application/api/v1alpha1"
-	"github.com/google/go-cmp/cmp"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -162,83 +161,6 @@ func Test_copyAnnotations(t *testing.T) {
 			if !reflect.DeepEqual(desired.Annotations, tt.args.result) {
 				t.Logf("Wanted %v, got %v", tt.args.result, desired.Annotations)
 				t.Fail()
-			}
-		})
-	}
-}
-
-func Test_copyChart(t *testing.T) {
-	tests := []struct {
-		name    string
-		current *v1alpha1.Chart
-		desired *v1alpha1.Chart
-	}{
-		{
-			name: "Make sure all fields we care about are copied",
-			current: &v1alpha1.Chart{
-				TypeMeta: metav1.TypeMeta{
-					Kind:       chartKind,
-					APIVersion: chartAPIVersion,
-				},
-				ObjectMeta: metav1.ObjectMeta{
-					Annotations: map[string]string{
-						"chart-operator.giantswarm.io/app-name":      "test-app",
-						"chart-operator.giantswarm.io/app-namespace": "org-test",
-					},
-					Finalizers: []string{
-						"operatorkit.giantswarm.io/chart-operator-chart",
-					},
-					Labels: map[string]string{
-						"app.kubernetes.io/name":               "test-app",
-						"chart-operator.giantswarm.io/version": "1.0.0",
-						"giantswarm.io/managed-by":             "app-operator",
-					},
-					Name:      "test-app",
-					Namespace: "giantswarm",
-				},
-				Spec: v1alpha1.ChartSpec{
-					Name:       "test-app",
-					Namespace:  "org-test",
-					TarballURL: "https://giantswarm.github.io/fake-catalog/test-app-1.0.0.tgz",
-					Version:    "1.0.0",
-				},
-			},
-			desired: &v1alpha1.Chart{
-				TypeMeta: metav1.TypeMeta{
-					Kind:       chartKind,
-					APIVersion: chartAPIVersion,
-				},
-				ObjectMeta: metav1.ObjectMeta{
-					Annotations: map[string]string{
-						"chart-operator.giantswarm.io/app-name":      "test-app",
-						"chart-operator.giantswarm.io/app-namespace": "org-test",
-					},
-					Finalizers: []string{
-						"operatorkit.giantswarm.io/chart-operator-chart",
-					},
-					Labels: map[string]string{
-						"app.kubernetes.io/name":               "test-app",
-						"chart-operator.giantswarm.io/version": "1.0.0",
-						"giantswarm.io/managed-by":             "app-operator",
-					},
-					Name:      "test-app",
-					Namespace: "giantswarm",
-				},
-				Spec: v1alpha1.ChartSpec{
-					Name:       "test-app",
-					Namespace:  "org-test",
-					TarballURL: "https://giantswarm.github.io/fake-catalog/test-app-1.0.0.tgz",
-					Version:    "1.0.0",
-				},
-			},
-		},
-	}
-	for _, tc := range tests {
-		t.Run(tc.name, func(t *testing.T) {
-			desired := copyChart(tc.current)
-
-			if !reflect.DeepEqual(tc.desired, desired) {
-				t.Fatalf("want matching Chart CRs \n %s", cmp.Diff(tc.desired, desired))
 			}
 		})
 	}

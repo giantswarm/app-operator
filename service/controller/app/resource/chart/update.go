@@ -77,6 +77,7 @@ func (r *Resource) newUpdateChange(ctx context.Context, currentResource, desired
 	updateChart := &v1alpha1.Chart{}
 
 	resourceVersion := currentChart.GetResourceVersion()
+	finalizers := currentChart.GetFinalizers()
 
 	// Copy current chart CR and annotations keeping only the values we need
 	// for comparing them.
@@ -90,6 +91,7 @@ func (r *Resource) newUpdateChange(ctx context.Context, currentResource, desired
 
 		updateChart = desiredChart.DeepCopy()
 		updateChart.ObjectMeta.ResourceVersion = resourceVersion
+		updateChart.ObjectMeta.Finalizers = finalizers
 
 		return updateChart, nil
 	}

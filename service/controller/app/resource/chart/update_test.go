@@ -2,6 +2,7 @@ package chart
 
 import (
 	"context"
+	"fmt"
 	"reflect"
 	"testing"
 	"time"
@@ -29,7 +30,7 @@ func Test_Resource_newUpdateChange(t *testing.T) {
 		error         bool
 	}{
 		{
-			name: "case 0: flawless flow",
+			name: "flawless flow",
 			currentChart: &v1alpha1.Chart{
 				TypeMeta: metav1.TypeMeta{
 					Kind:       "Chart",
@@ -125,7 +126,7 @@ func Test_Resource_newUpdateChange(t *testing.T) {
 			},
 		},
 		{
-			name: "case 1: same chart",
+			name: "same chart",
 			currentChart: &v1alpha1.Chart{
 				TypeMeta: metav1.TypeMeta{
 					Kind:       "Chart",
@@ -190,7 +191,7 @@ func Test_Resource_newUpdateChange(t *testing.T) {
 			expectedChart: &v1alpha1.Chart{},
 		},
 		{
-			name: "case 2: adding timeout",
+			name: "adding timeout",
 			currentChart: &v1alpha1.Chart{
 				TypeMeta: metav1.TypeMeta{
 					Kind:       "Chart",
@@ -258,10 +259,112 @@ func Test_Resource_newUpdateChange(t *testing.T) {
 				},
 			},
 		},
+		{
+			name: "flawless flow with finalizers",
+			currentChart: &v1alpha1.Chart{
+				TypeMeta: metav1.TypeMeta{
+					Kind:       "Chart",
+					APIVersion: "application.giantswarm.io",
+				},
+				ObjectMeta: metav1.ObjectMeta{
+					Name:            "my-cool-prometheus",
+					Namespace:       "giantswarm",
+					ResourceVersion: "12345",
+					UID:             "51eeec1d-3716-4006-92b4-e7e99f8ab311",
+					Annotations: map[string]string{
+						"chart-operator.giantswarm.io/values-md5-checksum": "1678b4446ba0392da6681840add3d06a",
+						"giantswarm.io/sample":                             "it should be deleted",
+					},
+					Labels: map[string]string{
+						"giantswarm.io/managed-by": "app-operator",
+					},
+					Finalizers: []string{
+						"operatorkit.giantswarm.io/chart-operator-chart",
+					},
+				},
+				Spec: v1alpha1.ChartSpec{
+					Config: v1alpha1.ChartSpecConfig{
+						ConfigMap: v1alpha1.ChartSpecConfigConfigMap{
+							Name:      "my-cool-prometheus-chart-values",
+							Namespace: "giantswarm",
+						},
+					},
+					Name:       "my-cool-prometheus",
+					Namespace:  "monitoring",
+					TarballURL: "https://giantswarm.github.io/app-catalog/prometheus-1.0.0.tgz",
+					Version:    "0.0.9",
+				},
+			},
+			desiredChart: &v1alpha1.Chart{
+				TypeMeta: metav1.TypeMeta{
+					Kind:       "Chart",
+					APIVersion: "application.giantswarm.io",
+				},
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "my-cool-prometheus",
+					Namespace: "giantswarm",
+					Labels: map[string]string{
+						"app":                                  "prometheus",
+						"chart-operator.giantswarm.io/version": "1.0.0",
+						"giantswarm.io/managed-by":             "app-operator",
+					},
+					Annotations: map[string]string{
+						"chart-operator.giantswarm.io/webhook-url": "http://webhook/status/default/my-cool-prometheus",
+					},
+				},
+				Spec: v1alpha1.ChartSpec{
+					Config: v1alpha1.ChartSpecConfig{
+						ConfigMap: v1alpha1.ChartSpecConfigConfigMap{
+							Name:      "my-cool-prometheus-chart-values",
+							Namespace: "giantswarm",
+						},
+					},
+					Name:       "my-cool-prometheus",
+					Namespace:  "monitoring",
+					TarballURL: "https://giantswarm.github.io/app-catalog/prometheus-1.0.0.tgz",
+					Version:    "1.0.0",
+				},
+			},
+			expectedChart: &v1alpha1.Chart{
+				TypeMeta: metav1.TypeMeta{
+					Kind:       "Chart",
+					APIVersion: "application.giantswarm.io",
+				},
+				ObjectMeta: metav1.ObjectMeta{
+					Name:            "my-cool-prometheus",
+					Namespace:       "giantswarm",
+					ResourceVersion: "12345",
+					Labels: map[string]string{
+						"app":                                  "prometheus",
+						"chart-operator.giantswarm.io/version": "1.0.0",
+						"giantswarm.io/managed-by":             "app-operator",
+					},
+					Annotations: map[string]string{
+						"chart-operator.giantswarm.io/values-md5-checksum": "1678b4446ba0392da6681840add3d06a",
+						"chart-operator.giantswarm.io/webhook-url":         "http://webhook/status/default/my-cool-prometheus",
+					},
+					Finalizers: []string{
+						"operatorkit.giantswarm.io/chart-operator-chart",
+					},
+				},
+				Spec: v1alpha1.ChartSpec{
+					Config: v1alpha1.ChartSpecConfig{
+						ConfigMap: v1alpha1.ChartSpecConfigConfigMap{
+							Name:      "my-cool-prometheus-chart-values",
+							Namespace: "giantswarm",
+						},
+					},
+					Name:       "my-cool-prometheus",
+					Namespace:  "monitoring",
+					TarballURL: "https://giantswarm.github.io/app-catalog/prometheus-1.0.0.tgz",
+					Version:    "1.0.0",
+				},
+			},
+		},
 	}
 
-	for _, tc := range tests {
-		t.Run(tc.name, func(t *testing.T) {
+	for i, tc := range tests {
+		t.Run(fmt.Sprintf("case %d: %s", i, tc.name), func(t *testing.T) {
 			objs := make([]runtime.Object, 0)
 
 			s := runtime.NewScheme()
