@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Fixed
+
+- Retain a list of finalizers of Chart CR when updating it.
+
 ### Changed
 
 - Update `PolicyExceptions` to `v2` and failover to `v2beta1`.
