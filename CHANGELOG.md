@@ -7,6 +7,8 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+## [6.11.1] - 2024-10-08
+
 ### Fixed
 
 - Retain a list of finalizers of Chart CR when updating it.
@@ -747,7 +749,8 @@ from Helm 2 to Helm 3.
 
 - Flattening operator release structure.
 
-[Unreleased]: https://github.com/giantswarm/app-operator/compare/v6.11.0...HEAD
+[Unreleased]: https://github.com/giantswarm/app-operator/compare/v6.11.1...HEAD
+[6.11.1]: https://github.com/giantswarm/app-operator/compare/v6.11.0...v6.11.1
 [6.11.0]: https://github.com/giantswarm/app-operator/compare/v6.10.3...v6.11.0
 [6.10.3]: https://github.com/giantswarm/app-operator/compare/v6.10.2...v6.10.3
 [6.10.2]: https://github.com/giantswarm/app-operator/compare/v6.10.1...v6.10.2
