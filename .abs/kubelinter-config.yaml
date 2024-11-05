@@ -1,0 +1,2 @@
+checks:
+  no-read-only-root-fs: false
