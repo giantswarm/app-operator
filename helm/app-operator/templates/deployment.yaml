@@ -6,7 +6,7 @@ metadata:
   labels:
     {{- include "labels.common" . | nindent 4 }}
   annotations:
-    ignore-check.kube-linter.io/no-read-only-root-fs: "This deployments needs write access to root file system to download artifacts."
+    ignore-check.kube-linter.io/no-read-only-root-fs: "This deployment needs write access to root file system to download artifacts."
 spec:
   selector:
     matchLabels:
