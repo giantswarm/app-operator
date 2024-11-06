@@ -32,14 +32,9 @@ registry:
 
 image:
   repository: giantswarm/app-operator
-  tag: "[[ .Version ]]"
 
 operatorkit:
   resyncPeriod: "5m"
-
-project:
-  branch: "[[ .Branch ]]"
-  commit: "[[ .SHA ]]"
 
 deployment:
   management:
