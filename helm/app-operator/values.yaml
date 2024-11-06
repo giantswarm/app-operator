@@ -92,9 +92,5 @@ serviceMonitor:
   # -- (duration) Prometheus scrape timeout.
   scrapeTimeout: "45s"
 
-global:
-  podSecurityStandards:
-    enforced: false
-
 kyvernoPolicyExceptions:
   enabled: true
