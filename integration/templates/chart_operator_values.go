@@ -13,4 +13,9 @@ helm:
     waitTimeout: "180s"
 
 registry:
-  domain: "quay.io"`
+  domain: "quay.io"
+
+global:
+  podSecurityStandards:
+    enforced: true
+`

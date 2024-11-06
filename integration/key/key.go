@@ -44,7 +44,7 @@ func ChartOperatorUniqueName() string {
 }
 
 func ChartOperatorVersion() string {
-	return "2.24.0"
+	return "3.3.0"
 }
 
 func ControlPlaneCatalogName() string {
