@@ -9,4 +9,7 @@ const AppOperatorValues = `
    kind: aws
  registry:
    domain: quay.io
+ global:
+  podSecurityStandards:
+    enforced: true
 `
