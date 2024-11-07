@@ -32,6 +32,7 @@ registry:
 
 image:
   repository: giantswarm/app-operator
+  tag: ""
 
 operatorkit:
   resyncPeriod: "5m"
