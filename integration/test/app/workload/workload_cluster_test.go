@@ -123,7 +123,7 @@ func TestWorkloadCluster(t *testing.T) {
 				KubeConfig:         kubeConfig,
 				Name:               key.TestAppName(),
 				Namespace:          metav1.NamespaceDefault,
-				Version:            "0.1.0",
+				Version:            key.TestAppVersion(),
 				WaitForDeploy:      true,
 			},
 		}

@@ -83,6 +83,14 @@ func TestAppName() string {
 	return "test-app"
 }
 
+func TestAppVersion() string {
+	return "1.0.0"
+}
+
+func TestAppArtifact() string {
+	return fmt.Sprintf("%s/%s-%s.tgz", DefaultCatalogName(), TestAppName(), TestAppVersion())
+}
+
 func UniqueAppVersion() string {
 	return "0.0.0"
 }
