@@ -21,7 +21,6 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
   - Changed value for `application.giantswarm.io/commit` label to point to `.Chart.AppVersion` instead as ABS does not support mangling the templates anymore.
 - Defaulted `.image.tag` to be an empty string and default that to `.Chart.AppVersion` in the deployment.
 - Bumped `chart-operator` version to `v3.3.0` in integration tests.
-- Set `.global.podSecurityStandards.enforced` to `true` for `chart-operator` in integration tests.
 - Bumped `test-app` version to `v1.0.0` in integration tests.
 
 ### Added
