@@ -114,7 +114,7 @@ func TestAppLifecycle(t *testing.T) {
 	{
 		config.Logger.Debugf(ctx, "checking tarball URL in chart spec")
 
-		tarballURL := key.TestAppArtifact()
+		tarballURL := key.TestAppTarballUrl()
 		err = config.K8sClients.CtrlClient().Get(
 			ctx,
 			types.NamespacedName{Name: key.TestAppName(), Namespace: key.GiantSwarmNamespace()},
@@ -171,7 +171,7 @@ func TestAppLifecycle(t *testing.T) {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
 
-		tarballURL := key.TestAppArtifact()
+		tarballURL := key.TestAppTarballUrl()
 		if chart.Spec.TarballURL != tarballURL {
 			t.Fatalf("expected tarballURL: %#v got %#v", tarballURL, chart.Spec.TarballURL)
 		}
