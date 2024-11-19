@@ -16,8 +16,8 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/yaml"
 
-	"github.com/giantswarm/app-operator/v6/integration/key"
-	"github.com/giantswarm/app-operator/v6/integration/templates"
+	"github.com/giantswarm/app-operator/v7/integration/key"
+	"github.com/giantswarm/app-operator/v7/integration/templates"
 )
 
 // TestAppLifecycle tests a chart CR can be created, updated and deleted

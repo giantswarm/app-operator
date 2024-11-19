@@ -8,7 +8,6 @@ require (
 	github.com/Masterminds/semver/v3 v3.2.1
 	github.com/ghodss/yaml v1.0.0
 	github.com/giantswarm/apiextensions-application v0.6.1
-	github.com/giantswarm/app-operator/v6 v6.11.2
 	github.com/giantswarm/app/v7 v7.0.1
 	github.com/giantswarm/appcatalog v1.0.0
 	github.com/giantswarm/apptest v1.2.1
