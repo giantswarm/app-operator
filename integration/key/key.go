@@ -44,7 +44,7 @@ func ChartOperatorUniqueName() string {
 }
 
 func ChartOperatorVersion() string {
-	return "2.24.0"
+	return "3.3.0"
 }
 
 func ControlPlaneCatalogName() string {
@@ -81,6 +81,14 @@ func StableCatalogStorageURL() string {
 
 func TestAppName() string {
 	return "test-app"
+}
+
+func TestAppVersion() string {
+	return "1.0.0"
+}
+
+func TestAppTarballUrl() string {
+	return fmt.Sprintf("%s/%s-%s.tgz", DefaultCatalogStorageURL(), TestAppName(), TestAppVersion())
 }
 
 func UniqueAppVersion() string {

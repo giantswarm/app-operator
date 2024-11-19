@@ -146,7 +146,7 @@ func TestWatchingConfigMap(t *testing.T) {
 						Namespace: key.GiantSwarmNamespace(),
 					},
 				},
-				Version: "0.1.0",
+				Version: key.TestAppVersion(),
 			},
 		}
 

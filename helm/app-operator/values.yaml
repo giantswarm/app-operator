@@ -32,14 +32,10 @@ registry:
 
 image:
   repository: giantswarm/app-operator
-  tag: "[[ .Version ]]"
+  tag: ""
 
 operatorkit:
   resyncPeriod: "5m"
-
-project:
-  branch: "[[ .Branch ]]"
-  commit: "[[ .SHA ]]"
 
 deployment:
   management:
@@ -96,10 +92,6 @@ serviceMonitor:
   interval: "60s"
   # -- (duration) Prometheus scrape timeout.
   scrapeTimeout: "45s"
-
-global:
-  podSecurityStandards:
-    enforced: false
 
 kyvernoPolicyExceptions:
   enabled: true

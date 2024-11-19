@@ -2,8 +2,8 @@ apiVersion: v1
 description: A Helm chart for the app-operator
 home: https://github.com/giantswarm/app-operator
 name: app-operator
-appVersion: [[ .AppVersion ]]
-version: [[ .Version ]]
+appVersion: 6.11.3-dev
+version: 6.11.3-dev
 icon: https://s.giantswarm.io/app-icons/giantswarm/1/dark.svg
 annotations:
   application.giantswarm.io/team: "honeybadger"

@@ -101,7 +101,7 @@ func TestAppLifecycle(t *testing.T) {
 				CatalogName:   key.DefaultCatalogName(),
 				Name:          key.TestAppName(),
 				Namespace:     key.GiantSwarmNamespace(),
-				Version:       "0.1.0",
+				Version:       key.TestAppVersion(),
 				WaitForDeploy: true,
 			},
 		}
@@ -114,7 +114,7 @@ func TestAppLifecycle(t *testing.T) {
 	{
 		config.Logger.Debugf(ctx, "checking tarball URL in chart spec")
 
-		tarballURL := "https://giantswarm.github.io/default-catalog/test-app-0.1.0.tgz"
+		tarballURL := key.TestAppTarballUrl()
 		err = config.K8sClients.CtrlClient().Get(
 			ctx,
 			types.NamespacedName{Name: key.TestAppName(), Namespace: key.GiantSwarmNamespace()},
@@ -157,7 +157,7 @@ func TestAppLifecycle(t *testing.T) {
 	{
 		config.Logger.Debugf(ctx, "checking tarball URL in chart spec")
 
-		err = config.Release.WaitForReleaseVersion(ctx, key.GiantSwarmNamespace(), key.TestAppName(), "0.1.1")
+		err = config.Release.WaitForReleaseVersion(ctx, key.GiantSwarmNamespace(), key.TestAppName(), key.TestAppVersion())
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
@@ -171,7 +171,7 @@ func TestAppLifecycle(t *testing.T) {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
 
-		tarballURL := "https://giantswarm.github.io/default-catalog/test-app-0.1.1.tgz"
+		tarballURL := key.TestAppTarballUrl()
 		if chart.Spec.TarballURL != tarballURL {
 			t.Fatalf("expected tarballURL: %#v got %#v", tarballURL, chart.Spec.TarballURL)
 		}
