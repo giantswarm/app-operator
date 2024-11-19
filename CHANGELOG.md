@@ -7,6 +7,8 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+## [7.0.0] - 2024-11-19
+
 ### Removed
 
 - Removed PSP support and thus support for pre v1.25 Kubernetes clusters.
@@ -771,7 +773,8 @@ from Helm 2 to Helm 3.
 
 - Flattening operator release structure.
 
-[Unreleased]: https://github.com/giantswarm/app-operator/compare/v6.11.2...HEAD
+[Unreleased]: https://github.com/giantswarm/app-operator/compare/v7.0.0...HEAD
+[7.0.0]: https://github.com/giantswarm/app-operator/compare/v6.11.2...v7.0.0
 [6.11.2]: https://github.com/giantswarm/app-operator/compare/v6.11.1...v6.11.2
 [6.11.1]: https://github.com/giantswarm/app-operator/compare/v6.11.0...v6.11.1
 [6.11.0]: https://github.com/giantswarm/app-operator/compare/v6.10.3...v6.11.0

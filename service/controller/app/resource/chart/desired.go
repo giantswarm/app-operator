@@ -24,10 +24,10 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	"github.com/giantswarm/app-operator/v6/pkg/project"
-	"github.com/giantswarm/app-operator/v6/pkg/status"
-	"github.com/giantswarm/app-operator/v6/service/controller/app/controllercontext"
-	"github.com/giantswarm/app-operator/v6/service/internal/indexcache"
+	"github.com/giantswarm/app-operator/v7/pkg/project"
+	"github.com/giantswarm/app-operator/v7/pkg/status"
+	"github.com/giantswarm/app-operator/v7/service/controller/app/controllercontext"
+	"github.com/giantswarm/app-operator/v7/service/internal/indexcache"
 )
 
 const (
