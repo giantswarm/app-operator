@@ -21,9 +21,9 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	"github.com/giantswarm/app-operator/v6/integration/key"
-	pkglabel "github.com/giantswarm/app-operator/v6/pkg/label"
-	"github.com/giantswarm/app-operator/v6/pkg/project"
+	"github.com/giantswarm/app-operator/v7/integration/key"
+	pkglabel "github.com/giantswarm/app-operator/v7/pkg/label"
+	"github.com/giantswarm/app-operator/v7/pkg/project"
 )
 
 // TestAppCatalogEntry tests appcatalogentry CRs are generated for the

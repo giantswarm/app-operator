@@ -14,9 +14,9 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/yaml"
 
-	"github.com/giantswarm/app-operator/v6/pkg/project"
-	"github.com/giantswarm/app-operator/v6/pkg/status"
-	"github.com/giantswarm/app-operator/v6/service/controller/app/controllercontext"
+	"github.com/giantswarm/app-operator/v7/pkg/project"
+	"github.com/giantswarm/app-operator/v7/pkg/status"
+	"github.com/giantswarm/app-operator/v7/service/controller/app/controllercontext"
 )
 
 func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interface{}, error) {

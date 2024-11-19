@@ -10,7 +10,7 @@ import (
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/types"
 
-	"github.com/giantswarm/app-operator/v6/service/controller/app/controllercontext"
+	"github.com/giantswarm/app-operator/v7/service/controller/app/controllercontext"
 )
 
 func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
