@@ -7,10 +7,10 @@ toolchain go1.22.3
 require (
 	github.com/Masterminds/semver/v3 v3.3.1
 	github.com/ghodss/yaml v1.0.0
-	github.com/giantswarm/apiextensions-application v0.6.1
-	github.com/giantswarm/app/v7 v7.0.1
+	github.com/giantswarm/apiextensions-application v0.6.2
+	github.com/giantswarm/app/v7 v7.0.2
 	github.com/giantswarm/appcatalog v1.0.0
-	github.com/giantswarm/apptest v1.2.1
+	github.com/giantswarm/apptest v1.4.1
 	github.com/giantswarm/backoff v1.0.1
 	github.com/giantswarm/errors v0.3.0
 	github.com/giantswarm/helmclient/v4 v4.12.0
@@ -180,7 +180,7 @@ require (
 	k8s.io/apiserver v0.29.0 // indirect
 	k8s.io/cli-runtime v0.29.0 // indirect
 	k8s.io/component-base v0.29.0 // indirect
-	k8s.io/klog/v2 v2.110.1 // indirect
+	k8s.io/klog/v2 v2.120.1 // indirect
 	k8s.io/kube-openapi v0.0.0-20231113174909-778a5567bc1e // indirect
 	k8s.io/kubectl v0.29.0 // indirect
 	k8s.io/utils v0.0.0-20230726121419-3b25d923346b // indirect
@@ -195,7 +195,7 @@ replace (
 	github.com/bketelsen/crypt => github.com/bketelsen/crypt v0.0.5
 	github.com/dgrijalva/jwt-go => github.com/dgrijalva/jwt-go/v4 v4.0.0-preview1
 	github.com/docker/distribution => github.com/docker/distribution v0.0.0-20191216044856-a8371794149d
-	github.com/docker/docker => github.com/moby/moby v25.0.1+incompatible
+	github.com/docker/docker => github.com/moby/moby v27.4.1+incompatible
 	github.com/gogo/protobuf v1.3.1 => github.com/gogo/protobuf v1.3.2
 	github.com/imdario/mergo => github.com/imdario/mergo v0.3.16
 )
