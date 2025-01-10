@@ -167,7 +167,7 @@ func (r *Resource) generateHelmClient(k8sClient k8sclient.Interface) (helmclient
 	{
 		httpClient, err := rest.HTTPClientFor(rest.CopyConfig(k8sClient.RESTConfig()))
 		if err != nil {
-		return nil, microerror.Mask(err)
+			return nil, microerror.Mask(err)
 		}
 
 		restMapper, err := apiutil.NewDynamicRESTMapper(rest.CopyConfig(k8sClient.RESTConfig()), httpClient)
