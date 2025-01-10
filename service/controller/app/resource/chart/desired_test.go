@@ -856,7 +856,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					GetIndexResponse: tc.index,
 				}),
 				Logger:        microloggertest.New(),
-				CtrlClient:    fake.NewClientBuilder().WithScheme(s)..Build(), //nolint:staticcheck
+				CtrlClient:    fake.NewClientBuilder().WithScheme(s).Build(), //nolint:staticcheck
 				DynamicClient: dynamicfake.NewSimpleDynamicClient(s),
 
 				ChartNamespace:               "giantswarm",
@@ -877,7 +877,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 				s := runtime.NewScheme()
 				s.AddKnownTypes(v1alpha1.SchemeGroupVersion, &v1alpha1.Chart{}, &v1alpha1.ChartList{})
 				config := k8sclienttest.ClientsConfig{
-					CtrlClient: fake.NewClientBuilder().WithScheme(s)..Build(), //nolint:staticcheck
+					CtrlClient: fake.NewClientBuilder().WithScheme(s).Build(), //nolint:staticcheck
 					K8sClient:  clientgofake.NewSimpleClientset(objs...),
 				}
 				client := k8sclienttest.NewClients(config)
