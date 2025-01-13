@@ -7,8 +7,8 @@ toolchain go1.22.3
 require (
 	github.com/Masterminds/semver/v3 v3.3.1
 	github.com/ghodss/yaml v1.0.0
-	github.com/giantswarm/apiextensions-application v0.6.1
-	github.com/giantswarm/app/v7 v7.0.1
+	github.com/giantswarm/apiextensions-application v0.6.2
+	github.com/giantswarm/app/v7 v7.0.2
 	github.com/giantswarm/appcatalog v1.0.0
 	github.com/giantswarm/apptest v1.2.1
 	github.com/giantswarm/backoff v1.0.1
@@ -170,7 +170,7 @@ require (
 	k8s.io/apiserver v0.26.15 // indirect
 	k8s.io/cli-runtime v0.25.2 // indirect
 	k8s.io/component-base v0.26.15 // indirect
-	k8s.io/klog/v2 v2.90.0 // indirect
+	k8s.io/klog/v2 v2.120.1 // indirect
 	k8s.io/kube-openapi v0.0.0-20221012153701-172d655c2280 // indirect
 	k8s.io/kubectl v0.25.2 // indirect
 	k8s.io/utils v0.0.0-20230202215443-34013725500c // indirect
