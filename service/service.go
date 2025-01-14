@@ -11,6 +11,8 @@ import (
 	"github.com/giantswarm/micrologger"
 	"github.com/spf13/afero"
 	"github.com/spf13/viper"
+	cr "sigs.k8s.io/controller-runtime"
+	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
 	"github.com/giantswarm/app-operator/v7/flag"
 	"github.com/giantswarm/app-operator/v7/pkg/env"
@@ -64,8 +66,13 @@ func New(config Config) (*Service, error) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Viper must not be empty", config)
 	}
 
-	var err error
+	// Configure controller-runtime logger
+	opts := zap.Options{
+		Development: true,
+	}
+	cr.SetLogger(zap.New(zap.UseFlagOptions(&opts)))
 
+	var err error
 	var catalogController *catalog.Catalog
 	{
 		c := catalog.Config{
