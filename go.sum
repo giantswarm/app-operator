@@ -142,8 +142,8 @@ github.com/giantswarm/apptest v1.4.1 h1:9GEVbB8Zvb/EdRXcmc2zWebs0TQ4pZrJ7W5XjnpD
 github.com/giantswarm/apptest v1.4.1/go.mod h1:JvH9J9BP/tgYot+WQIv6ATjetOt0bkjxWbDf/DnkVCg=
 github.com/giantswarm/backoff v1.0.1 h1:paqQhjUsibkf+wWFCHsk7VXAkcM1L3ssAe7V7i8twpM=
 github.com/giantswarm/backoff v1.0.1/go.mod h1:RGj8b06J3irMNFRoSiMnngS50K+QbpSvu77sW03bxqQ=
-github.com/giantswarm/errors v0.3.0 h1:8y3L4496su7mqUjCb79edyXFkli9ythdXoFVaes442I=
-github.com/giantswarm/errors v0.3.0/go.mod h1:Oj1LIWs9Uoj6JGtK5HxTb50iZuqe9f60LDI0nLXA5vU=
+github.com/giantswarm/errors v0.3.1 h1:QlaCwp3a9qtI5drLo4C+yjDRXg3Y86LdxoGZCKZkkmQ=
+github.com/giantswarm/errors v0.3.1/go.mod h1:AL1qINkgm+sSAPzp54g9h+4tY3ns9TQFAD8amPGGeu4=
 github.com/giantswarm/exporterkit v1.1.0 h1:It+tps930KykISVLtwrn9dKq4kVHLk0rnjaQvKHOV0o=
 github.com/giantswarm/exporterkit v1.1.0/go.mod h1:nzlgQdEZ29umzo6cY/ggVqSanQumkS0aLU1Kckv2ZSk=
 github.com/giantswarm/helmclient/v4 v4.12.0 h1:oJJ08PDMUbQbFPqpMbHpnCUv6WinmXtskMKq8sG5Ns8=
@@ -156,7 +156,6 @@ github.com/giantswarm/kubeconfig/v4 v4.1.1 h1:7T1qALHhDSoAoNB5AfJc8sr2PCejXm5sTf
 github.com/giantswarm/kubeconfig/v4 v4.1.1/go.mod h1:sQZJhztOzlZ1NzOlvQrHT1zzZ5vXDTLKsTBA5F/MTAE=
 github.com/giantswarm/microendpoint v1.1.1 h1:nDEQOT43fGq8k/3f+wqw+z1Od04OJCeP1uSoZMR2bkU=
 github.com/giantswarm/microendpoint v1.1.1/go.mod h1:gdvw1bZl4nSB3kRZWr/Aaz8zXXn9IA/fT1EkQKgnJI0=
-github.com/giantswarm/microerror v0.2.0/go.mod h1:1YtJq/m7Vlq1Y6NP7B+SODOKCGlG7e5wctV2OoE9n34=
 github.com/giantswarm/microerror v0.4.1 h1:WMiD7HQASoUA9lZzPlPK+erCEOJ0uT4cyo18VfCXHD0=
 github.com/giantswarm/microerror v0.4.1/go.mod h1:URFj0gFCmZihjya6saQCXxslBrgctXb4NsXYHB5JdrI=
 github.com/giantswarm/microkit v1.0.2 h1:dBK8CZlHyLwiA7g+2gHk1KEm6slajMA8vRZ7ykkFqYU=
