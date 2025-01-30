@@ -163,7 +163,7 @@ func (c *ChartStatusWatcher) watchChartStatus(ctx context.Context) {
 				types.NamespacedName{Name: appName, Namespace: appNamespace},
 				&app)
 			if err != nil {
-				c.logger.Errorf(ctx, err, "failed to get app '%s/%s'", app.Namespace, app.Name)
+				c.logger.Errorf(ctx, err, "failed to get app '%s/%s'", appNamespace, appName)
 				continue
 			}
 
