@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Fixed
+
+- Bump the `github.com/giantswarm/app` package to version `v7.0.4` which prevents creation of empty Secrets for Chart CRs.
+
 ## [7.0.0] - 2024-11-19
 
 ### Removed

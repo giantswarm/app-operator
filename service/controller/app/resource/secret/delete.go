@@ -31,7 +31,7 @@ func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange inte
 		} else if err != nil {
 			return microerror.Mask(err)
 		} else {
-			r.logger.Debugf(ctx, "deleted Chart CR %#q in namespace %#q", secret.Name, secret.Namespace)
+			r.logger.Debugf(ctx, "deleted secret %#q in namespace %#q", secret.Name, secret.Namespace)
 		}
 	}
 
