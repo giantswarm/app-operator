@@ -7,6 +7,8 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+## [7.0.1] - 2025-01-30
+
 ### Fixed
 
 - Bump the `github.com/giantswarm/app` package to version `v7.0.4` which prevents creation of empty Secrets for Chart CRs.
@@ -777,7 +779,8 @@ from Helm 2 to Helm 3.
 
 - Flattening operator release structure.
 
-[Unreleased]: https://github.com/giantswarm/app-operator/compare/v7.0.0...HEAD
+[Unreleased]: https://github.com/giantswarm/app-operator/compare/v7.0.1...HEAD
+[7.0.1]: https://github.com/giantswarm/app-operator/compare/v7.0.0...v7.0.1
 [7.0.0]: https://github.com/giantswarm/app-operator/compare/v6.11.2...v7.0.0
 [6.11.2]: https://github.com/giantswarm/app-operator/compare/v6.11.1...v6.11.2
 [6.11.1]: https://github.com/giantswarm/app-operator/compare/v6.11.0...v6.11.1
