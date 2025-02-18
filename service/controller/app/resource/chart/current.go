@@ -49,7 +49,17 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 		return nil, nil
 	}
 
+	cordoned := false
 	if key.IsAppCordoned(cr) {
+		cordonedUntil, err := time.Parse(time.RFC3339, key.CordonUntil(app))
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		cordoned = time.Now().Before(cordonedUntil)
+	}
+
+	if cordoned {
 		r.logger.Debugf(ctx, "app %#q is cordoned", cr.Name)
 		r.logger.Debugf(ctx, "canceling resource")
 		resourcecanceledcontext.SetCanceled(ctx)

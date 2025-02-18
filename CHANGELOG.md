@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Changed
+
+- Make `cordon-until` expire automatically.
+
 ## [7.0.1] - 2025-01-30
 
 ### Fixed
