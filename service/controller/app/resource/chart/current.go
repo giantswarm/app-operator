@@ -2,6 +2,7 @@ package chart
 
 import (
 	"context"
+	"time"
 
 	"github.com/giantswarm/apiextensions-application/api/v1alpha1"
 	"github.com/giantswarm/app/v7/pkg/key"
