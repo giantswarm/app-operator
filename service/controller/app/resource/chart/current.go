@@ -52,7 +52,7 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 
 	cordoned := false
 	if key.IsAppCordoned(cr) {
-		cordonedUntil, err := time.Parse(time.RFC3339, key.CordonUntil(app))
+		cordonedUntil, err := time.Parse(time.RFC3339, key.CordonUntil(cr))
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
