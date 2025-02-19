@@ -12,6 +12,7 @@ import (
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
+	"github.com/giantswarm/app-operator/v7/pkg/status"
 	"github.com/giantswarm/app-operator/v7/service/controller/app/controllercontext"
 )
 
@@ -42,12 +43,11 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 		return nil, nil
 	}
 
-	if key.IsAppCordoned(cr) {
+	cordoned, _ := key.IsAppCordoned(cr)
+	if cordoned {
 		r.logger.Debugf(ctx, "app %#q is cordoned", cr.Name)
 		r.logger.Debugf(ctx, "canceling resource")
 
-		// Adding cordon status to context
-		addStatusToContext(cc, key.CordonReason(cr), cordonedStatus)
 		resourcecanceledcontext.SetCanceled(ctx)
 		return nil, nil
 	}

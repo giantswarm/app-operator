@@ -2,7 +2,6 @@ package chart
 
 import (
 	"context"
-	"time"
 
 	"github.com/giantswarm/apiextensions-application/api/v1alpha1"
 	"github.com/giantswarm/app/v7/pkg/key"
@@ -50,19 +49,17 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 		return nil, nil
 	}
 
-	cordoned := false
-	if key.IsAppCordoned(cr) {
-		cordonedUntil, err := time.Parse(time.RFC3339, key.CordonUntil(cr))
+	cordoned, err := key.IsAppCordoned(cr)
+	if cordoned {
+		reason, code := key.CordonReason(cr), status.CordonStatus
 		if err != nil {
-			return nil, microerror.Mask(err)
+			reason, code = err.Error(), status.CordonFailedStatus
 		}
 
-		cordoned = time.Now().Before(cordonedUntil)
-	}
-
-	if cordoned {
 		r.logger.Debugf(ctx, "app %#q is cordoned", cr.Name)
 		r.logger.Debugf(ctx, "canceling resource")
+
+		addStatusToContext(cc, reason, code)
 		resourcecanceledcontext.SetCanceled(ctx)
 		return nil, nil
 	}
