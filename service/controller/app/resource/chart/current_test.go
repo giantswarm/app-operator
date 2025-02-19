@@ -7,13 +7,13 @@ import (
 
 	"github.com/giantswarm/apiextensions-application/api/v1alpha1"
 	"github.com/giantswarm/k8sclient/v7/pkg/k8sclienttest"
-	"github.com/giantswarm/micrologger/microloggertest"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"github.com/giantswarm/k8smetadata/pkg/annotation"
+	"github.com/giantswarm/micrologger/microloggertest"
+	"github.com/giantswarm/operatorkit/v7/pkg/controller/context/resourcecanceledcontext"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	dynamicfake "k8s.io/client-go/dynamic/fake"
 	clientgofake "k8s.io/client-go/kubernetes/fake"
-	"github.com/giantswarm/operatorkit/v7/pkg/controller/context/resourcecanceledcontext"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake" //nolint:staticcheck
 
 	"github.com/giantswarm/app-operator/v7/service/controller/app/controllercontext"
@@ -29,7 +29,7 @@ func Test_CordonUntil(t *testing.T) {
 	}{
 		{
 			canceled: false,
-			name: "flawless flow, not cordoned",
+			name:     "flawless flow, not cordoned",
 			obj: &v1alpha1.App{
 				ObjectMeta: metav1.ObjectMeta{
 					Labels: map[string]string{
@@ -44,7 +44,7 @@ func Test_CordonUntil(t *testing.T) {
 		},
 		{
 			canceled: true,
-			name: "flawless flow, cordon holds",
+			name:     "flawless flow, cordon holds",
 			obj: &v1alpha1.App{
 				ObjectMeta: metav1.ObjectMeta{
 					Annotations: map[string]string{
@@ -62,7 +62,7 @@ func Test_CordonUntil(t *testing.T) {
 		},
 		{
 			canceled: false,
-			name: "flawless flow, cordon expired",
+			name:     "flawless flow, cordon expired",
 			obj: &v1alpha1.App{
 				ObjectMeta: metav1.ObjectMeta{
 					Annotations: map[string]string{
@@ -80,8 +80,8 @@ func Test_CordonUntil(t *testing.T) {
 		},
 		{
 			canceled: true,
-			error: parseError("2030-01-02"),
-			name: "cordon set with bad time format",
+			error:    parseError("2030-01-02"),
+			name:     "cordon set with bad time format",
 			obj: &v1alpha1.App{
 				ObjectMeta: metav1.ObjectMeta{
 					Annotations: map[string]string{
