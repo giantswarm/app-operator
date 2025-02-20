@@ -49,9 +49,17 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 		return nil, nil
 	}
 
-	if key.IsAppCordoned(cr) {
+	cordoned, err := key.IsAppCordoned(cr)
+	if cordoned {
+		reason, code := key.CordonReason(cr), status.CordonStatus
+		if err != nil {
+			reason, code = err.Error(), status.CordonFailedStatus
+		}
+
 		r.logger.Debugf(ctx, "app %#q is cordoned", cr.Name)
 		r.logger.Debugf(ctx, "canceling resource")
+
+		addStatusToContext(cc, reason, code)
 		resourcecanceledcontext.SetCanceled(ctx)
 		return nil, nil
 	}
