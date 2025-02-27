@@ -17,6 +17,13 @@ const (
 	// merge configmaps.
 	ConfigmapMergeFailedStatus = "configmap-merge-failed"
 
+	// CordonFailedStatus is set in the CR status when there is a failure on
+	// parsing the cordon-until time.
+	CordonFailedStatus = "cordon-failed"
+
+	// CordonStatus is set in the CR status when an app has been successfully cordoned.
+	CordonStatus = "cordoned"
+
 	// IndexNotFoundStatus is set in the CR status when the catalog's index.yaml
 	// has no entries or is nil.
 	IndexNotFoundStatus = "index-not-found"
