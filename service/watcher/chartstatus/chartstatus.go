@@ -17,6 +17,8 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/watch"
+
+	"github.com/giantswarm/app-operator/v7/pkg/status"
 )
 
 var chartResource = schema.GroupVersionResource{Group: "application.giantswarm.io", Version: "v1alpha1", Resource: "charts"}
@@ -169,6 +171,12 @@ func (c *ChartStatusWatcher) watchChartStatus(ctx context.Context) {
 
 			desiredStatus := toAppStatus(*chart)
 			currentStatus := key.AppStatus(app)
+
+			isCordoned := currentStatus.Release.Status == status.CordonStatus || currentStatus.Release.Status == status.CordonFailedStatus
+
+			if isCordoned {
+				continue
+			}
 
 			if !equals(currentStatus, desiredStatus) {
 				if diff := cmp.Diff(currentStatus, desiredStatus); diff != "" {
