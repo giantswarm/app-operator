@@ -2,15 +2,15 @@ package tcnamespace
 
 import (
 	"context"
-	"testing"
 	"fmt"
+	"testing"
 
 	"github.com/giantswarm/apiextensions-application/api/v1alpha1"
 	"github.com/giantswarm/k8sclient/v7/pkg/k8sclienttest"
 	"github.com/giantswarm/micrologger/microloggertest"
-	clientgofake "k8s.io/client-go/kubernetes/fake"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	clientgofake "k8s.io/client-go/kubernetes/fake"
 
 	"github.com/giantswarm/app-operator/v7/service/controller/app/controllercontext"
 )
