@@ -57,6 +57,24 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		},
 	}
 
+	_, err = cc.Clients.K8s.K8sClient().CoreV1().Namespaces().Get(ctx, namespace, metav1.GetOptions{})
+	if err == nil {
+		r.logger.Debugf(ctx, "namespace %#q in workload cluster %#q already exists", namespace, key.ClusterID(cr))
+		return nil
+	} else if apierrors.IsNotFound(err) {
+		// Fall through
+	} else if tenant.IsAPINotAvailable(err) {
+		// Set status so we don't try to connect to the workload cluster
+		// again in this reconciliation loop.
+		cc.Status.ClusterStatus.IsUnavailable = true
+
+		r.logger.Debugf(ctx, "workload cluster not available")
+		r.logger.Debugf(ctx, "canceling resource")
+		return nil
+	} else if err != nil {
+		return microerror.Mask(err)
+	}
+
 	r.logger.Debugf(ctx, "creating namespace %#q in workload cluster %#q", ns.Name, key.ClusterID(cr))
 
 	ch := make(chan error)

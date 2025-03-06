@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Changed
+
+- Improve `tcnamespace` resource by checking for `giantswarm` namespace existence before creating it.
+
 ## [7.1.0] - 2025-02-27
 
 ### Changed
