@@ -7,6 +7,8 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+## [7.2.0] - 2025-03-12
+
 ## [7.1.1] - 2025-03-11
 
 ### Changed
@@ -791,7 +793,8 @@ from Helm 2 to Helm 3.
 
 - Flattening operator release structure.
 
-[Unreleased]: https://github.com/giantswarm/app-operator/compare/v7.1.1...HEAD
+[Unreleased]: https://github.com/giantswarm/app-operator/compare/v7.2.0...HEAD
+[7.2.0]: https://github.com/giantswarm/app-operator/compare/v7.1.1...v7.2.0
 [7.1.1]: https://github.com/giantswarm/app-operator/compare/v7.1.0...v7.1.1
 [7.1.0]: https://github.com/giantswarm/app-operator/compare/v7.0.1...v7.1.0
 [7.0.1]: https://github.com/giantswarm/app-operator/compare/v7.0.0...v7.0.1
