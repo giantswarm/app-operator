@@ -53,8 +53,7 @@ func New(config Config) (*Resource, error) {
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
 
-			ProjectName: config.ProjectName,
-			Provider:    config.Provider,
+			Provider: config.Provider,
 		}
 		appValidator, err = validation.NewValidator(c)
 		if err != nil {
