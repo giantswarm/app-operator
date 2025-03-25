@@ -187,7 +187,7 @@ func (r Resource) triggerReconciliation(ctx context.Context, chartOperatorApp v1
 	// If not, annotate the App to trigger the reconciliation.
 	for i, app := range appList.Items {
 		// Skip for in-cluster apps and the chart-operator app itself.
-		if key.InCluster(app) || app.ObjectMeta.Name == chartOperatorApp.ObjectMeta.Name {
+		if key.InCluster(app) || app.Name == chartOperatorApp.Name {
 			continue
 		}
 
@@ -203,7 +203,7 @@ func (r Resource) triggerReconciliation(ctx context.Context, chartOperatorApp v1
 		// if chart CR is not found, trigger sync
 		if apierrors.IsNotFound(err) {
 			r.logger.Debugf(ctx, "did not find chart %#q in namespace %#q", name, r.chartNamespace)
-			r.logger.Debugf(ctx, "annotating %#q app", app.ObjectMeta.Name)
+			r.logger.Debugf(ctx, "annotating %#q app", app.Name)
 
 			if len(app.GetAnnotations()) == 0 {
 				app.Annotations = map[string]string{}
@@ -226,7 +226,7 @@ func (r Resource) triggerReconciliation(ctx context.Context, chartOperatorApp v1
 				return microerror.Mask(err)
 			}
 
-			r.logger.Debugf(ctx, "annotated %#q app", app.ObjectMeta.Name)
+			r.logger.Debugf(ctx, "annotated %#q app", app.Name)
 		} else if err != nil {
 			return microerror.Mask(err)
 		}

@@ -196,9 +196,9 @@ func Test_Resource_triggerReconciliation(t *testing.T) {
 
 			for _, a := range appList.Items {
 				_, ok := a.GetAnnotations()[annotation.AppOperatorTriggerReconciliation]
-				expectedSet := tc.expectAnnotation[a.ObjectMeta.Name]
+				expectedSet := tc.expectAnnotation[a.Name]
 				if expectedSet != ok {
-					t.Fatalf("%s: expected %t, got %t", a.ObjectMeta.Name, expectedSet, ok)
+					t.Fatalf("%s: expected %t, got %t", a.Name, expectedSet, ok)
 				}
 
 				expectedNum := 1
@@ -207,10 +207,10 @@ func Test_Resource_triggerReconciliation(t *testing.T) {
 				}
 
 				if expectedNum != len(a.GetAnnotations()) {
-					t.Fatalf("%s: expected %d, got %d", a.ObjectMeta.Name, expectedNum, len(a.GetAnnotations()))
+					t.Fatalf("%s: expected %d, got %d", a.Name, expectedNum, len(a.GetAnnotations()))
 				}
 
-				expectedApp, ok := tc.expectApp[a.ObjectMeta.Name]
+				expectedApp, ok := tc.expectApp[a.Name]
 				if !ok {
 					continue
 				}

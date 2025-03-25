@@ -72,7 +72,12 @@ func (r *Resource) GetIndex(ctx context.Context, storageURL string) (*Index, err
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
-	defer resp.Body.Close()
+	defer func() {
+		err := resp.Body.Close()
+		if err != nil {
+			r.logger.Errorf(ctx, err, "failed to close response body")
+		}
+	}()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {

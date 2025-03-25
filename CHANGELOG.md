@@ -7,6 +7,11 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Changed
+
+- Update the architect-orb version in CircleCI to `giantswarm/architect@dev:ce9a62fb6407cd537b3123a9546847b7b7fb0d0b`.
+- Fix golangci-lint issues to ensure compatibility with v2.0.0.
+
 ## [7.1.1] - 2025-03-11
 
 ### Changed
