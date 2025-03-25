@@ -6,7 +6,6 @@ import (
 
 	"github.com/giantswarm/apiextensions-application/api/v1alpha1"
 	"github.com/giantswarm/app/v7/pkg/key"
-	"github.com/giantswarm/app/v7/pkg/validation"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/v7/pkg/controller/context/reconciliationcanceledcontext"
 	"k8s.io/apimachinery/pkg/types"
@@ -21,7 +20,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	}
 
 	_, err = r.appValidator.ValidateApp(ctx, cr)
-	if validation.IsValidationError(err) {
+	if err != nil {
 		r.logger.LogCtx(ctx, "level", "warning", "message", fmt.Sprintf("validation error %s", err.Error()))
 
 		err = r.updateAppStatus(ctx, cr, err.Error())
@@ -32,8 +31,6 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		r.logger.Debugf(ctx, "canceling reconciliation")
 		reconciliationcanceledcontext.SetCanceled(ctx)
 		return nil
-	} else if err != nil {
-		return microerror.Mask(err)
 	}
 
 	return nil
