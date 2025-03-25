@@ -117,7 +117,12 @@ func (r *Resource) getIndex(ctx context.Context, storageURL string) (index, erro
 	if err != nil {
 		return index{}, microerror.Mask(err)
 	}
-	defer resp.Body.Close()
+	defer func() {
+		err := resp.Body.Close()
+		if err != nil {
+			r.logger.Errorf(ctx, err, "failed to close response body")
+		}
+	}()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
@@ -149,7 +154,12 @@ func (r *Resource) getMetadata(ctx context.Context, mainURL string) ([]byte, err
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
-	defer resp.Body.Close()
+	defer func() {
+		err := resp.Body.Close()
+		if err != nil {
+			r.logger.Errorf(ctx, err, "failed to close response body")
+		}
+	}()
 
 	if resp.StatusCode == http.StatusNotFound {
 		r.logger.Debugf(ctx, "no main.yaml generated at %#q", mainURL)

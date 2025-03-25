@@ -202,21 +202,22 @@ func (c *AppValueWatcher) addCache(ctx context.Context, cr v1alpha1.App, eventTy
 func (c *AppValueWatcher) addLabel(ctx context.Context, resource resourceIndex) error {
 	var currentLabels map[string]string
 	{
-		if resource.ResourceType == configMapType {
+		switch resource.ResourceType {
+		case configMapType:
 			currentCM, err := c.k8sClient.K8sClient().CoreV1().ConfigMaps(resource.Namespace).Get(ctx, resource.Name, metav1.GetOptions{})
 			if err != nil {
 				return microerror.Mask(err)
 			}
 
 			currentLabels = currentCM.GetLabels()
-		} else if resource.ResourceType == secretType {
+		case secretType:
 			currentSecret, err := c.k8sClient.K8sClient().CoreV1().Secrets(resource.Namespace).Get(ctx, resource.Name, metav1.GetOptions{})
 			if err != nil {
 				return microerror.Mask(err)
 			}
 
 			currentLabels = currentSecret.GetLabels()
-		} else {
+		default:
 			return microerror.Maskf(wrongTypeError, "expected %T or %T but got %T", configMapType, secretType, resource.ResourceType)
 		}
 	}
@@ -247,12 +248,13 @@ func (c *AppValueWatcher) addLabel(ctx context.Context, resource resourceIndex) 
 		return microerror.Mask(err)
 	}
 
-	if resource.ResourceType == configMapType {
+	switch resource.ResourceType {
+	case configMapType:
 		_, err = c.k8sClient.K8sClient().CoreV1().ConfigMaps(resource.Namespace).Patch(ctx, resource.Name, types.JSONPatchType, bytes, metav1.PatchOptions{})
 		if err != nil {
 			return microerror.Mask(err)
 		}
-	} else if resource.ResourceType == secretType {
+	case secretType:
 		_, err = c.k8sClient.K8sClient().CoreV1().Secrets(resource.Namespace).Patch(ctx, resource.Name, types.JSONPatchType, bytes, metav1.PatchOptions{})
 		if err != nil {
 			return microerror.Mask(err)
@@ -300,21 +302,22 @@ func (c *AppValueWatcher) findCatalog(ctx context.Context, cr v1alpha1.App) (*v1
 func (c *AppValueWatcher) removeLabel(ctx context.Context, resource resourceIndex) error {
 	var currentLabels map[string]string
 	{
-		if resource.ResourceType == configMapType {
+		switch resource.ResourceType {
+		case configMapType:
 			currentCM, err := c.k8sClient.K8sClient().CoreV1().ConfigMaps(resource.Namespace).Get(ctx, resource.Name, metav1.GetOptions{})
 			if err != nil {
 				return microerror.Mask(err)
 			}
 
 			currentLabels = currentCM.GetLabels()
-		} else if resource.ResourceType == secretType {
+		case secretType:
 			currentSecret, err := c.k8sClient.K8sClient().CoreV1().Secrets(resource.Namespace).Get(ctx, resource.Name, metav1.GetOptions{})
 			if err != nil {
 				return microerror.Mask(err)
 			}
 
 			currentLabels = currentSecret.GetLabels()
-		} else {
+		default:
 			return microerror.Maskf(wrongTypeError, "expected %T or %T but got %T", configMapType, secretType, resource.ResourceType)
 		}
 	}
@@ -336,12 +339,13 @@ func (c *AppValueWatcher) removeLabel(ctx context.Context, resource resourceInde
 		return microerror.Mask(err)
 	}
 
-	if resource.ResourceType == configMapType {
+	switch resource.ResourceType {
+	case configMapType:
 		_, err = c.k8sClient.K8sClient().CoreV1().ConfigMaps(resource.Namespace).Patch(ctx, resource.Name, types.JSONPatchType, bytes, metav1.PatchOptions{})
 		if err != nil {
 			return microerror.Mask(err)
 		}
-	} else if resource.ResourceType == secretType {
+	case secretType:
 		_, err = c.k8sClient.K8sClient().CoreV1().Secrets(resource.Namespace).Patch(ctx, resource.Name, types.JSONPatchType, bytes, metav1.PatchOptions{})
 		if err != nil {
 			return microerror.Mask(err)
@@ -352,5 +356,5 @@ func (c *AppValueWatcher) removeLabel(ctx context.Context, resource resourceInde
 }
 
 func replaceToEscape(from string) string {
-	return strings.Replace(from, "/", "~1", -1)
+	return strings.ReplaceAll(from, "/", "~1")
 }

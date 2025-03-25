@@ -90,8 +90,8 @@ func (r *Resource) newUpdateChange(ctx context.Context, currentResource, desired
 		}
 
 		updateChart = desiredChart.DeepCopy()
-		updateChart.ObjectMeta.ResourceVersion = resourceVersion
-		updateChart.ObjectMeta.Finalizers = finalizers
+		updateChart.ResourceVersion = resourceVersion
+		updateChart.Finalizers = finalizers
 
 		return updateChart, nil
 	}
