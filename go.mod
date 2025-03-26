@@ -28,7 +28,7 @@ require (
 	github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring v0.64.0
 	github.com/prometheus/client_golang v1.21.1
 	github.com/spf13/afero v1.14.0
-	github.com/spf13/viper v1.20.0
+	github.com/spf13/viper v1.20.1
 	k8s.io/api v0.32.2
 	k8s.io/apiextensions-apiserver v0.32.2
 	k8s.io/apimachinery v0.32.2
