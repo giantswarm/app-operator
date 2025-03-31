@@ -72,7 +72,7 @@ func (r *Resource) GetIndex(ctx context.Context, storageURL string) (*Index, err
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {

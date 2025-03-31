@@ -309,7 +309,7 @@ func (r *Resource) getLatestEntry(ctx context.Context, entries []entry) (entry, 
 		}
 
 		if nextVersion.Equal(&latestVersion) {
-			if entries[i].Created.Time.After(latestCreated.Time) {
+			if entries[i].Created.After(latestCreated.Time) {
 				latestIndex = i
 				latestVersion = nextVersion
 				latestCreated = entries[i].Created

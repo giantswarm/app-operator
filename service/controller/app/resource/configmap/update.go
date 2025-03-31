@@ -79,7 +79,7 @@ func (r *Resource) newUpdateChange(ctx context.Context, currentResource, desired
 		r.logger.Debugf(ctx, "the configmap has to be updated")
 
 		updateConfigMap = desiredConfigMap.DeepCopy()
-		updateConfigMap.ObjectMeta.ResourceVersion = currentConfigMap.ObjectMeta.ResourceVersion
+		updateConfigMap.ResourceVersion = currentConfigMap.ResourceVersion
 
 		return updateConfigMap, nil
 	} else {

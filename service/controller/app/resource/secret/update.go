@@ -79,7 +79,7 @@ func (r *Resource) newUpdateChange(ctx context.Context, currentResource, desired
 		r.logger.Debugf(ctx, "the secret has to be updated")
 
 		updateSecret = desiredSecret.DeepCopy()
-		updateSecret.ObjectMeta.ResourceVersion = currentSecret.ObjectMeta.ResourceVersion
+		updateSecret.ResourceVersion = currentSecret.ResourceVersion
 
 		return updateSecret, nil
 	} else {
