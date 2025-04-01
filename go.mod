@@ -8,7 +8,7 @@ require (
 	github.com/Masterminds/semver/v3 v3.3.1
 	github.com/ghodss/yaml v1.0.0
 	github.com/giantswarm/apiextensions-application v0.6.2
-	github.com/giantswarm/app/v7 v7.1.1-0.20250319161852-3290a1405621
+	github.com/giantswarm/app/v8 v8.0.0
 	github.com/giantswarm/appcatalog v1.0.0
 	github.com/giantswarm/apptest v1.4.1
 	github.com/giantswarm/backoff v1.0.1
@@ -33,7 +33,7 @@ require (
 	k8s.io/apiextensions-apiserver v0.32.2
 	k8s.io/apimachinery v0.32.2
 	k8s.io/client-go v0.32.2
-	sigs.k8s.io/controller-runtime v0.20.2
+	sigs.k8s.io/controller-runtime v0.20.4
 	sigs.k8s.io/yaml v1.4.0
 )
 
