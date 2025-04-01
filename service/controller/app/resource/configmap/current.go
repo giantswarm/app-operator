@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/giantswarm/app/v7/pkg/key"
+	"github.com/giantswarm/app/v8/pkg/key"
 	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/v7/pkg/controller/context/resourcecanceledcontext"
