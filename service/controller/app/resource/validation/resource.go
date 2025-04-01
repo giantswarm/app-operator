@@ -1,7 +1,7 @@
 package validation
 
 import (
-	"github.com/giantswarm/app/v7/pkg/validation"
+	"github.com/giantswarm/app/v8/pkg/validation"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"k8s.io/client-go/kubernetes"
@@ -53,8 +53,7 @@ func New(config Config) (*Resource, error) {
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
 
-			ProjectName: config.ProjectName,
-			Provider:    config.Provider,
+			Provider: config.Provider,
 		}
 		appValidator, err = validation.NewValidator(c)
 		if err != nil {

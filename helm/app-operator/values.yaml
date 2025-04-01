@@ -35,7 +35,7 @@ image:
   tag: ""
 
 operatorkit:
-  resyncPeriod: "5m"
+  resyncPeriod: "3m"
 
 deployment:
   management:

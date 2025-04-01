@@ -7,6 +7,15 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Changed
+
+- Bump `app` library to `v8.0.0`.
+- Decrease default reconciliation interval from `5m` to `3m`.
+
+### Fixed
+
+- Properly report missing referenced config maps and secrets in the status of the App CR.
+
 ## [7.1.1] - 2025-03-11
 
 ### Changed
