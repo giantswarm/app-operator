@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Removed
+
+- Stop pushing to `gcp-app-collection` as it is archived.
+
 ## [7.2.0] - 2025-04-01
 
 ### Changed
