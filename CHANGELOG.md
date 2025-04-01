@@ -9,6 +9,7 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ### Changed
 
+- Bump `app` library to `v8.0.0`.
 - Decrease default reconciliation interval from `5m` to `3m`.
 
 ### Fixed
