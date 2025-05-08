@@ -1,6 +1,6 @@
 module github.com/giantswarm/app-operator/v7
 
-go 1.23.0
+go 1.24
 
 toolchain go1.24.3
 
@@ -25,14 +25,14 @@ require (
 	github.com/giantswarm/to v0.4.2
 	github.com/google/go-cmp v0.7.0
 	github.com/patrickmn/go-cache v2.1.0+incompatible
-	github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring v0.64.0
+	github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring v0.82.1
 	github.com/prometheus/client_golang v1.22.0
 	github.com/spf13/afero v1.14.0
 	github.com/spf13/viper v1.20.1
-	k8s.io/api v0.32.2
-	k8s.io/apiextensions-apiserver v0.32.2
-	k8s.io/apimachinery v0.32.2
-	k8s.io/client-go v0.32.2
+	k8s.io/api v0.32.3
+	k8s.io/apiextensions-apiserver v0.32.3
+	k8s.io/apimachinery v0.32.3
+	k8s.io/client-go v0.32.3
 	sigs.k8s.io/controller-runtime v0.20.4
 	sigs.k8s.io/yaml v1.4.0
 )
@@ -73,7 +73,7 @@ require (
 	github.com/fatih/color v1.14.1 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/fsnotify/fsnotify v1.8.0 // indirect
-	github.com/fxamacker/cbor/v2 v2.7.0 // indirect
+	github.com/fxamacker/cbor/v2 v2.8.0 // indirect
 	github.com/getsentry/sentry-go v0.31.1 // indirect
 	github.com/giantswarm/exporterkit v1.2.0 // indirect
 	github.com/giantswarm/versionbundle v1.1.0 // indirect
@@ -178,18 +178,18 @@ require (
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	helm.sh/helm/v3 v3.17.0 // indirect
-	k8s.io/apiserver v0.32.2 // indirect
+	k8s.io/apiserver v0.32.3 // indirect
 	k8s.io/cli-runtime v0.32.0 // indirect
-	k8s.io/component-base v0.32.2 // indirect
+	k8s.io/component-base v0.32.3 // indirect
 	k8s.io/klog/v2 v2.130.1 // indirect
 	k8s.io/kube-openapi v0.0.0-20241105132330-32ad38e42d3f // indirect
 	k8s.io/kubectl v0.32.0 // indirect
-	k8s.io/utils v0.0.0-20241210054802-24370beab758 // indirect
+	k8s.io/utils v0.0.0-20250321185631-1f6e0b77f77e // indirect
 	oras.land/oras-go v1.2.6 // indirect
-	sigs.k8s.io/json v0.0.0-20241010143419-9aa6b5e7a4b3 // indirect
+	sigs.k8s.io/json v0.0.0-20241014173422-cfa47c3a1cc8 // indirect
 	sigs.k8s.io/kustomize/api v0.18.0 // indirect
 	sigs.k8s.io/kustomize/kyaml v0.18.1 // indirect
-	sigs.k8s.io/structured-merge-diff/v4 v4.4.2 // indirect
+	sigs.k8s.io/structured-merge-diff/v4 v4.7.0 // indirect
 )
 
 replace (
