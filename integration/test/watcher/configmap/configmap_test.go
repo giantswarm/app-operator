@@ -5,7 +5,6 @@ package configmap
 
 import (
 	"context"
-	"fmt"
 	"testing"
 	"time"
 
@@ -168,7 +167,7 @@ func TestWatchingConfigMap(t *testing.T) {
 			}
 
 			if _, ok := cm.GetLabels()[label.AppOperatorWatching]; !ok {
-				return microerror.Maskf(notFoundError, fmt.Sprintf("%#q label not found", label.AppOperatorWatching))
+				return microerror.Maskf(notFoundError, "%#q label not found", label.AppOperatorWatching)
 			}
 
 			return nil
@@ -197,7 +196,7 @@ func TestWatchingConfigMap(t *testing.T) {
 			}
 
 			if _, ok := cm.GetLabels()[label.AppOperatorWatching]; !ok {
-				return microerror.Maskf(notFoundError, fmt.Sprintf("%#q label not found", label.AppOperatorWatching))
+				return microerror.Maskf(notFoundError, "%#q label not found", label.AppOperatorWatching)
 			}
 
 			return nil
@@ -252,9 +251,9 @@ func TestWatchingConfigMap(t *testing.T) {
 			}
 
 			if v, ok := cr.GetAnnotations()[versionAnnotation]; !ok {
-				return microerror.Maskf(notFoundError, fmt.Sprintf("%#q annotation not found", versionAnnotation))
+				return microerror.Maskf(notFoundError, "%#q annotation not found", versionAnnotation)
 			} else if v != updatedResourceVersion {
-				return microerror.Maskf(testError, fmt.Sprintf("expect annotation equal to %#q but %#q", updatedResourceVersion, v))
+				return microerror.Maskf(testError, "expect annotation equal to %#q but %#q", updatedResourceVersion, v)
 			}
 
 			return nil
@@ -306,9 +305,9 @@ func TestWatchingConfigMap(t *testing.T) {
 			}
 
 			if v, ok := cr.GetAnnotations()[versionAnnotation]; !ok {
-				return microerror.Maskf(notFoundError, fmt.Sprintf("%#q annotation not found", versionAnnotation))
+				return microerror.Maskf(notFoundError, "%#q annotation not found", versionAnnotation)
 			} else if v != updatedResourceVersion {
-				return microerror.Maskf(testError, fmt.Sprintf("expect annotation equal to %#q but %#q", updatedResourceVersion, v))
+				return microerror.Maskf(testError, "expect annotation equal to %#q but %#q", updatedResourceVersion, v)
 			}
 
 			return nil
@@ -348,7 +347,7 @@ func TestWatchingConfigMap(t *testing.T) {
 			}
 
 			if _, ok := cm.GetLabels()[label.AppOperatorWatching]; ok {
-				return microerror.Maskf(testError, fmt.Sprintf("%#q label still found", label.AppOperatorWatching))
+				return microerror.Maskf(testError, "%#q label still found", label.AppOperatorWatching)
 			}
 
 			return nil
