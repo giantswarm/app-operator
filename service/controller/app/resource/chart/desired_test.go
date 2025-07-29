@@ -1999,7 +1999,7 @@ func Test_checkDependencies(t *testing.T) {
 					Name:      "test-app-case-5",
 					Namespace: "org-giantswarm",
 					Annotations: map[string]string{
-						annotationChartOperatorDependsOn:            "test-app-1",
+						annotationChartOperatorDependsOn:            "test-app-1-case-5",
 						annotationChartOperatorDependsOnHelmRelease: "true",
 					},
 				},
@@ -2011,10 +2011,10 @@ func Test_checkDependencies(t *testing.T) {
 			installedHelmReleases: []*unstructured.Unstructured{
 				{
 					Object: map[string]interface{}{
-						"apiVersion": "helm.toolkit.fluxcd.io/v2beta1",
+						"apiVersion": "helm.toolkit.fluxcd.io/v2beta2",
 						"kind":       "HelmRelease",
 						"metadata": map[string]interface{}{
-							"name":      "test-app-1",
+							"name":      "test-app-1-case-5",
 							"namespace": "org-giantswarm",
 						},
 						"spec": map[string]interface{}{
@@ -2025,13 +2025,19 @@ func Test_checkDependencies(t *testing.T) {
 							},
 						},
 						"status": map[string]interface{}{
-							"lastAppliedRevision": "1.0.0",
 							"conditions": []interface{}{
 								map[string]interface{}{
 									"status": "True",
 									"type":   "Ready",
 								},
 							},
+							"history": []interface{}{
+								map[string]interface{}{
+									"chartVersion": "1.0.0",
+									"status": "deployed",
+								},
+							},
+							"lastAttemptedRevision": "1.0.0",
 						},
 					},
 				},
@@ -2044,7 +2050,7 @@ func Test_checkDependencies(t *testing.T) {
 					Name:      "test-app-case-6",
 					Namespace: "org-giantswarm",
 					Annotations: map[string]string{
-						annotationChartOperatorDependsOn:            "test-app-1",
+						annotationChartOperatorDependsOn:            "test-app-1-case-6",
 						annotationChartOperatorDependsOnHelmRelease: "true",
 					},
 				},
@@ -2054,16 +2060,16 @@ func Test_checkDependencies(t *testing.T) {
 			},
 			installedApps:            []*v1alpha1.App{},
 			installedHelmReleases:    []*unstructured.Unstructured{},
-			dependenciesNotInstalled: []string{"test-app-1"},
+			dependenciesNotInstalled: []string{"test-app-1-case-6"},
 		},
 		{
-			name: " case 7: App has 1 HelmRelease dependency, dependency is applied but not installed",
+			name: " case 7: App has 1 HelmRelease dependency, dependency is applied but not installed, no status",
 			appToInstall: &v1alpha1.App{
 				ObjectMeta: metav1.ObjectMeta{
-					Name:      "test-app-case-6",
+					Name:      "test-app-case-7",
 					Namespace: "org-giantswarm",
 					Annotations: map[string]string{
-						annotationChartOperatorDependsOn:            "test-app-1",
+						annotationChartOperatorDependsOn:            "test-app-1-case-7",
 						annotationChartOperatorDependsOnHelmRelease: "true",
 					},
 				},
@@ -2075,10 +2081,10 @@ func Test_checkDependencies(t *testing.T) {
 			installedHelmReleases: []*unstructured.Unstructured{
 				{
 					Object: map[string]interface{}{
-						"apiVersion": "helm.toolkit.fluxcd.io/v2beta1",
+						"apiVersion": "helm.toolkit.fluxcd.io/v2beta2",
 						"kind":       "HelmRelease",
 						"metadata": map[string]interface{}{
-							"name":      "test-app-1",
+							"name":      "test-app-1-case-7",
 							"namespace": "org-giantswarm",
 						},
 						"spec": map[string]interface{}{
@@ -2091,16 +2097,102 @@ func Test_checkDependencies(t *testing.T) {
 					},
 				},
 			},
-			dependenciesNotInstalled: []string{"test-app-1"},
+			dependenciesNotInstalled: []string{"test-app-1-case-7"},
 		},
 		{
-			name: " case 8: App has 1 HelmRelease dependency and 1 App dependency, both dependencies are installed",
+			name: " case 8: App has 1 HelmRelease dependency, dependency is applied but not installed, attempted release, no history",
 			appToInstall: &v1alpha1.App{
 				ObjectMeta: metav1.ObjectMeta{
-					Name:      "test-app-case-7",
+					Name:      "test-app-case-8",
 					Namespace: "org-giantswarm",
 					Annotations: map[string]string{
-						annotationChartOperatorDependsOn:            "test-app-1,test-app-2",
+						annotationChartOperatorDependsOn:            "test-app-1-case-8",
+						annotationChartOperatorDependsOnHelmRelease: "true",
+					},
+				},
+				Spec: v1alpha1.AppSpec{
+					Namespace: "giantswarm",
+				},
+			},
+			installedApps: []*v1alpha1.App{},
+			installedHelmReleases: []*unstructured.Unstructured{
+				{
+					Object: map[string]interface{}{
+						"apiVersion": "helm.toolkit.fluxcd.io/v2beta2",
+						"kind":       "HelmRelease",
+						"metadata": map[string]interface{}{
+							"name":      "test-app-1-case-8",
+							"namespace": "org-giantswarm",
+						},
+						"spec": map[string]interface{}{
+							"chart": map[string]interface{}{
+								"spec": map[string]interface{}{
+									"version": "1.0.0",
+								},
+							},
+						},
+						"status": map[string]interface{}{
+							"lastAttemptedRevision": "1.0.0",
+						},
+					},
+				},
+			},
+			dependenciesNotInstalled: []string{"test-app-1-case-8"},
+		},
+		{
+			name: " case 8: App has 1 HelmRelease dependency, dependency is applied but not installed, attempted release, history shows failed",
+			appToInstall: &v1alpha1.App{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "test-app-case-8",
+					Namespace: "org-giantswarm",
+					Annotations: map[string]string{
+						annotationChartOperatorDependsOn:            "test-app-1-case-8",
+						annotationChartOperatorDependsOnHelmRelease: "true",
+					},
+				},
+				Spec: v1alpha1.AppSpec{
+					Namespace: "giantswarm",
+				},
+			},
+			installedApps: []*v1alpha1.App{},
+			installedHelmReleases: []*unstructured.Unstructured{
+				{
+					Object: map[string]interface{}{
+						"apiVersion": "helm.toolkit.fluxcd.io/v2beta2",
+						"kind":       "HelmRelease",
+						"metadata": map[string]interface{}{
+							"name":      "test-app-1-case-8",
+							"namespace": "org-giantswarm",
+						},
+						"spec": map[string]interface{}{
+							"chart": map[string]interface{}{
+								"spec": map[string]interface{}{
+									"version": "1.0.0",
+								},
+							},
+						},
+						"status": map[string]interface{}{
+							"history": []interface{}{
+								map[string]interface{}{
+									"chartVersion": "1.0.0",
+									"status": "failed",
+								},
+							},
+							"lastAttemptedRevision": "1.0.0",
+						},
+					},
+				},
+			},
+			dependenciesNotInstalled: []string{"test-app-1-case-8"},
+		},
+		{
+			name: " case 9: App has 1 HelmRelease dependency and 1 App dependency, both dependencies are installed",
+			appToInstall: &v1alpha1.App{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "test-app-case-9",
+					Namespace: "org-giantswarm",
+					Annotations: map[string]string{
+						annotationChartOperatorDependsOn:            "test-app-1-case-9,test-app-2-case-9",
 						annotationChartOperatorDependsOnHelmRelease: "true",
 					},
 				},
@@ -2111,7 +2203,7 @@ func Test_checkDependencies(t *testing.T) {
 			installedApps: []*v1alpha1.App{
 				{
 					ObjectMeta: metav1.ObjectMeta{
-						Name:      "test-app-2",
+						Name:      "test-app-2-case-9",
 						Namespace: "org-giantswarm",
 					},
 					Spec: v1alpha1.AppSpec{
@@ -2129,10 +2221,10 @@ func Test_checkDependencies(t *testing.T) {
 			installedHelmReleases: []*unstructured.Unstructured{
 				{
 					Object: map[string]interface{}{
-						"apiVersion": "helm.toolkit.fluxcd.io/v2beta1",
+						"apiVersion": "helm.toolkit.fluxcd.io/v2beta2",
 						"kind":       "HelmRelease",
 						"metadata": map[string]interface{}{
-							"name":      "test-app-1",
+							"name":      "test-app-1-case-9",
 							"namespace": "org-giantswarm",
 						},
 						"spec": map[string]interface{}{
@@ -2143,13 +2235,13 @@ func Test_checkDependencies(t *testing.T) {
 							},
 						},
 						"status": map[string]interface{}{
-							"lastAppliedRevision": "1.0.0",
-							"conditions": []interface{}{
+							"history": []interface{}{
 								map[string]interface{}{
-									"status": "True",
-									"type":   "Ready",
+									"chartVersion": "1.0.0",
+									"status": "deployed",
 								},
 							},
+							"lastAttemptedRevision": "1.0.0",
 						},
 					},
 				},
@@ -2175,7 +2267,7 @@ func Test_checkDependencies(t *testing.T) {
 
 			helmReleaseGVR := schema.GroupVersionResource{
 				Group:    "helm.toolkit.fluxcd.io",
-				Version:  "v2beta1",
+				Version:  "v2beta2",
 				Resource: "helmreleases",
 			}
 
