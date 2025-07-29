@@ -19,6 +19,7 @@ import (
 	"github.com/giantswarm/operatorkit/v7/pkg/controller/context/resourcecanceledcontext"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/kubernetes"
@@ -196,7 +197,7 @@ func (r *Resource) checkDependencies(ctx context.Context, app v1alpha1.App) ([]s
 		}
 
 		for _, helmRelease := range helmReleases.Items {
-			jsonRelease, err := json.Marshal(helmRelease.Object)
+			jsonRelease, err := json.Marshal(helmRelease.UnstructuredContent())
 			if err != nil {
 				return nil, microerror.Mask(err)
 			}
