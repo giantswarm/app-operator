@@ -2034,7 +2034,7 @@ func Test_checkDependencies(t *testing.T) {
 							"history": []interface{}{
 								map[string]interface{}{
 									"chartVersion": "1.0.0",
-									"status": "deployed",
+									"status":       "deployed",
 								},
 							},
 							"lastAttemptedRevision": "1.0.0",
@@ -2175,7 +2175,7 @@ func Test_checkDependencies(t *testing.T) {
 							"history": []interface{}{
 								map[string]interface{}{
 									"chartVersion": "1.0.0",
-									"status": "failed",
+									"status":       "failed",
 								},
 							},
 							"lastAttemptedRevision": "1.0.0",
@@ -2238,7 +2238,7 @@ func Test_checkDependencies(t *testing.T) {
 							"history": []interface{}{
 								map[string]interface{}{
 									"chartVersion": "1.0.0",
-									"status": "deployed",
+									"status":       "deployed",
 								},
 							},
 							"lastAttemptedRevision": "1.0.0",

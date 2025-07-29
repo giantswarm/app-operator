@@ -2,11 +2,11 @@ package chart
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/url"
 	"path"
 	"strings"
-	"encoding/json"
 	"time"
 
 	"github.com/giantswarm/apiextensions-application/api/v1alpha1"
@@ -175,12 +175,12 @@ func (r *Resource) checkDependencies(ctx context.Context, app v1alpha1.App) ([]s
 			return nil, microerror.Mask(err)
 		}
 
-		type helmReleaseHistoryType struct{
+		type helmReleaseHistoryType struct {
 			ChartVersion string
-			Status string
+			Status       string
 		}
 
-		type helmReleaseType struct{
+		type helmReleaseType struct {
 			Spec struct {
 				Chart struct {
 					Spec struct {
@@ -190,7 +190,7 @@ func (r *Resource) checkDependencies(ctx context.Context, app v1alpha1.App) ([]s
 			}
 
 			Status struct {
-				History []helmReleaseHistoryType
+				History               []helmReleaseHistoryType
 				LastAttemptedRevision string
 			}
 		}
