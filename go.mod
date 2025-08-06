@@ -2,7 +2,7 @@ module github.com/giantswarm/app-operator/v7
 
 go 1.24.0
 
-toolchain go1.24.5
+toolchain go1.24.6
 
 require (
 	github.com/Masterminds/semver/v3 v3.4.0
