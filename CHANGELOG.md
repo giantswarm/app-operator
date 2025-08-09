@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Changed
+
+- Look at HelmRelease CRs `.status.history` entries when verifying HRCRs dependencies.
+
 ### Removed
 
 - Stop pushing to `gcp-app-collection` as it is archived.

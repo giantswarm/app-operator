@@ -2,6 +2,7 @@ package chart
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/url"
 	"path"
@@ -18,7 +19,6 @@ import (
 	"github.com/giantswarm/operatorkit/v7/pkg/controller/context/resourcecanceledcontext"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/kubernetes"
@@ -165,7 +165,7 @@ func (r *Resource) checkDependencies(ctx context.Context, app v1alpha1.App) ([]s
 	// Get a list of installed and up-to-date HelmReleases in the same namespace.
 	helmReleaseGVR := schema.GroupVersionResource{
 		Group:    "helm.toolkit.fluxcd.io",
-		Version:  "v2beta1",
+		Version:  "v2beta2",
 		Resource: "helmreleases",
 	}
 	dependsOnHelmReleaseValue, ok := app.Annotations[annotationChartOperatorDependsOnHelmRelease]
@@ -175,28 +175,60 @@ func (r *Resource) checkDependencies(ctx context.Context, app v1alpha1.App) ([]s
 			return nil, microerror.Mask(err)
 		}
 
-		for _, helmRelease := range helmReleases.Items {
-			desiredVersion, err := getUnstructuredProperty[string](helmRelease, "spec.chart.spec.version")
-			if err != nil {
-				return nil, microerror.Mask(err)
-			}
-			lastAppliedRevision, err := getUnstructuredProperty[string](helmRelease, "status.lastAppliedRevision")
-			if err != nil {
-				return nil, microerror.Mask(err)
-			}
-			isReady := false
-			conditions, err := getUnstructuredProperty[[]interface{}](helmRelease, "status.conditions")
-			if err != nil {
-				return nil, microerror.Mask(err)
-			}
-			for _, conditionRaw := range conditions {
-				condition := conditionRaw.(map[string]interface{})
-				if strings.ToLower(condition["type"].(string)) == "ready" && strings.ToLower(condition["status"].(string)) == "true" {
-					isReady = true
+		type helmReleaseHistoryType struct {
+			ChartVersion string
+			Status       string
+		}
+
+		type helmReleaseType struct {
+			Spec struct {
+				Chart struct {
+					Spec struct {
+						Version string
+					}
 				}
 			}
 
-			installedApps[helmRelease.GetName()] = isReady && desiredVersion == lastAppliedRevision
+			Status struct {
+				History               []helmReleaseHistoryType
+				LastAttemptedRevision string
+			}
+		}
+
+		for _, helmRelease := range helmReleases.Items {
+			jsonRelease, err := json.Marshal(helmRelease.UnstructuredContent())
+			if err != nil {
+				return nil, microerror.Mask(err)
+			}
+
+			var structRelease helmReleaseType
+			err = json.Unmarshal(jsonRelease, &structRelease)
+			if err != nil {
+				return nil, microerror.Mask(err)
+			}
+
+			desiredVersion := structRelease.Spec.Chart.Spec.Version
+			lastAttemptedRevision := structRelease.Status.LastAttemptedRevision
+
+			// If we do not see a desired version under the attempted
+			// field, it means it is certainly not ready
+			if desiredVersion != lastAttemptedRevision {
+				installedApps[helmRelease.GetName()] = false
+				continue
+			}
+
+			// Flux must have tried to deploy a desired version,
+			// let's look for the deployment status
+			ready := false
+			for _, entry := range structRelease.Status.History {
+				ready = entry.ChartVersion == desiredVersion && entry.Status == "deployed"
+
+				if ready {
+					break
+				}
+			}
+
+			installedApps[helmRelease.GetName()] = ready
 		}
 	}
 
@@ -586,49 +618,4 @@ func setStatus(cc *controllercontext.Context, err error) {
 	default:
 		addStatusToContext(cc, err.Error(), status.UnknownError)
 	}
-}
-
-// getUnstructuredProperty returns the unstructured object's property from the specified path.
-func getUnstructuredProperty[T interface{}](o unstructured.Unstructured, propertyPath string) (T, error) {
-	var result T
-
-	// trim ".", so e.g. ".x.y.z" becomes "x.y.z"
-	propertyPath = strings.Trim(propertyPath, ".")
-
-	// e.g. for propertyPath "x.y.z", here we get ["x", "y", "z"]
-	propertyNames := strings.Split(propertyPath, ".")
-
-	// e.g. propertyPath "x.y.z" has a depth of 3
-	if len(propertyNames) == 0 {
-		return result, nil
-	}
-
-	var ok bool
-	property := o.UnstructuredContent()
-	for i, propertyName := range propertyNames {
-		if i < len(propertyNames)-1 {
-			// we are reading a parent property, e.g. if we want "x.y.z", here we read "x" or "x.y"
-			propertyRaw, foundProperty := property[propertyName]
-			if !foundProperty {
-				return result, nil
-			}
-			property, ok = propertyRaw.(map[string]interface{})
-			if !ok {
-				return result, microerror.Maskf(propertyNotFoundError, "trying to get property '%s' from the unstructured object, but property '%s' is of type %T and not an object", propertyPath, propertyName, propertyRaw)
-			}
-			continue
-		}
-
-		// we are reading desired property of type T at path "x.y.z" (this is the last loop iteration)
-		if property[propertyName] != nil {
-			result, ok = property[propertyName].(T)
-			if !ok {
-				// Returns error only when the property is set to some non-nil value. When the value is nil,
-				// the empty value of the desired type will be returned.
-				return result, microerror.Maskf(wrongTypeError, "property at path %s is of type %T, expected type %T", propertyPath, property[propertyName], result)
-			}
-		}
-	}
-
-	return result, nil
 }
