@@ -7,6 +7,8 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+## [7.3.0] - 2025-08-12
+
 ### Changed
 
 - Look at HelmRelease CRs `.status.history` entries when verifying HRCRs dependencies.
@@ -810,7 +812,8 @@ from Helm 2 to Helm 3.
 
 - Flattening operator release structure.
 
-[Unreleased]: https://github.com/giantswarm/app-operator/compare/v7.2.0...HEAD
+[Unreleased]: https://github.com/giantswarm/app-operator/compare/v7.3.0...HEAD
+[7.3.0]: https://github.com/giantswarm/app-operator/compare/v7.2.0...v7.3.0
 [7.2.0]: https://github.com/giantswarm/app-operator/compare/v7.1.1...v7.2.0
 [7.1.1]: https://github.com/giantswarm/app-operator/compare/v7.1.0...v7.1.1
 [7.1.0]: https://github.com/giantswarm/app-operator/compare/v7.0.1...v7.1.0
