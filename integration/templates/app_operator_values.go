@@ -8,5 +8,5 @@ const AppOperatorValues = `
  provider:
    kind: aws
  registry:
-   domain: quay.io
+   domain: gsoci.azurecr.io
 `
