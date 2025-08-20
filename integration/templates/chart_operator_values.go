@@ -13,7 +13,7 @@ helm:
     waitTimeout: "180s"
 
 registry:
-  domain: "quay.io"
+  domain: "gsoci.azurecr.io"
 
 global:
   podSecurityStandards:

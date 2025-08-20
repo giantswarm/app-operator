@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Changed
+
+- Change default container registry to `gsoci.azurecr.io`
+
 ## [7.3.0] - 2025-08-12
 
 ### Changed

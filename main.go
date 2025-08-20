@@ -153,7 +153,7 @@ func mainWithError() (err error) {
 	daemonCommand.PersistentFlags().Int(f.Service.AppCatalog.MaxEntriesPerApp, 5, "The maximum number of appCatalogEntries per app.")
 	daemonCommand.PersistentFlags().String(f.Service.Chart.Namespace, "giantswarm", "The namespace where chart CRs are located.")
 	daemonCommand.PersistentFlags().String(f.Service.Helm.HTTP.ClientTimeout, "5s", "HTTP timeout for pulling chart tarballs.")
-	daemonCommand.PersistentFlags().String(f.Service.Image.Registry, "quay.io", "The container registry for pulling Tiller images.")
+	daemonCommand.PersistentFlags().String(f.Service.Image.Registry, "gsoci.azurecr.io", "The container registry for pulling Tiller images.")
 	daemonCommand.PersistentFlags().String(f.Service.Kubernetes.Address, "", "Address used to connect to Kubernetes. When empty in-cluster config is created.")
 	daemonCommand.PersistentFlags().Bool(f.Service.Kubernetes.DisableClientCache, false, "Disable Kubernetes client cache.")
 	daemonCommand.PersistentFlags().Bool(f.Service.Kubernetes.InCluster, true, "Whether to use the in-cluster config to authenticate with Kubernetes.")
