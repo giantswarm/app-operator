@@ -100,7 +100,9 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
+	fmt.Printf("ANDI depsNotInstalled=%#v, %s/%s, generated annotations %#v\n", depsNotInstalled, r.chartNamespace, chartName, annotations)
 	if len(depsNotInstalled) > 0 {
+		// ANDI oops! this may give a delay?! (later note: `copyAnnotations` is totally flawed, doesn't seem to copy relevant annotations)
 		annotations[annotationChartOperatorPause] = "true"
 		annotations[annotationChartOperatorPauseReason] = fmt.Sprintf("Waiting for dependencies to be installed: %s", strings.Join(depsNotInstalled, ", "))
 		annotations[annotationChartOperatorPauseStarted] = time.Now().Format(time.RFC3339)
@@ -137,6 +139,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 	return chartCR, nil
 }
 
+// ANDI
 func (r *Resource) checkDependencies(ctx context.Context, app v1alpha1.App) ([]string, error) {
 	deps, err := getDependenciesFromCR(app)
 	if err != nil {
@@ -488,6 +491,7 @@ func generateUpgrade(cr v1alpha1.App) v1alpha1.ChartSpecUpgrade {
 }
 
 func getDependenciesFromCR(app v1alpha1.App) ([]string, error) {
+	// ANDI
 	deps := make([]string, 0)
 	dependsOn, found := app.Annotations[annotationChartOperatorDependsOn]
 	if found {

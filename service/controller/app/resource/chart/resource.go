@@ -156,6 +156,7 @@ func copyChart(current *v1alpha1.Chart) *v1alpha1.Chart {
 
 // copyAnnotations copies annotations from the current to desired chart,
 // only if the key has a chart-operator.giantswarm.io prefix.
+// ANDI this is the place where the pause annotation gets removed?! but only on timeout - what if a dependency became available?? where's that handled??
 func (r *Resource) copyAnnotations(current, desired *v1alpha1.Chart) {
 	webhookAnnotation := annotation.AppOperatorWebhookURL
 
@@ -200,6 +201,7 @@ func (r *Resource) copyAnnotations(current, desired *v1alpha1.Chart) {
 			return
 		}
 
+		// ANDI aha! but it's 30 minutes so that's probably really only the fallback
 		if time.Since(t) > (time.Minute * time.Duration(r.dependencyWaitTimeoutMinutes)) {
 			// Wait timeout is expired, remove pause annotations.
 			delete(desired.Annotations, annotationChartOperatorPause)

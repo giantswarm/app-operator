@@ -126,6 +126,7 @@ func (c *AppValueWatcher) watchConfigMap(ctx context.Context) {
 
 				c.logger.Debugf(ctx, "triggered %#q app update in namespace %#q", app.Name, app.Namespace)
 
+				// ANDI isn't there a better way to trigger? how long between this event / the above log and when the app controller runs?
 				c.event.Emit(ctx, &currentApp, "AppUpdated", "change to configmap %s/%s triggered an update", configMap.Namespace, configMap.Name)
 			}
 			c.appIndexMutex.RUnlock()

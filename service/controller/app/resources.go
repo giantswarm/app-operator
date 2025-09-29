@@ -307,6 +307,7 @@ func newAppResources(config appResourcesConfig) ([]resource.Interface, error) {
 		}
 	}
 
+	// ANDI these are reconciled in order for each `App`
 	resources := []resource.Interface{
 		// validationResource checks CRs for validation errors and sets the CR status.
 		validationResource,

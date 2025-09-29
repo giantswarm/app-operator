@@ -238,6 +238,10 @@ func (s *Service) Boot(ctx context.Context) {
 		}
 
 		// Start the controller.
+		// ANDI `/Users/asommer/go/pkg/mod/github.com/giantswarm/operatorkit/v7@v7.3.0/pkg/controller/controller.go` has the code, notes:
+		// ANDI - it stops after adding a finalizer because that creates a new event :rolleyes: - slower than needed and not sure if even true (check in logs)
+		// ANDI - operatorkit doesn't debug-log anything?!
+		// ANDI - update calls `EnsureCreated` - strange naming choice
 		go s.appController.Boot(ctx)
 
 		// Start the watchers.

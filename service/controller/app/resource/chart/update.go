@@ -81,8 +81,11 @@ func (r *Resource) newUpdateChange(ctx context.Context, currentResource, desired
 
 	// Copy current chart CR and annotations keeping only the values we need
 	// for comparing them.
+	fmt.Printf("ANDI 1 currentChart=%#v\n", currentChart)
 	currentChart = copyChart(currentChart)
+	fmt.Printf("ANDI 2 currentChart=%#v\n", currentChart)
 	r.copyAnnotations(currentChart, desiredChart)
+	fmt.Printf("ANDI 3 desiredChart=%#v needsupdate=%v\n", desiredChart, !reflect.DeepEqual(currentChart, desiredChart))
 
 	if !reflect.DeepEqual(currentChart, desiredChart) {
 		if diff := cmp.Diff(currentChart, desiredChart); diff != "" {
