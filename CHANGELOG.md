@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Removed
+
+- Remove support for Kyverno `PolicyException` versions older than `v2`. Only `v2` is supported now.
+
 ### Changed
 
 - Change default container registry to `gsoci.azurecr.io`
