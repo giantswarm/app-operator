@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Changed
+
+- Add explicit `catalogs/finalizers` permissions to unique App Operator deployment.
+
 ## [7.4.0] - 2025-10-01
 
 ### Removed
