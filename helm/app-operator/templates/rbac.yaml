@@ -32,6 +32,14 @@ rules:
     - list
     - patch
     - watch
+{{- if eq .Release.Namespace "giantswarm" }}
+- apiGroups:
+    - application.giantswarm.io
+  resources:
+    - catalogs/finalizers
+  verbs:
+    - update
+{{- end }}
 - apiGroups:
     - application.giantswarm.io
   resources:
