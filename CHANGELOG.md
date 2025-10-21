@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Changed
+
+- Do not try to remove Chart Operator on a workload cluster deletion.
+
 ## [7.4.1] - 2025-10-21
 
 ### Changed

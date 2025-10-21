@@ -46,6 +46,9 @@ func (r Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 			// Canceling reconciliation stops processing of further
 			// resource and makes the OperatorKit to remove the finalizer.
 			// This is what we want for Chart Operator upon cluster deletion.
+			r.logger.Debugf(ctx, "workload cluster is being deleted, no need to try to remove the chart-operator")
+			r.logger.Debugf(ctx, "canceling reconciliation")
+
 			reconciliationcanceledcontext.SetCanceled(ctx)
 			return nil
 		}
