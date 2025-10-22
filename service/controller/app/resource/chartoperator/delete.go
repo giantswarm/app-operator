@@ -46,7 +46,6 @@ func (r Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 			// After cancelation, OperatorKit moves on to processing next resources,
 			// one of which is `chart`. It has the logic to remove the finalizer for
 			// Chart Operator's App CR what should release it for deletion.
-			
 			r.logger.Debugf(ctx, "workload cluster is being deleted, no need to try to remove the chart-operator")
 			r.logger.Debugf(ctx, "canceling resource")
 
