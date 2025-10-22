@@ -5,7 +5,7 @@ import (
 
 	"github.com/giantswarm/app/v8/pkg/key"
 	"github.com/giantswarm/microerror"
-	"github.com/giantswarm/operatorkit/v7/pkg/controller/context/reconciliationcanceledcontext"
+	"github.com/giantswarm/operatorkit/v7/pkg/controller/context/resourcecanceledcontext"
 	"k8s.io/apimachinery/pkg/types"
 	capi "sigs.k8s.io/cluster-api/api/v1beta1"
 
@@ -43,13 +43,14 @@ func (r Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 		}
 
 		if capiCluster.GetDeletionTimestamp() != nil {
-			// Canceling reconciliation stops processing of further
-			// resource and makes the OperatorKit to remove the finalizer.
-			// This is what we want for Chart Operator upon cluster deletion.
+			// After cancelation, OperatorKit moves on to processing next resources,
+			// one of which is `chart`. It has the logic to remove the finalizer for
+			// Chart Operator's App CR what should release it for deletion.
+			
 			r.logger.Debugf(ctx, "workload cluster is being deleted, no need to try to remove the chart-operator")
-			r.logger.Debugf(ctx, "canceling reconciliation")
+			r.logger.Debugf(ctx, "canceling resource")
 
-			reconciliationcanceledcontext.SetCanceled(ctx)
+			resourcecanceledcontext.SetCanceled(ctx)
 			return nil
 		}
 	}
