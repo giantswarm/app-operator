@@ -148,6 +148,12 @@ metadata:
     {{- include "labels.common" . | nindent 4 }}
 rules:
 - apiGroups:
+  - cluster.x-k8s.io
+  resources:
+  - clusters
+  verbs:
+  - get
+- apiGroups:
     - ""
   resources:
     - namespaces
