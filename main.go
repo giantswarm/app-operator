@@ -14,6 +14,7 @@ import (
 	prometheusMonitoringV1 "github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring/v1"
 	"github.com/spf13/viper"
 	"k8s.io/client-go/rest"
+	capiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 
 	"github.com/giantswarm/app-operator/v7/flag"
 	"github.com/giantswarm/app-operator/v7/pkg/project"
@@ -77,6 +78,7 @@ func mainWithError() (err error) {
 				SchemeBuilder: k8sclient.SchemeBuilder{
 					prometheusMonitoringV1.AddToScheme,
 					applicationv1alpha1.AddToScheme,
+					capiv1beta1.AddToScheme,
 				},
 
 				RestConfig: restConfig,
