@@ -7,6 +7,12 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+## [7.5.1] - 2025-11-07
+
+### Changed
+
+- Bump github.com/containerd/containerd from 1.7.27 to 1.7.29
+
 ## [7.5.0] - 2025-10-29
 
 ### Changed
@@ -834,7 +840,8 @@ from Helm 2 to Helm 3.
 
 - Flattening operator release structure.
 
-[Unreleased]: https://github.com/giantswarm/app-operator/compare/v7.5.0...HEAD
+[Unreleased]: https://github.com/giantswarm/app-operator/compare/v7.5.1...HEAD
+[7.5.1]: https://github.com/giantswarm/app-operator/compare/v7.5.0...v7.5.1
 [7.5.0]: https://github.com/giantswarm/app-operator/compare/v7.4.1...v7.5.0
 [7.4.1]: https://github.com/giantswarm/app-operator/compare/v7.4.0...v7.4.1
 [7.4.0]: https://github.com/giantswarm/app-operator/compare/v7.3.0...v7.4.0
