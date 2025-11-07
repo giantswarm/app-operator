@@ -9,6 +9,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [7.5.1] - 2025-11-07
 
+### Changed
+
+- Bump github.com/containerd/containerd from 1.7.27 to 1.7.29
+
 ## [7.5.0] - 2025-10-29
 
 ### Changed
