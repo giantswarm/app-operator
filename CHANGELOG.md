@@ -7,10 +7,6 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
-### Changed
-
-- Extend App Operator permissions to `get` ConfigMaps.
-
 ## [7.5.1] - 2025-11-07
 
 ### Changed
