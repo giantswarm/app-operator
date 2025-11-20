@@ -78,6 +78,7 @@ rules:
   resources:
     - configmaps
   verbs:
+    - get
     - list
     - watch
 {{- if eq .Release.Namespace "giantswarm" }}
