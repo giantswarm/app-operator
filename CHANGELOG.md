@@ -846,9 +846,6 @@ from Helm 2 to Helm 3.
 
 [Unreleased]: https://github.com/giantswarm/app-operator/compare/v7.5.1...HEAD
 
-### Changed
-
-- Migrate Chart.yaml annotations to new format as per https://docs.giantswarm.io/reference/platform-api/chart-metadata/
 [7.5.1]: https://github.com/giantswarm/app-operator/compare/v7.5.0...v7.5.1
 [7.5.0]: https://github.com/giantswarm/app-operator/compare/v7.4.1...v7.5.0
 [7.4.1]: https://github.com/giantswarm/app-operator/compare/v7.4.0...v7.4.1
