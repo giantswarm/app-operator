@@ -9,7 +9,7 @@ require (
 	github.com/ghodss/yaml v1.0.0
 	github.com/giantswarm/apiextensions-application v0.6.2
 	github.com/giantswarm/app/v8 v8.1.0
-	github.com/giantswarm/appcatalog v1.0.0
+	github.com/giantswarm/appcatalog v1.0.1
 	github.com/giantswarm/apptest v1.4.1
 	github.com/giantswarm/backoff v1.0.1
 	github.com/giantswarm/errors v0.3.1
