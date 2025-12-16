@@ -32,7 +32,7 @@ on:
 
 jobs:
   publish:
-    uses: giantswarm/github-workflows/.github/workflows/create-release-pr.yaml@main
+    uses: giantswarm/github-workflows/.github/workflows/create-release-pr.yaml@make-create-release-pr-a-bit-abs-aware
     with:
       branch: ${{ inputs.branch }}
     secrets:
