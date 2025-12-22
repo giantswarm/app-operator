@@ -124,7 +124,7 @@ func Test_Resource_triggerReconciliation(t *testing.T) {
 					WithRuntimeObjects(objs...).
 					Build()
 
-				fakeK8sClient := clientgofake.NewSimpleClientset()
+				fakeK8sClient := clientgofake.NewClientset()
 				fakeLogger := microloggertest.New()
 
 				var valuesService *values.Values
@@ -171,7 +171,7 @@ func Test_Resource_triggerReconciliation(t *testing.T) {
 
 				fakeClient := k8sclienttest.NewClients(k8sclienttest.ClientsConfig{
 					CtrlClient: fakeCtrlClient,
-					K8sClient:  clientgofake.NewSimpleClientset(),
+					K8sClient:  clientgofake.NewClientset(),
 				})
 
 				c := controllercontext.Context{

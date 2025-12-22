@@ -128,7 +128,7 @@ func Test_CordonUntil(t *testing.T) {
 				s.AddKnownTypes(v1alpha1.SchemeGroupVersion, &v1alpha1.Chart{}, &v1alpha1.ChartList{})
 				config := k8sclienttest.ClientsConfig{
 					CtrlClient: fake.NewClientBuilder().WithScheme(s).Build(), //nolint:staticcheck
-					K8sClient:  clientgofake.NewSimpleClientset(),
+					K8sClient:  clientgofake.NewClientset(),
 				}
 				client := k8sclienttest.NewClients(config)
 
