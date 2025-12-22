@@ -388,7 +388,7 @@ func Test_Resource_newUpdateChange(t *testing.T) {
 			{
 				config := k8sclienttest.ClientsConfig{
 					CtrlClient: fake.NewFakeClient(), //nolint:staticcheck
-					K8sClient:  clientgofake.NewSimpleClientset(objs...),
+					K8sClient:  clientgofake.NewClientset(objs...),
 				}
 				client := k8sclienttest.NewClients(config)
 

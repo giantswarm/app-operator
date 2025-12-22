@@ -85,7 +85,7 @@ func Test_Create(t *testing.T) {
 			}
 
 			config := k8sclienttest.ClientsConfig{
-				K8sClient: clientgofake.NewSimpleClientset(),
+				K8sClient: clientgofake.NewClientset(),
 			}
 			client := k8sclienttest.NewClients(config)
 

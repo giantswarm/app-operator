@@ -294,7 +294,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 				objs = append(objs, cm)
 			}
 
-			k8sClient := clientgofake.NewSimpleClientset(objs...)
+			k8sClient := clientgofake.NewClientset(objs...)
 			ctrlClient := fake.NewClientBuilder().WithScheme(s).WithObjects(tc.obj).Build()
 
 			var ctx context.Context

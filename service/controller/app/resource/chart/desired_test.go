@@ -878,7 +878,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 				s.AddKnownTypes(v1alpha1.SchemeGroupVersion, &v1alpha1.Chart{}, &v1alpha1.ChartList{})
 				config := k8sclienttest.ClientsConfig{
 					CtrlClient: fake.NewClientBuilder().WithScheme(s).Build(), //nolint:staticcheck
-					K8sClient:  clientgofake.NewSimpleClientset(objs...),
+					K8sClient:  clientgofake.NewClientset(objs...),
 				}
 				client := k8sclienttest.NewClients(config)
 
@@ -1374,7 +1374,7 @@ func Test_Resource_Bulid_TarballURL(t *testing.T) {
 				s.AddKnownTypes(v1alpha1.SchemeGroupVersion, &v1alpha1.Chart{}, &v1alpha1.ChartList{})
 				config := k8sclienttest.ClientsConfig{
 					CtrlClient: fake.NewClientBuilder().WithScheme(s).WithRuntimeObjects(objs...).Build(), //nolint:staticcheck
-					K8sClient:  clientgofake.NewSimpleClientset(),
+					K8sClient:  clientgofake.NewClientset(),
 				}
 				client := k8sclienttest.NewClients(config)
 
@@ -1679,7 +1679,7 @@ func Test_generateConfig(t *testing.T) {
 				objs = append(objs, tc.secret)
 			}
 
-			client := clientgofake.NewSimpleClientset(objs...)
+			client := clientgofake.NewClientset(objs...)
 
 			result, err := generateConfig(context.Background(), client, tc.cr, tc.catalog, "giantswarm")
 			if err != nil {
