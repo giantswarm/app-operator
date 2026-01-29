@@ -79,4 +79,3 @@ workflows:
         requires:
         - go-build
         - push-app-operator-to-control-plane-app-catalog
-
