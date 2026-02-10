@@ -16,7 +16,7 @@ require (
 	github.com/giantswarm/helmclient/v4 v4.12.7
 	github.com/giantswarm/k8sclient/v7 v7.2.0
 	github.com/giantswarm/k8smetadata v0.25.0
-	github.com/giantswarm/kubeconfig/v4 v4.1.3
+	github.com/giantswarm/kubeconfig/v4 v4.1.4
 	github.com/giantswarm/microendpoint v1.1.2
 	github.com/giantswarm/microerror v0.4.1
 	github.com/giantswarm/microkit v1.0.4
@@ -163,9 +163,9 @@ require (
 	golang.org/x/net v0.47.0 // indirect
 	golang.org/x/oauth2 v0.35.0 // indirect
 	golang.org/x/sync v0.19.0 // indirect
-	golang.org/x/sys v0.40.0 // indirect
-	golang.org/x/term v0.39.0 // indirect
-	golang.org/x/text v0.33.0 // indirect
+	golang.org/x/sys v0.41.0 // indirect
+	golang.org/x/term v0.40.0 // indirect
+	golang.org/x/text v0.34.0 // indirect
 	golang.org/x/time v0.12.0 // indirect
 	gomodules.xyz/jsonpatch/v2 v2.5.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20250528174236-200df99c418a // indirect
