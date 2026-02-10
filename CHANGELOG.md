@@ -12,6 +12,8 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 ### Changed
 
 - Migrate Chart.yaml annotations to new format as per https://docs.giantswarm.io/reference/platform-api/chart-metadata/
+- Update module github.com/giantswarm/kubeconfig/v4 to v4.1.4
+
 ## [7.5.1] - 2025-11-07
 
 ### Changed
