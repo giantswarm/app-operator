@@ -8,22 +8,22 @@ name: Create Release PR
 on:
   push:
     branches:
-      - 'legacy#release#v*.*.*'
-      - 'main#release#v*.*.*'
-      - 'main#release#major'
-      - 'main#release#minor'
-      - 'main#release#patch'
-      - 'master#release#v*.*.*'
-      - 'master#release#major'
-      - 'master#release#minor'
-      - 'master#release#patch'
-      - 'release#v*.*.*'
-      - 'release#major'
-      - 'release#minor'
-      - 'release#patch'
-      - 'release-v*.*.x#release#v*.*.*'
+      - "legacy#release#v*.*.*"
+      - "main#release#v*.*.*"
+      - "main#release#major"
+      - "main#release#minor"
+      - "main#release#patch"
+      - "master#release#v*.*.*"
+      - "master#release#major"
+      - "master#release#minor"
+      - "master#release#patch"
+      - "release#v*.*.*"
+      - "release#major"
+      - "release#minor"
+      - "release#patch"
+      - "release-v*.*.x#release#v*.*.*"
       # "!" negates previous positive patterns so it has to be at the end.
-      - '!release-v*.x.x#release#v*.*.*'
+      - "!release-v*.x.x#release#v*.*.*"
   workflow_call:
     inputs:
       branch:
@@ -34,7 +34,7 @@ permissions: {}
 
 jobs:
   publish:
-    uses: giantswarm/github-workflows/.github/workflows/create-release-pr.yaml@main
+    uses: giantswarm/github-workflows/.github/workflows/create-release-pr.yaml@use-gitsemver
     permissions:
       contents: read
     with:

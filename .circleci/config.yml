@@ -1,81 +1,81 @@
 version: 2.1
 orbs:
-  architect: giantswarm/architect@6.15.0
+  architect: giantswarm/architect@dev:0ba648ccf4530cc15b4ac70b19a8e6fd7f90f8b4
 
 workflows:
   build:
     jobs:
-    - architect/go-build:
-        context: architect
-        name: go-build
-        binary: app-operator
-        filters:
-          tags:
-            only: /^v.*/
+      - architect/go-build:
+          context: architect
+          name: go-build
+          binary: app-operator
+          filters:
+            tags:
+              only: /^v.*/
 
-    - architect/push-to-registries:
-        context: architect
-        name: push-to-registries
-        requires:
-        - go-build
-        filters:
-          tags:
-            only: /^v.*/
+      - architect/push-to-registries:
+          context: architect
+          name: push-to-registries
+          requires:
+            - go-build
+          filters:
+            tags:
+              only: /^v.*/
 
-          branches:
-            ignore:
-            - main
-            - master
-    - architect/push-to-app-catalog:
-        context: architect
-        executor: app-build-suite
-        name: push-app-operator-to-control-plane-app-catalog
-        app_catalog: control-plane-catalog
-        app_catalog_test: control-plane-test-catalog
-        chart: app-operator
-        requires:
-        - push-to-registries
-        filters:
-          tags:
-            only: /^v.*/
+            branches:
+              ignore:
+                - main
+                - master
+      - architect/push-to-app-catalog:
+          context: architect
+          executor: app-build-suite
+          name: push-app-operator-to-control-plane-app-catalog
+          app_catalog: control-plane-catalog
+          app_catalog_test: control-plane-test-catalog
+          chart: app-operator
+          requires:
+            - push-to-registries
+          filters:
+            tags:
+              only: /^v.*/
 
-          branches:
-            ignore:
-            - main
-            - master
-    - architect/integration-test:
-        context: architect
-        name: basic-integration-test
-        install-app-platform: false
-        setup-script: integration/setup/setup.sh
-        test-dir: integration/test/app/basic
-        requires:
-        - go-build
-        - push-app-operator-to-control-plane-app-catalog
+            branches:
+              ignore:
+                - main
+                - master
+      - architect/integration-test:
+          context: architect
+          name: basic-integration-test
+          install-app-platform: false
+          setup-script: integration/setup/setup.sh
+          test-dir: integration/test/app/basic
+          requires:
+            - go-build
+            - push-app-operator-to-control-plane-app-catalog
 
-    - architect/integration-test:
-        context: architect
-        name: appcatalogentry-integration-test
-        setup-script: integration/setup/setup.sh
-        test-dir: integration/test/catalog/appcatalogentry
-        requires:
-        - go-build
-        - push-app-operator-to-control-plane-app-catalog
+      - architect/integration-test:
+          context: architect
+          name: appcatalogentry-integration-test
+          setup-script: integration/setup/setup.sh
+          test-dir: integration/test/catalog/appcatalogentry
+          requires:
+            - go-build
+            - push-app-operator-to-control-plane-app-catalog
 
-    - architect/integration-test:
-        context: architect
-        name: watching-configmap-integration-test
-        setup-script: integration/setup/setup.sh
-        test-dir: integration/test/watcher/configmap
-        requires:
-        - go-build
-        - push-app-operator-to-control-plane-app-catalog
+      - architect/integration-test:
+          context: architect
+          name: watching-configmap-integration-test
+          setup-script: integration/setup/setup.sh
+          test-dir: integration/test/watcher/configmap
+          requires:
+            - go-build
+            - push-app-operator-to-control-plane-app-catalog
 
-    - architect/integration-test:
-        context: architect
-        name: workload-cluster-integration-test
-        setup-script: integration/setup/setup.sh
-        test-dir: integration/test/app/workload
-        requires:
-        - go-build
-        - push-app-operator-to-control-plane-app-catalog
+      - architect/integration-test:
+          context: architect
+          name: workload-cluster-integration-test
+          setup-script: integration/setup/setup.sh
+          test-dir: integration/test/app/workload
+          requires:
+            - go-build
+            - push-app-operator-to-control-plane-app-catalog
