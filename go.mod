@@ -149,9 +149,9 @@ require (
 	github.com/xlab/treeprint v1.2.0 // indirect
 	go.opentelemetry.io/auto/sdk v1.2.1 // indirect
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.61.0 // indirect
-	go.opentelemetry.io/otel v1.39.0 // indirect
-	go.opentelemetry.io/otel/metric v1.39.0 // indirect
-	go.opentelemetry.io/otel/trace v1.39.0 // indirect
+	go.opentelemetry.io/otel v1.44.0 // indirect
+	go.opentelemetry.io/otel/metric v1.44.0 // indirect
+	go.opentelemetry.io/otel/trace v1.44.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.27.0 // indirect
 	go.yaml.in/yaml/v2 v2.4.4 // indirect
@@ -202,3 +202,23 @@ replace (
 )
 
 replace google.golang.org/protobuf v1.32.0 => google.golang.org/protobuf v1.33.0
+
+replace golang.org/x/sys v0.42.0 => golang.org/x/sys v0.45.0
+
+replace go.opentelemetry.io/otel v1.39.0 => go.opentelemetry.io/otel v1.44.0
+
+replace github.com/cloudflare/circl v1.6.1 => github.com/cloudflare/circl v1.6.3
+
+replace github.com/distribution/distribution/v3 v3.0.0 => github.com/distribution/distribution/v3 v3.1.1
+
+replace github.com/go-jose/go-jose/v3 v3.0.4 => github.com/go-jose/go-jose/v3 v3.0.5
+
+replace github.com/go-jose/go-jose/v4 v4.1.3 => github.com/go-jose/go-jose/v4 v4.1.4
+
+replace github.com/golang-jwt/jwt/v4 v4.0.0 => github.com/golang-jwt/jwt/v4 v4.5.2
+
+replace github.com/ulikunitz/xz v0.5.9 => github.com/ulikunitz/xz v0.5.15
+
+replace github.com/nats-io/nats-server/v2 v2.8.4 => github.com/nats-io/nats-server/v2 v2.14.2
+
+replace github.com/moby/spdystream v0.5.0 => github.com/moby/spdystream v0.5.1
