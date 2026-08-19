@@ -15,6 +15,18 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
   `gsoci`, and is absent from 9.x. 9.6.0 is the version already running in `coredns-app`,
   `external-dns-app` and `kyverno-policies-dx`.
 
+### Fixed
+
+- Bump `appcatalog` to v1.0.2, fixing the four integration-test jobs. `integration/setup/setup.go`
+  resolves the chart under test with `appcatalog.GetLatestChart(..., key.AppOperatorInTestVersion())`,
+  which returns `env.CircleSHA()` for development builds, and appcatalog matched the index entry with
+  `strings.HasSuffix(entry.Version, appVersion)`. That worked while architect published charts as
+  `<version>-<full 40 character SHA>` -- the assumption `integration/key/key.go` still documents -- but
+  the orb bump above moved publishing to the gitsemver development version, whose trailing SHA is
+  abbreviated to seven characters. A full SHA can never match that by suffix, so every lookup failed
+  with `no app ... in index.yaml with given appVersion` even though the chart was published correctly.
+  appcatalog v1.0.2 accepts both formats.
+
 ## [7.5.2] - 2026-02-10
 
 ### Changed
