@@ -29,12 +29,12 @@ require (
 	github.com/prometheus/client_golang v1.23.2
 	github.com/spf13/afero v1.15.0
 	github.com/spf13/viper v1.21.0
-	k8s.io/api v0.35.3
-	k8s.io/apiextensions-apiserver v0.35.3
-	k8s.io/apimachinery v0.35.3
-	k8s.io/client-go v0.35.3
+	k8s.io/api v0.37.0
+	k8s.io/apiextensions-apiserver v0.37.0
+	k8s.io/apimachinery v0.37.0
+	k8s.io/client-go v0.37.0
 	sigs.k8s.io/cluster-api v1.10.4
-	sigs.k8s.io/controller-runtime v0.23.3
+	sigs.k8s.io/controller-runtime v0.25.0
 	sigs.k8s.io/yaml v1.6.0
 )
 
