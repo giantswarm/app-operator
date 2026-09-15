@@ -165,7 +165,7 @@ func (r *Resource) checkDependencies(ctx context.Context, app v1alpha1.App) ([]s
 	// Get a list of installed and up-to-date HelmReleases in the same namespace.
 	helmReleaseGVR := schema.GroupVersionResource{
 		Group:    "helm.toolkit.fluxcd.io",
-		Version:  "v2beta2",
+		Version:  "v2",
 		Resource: "helmreleases",
 	}
 	dependsOnHelmReleaseValue, ok := app.Annotations[annotationChartOperatorDependsOnHelmRelease]
