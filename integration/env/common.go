@@ -6,6 +6,7 @@ package env
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -13,9 +14,6 @@ const (
 	// EnvVarCircleCI is the process environment variable representing the
 	// CIRCLECI env var.
 	EnvVarCircleCI = "CIRCLECI"
-	// EnvVarCircleSHA is the process environment variable representing the
-	// CIRCLE_SHA1 env var.
-	EnvVarCircleSHA = "CIRCLE_SHA1"
 	//EnvVarCircleBranch is the branch the build is running against.
 	EnvVarCircleBranch = "CIRCLE_BRANCH"
 	// EnvVarE2EKubeconfig is the process environment variable representing the
@@ -27,8 +25,8 @@ const (
 )
 
 var (
+	buildVersion  string
 	circleCI      string
-	circleSHA     string
 	circleBranch  string
 	keepResources string
 	kubeconfig    string
@@ -38,9 +36,15 @@ func init() {
 	circleCI = os.Getenv(EnvVarCircleCI)
 	keepResources = os.Getenv(EnvVarKeepResources)
 
-	circleSHA = os.Getenv(EnvVarCircleSHA)
-	if circleSHA == "" {
-		panic(fmt.Sprintf("env var '%s' must not be empty", EnvVarCircleSHA))
+	filePath := filepath.Join(os.Getenv("CIRCLE_WORKING_DIRECTORY"), ".build_version")
+	buf, err := os.ReadFile(filePath)
+	if err != nil {
+		panic(fmt.Sprintf("error reading .build_version: %v", err))
+	}
+
+	buildVersion = strings.TrimSpace(string(buf))
+	if buildVersion == "" {
+		panic(".build_version must not be empty")
 	}
 
 	circleBranch = os.Getenv(EnvVarCircleBranch)
@@ -54,12 +58,12 @@ func init() {
 	}
 }
 
-func CircleCI() bool {
-	return circleCI == strings.ToLower("true")
+func BuildVersion() string {
+	return buildVersion
 }
 
-func CircleSHA() string {
-	return circleSHA
+func CircleCI() bool {
+	return circleCI == strings.ToLower("true")
 }
 
 func CircleBranch() string {
