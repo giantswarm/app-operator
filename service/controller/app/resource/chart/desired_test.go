@@ -2011,7 +2011,7 @@ func Test_checkDependencies(t *testing.T) {
 			installedHelmReleases: []*unstructured.Unstructured{
 				{
 					Object: map[string]interface{}{
-						"apiVersion": "helm.toolkit.fluxcd.io/v2beta2",
+						"apiVersion": "helm.toolkit.fluxcd.io/v2",
 						"kind":       "HelmRelease",
 						"metadata": map[string]interface{}{
 							"name":      "test-app-1-case-5",
@@ -2081,7 +2081,7 @@ func Test_checkDependencies(t *testing.T) {
 			installedHelmReleases: []*unstructured.Unstructured{
 				{
 					Object: map[string]interface{}{
-						"apiVersion": "helm.toolkit.fluxcd.io/v2beta2",
+						"apiVersion": "helm.toolkit.fluxcd.io/v2",
 						"kind":       "HelmRelease",
 						"metadata": map[string]interface{}{
 							"name":      "test-app-1-case-7",
@@ -2118,7 +2118,7 @@ func Test_checkDependencies(t *testing.T) {
 			installedHelmReleases: []*unstructured.Unstructured{
 				{
 					Object: map[string]interface{}{
-						"apiVersion": "helm.toolkit.fluxcd.io/v2beta2",
+						"apiVersion": "helm.toolkit.fluxcd.io/v2",
 						"kind":       "HelmRelease",
 						"metadata": map[string]interface{}{
 							"name":      "test-app-1-case-8",
@@ -2158,7 +2158,7 @@ func Test_checkDependencies(t *testing.T) {
 			installedHelmReleases: []*unstructured.Unstructured{
 				{
 					Object: map[string]interface{}{
-						"apiVersion": "helm.toolkit.fluxcd.io/v2beta2",
+						"apiVersion": "helm.toolkit.fluxcd.io/v2",
 						"kind":       "HelmRelease",
 						"metadata": map[string]interface{}{
 							"name":      "test-app-1-case-8",
@@ -2221,7 +2221,7 @@ func Test_checkDependencies(t *testing.T) {
 			installedHelmReleases: []*unstructured.Unstructured{
 				{
 					Object: map[string]interface{}{
-						"apiVersion": "helm.toolkit.fluxcd.io/v2beta2",
+						"apiVersion": "helm.toolkit.fluxcd.io/v2",
 						"kind":       "HelmRelease",
 						"metadata": map[string]interface{}{
 							"name":      "test-app-1-case-9",
@@ -2267,7 +2267,7 @@ func Test_checkDependencies(t *testing.T) {
 
 			helmReleaseGVR := schema.GroupVersionResource{
 				Group:    "helm.toolkit.fluxcd.io",
-				Version:  "v2beta2",
+				Version:  "v2",
 				Resource: "helmreleases",
 			}
 
