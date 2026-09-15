@@ -20,7 +20,7 @@ func AppOperatorInTestVersion() string {
 	var version string
 	if strings.HasSuffix(project.Version(), "-dev") || !env.IsMainBranch() {
 		// In case of running the tests against a development version, the artifact is uploaded to the test catalog
-		// with the SHA1 postfixed to the version, e.g. app-operator-5.11.0-19b12a1e4e9ea3e9733ae1d3bb6b33830d8c2738.tgz
+		// with the r[CRC32_branch_name]t[YYYYMMDD][HHMMSS]h[commit_SHA] version.
 		version = env.BuildVersion()
 	} else {
 		// In case of running the tests against a release it is only uploaded to the test catalog with the project version,
