@@ -50,6 +50,8 @@ github.com/bugsnag/osext v0.0.0-20130617224835-0dd3f918b21b/go.mod h1:obH5gd0Bsq
 github.com/bugsnag/panicwrap v0.0.0-20151223152923-e2c28503fcd0/go.mod h1:D/8v3kj0zr8ZAKg1AQ6crr+5VwKN5eIywRkfhyM/+dE=
 github.com/cenkalti/backoff/v4 v4.3.0 h1:MyRJ/UdXutAwSAT+s3wNd7MfTIcy71VQueUuFK343L8=
 github.com/cenkalti/backoff/v4 v4.3.0/go.mod h1:Y3VNntkOUPxTVeUxJ/G5vcM//AlwfmyYozVcomhLiZE=
+github.com/cenkalti/backoff/v6 v6.0.1 h1:sjqUu1q4wY0FfFEkBmM3bVIHfr1QGq4nATg9M5VWj1U=
+github.com/cenkalti/backoff/v6 v6.0.1/go.mod h1:5WCmPelT2zwAaNETjGJVKHDnZvjQdPsGeHHwm5lIPPI=
 github.com/cespare/xxhash/v2 v2.3.0 h1:UL815xU9SqsFlibzuggzjXhog7bL6oX9BbNZnL2UFvs=
 github.com/cespare/xxhash/v2 v2.3.0/go.mod h1:VGX0DQ3Q6kWi7AoAeZDth3/j3BFtOZR5XLFGgcrjCOs=
 github.com/chai2010/gettext-go v1.0.2 h1:1Lwwip6Q2QGsAdl/ZKPCwTe9fe0CjlUbqj5bFNSjIRk=
@@ -142,6 +144,8 @@ github.com/giantswarm/apptest v1.4.1 h1:9GEVbB8Zvb/EdRXcmc2zWebs0TQ4pZrJ7W5XjnpD
 github.com/giantswarm/apptest v1.4.1/go.mod h1:JvH9J9BP/tgYot+WQIv6ATjetOt0bkjxWbDf/DnkVCg=
 github.com/giantswarm/backoff v1.0.1 h1:paqQhjUsibkf+wWFCHsk7VXAkcM1L3ssAe7V7i8twpM=
 github.com/giantswarm/backoff v1.0.1/go.mod h1:RGj8b06J3irMNFRoSiMnngS50K+QbpSvu77sW03bxqQ=
+github.com/giantswarm/backoff/v2 v2.0.0 h1:iACMXgZz6+P+UvmXRmRaqvrMbXnbYYwfs6o3CvTjSBA=
+github.com/giantswarm/backoff/v2 v2.0.0/go.mod h1:xG59650VQshB1uyLTcWMXp7qew6gx+wuGpAcHUOhlHA=
 github.com/giantswarm/errors v0.3.1 h1:QlaCwp3a9qtI5drLo4C+yjDRXg3Y86LdxoGZCKZkkmQ=
 github.com/giantswarm/errors v0.3.1/go.mod h1:AL1qINkgm+sSAPzp54g9h+4tY3ns9TQFAD8amPGGeu4=
 github.com/giantswarm/exporterkit v1.2.0 h1:nUd/mjwKv+4x4suqvtRFhqy4fegP1tfF/anvZdjcppM=
