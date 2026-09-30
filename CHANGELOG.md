@@ -7,6 +7,12 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Fixed
+
+- The `latest` AppCatalogEntry of an app is its highest stable version whenever the catalog has one: a
+  pre-release (`1.3.0-rc.1`) no longer becomes `latest` because the comparison drops the pre-release. Only an
+  app without a stable version, as in a test catalog, compares pre-releases as before.
+
 ## [7.5.3] - 2026-09-16
 
 ### Changed
