@@ -9,8 +9,9 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ### Security
 
-- Bump `golang.org/x/{crypto,net,sys,text}`, `google.golang.org/grpc`, the OpenTelemetry modules,
-  `helm.sh/helm/v3` (3.20.2) and `oras.land/oras-go/v2` (2.6.2) to resolve the nancy findings.
+- Bump `golang.org/x/{crypto,net,sys,text}`, `google.golang.org/grpc` (1.83.2), the OpenTelemetry modules,
+  `helm.sh/helm/v3` (3.20.2), `oras.land/oras-go/v2` (2.6.2), `containerd` (1.7.36) and
+  `klauspost/compress` (1.18.7) to resolve the nancy findings.
 
 ### Changed
 
