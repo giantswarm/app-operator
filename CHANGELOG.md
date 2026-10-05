@@ -12,6 +12,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 - Bump `golang.org/x/{crypto,net,sys,text}`, `google.golang.org/grpc`, the OpenTelemetry modules,
   `helm.sh/helm/v3` (3.20.2) and `oras.land/oras-go/v2` (2.6.2) to resolve the nancy findings.
 
+### Changed
+
+- Publish through the `architect` CircleCI orb 10.11.1.
+
 ## [7.5.3] - 2026-09-16
 
 ### Changed
