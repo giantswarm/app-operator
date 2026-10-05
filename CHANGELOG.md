@@ -17,6 +17,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 - Publish through the `architect` CircleCI orb 10.11.1.
 
+### Fixed
+
+- The `helm.sh/chart` label is valid for long chart versions: the 63-character cut trims the whole trailing run of `-`, `.` and `_`, and so is the `application.giantswarm.io/branch` label.
+
 ## [7.5.3] - 2026-09-16
 
 ### Changed
