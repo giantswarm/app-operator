@@ -7,8 +7,19 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Security
+
+- Bump `golang.org/x/{crypto,net,sys,text}`, `google.golang.org/grpc` (1.83.2), the OpenTelemetry modules,
+  `helm.sh/helm/v3` (3.20.2), `oras.land/oras-go/v2` (2.6.2), `containerd` (1.7.36) and
+  `klauspost/compress` (1.18.7) to resolve the nancy findings.
+
+### Changed
+
+- Publish through the `architect` CircleCI orb 10.11.1.
+
 ### Fixed
 
+- The `helm.sh/chart` label is valid for long chart versions: the 63-character cut trims the whole trailing run of `-`, `.` and `_`, and so is the `application.giantswarm.io/branch` label.
 - The `latest` AppCatalogEntry of an app is its highest stable version whenever the catalog has one: a
   pre-release (`1.3.0-rc.1`) no longer becomes `latest` because the comparison drops the pre-release. Only an
   app without a stable version, as in a test catalog, compares pre-releases as before.
