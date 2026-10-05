@@ -7,6 +7,8 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+## [7.5.4] - 2026-10-05
+
 ### Security
 
 - Bump `golang.org/x/{crypto,net,sys,text}`, `google.golang.org/grpc` (1.83.2), the OpenTelemetry modules,
@@ -876,7 +878,8 @@ from Helm 2 to Helm 3.
 
 - Flattening operator release structure.
 
-[Unreleased]: https://github.com/giantswarm/app-operator/compare/v7.5.3...HEAD
+[Unreleased]: https://github.com/giantswarm/app-operator/compare/v7.5.4...HEAD
+[7.5.4]: https://github.com/giantswarm/app-operator/compare/v7.5.3...v7.5.4
 [7.5.3]: https://github.com/giantswarm/app-operator/compare/v7.5.2...v7.5.3
 [7.5.2]: https://github.com/giantswarm/app-operator/compare/v7.5.1...v7.5.2
 [7.5.1]: https://github.com/giantswarm/app-operator/compare/v7.5.0...v7.5.1
