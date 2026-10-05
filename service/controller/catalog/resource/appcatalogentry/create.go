@@ -281,7 +281,34 @@ func (r *Resource) getDesiredAppCatalogEntryCR(ctx context.Context, cr *v1alpha1
 }
 
 // getLatestEntry returns the entry with the highest version without considering the creation date.
+// A stable version wins over every pre-release, so a release candidate (1.2.0-rc.1) never becomes
+// latest while the catalog has a stable version of the app. Only when an app has no stable version,
+// as in a test catalog, are pre-releases compared.
 func (r *Resource) getLatestEntry(ctx context.Context, entries []entry) (entry, error) {
+	latest, found, err := r.getLatestEntryOf(ctx, entries, true)
+	if err != nil {
+		return entry{}, microerror.Mask(err)
+	}
+	if found {
+		return latest, nil
+	}
+
+	latest, found, err = r.getLatestEntryOf(ctx, entries, false)
+	if err != nil {
+		return entry{}, microerror.Mask(err)
+	}
+	if found {
+		return latest, nil
+	}
+
+	// No entry has a valid semver version: the newest entry, entries being sorted by creation date.
+	return entries[0], nil
+}
+
+// getLatestEntryOf returns the entry with the highest version, among the stable versions only when
+// stableOnly is set. Equal versions are decided by the creation date. found is false when no entry
+// qualifies.
+func (r *Resource) getLatestEntryOf(ctx context.Context, entries []entry, stableOnly bool) (latest entry, found bool, err error) {
 	var latestIndex int
 	var latestVersion semver.Version
 	var latestCreated metav1.Time
@@ -292,16 +319,21 @@ func (r *Resource) getLatestEntry(ctx context.Context, entries []entry) (entry, 
 			r.logger.Debugf(ctx, "invalid semver from converting app entry %s, version is %s", entries[i].Name, entries[i].Version)
 			continue
 		} else if err != nil {
-			return entry{}, microerror.Mask(err)
+			return entry{}, false, microerror.Mask(err)
+		}
+
+		if stableOnly && v.Prerelease() != "" {
+			continue
 		}
 
 		// Removing Prerelease from version since they are mostly SHA strings which we cannot compare.
 		nextVersion, err := v.SetPrerelease("")
 		if err != nil {
-			return entry{}, microerror.Mask(err)
+			return entry{}, false, microerror.Mask(err)
 		}
 
-		if nextVersion.GreaterThan(&latestVersion) {
+		if !found || nextVersion.GreaterThan(&latestVersion) {
+			found = true
 			latestIndex = i
 			latestVersion = nextVersion
 			latestCreated = entries[i].Created
@@ -311,13 +343,16 @@ func (r *Resource) getLatestEntry(ctx context.Context, entries []entry) (entry, 
 		if nextVersion.Equal(&latestVersion) {
 			if entries[i].Created.After(latestCreated.Time) {
 				latestIndex = i
-				latestVersion = nextVersion
 				latestCreated = entries[i].Created
 			}
 		}
 	}
 
-	return entries[latestIndex], nil
+	if !found {
+		return entry{}, false, nil
+	}
+
+	return entries[latestIndex], true, nil
 }
 
 func (r *Resource) newAppCatalogEntries(ctx context.Context, cr v1alpha1.Catalog, index index) (map[string]*v1alpha1.AppCatalogEntry, error) {
