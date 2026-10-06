@@ -1,5 +1,9 @@
-# Through giantswarm/helmclient v4 and helm v3; removed with the helm v3 upgrade, giantswarm/app-operator#1600.
 CVE-2026-63308 until=2026-11-05 # helm.sh/helm/v3@v3.20.2
 CVE-2026-48978 until=2026-11-05 # oras.land/oras-go@v1.2.7
 CVE-2026-85732 until=2026-11-05 # oras.land/oras-go@v1.2.7
-CVE-2026-85747 until=2026-11-05 # github.com/docker/distribution@v0.0.0-20191216044856-a8371794149d
+CVE-2026-85747 until=2026-11-05 # github.com/distribution/distribution/v3@v3.0.0
+CVE-2026-26958 until=2026-11-05 # filippo.io/edwards25519@v1.1.0
+CVE-2026-10722 until=2026-11-05 # github.com/cilium/ebpf@v0.9.1
+CVE-2026-33540 until=2026-11-05 # github.com/distribution/distribution/v3@v3.0.0
+CVE-2026-35172 until=2026-11-05 # github.com/distribution/distribution/v3@v3.0.0
+CVE-2026-41888 until=2026-11-05 # github.com/distribution/distribution/v3@v3.0.0
