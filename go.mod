@@ -221,3 +221,15 @@ replace (
 )
 
 replace google.golang.org/protobuf v1.32.0 => google.golang.org/protobuf v1.33.0
+
+replace github.com/cloudflare/circl v1.6.1 => github.com/cloudflare/circl v1.6.5
+
+replace github.com/golang-jwt/jwt/v4 v4.0.0 => github.com/golang-jwt/jwt/v4 v4.5.2
+
+replace github.com/ulikunitz/xz v0.5.9 => github.com/ulikunitz/xz v0.5.17
+
+replace github.com/rabbitmq/amqp091-go v1.2.0 => github.com/rabbitmq/amqp091-go v1.15.0
+
+replace github.com/nats-io/nats-server/v2 v2.8.4 => github.com/nats-io/nats-server/v2 v2.15.0
+
+replace github.com/moby/sys/user v0.3.0 => github.com/moby/sys/user v0.4.1
