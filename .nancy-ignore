@@ -7,3 +7,4 @@ CVE-2026-10722 until=2026-11-05 # github.com/cilium/ebpf@v0.9.1
 CVE-2026-33540 until=2026-11-05 # github.com/distribution/distribution/v3@v3.0.0
 CVE-2026-35172 until=2026-11-05 # github.com/distribution/distribution/v3@v3.0.0
 CVE-2026-41888 until=2026-11-05 # github.com/distribution/distribution/v3@v3.0.0
+CVE-2025-47291 until=2026-11-08 # github.com/containerd/containerd@v1.7.36
