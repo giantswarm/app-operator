@@ -11,6 +11,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 - Make pre-commit pass with `golangci-lint` 2.15.0: exclude `goconst` from test files, and type the close-only timeout channels as `chan struct{}` (`errcheck`).
 
+### Fixed
+
+- Skip the integration tests on `main` and `master`, where the push jobs that write `.build_version` do not run. They failed on every push to `main` and left the release commit with a red status.
+
 ## [7.5.4] - 2026-10-05
 
 ### Security

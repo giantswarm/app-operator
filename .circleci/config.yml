@@ -49,6 +49,12 @@ workflows:
         install-app-platform: false
         setup-script: integration/setup/setup.sh
         test-dir: integration/test/app/basic
+        # Runs only where push-to-registries writes .build_version.
+        filters:
+          branches:
+            ignore:
+            - main
+            - master
         requires:
         - go-build
         - push-app-operator-to-control-plane-app-catalog
@@ -58,6 +64,12 @@ workflows:
         name: appcatalogentry-integration-test
         setup-script: integration/setup/setup.sh
         test-dir: integration/test/catalog/appcatalogentry
+        # Runs only where push-to-registries writes .build_version.
+        filters:
+          branches:
+            ignore:
+            - main
+            - master
         requires:
         - go-build
         - push-app-operator-to-control-plane-app-catalog
@@ -67,6 +79,12 @@ workflows:
         name: watching-configmap-integration-test
         setup-script: integration/setup/setup.sh
         test-dir: integration/test/watcher/configmap
+        # Runs only where push-to-registries writes .build_version.
+        filters:
+          branches:
+            ignore:
+            - main
+            - master
         requires:
         - go-build
         - push-app-operator-to-control-plane-app-catalog
@@ -76,6 +94,12 @@ workflows:
         name: workload-cluster-integration-test
         setup-script: integration/setup/setup.sh
         test-dir: integration/test/app/workload
+        # Runs only where push-to-registries writes .build_version.
+        filters:
+          branches:
+            ignore:
+            - main
+            - master
         requires:
         - go-build
         - push-app-operator-to-control-plane-app-catalog
