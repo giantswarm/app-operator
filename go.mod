@@ -12,7 +12,7 @@ require (
 	github.com/giantswarm/appcatalog v1.1.0
 	github.com/giantswarm/apptest v1.4.1
 	github.com/giantswarm/backoff v1.0.1
-	github.com/giantswarm/errors v0.3.1
+	github.com/giantswarm/errors v0.3.2
 	github.com/giantswarm/helmclient/v4 v4.12.9
 	github.com/giantswarm/k8sclient/v7 v7.2.0
 	github.com/giantswarm/k8smetadata v0.26.0
