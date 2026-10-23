@@ -2,6 +2,7 @@ FROM gsoci.azurecr.io/giantswarm/alpine:3.24.3
 
 RUN apk add --no-cache ca-certificates
 
-ADD ./app-operator /app-operator
+ARG TARGETARCH
+COPY app-operator-linux-${TARGETARCH} /app-operator
 
 ENTRYPOINT ["/app-operator"]
