@@ -18,6 +18,7 @@ type catalogResourcesConfig struct {
 	Logger    micrologger.Logger
 
 	// Settings.
+	DisableEntries   bool
 	MaxEntriesPerApp int
 	Provider         string
 	UniqueApp        bool
@@ -38,6 +39,7 @@ func newCatalogResources(config catalogResourcesConfig) ([]resource.Interface, e
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
 
+			DisableEntries:   config.DisableEntries,
 			MaxEntriesPerApp: config.MaxEntriesPerApp,
 			Provider:         config.Provider,
 			UniqueApp:        config.UniqueApp,

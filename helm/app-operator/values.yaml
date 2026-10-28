@@ -12,6 +12,11 @@ app:
   workloadClusterID: ""
   dependencyWaitTimeoutMinutes: 30
 
+appCatalogEntry:
+  # When true, the unique app-operator stops creating AppCatalogEntry CRs and
+  # deletes the existing ones on the next catalog reconciliation.
+  disabled: false
+
 helm:
   http:
     clientTimeout: "5s"

@@ -16,6 +16,14 @@
                 }
             }
         },
+        "appCatalogEntry": {
+            "type": "object",
+            "properties": {
+                "disabled": {
+                    "type": "boolean"
+                }
+            }
+        },
         "bootstrapMode": {
             "type": "object",
             "properties": {

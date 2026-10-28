@@ -47,14 +47,22 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
-	index, err := r.getIndex(ctx, key.CatalogStorageURL(cr))
-	if err != nil {
-		return microerror.Mask(err)
-	}
+	var desiredEntryCRs map[string]*v1alpha1.AppCatalogEntry
+	if r.disableEntries {
+		// No desired entries: the loop below deletes the existing ones and
+		// the index.yaml is not fetched.
+		r.logger.Debugf(ctx, "appcatalogentries are disabled, deleting the ones of catalog %#q", cr.Name)
+		desiredEntryCRs = map[string]*v1alpha1.AppCatalogEntry{}
+	} else {
+		index, err := r.getIndex(ctx, key.CatalogStorageURL(cr))
+		if err != nil {
+			return microerror.Mask(err)
+		}
 
-	desiredEntryCRs, err := r.newAppCatalogEntries(ctx, cr, index)
-	if err != nil {
-		return microerror.Mask(err)
+		desiredEntryCRs, err = r.newAppCatalogEntries(ctx, cr, index)
+		if err != nil {
+			return microerror.Mask(err)
+		}
 	}
 
 	var created, updated, deleted, errored int
