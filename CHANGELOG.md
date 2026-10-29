@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Added
+
+- Add the `appCatalogEntry.disabled` Helm value (flag `--service.appcatalog.disableentries`). When set, the unique app-operator stops creating AppCatalogEntry CRs, skips fetching the catalogs' `index.yaml` and `main.yaml` for them, and deletes the existing ones. It defaults to `false`, keeping the current behaviour.
+
 ### Changed
 
 - Make pre-commit pass with `golangci-lint` 2.15.0: exclude `goconst` from test files, and type the close-only timeout channels as `chan struct{}` (`errcheck`).

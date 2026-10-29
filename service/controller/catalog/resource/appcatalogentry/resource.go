@@ -36,6 +36,8 @@ type Config struct {
 	K8sClient k8sclient.Interface
 	Logger    micrologger.Logger
 
+	// DisableEntries stops creating appCatalogEntries and deletes the existing ones.
+	DisableEntries   bool
 	MaxEntriesPerApp int
 	Provider         string
 	UniqueApp        bool
@@ -45,6 +47,7 @@ type Resource struct {
 	k8sClient k8sclient.Interface
 	logger    micrologger.Logger
 
+	disableEntries   bool
 	maxEntriesPerApp int
 	provider         string
 	uniqueApp        bool
@@ -70,6 +73,7 @@ func New(config Config) (*Resource, error) {
 		k8sClient: config.K8sClient,
 		logger:    config.Logger,
 
+		disableEntries:   config.DisableEntries,
 		maxEntriesPerApp: config.MaxEntriesPerApp,
 		provider:         config.Provider,
 		uniqueApp:        config.UniqueApp,
