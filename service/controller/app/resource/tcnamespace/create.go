@@ -77,7 +77,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 	r.logger.Debugf(ctx, "creating namespace %#q in workload cluster %#q", ns.Name, key.ClusterID(cr))
 
-	ch := make(chan error)
+	ch := make(chan struct{})
 
 	go func() {
 		_, err = cc.Clients.K8s.K8sClient().CoreV1().Namespaces().Create(ctx, ns, metav1.CreateOptions{})

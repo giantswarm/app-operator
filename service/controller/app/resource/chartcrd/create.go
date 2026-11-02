@@ -55,7 +55,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
-	ch := make(chan error)
+	ch := make(chan struct{})
 
 	go func() {
 		err = cc.Clients.K8s.CRDClient().EnsureCreated(ctx, &chartCRD, backoff.NewMaxRetries(7, 1*time.Second))
