@@ -9,7 +9,7 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ### Security
 
-- Renew the expired `.nancy-ignore` entries for `helm.sh/helm/v3` (CVE-2026-63308), `oras.land/oras-go` v1 (CVE-2026-48978, CVE-2026-85732) and `github.com/docker/distribution` (CVE-2026-85747) until 2026-12-03, and drop the expired entries that nancy no longer reports. All of these come in through `helmclient/v4`: oras-go v1 and `docker/distribution` have no fixed release, and the helm bump needs Kubernetes 0.36+.
+- Renew the expired `.nancy-ignore` entries for `helm.sh/helm/v3` (CVE-2026-63308), `oras.land/oras-go` v1 (CVE-2026-48978, CVE-2026-85732) and `github.com/docker/distribution` (CVE-2026-85747) until 2026-12-03, and drop the expired entries that nancy no longer reports. The renewed entries all come in through `helmclient/v4`: oras-go v1 and `docker/distribution` have no fixed release, and every helm release with the fix needs the `k8s.io` modules at v0.36+.
 
 ### Changed
 
