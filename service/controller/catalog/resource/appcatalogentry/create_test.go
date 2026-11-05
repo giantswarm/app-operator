@@ -2,6 +2,8 @@ package appcatalogentry
 
 import (
 	"context"
+	"net/http"
+	"net/http/httptest"
 	"reflect"
 	"sort"
 	"testing"
@@ -174,6 +176,102 @@ func Test_EnsureCreated_disableEntries(t *testing.T) {
 
 	// Only the entries this catalog's resource manages are deleted.
 	expected := []string{"giantswarm-manual-1.0.0", "other-foo-1.0.0"}
+	if !reflect.DeepEqual(remaining, expected) {
+		t.Fatalf("remaining entries = %v, want %v", remaining, expected)
+	}
+}
+
+func Test_New_rejectsNegativeMaxEntriesPerApp(t *testing.T) {
+	for _, disabled := range []bool{false, true} {
+		_, err := New(Config{
+			K8sClient: k8sclienttest.NewClients(k8sclienttest.ClientsConfig{}),
+			Logger:    microloggertest.New(),
+
+			DisableEntries:   disabled,
+			MaxEntriesPerApp: -1,
+			Provider:         "aws",
+		})
+		if !IsInvalidConfig(err) {
+			t.Fatalf("disabled=%t: expected invalid config error, got %#v", disabled, err)
+		}
+	}
+}
+
+func Test_EnsureCreated_zeroMaxEntriesKeepsOnlyLatest(t *testing.T) {
+	// The latest is the highest stable version, not the newest pre-release.
+	const indexYAML = `entries:
+  foo:
+  - name: foo
+    version: 1.0.0
+    created: "2026-09-01T00:00:00Z"
+  - name: foo
+    version: 1.1.0
+    created: "2026-09-02T00:00:00Z"
+  - name: foo
+    version: 1.2.0-rc.1
+    created: "2026-09-03T00:00:00Z"
+`
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		_, _ = w.Write([]byte(indexYAML))
+	}))
+	defer srv.Close()
+
+	catalog := &v1alpha1.Catalog{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "giantswarm",
+			Namespace: metav1.NamespaceDefault,
+		},
+		Spec: v1alpha1.CatalogSpec{
+			Storage: v1alpha1.CatalogSpecStorage{URL: srv.URL, Type: "helm"},
+		},
+	}
+
+	s := runtime.NewScheme()
+	s.AddKnownTypes(v1alpha1.SchemeGroupVersion, &v1alpha1.AppCatalogEntry{}, &v1alpha1.AppCatalogEntryList{})
+
+	// An entry created earlier with a higher limit is deleted.
+	ctrlClient := fake.NewClientBuilder().WithScheme(s).WithObjects(
+		&v1alpha1.AppCatalogEntry{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      "giantswarm-foo-1.0.0",
+				Namespace: metav1.NamespaceDefault,
+				Labels: map[string]string{
+					label.CatalogName: "giantswarm",
+					label.ManagedBy:   key.AppCatalogEntryManagedBy(project.Name()),
+				},
+			},
+		},
+	).Build()
+
+	r, err := New(Config{
+		K8sClient: k8sclienttest.NewClients(k8sclienttest.ClientsConfig{CtrlClient: ctrlClient}),
+		Logger:    microloggertest.New(),
+
+		MaxEntriesPerApp: 0,
+		Provider:         "aws",
+		UniqueApp:        true,
+	})
+	if err != nil {
+		t.Fatalf("unexpected error: %#v", err)
+	}
+
+	err = r.EnsureCreated(context.Background(), catalog)
+	if err != nil {
+		t.Fatalf("unexpected error: %#v", err)
+	}
+
+	var entries v1alpha1.AppCatalogEntryList
+	err = ctrlClient.List(context.Background(), &entries)
+	if err != nil {
+		t.Fatalf("unexpected error: %#v", err)
+	}
+
+	var remaining []string
+	for _, e := range entries.Items {
+		remaining = append(remaining, e.Name)
+	}
+
+	expected := []string{"giantswarm-foo-1.1.0"}
 	if !reflect.DeepEqual(remaining, expected) {
 		t.Fatalf("remaining entries = %v, want %v", remaining, expected)
 	}

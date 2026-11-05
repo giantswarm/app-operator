@@ -10,9 +10,11 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 ### Added
 
 - Add the `appCatalogEntry.disabled` Helm value (flag `--service.appcatalog.disableentries`). When set, the unique app-operator stops creating AppCatalogEntry CRs, skips fetching the catalogs' `index.yaml` and `main.yaml` for them, and deletes the existing ones. It defaults to `false`, keeping the current behaviour.
+- Add the `appCatalogEntry.maxEntriesPerApp` Helm value (flag `--service.appcatalog.maxentriesperapp`), defaulting to 5. The latest entry is always kept on top of the limit, and `appCatalogEntry.disabled` takes precedence over it.
 
 ### Changed
 
+- A `--service.appcatalog.maxentriesperapp` of 0 now keeps only the latest AppCatalogEntry per app instead of falling back to 5. Negative values make the operator fail at startup.
 - Make pre-commit pass with `golangci-lint` 2.15.0: exclude `goconst` from test files, and type the close-only timeout channels as `chan struct{}` (`errcheck`).
 
 ### Fixed

@@ -29,7 +29,6 @@ const (
 	communityCatalogType = "community"
 	kindCatalog          = "Catalog"
 	kindAppCatalogEntry  = "AppCatalogEntry"
-	maxEntriesPerApp     = 5
 )
 
 type Config struct {
@@ -37,7 +36,9 @@ type Config struct {
 	Logger    micrologger.Logger
 
 	// DisableEntries stops creating appCatalogEntries and deletes the existing ones.
-	DisableEntries   bool
+	DisableEntries bool
+	// MaxEntriesPerApp is the maximum number of appCatalogEntries per app, not
+	// counting the latest one, which is always kept. Must be >= 0.
 	MaxEntriesPerApp int
 	Provider         string
 	UniqueApp        bool
@@ -62,8 +63,8 @@ func New(config Config) (*Resource, error) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
 
-	if config.MaxEntriesPerApp == 0 {
-		config.MaxEntriesPerApp = maxEntriesPerApp
+	if config.MaxEntriesPerApp < 0 {
+		return nil, microerror.Maskf(invalidConfigError, "%T.MaxEntriesPerApp must not be negative", config)
 	}
 	if config.Provider == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Provider must not be empty", config)

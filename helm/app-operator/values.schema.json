@@ -21,6 +21,10 @@
             "properties": {
                 "disabled": {
                     "type": "boolean"
+                },
+                "maxEntriesPerApp": {
+                    "type": "integer",
+                    "minimum": 0
                 }
             }
         },
