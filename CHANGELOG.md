@@ -7,6 +7,8 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+## [7.6.0] - 2026-11-06
+
 ### Added
 
 - Add the `appCatalogEntry.disabled` Helm value (flag `--service.appcatalog.disableentries`). When set, the unique app-operator stops creating AppCatalogEntry CRs, skips fetching the catalogs' `index.yaml` and `main.yaml` for them, and deletes the existing ones. It defaults to `false`, keeping the current behaviour.
@@ -903,7 +905,8 @@ from Helm 2 to Helm 3.
 
 - Flattening operator release structure.
 
-[Unreleased]: https://github.com/giantswarm/app-operator/compare/v7.5.4...HEAD
+[Unreleased]: https://github.com/giantswarm/app-operator/compare/v7.6.0...HEAD
+[7.6.0]: https://github.com/giantswarm/app-operator/compare/v7.5.4...v7.6.0
 [7.5.4]: https://github.com/giantswarm/app-operator/compare/v7.5.3...v7.5.4
 [7.5.3]: https://github.com/giantswarm/app-operator/compare/v7.5.2...v7.5.3
 [7.5.2]: https://github.com/giantswarm/app-operator/compare/v7.5.1...v7.5.2
