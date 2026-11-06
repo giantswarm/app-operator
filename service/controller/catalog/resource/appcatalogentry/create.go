@@ -191,7 +191,7 @@ func (r *Resource) getDesiredAppCatalogEntryCR(ctx context.Context, cr *v1alpha1
 
 	var rawMetadata []byte
 	{
-		if url, ok := e.Annotations[annotation.AppMetadata]; ok {
+		if url, ok := metadataURL(e.Annotations); ok {
 			rawMetadata, err = r.getMetadata(ctx, url)
 			if err != nil {
 				r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("failed to get appMetadata for entry %#q in catalog %#q", e.Name, cr.Name), "stack", fmt.Sprintf("%#v", err))
@@ -423,4 +423,21 @@ func isCompatibleProvider(entry v1alpha1.AppCatalogEntry, provider string) bool 
 	}
 
 	return false
+}
+
+// catalogAppMetadataAnnotation is the annotation under which current catalog
+// entries store the URL of their main.yaml in index.yaml. Older entries use
+// annotation.AppMetadata instead.
+const catalogAppMetadataAnnotation = "io.giantswarm.application.metadata"
+
+// metadataURL returns the URL of an entry's main.yaml, preferring the current
+// catalog annotation over the legacy one.
+func metadataURL(annotations map[string]string) (string, bool) {
+	for _, k := range []string{catalogAppMetadataAnnotation, annotation.AppMetadata} {
+		if url, ok := annotations[k]; ok && url != "" {
+			return url, true
+		}
+	}
+
+	return "", false
 }

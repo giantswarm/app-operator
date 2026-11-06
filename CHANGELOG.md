@@ -18,6 +18,7 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 ### Fixed
 
 - Fix ARM64 images.
+- Read the `main.yaml` URL of catalog entries from the `io.giantswarm.application.metadata` annotation as well as from the legacy `application.giantswarm.io/metadata`. Most entries in the giantswarm catalog only carry the new annotation, so their `AppCatalogEntry` CRs were missing the chart API version (defaulting to `v1`), restrictions, upstream chart version and metadata annotations.
 - Run the `appcatalogentry` integration test against `hello-world`. `prometheus-operator-app` was removed from the giantswarm catalog as deprecated, so the test failed on every pull request.
 - Skip the integration tests on `main` and `master`, where the push jobs that write `.build_version` do not run. They failed on every push to `main` and left the release commit with a red status.
 
