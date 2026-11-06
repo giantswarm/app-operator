@@ -194,7 +194,7 @@ func (r *Resource) getDesiredAppCatalogEntryCR(ctx context.Context, cr *v1alpha1
 		if url, ok := metadataURL(e.Annotations); ok {
 			rawMetadata, err = r.getMetadata(ctx, url)
 			if err != nil {
-				r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("failed to get appMetadata for entry %#q in catalog %#q", e.Name, cr.Name), "stack", fmt.Sprintf("%#v", err))
+				r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("failed to get appMetadata for entry %#q version %#q in catalog %#q", e.Name, e.Version, cr.Name), "stack", fmt.Sprintf("%#v", err))
 			}
 		}
 	}
@@ -210,7 +210,7 @@ func (r *Resource) getDesiredAppCatalogEntryCR(ctx context.Context, cr *v1alpha1
 			if err != nil {
 				// A main.yaml we cannot parse must not stop the whole catalog
 				// from being reconciled, so fall back to the index data.
-				r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("failed to parse appMetadata for entry %#q in catalog %#q", e.Name, cr.Name), "stack", fmt.Sprintf("%#v", err))
+				r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("failed to parse appMetadata for entry %#q version %#q in catalog %#q", e.Name, e.Version, cr.Name), "stack", fmt.Sprintf("%#v", err))
 				m = nil
 			}
 		}
