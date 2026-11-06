@@ -18,6 +18,7 @@ type Config struct {
 	K8sClient k8sclient.Interface
 	Logger    micrologger.Logger
 
+	DisableEntries   bool
 	MaxEntriesPerApp int
 	Provider         string
 	UniqueApp        bool

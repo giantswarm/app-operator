@@ -30,7 +30,6 @@ const (
 	communityCatalogType = "community"
 	kindCatalog          = "Catalog"
 	kindAppCatalogEntry  = "AppCatalogEntry"
-	maxEntriesPerApp     = 5
 
 	metadataTimeout = 10 * time.Second
 )
@@ -43,6 +42,10 @@ type Config struct {
 	K8sClient k8sclient.Interface
 	Logger    micrologger.Logger
 
+	// DisableEntries stops creating appCatalogEntries and deletes the existing ones.
+	DisableEntries bool
+	// MaxEntriesPerApp is the maximum number of appCatalogEntries per app, not
+	// counting the latest one, which is always kept. Must be >= 0.
 	MaxEntriesPerApp int
 	Provider         string
 	UniqueApp        bool
@@ -52,6 +55,7 @@ type Resource struct {
 	k8sClient k8sclient.Interface
 	logger    micrologger.Logger
 
+	disableEntries   bool
 	maxEntriesPerApp int
 	provider         string
 	uniqueApp        bool
@@ -66,8 +70,8 @@ func New(config Config) (*Resource, error) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
 
-	if config.MaxEntriesPerApp == 0 {
-		config.MaxEntriesPerApp = maxEntriesPerApp
+	if config.MaxEntriesPerApp < 0 {
+		return nil, microerror.Maskf(invalidConfigError, "%T.MaxEntriesPerApp must not be negative", config)
 	}
 	if config.Provider == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Provider must not be empty", config)
@@ -77,6 +81,7 @@ func New(config Config) (*Resource, error) {
 		k8sClient: config.K8sClient,
 		logger:    config.Logger,
 
+		disableEntries:   config.DisableEntries,
 		maxEntriesPerApp: config.MaxEntriesPerApp,
 		provider:         config.Provider,
 		uniqueApp:        config.UniqueApp,

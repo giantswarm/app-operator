@@ -11,7 +11,7 @@ CVE-2026-116585 until=2026-11-27 # github.com/go-jose/go-jose/v4@v4.1.4 since=20
 # CVE-2026-63308 (GHSA-5gjx-96wq-c8r2): Files.Lines panic on empty chart files, via helmclient/v4. Fixed in helm v3.21.4 (backport 955dfab1e)
 # and v3.22.0+, but OSS Index still flags v3.22.1, and every helm release with the fix needs k8s.io/* v0.36+ (blocked with #1570).
 # Tracked in https://github.com/giantswarm/app-operator/issues/1640; remove by 2026-12-03.
-CVE-2026-63308 until=2026-12-03 # helm.sh/helm/v3@v3.20.2
+CVE-2026-63308 until=2026-12-03 # helm.sh/helm/v3@v3.22.1
 # CVE-2026-48978 (GHSA-xf85-363p-868w), CVE-2026-85732 (GHSA-h7vf-4x9w-h99v): oras-go v1 via helmclient/v4 (oras.land/oras-go/pkg/content, pkg/auth/docker).
 # OSS Index flags v1 for CVE-2026-85732 although the GHSA lists only oras-go/v2.
 # No fixed v1 release exists; the fix needs helmclient to move to oras-go/v2. Tracked in https://github.com/giantswarm/app-operator/issues/1640; remove by 2026-12-03.

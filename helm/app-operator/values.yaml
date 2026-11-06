@@ -12,6 +12,15 @@ app:
   workloadClusterID: ""
   dependencyWaitTimeoutMinutes: 30
 
+appCatalogEntry:
+  # When true, the unique app-operator stops creating AppCatalogEntry CRs and
+  # deletes the existing ones on the next catalog reconciliation.
+  # Takes precedence over maxEntriesPerApp.
+  disabled: false
+  # Maximum number of AppCatalogEntry CRs per app. The latest version is
+  # always kept on top of this limit, so 0 means only the latest one.
+  maxEntriesPerApp: 5
+
 helm:
   http:
     clientTimeout: "5s"
