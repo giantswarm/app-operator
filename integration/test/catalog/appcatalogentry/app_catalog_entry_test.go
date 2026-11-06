@@ -78,7 +78,7 @@ func TestAppCatalogEntry(t *testing.T) {
 
 	var latestEntry appcatalog.Entry
 	{
-		latestEntry, err = appcatalog.GetLatestEntry(ctx, key.StableCatalogStorageURL(), "prometheus-operator-app", "")
+		latestEntry, err = appcatalog.GetLatestEntry(ctx, key.StableCatalogStorageURL(), "hello-world", "")
 		if err != nil {
 			t.Fatalf("expected %#v got %#v", nil, err)
 		}
@@ -118,7 +118,7 @@ func TestAppCatalogEntry(t *testing.T) {
 		entryCR.Labels[pkglabel.Latest] = "false"
 
 		expectedLabels := map[string]string{
-			label.AppKubernetesName:    "prometheus-operator-app",
+			label.AppKubernetesName:    "hello-world",
 			label.AppKubernetesVersion: latestEntry.Version,
 			label.CatalogName:          key.StableCatalogName(),
 			label.CatalogType:          "stable",
