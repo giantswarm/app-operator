@@ -16,6 +16,18 @@
                 }
             }
         },
+        "appCatalogEntry": {
+            "type": "object",
+            "properties": {
+                "disabled": {
+                    "type": "boolean"
+                },
+                "maxEntriesPerApp": {
+                    "type": "integer",
+                    "minimum": 0
+                }
+            }
+        },
         "bootstrapMode": {
             "type": "object",
             "properties": {

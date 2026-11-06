@@ -7,13 +7,29 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Added
+
+- Add the `appCatalogEntry.disabled` Helm value (flag `--service.appcatalog.disableentries`). When set, the unique app-operator stops creating AppCatalogEntry CRs, skips fetching the catalogs' `index.yaml` and `main.yaml` for them, and deletes the existing ones. It defaults to `false`, keeping the current behaviour.
+- Add the `appCatalogEntry.maxEntriesPerApp` Helm value (flag `--service.appcatalog.maxentriesperapp`), defaulting to 5. The latest entry is always kept on top of the limit, and `appCatalogEntry.disabled` takes precedence over it.
+
+### Security
+
+- Renew the expired `.nancy-ignore` entries for `helm.sh/helm/v3` (CVE-2026-63308), `oras.land/oras-go` v1 (CVE-2026-48978, CVE-2026-85732) and `github.com/docker/distribution` (CVE-2026-85747) until 2026-12-03, and drop the expired entries that nancy no longer reports. The renewed entries all come in through `helmclient/v4`: oras-go v1 and `docker/distribution` have no fixed release, and every helm release with the fix needs the `k8s.io` modules at v0.36+.
+
 ### Changed
 
+- A `--service.appcatalog.maxentriesperapp` of 0 now keeps only the latest AppCatalogEntry per app instead of falling back to 5. Negative values make the operator fail at startup.
 - Make pre-commit pass with `golangci-lint` 2.15.0: exclude `goconst` from test files, and type the close-only timeout channels as `chan struct{}` (`errcheck`).
 
 ### Fixed
 
 - Fix ARM64 images.
+- Read the `main.yaml` URL of catalog entries from the `io.giantswarm.application.metadata` annotation as well as from the legacy `application.giantswarm.io/metadata`. Most entries in the giantswarm catalog only carry the new annotation, so their `AppCatalogEntry` CRs were missing the chart API version (defaulting to `v1`), restrictions and upstream chart version.
+- Keep the index annotations on `AppCatalogEntry` CRs and overlay the `main.yaml` annotations, instead of replacing them.
+- The `restrictions` block of `main.yaml` now applies to these entries too, including `compatibleProviders`, which decides whether an app gets `AppCatalogEntry` CRs on a provider at all. Restrictions that `main.yaml` only states as `application.giantswarm.io/restrictions/*` annotations are still not applied.
+- Skip `main.yaml` annotations that are not strings, such as the `!!python/object` values app-build-suite writes, or whose keys Kubernetes rejects, such as `application.giantswarm.io/restrictions/clusterSingleton`. Fall back to the index data when a `main.yaml` cannot be fetched or parsed, so one bad file does not stop the whole catalog from being reconciled.
+- Fetch each `main.yaml` once per reconciliation, with a 10 second timeout.
+- Run the `appcatalogentry` integration test against `hello-world`. `prometheus-operator-app` was removed from the giantswarm catalog as deprecated, so the test failed on every pull request.
 - Skip the integration tests on `main` and `master`, where the push jobs that write `.build_version` do not run. They failed on every push to `main` and left the release commit with a red status.
 
 ## [7.5.4] - 2026-10-05

@@ -19,6 +19,9 @@ data:
         watchNamespace: '{{ .Values.app.watchNamespace }}'
         workloadClusterID: '{{ .Values.app.workloadClusterID }}'
         dependencyWaitTimeoutMinutes: {{ .Values.app.dependencyWaitTimeoutMinutes }}
+      appCatalog:
+        disableEntries: {{ .Values.appCatalogEntry.disabled }}
+        maxEntriesPerApp: {{ .Values.appCatalogEntry.maxEntriesPerApp }}
       helm:
         http:
           clientTimeout: '{{ .Values.helm.http.clientTimeout }}'

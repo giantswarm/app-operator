@@ -47,14 +47,22 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
-	index, err := r.getIndex(ctx, key.CatalogStorageURL(cr))
-	if err != nil {
-		return microerror.Mask(err)
-	}
+	var desiredEntryCRs map[string]*v1alpha1.AppCatalogEntry
+	if r.disableEntries {
+		// No desired entries: the loop below deletes the existing ones and
+		// the index.yaml is not fetched.
+		r.logger.Debugf(ctx, "appcatalogentries are disabled, deleting the ones of catalog %#q", cr.Name)
+		desiredEntryCRs = map[string]*v1alpha1.AppCatalogEntry{}
+	} else {
+		index, err := r.getIndex(ctx, key.CatalogStorageURL(cr))
+		if err != nil {
+			return microerror.Mask(err)
+		}
 
-	desiredEntryCRs, err := r.newAppCatalogEntries(ctx, cr, index)
-	if err != nil {
-		return microerror.Mask(err)
+		desiredEntryCRs, err = r.newAppCatalogEntries(ctx, cr, index)
+		if err != nil {
+			return microerror.Mask(err)
+		}
 	}
 
 	var created, updated, deleted, errored int
@@ -191,10 +199,10 @@ func (r *Resource) getDesiredAppCatalogEntryCR(ctx context.Context, cr *v1alpha1
 
 	var rawMetadata []byte
 	{
-		if url, ok := e.Annotations[annotation.AppMetadata]; ok {
+		if url, ok := metadataURL(e.Annotations); ok {
 			rawMetadata, err = r.getMetadata(ctx, url)
 			if err != nil {
-				r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("failed to get appMetadata for entry %#q in catalog %#q", e.Name, cr.Name), "stack", fmt.Sprintf("%#v", err))
+				r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("failed to get appMetadata for entry %#q version %#q in catalog %#q", e.Name, e.Version, cr.Name), "stack", fmt.Sprintf("%#v", err))
 			}
 		}
 	}
@@ -208,7 +216,10 @@ func (r *Resource) getDesiredAppCatalogEntryCR(ctx context.Context, cr *v1alpha1
 		if rawMetadata != nil {
 			m, err = parseMetadata(rawMetadata)
 			if err != nil {
-				return nil, microerror.Mask(err)
+				// A main.yaml we cannot parse must not stop the whole catalog
+				// from being reconciled, so fall back to the index data.
+				r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("failed to parse appMetadata for entry %#q version %#q in catalog %#q", e.Name, e.Version, cr.Name), "stack", fmt.Sprintf("%#v", err))
+				m = nil
 			}
 		}
 	}
@@ -258,7 +269,7 @@ func (r *Resource) getDesiredAppCatalogEntryCR(ctx context.Context, cr *v1alpha1
 	}
 
 	if m != nil {
-		entryCR.Annotations = m.Annotations
+		entryCR.Annotations = mergeAnnotations(e.Annotations, m.Annotations)
 		entryCR.Spec.Chart.APIVersion = m.ChartAPIVersion
 		entryCR.Spec.Chart.UpstreamChartVersion = m.UpstreamChartVersion
 		entryCR.Spec.Restrictions = m.Restrictions
@@ -390,7 +401,14 @@ func (r *Resource) newAppCatalogEntries(ctx context.Context, cr v1alpha1.Catalog
 		for i := 0; i < maxEntries; i++ {
 			e := entries[i]
 
-			entryCR, err := r.getDesiredAppCatalogEntryCR(ctx, &cr, e, latestEntryCR.Spec.Version == e.Version)
+			// The latest entry was already built above, so don't fetch its
+			// main.yaml a second time.
+			if e.Version == latestEntryCR.Spec.Version {
+				entryCRs[latestEntryCR.Name] = latestEntryCR
+				continue
+			}
+
+			entryCR, err := r.getDesiredAppCatalogEntryCR(ctx, &cr, e, false)
 			if err != nil {
 				return nil, microerror.Mask(err)
 			}
@@ -423,4 +441,40 @@ func isCompatibleProvider(entry v1alpha1.AppCatalogEntry, provider string) bool 
 	}
 
 	return false
+}
+
+// catalogAppMetadataAnnotation is the annotation under which current catalog
+// entries store the URL of their main.yaml in index.yaml. Older entries use
+// annotation.AppMetadata instead.
+const catalogAppMetadataAnnotation = "io.giantswarm.application.metadata"
+
+// metadataURL returns the URL of an entry's main.yaml, preferring the current
+// catalog annotation over the legacy one.
+func metadataURL(annotations map[string]string) (string, bool) {
+	for _, k := range []string{catalogAppMetadataAnnotation, annotation.AppMetadata} {
+		if url, ok := annotations[k]; ok && url != "" {
+			return url, true
+		}
+	}
+
+	return "", false
+}
+
+// mergeAnnotations returns the index annotations overlaid with the ones from
+// main.yaml, so the index-only annotations (readme, values schema, metadata
+// URL) are kept on the AppCatalogEntry.
+func mergeAnnotations(index, metadata map[string]string) map[string]string {
+	if len(index) == 0 && len(metadata) == 0 {
+		return nil
+	}
+
+	merged := make(map[string]string, len(index)+len(metadata))
+	for k, v := range index {
+		merged[k] = v
+	}
+	for k, v := range metadata {
+		merged[k] = v
+	}
+
+	return merged
 }
