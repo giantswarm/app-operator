@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/giantswarm/apiextensions-application/api/v1alpha1"
 	"github.com/giantswarm/app/v8/pkg/key"
@@ -30,7 +31,13 @@ const (
 	kindCatalog          = "Catalog"
 	kindAppCatalogEntry  = "AppCatalogEntry"
 	maxEntriesPerApp     = 5
+
+	metadataTimeout = 10 * time.Second
 )
+
+// metadataHTTPClient fetches main.yaml files. It has a timeout so a single
+// hanging request cannot stall the reconciliation of a whole catalog.
+var metadataHTTPClient = &http.Client{Timeout: metadataTimeout}
 
 type Config struct {
 	K8sClient k8sclient.Interface
@@ -145,7 +152,7 @@ func (r *Resource) getMetadata(ctx context.Context, mainURL string) ([]byte, err
 	r.logger.Debugf(ctx, "getting main.yaml from %#q", mainURL)
 
 	// We use https in catalog URLs so we can disable the linter in this case.
-	resp, err := http.Get(mainURL) // #nosec
+	resp, err := metadataHTTPClient.Get(mainURL) // #nosec
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
