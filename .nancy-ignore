@@ -1,3 +1,4 @@
+CVE-2026-63308 until=2026-12-05 # helm.sh/helm/v3@v3.22.1, false positive: advisory range "through 4.2.3" matches all of v3, but v3.22.1 has the fix (ba6c9a2, Files.Lines len check)
 CVE-2026-48978 until=2026-12-05 # oras.land/oras-go@v1.2.7, no fixed v1 release, used by helmclient's OCI chart pull; fixed by moving helmclient to oras-go/v2
 CVE-2026-85732 until=2026-12-05 # oras.land/oras-go@v1.2.7, no fixed v1 release, used by helmclient's OCI chart pull; fixed by moving helmclient to oras-go/v2
 CVE-2026-85747 until=2026-12-05 # github.com/docker/distribution@v0.0.0-20191216044856-a8371794149d, only pulled in by oras.land/oras-go@v1.2.7, fixed in v3 only
