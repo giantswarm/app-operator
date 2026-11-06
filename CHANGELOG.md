@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Security
+
+- Renew the expired `.nancy-ignore` entries for `helm.sh/helm/v3` (CVE-2026-63308), `oras.land/oras-go` v1 (CVE-2026-48978, CVE-2026-85732) and `github.com/docker/distribution` (CVE-2026-85747) until 2026-12-03, and drop the expired entries that nancy no longer reports. The renewed entries all come in through `helmclient/v4`: oras-go v1 and `docker/distribution` have no fixed release, and every helm release with the fix needs the `k8s.io` modules at v0.36+.
+
 ### Changed
 
 - Make pre-commit pass with `golangci-lint` 2.15.0: exclude `goconst` from test files, and type the close-only timeout channels as `chan struct{}` (`errcheck`).

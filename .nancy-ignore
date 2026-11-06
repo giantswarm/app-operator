@@ -1,12 +1,3 @@
-CVE-2026-63308 until=2026-11-05 # helm.sh/helm/v3@v3.20.2
-CVE-2026-48978 until=2026-11-05 # oras.land/oras-go@v1.2.7
-CVE-2026-85732 until=2026-11-05 # oras.land/oras-go@v1.2.7
-CVE-2026-85747 until=2026-11-05 # github.com/distribution/distribution/v3@v3.0.0
-CVE-2026-26958 until=2026-11-05 # filippo.io/edwards25519@v1.1.0
-CVE-2026-10722 until=2026-11-05 # github.com/cilium/ebpf@v0.9.1
-CVE-2026-33540 until=2026-11-05 # github.com/distribution/distribution/v3@v3.0.0
-CVE-2026-35172 until=2026-11-05 # github.com/distribution/distribution/v3@v3.0.0
-CVE-2026-41888 until=2026-11-05 # github.com/distribution/distribution/v3@v3.0.0
 CVE-2025-47291 until=2026-11-27 # github.com/containerd/containerd@v1.7.36 since=2026-10-28
 CVE-2026-78659 until=2026-11-11 # golang.org/x/net@v0.59.0
 CVE-2026-78660 until=2026-11-11 # golang.org/x/net@v0.59.0
@@ -17,3 +8,15 @@ CVE-2025-47290 until=2026-11-27 # github.com/containerd/containerd@v1.7.36 since
 CVE-2026-115804 until=2026-11-27 # github.com/hashicorp/consul/api@v1.14.0 since=2026-10-28
 CVE-2026-116586 until=2026-11-27 # github.com/go-jose/go-jose/v4@v4.1.4 since=2026-10-28
 CVE-2026-116585 until=2026-11-27 # github.com/go-jose/go-jose/v4@v4.1.4 since=2026-10-28
+# CVE-2026-63308 (GHSA-5gjx-96wq-c8r2): Files.Lines panic on empty chart files, via helmclient/v4. Fixed in helm v3.21.4 (backport 955dfab1e)
+# and v3.22.0+, but OSS Index still flags v3.22.1, and every helm release with the fix needs k8s.io/* v0.36+ (blocked with #1570).
+# Tracked in https://github.com/giantswarm/app-operator/issues/1640; remove by 2026-12-03.
+CVE-2026-63308 until=2026-12-03 # helm.sh/helm/v3@v3.20.2
+# CVE-2026-48978 (GHSA-xf85-363p-868w), CVE-2026-85732 (GHSA-h7vf-4x9w-h99v): oras-go v1 via helmclient/v4 (oras.land/oras-go/pkg/content, pkg/auth/docker).
+# OSS Index flags v1 for CVE-2026-85732 although the GHSA lists only oras-go/v2.
+# No fixed v1 release exists; the fix needs helmclient to move to oras-go/v2. Tracked in https://github.com/giantswarm/app-operator/issues/1640; remove by 2026-12-03.
+CVE-2026-48978 until=2026-12-03 # oras.land/oras-go@v1.2.7
+CVE-2026-85732 until=2026-12-03 # oras.land/oras-go@v1.2.7
+# CVE-2026-85747 (GHSA-685w-q87j-wqw3): docker/distribution, only pulled in by oras-go v1; no fixed docker/distribution release exists (fixed only in distribution/v3 3.1.2).
+# Goes away with the oras-go/v2 migration. Tracked in https://github.com/giantswarm/app-operator/issues/1640; remove by 2026-12-03.
+CVE-2026-85747 until=2026-12-03 # github.com/docker/distribution@v0.0.0-20191216044856-a8371794149d
