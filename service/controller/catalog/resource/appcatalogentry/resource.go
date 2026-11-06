@@ -35,8 +35,8 @@ const (
 	metadataTimeout = 10 * time.Second
 )
 
-// metadataHTTPClient fetches main.yaml files. It has a timeout so a single
-// hanging request cannot stall the reconciliation of a whole catalog.
+// metadataHTTPClient fetches main.yaml files. The timeout bounds each request,
+// so a hanging catalog server delays a reconciliation instead of blocking it.
 var metadataHTTPClient = &http.Client{Timeout: metadataTimeout}
 
 type Config struct {
@@ -152,7 +152,12 @@ func (r *Resource) getMetadata(ctx context.Context, mainURL string) ([]byte, err
 	r.logger.Debugf(ctx, "getting main.yaml from %#q", mainURL)
 
 	// We use https in catalog URLs so we can disable the linter in this case.
-	resp, err := metadataHTTPClient.Get(mainURL) // #nosec
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, mainURL, nil)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	resp, err := metadataHTTPClient.Do(req) // #nosec
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
@@ -161,6 +166,9 @@ func (r *Resource) getMetadata(ctx context.Context, mainURL string) ([]byte, err
 	if resp.StatusCode == http.StatusNotFound {
 		r.logger.Debugf(ctx, "no main.yaml generated at %#q", mainURL)
 		return nil, nil
+	}
+	if resp.StatusCode != http.StatusOK {
+		return nil, microerror.Maskf(executionFailedError, "getting main.yaml from %#q returned status %d", mainURL, resp.StatusCode)
 	}
 
 	body, err := io.ReadAll(resp.Body)

@@ -165,8 +165,14 @@ func Test_getDesiredAppCatalogEntryCR_metadata(t *testing.T) {
 		"/plain.yaml":         []byte("annotations:\n  application.giantswarm.io/team: honeybadger\nchartApiVersion: v2\nupstreamChartVersion: 1.2.3\n"),
 		"/python-tagged.yaml": pythonTagged,
 		"/invalid.yaml":       []byte("chartApiVersion: [v2\n"),
+		"/invalid-key.yaml":   []byte("annotations:\n  application.giantswarm.io/restrictions/clusterSingleton: 'true'\n  application.giantswarm.io/team: honeybadger\nchartApiVersion: v2\n"),
 	}
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+		if req.URL.Path == "/server-error.yaml" {
+			w.WriteHeader(http.StatusInternalServerError)
+			_, _ = w.Write([]byte("chartApiVersion: v2\n"))
+			return
+		}
 		b, ok := files[req.URL.Path]
 		if !ok {
 			w.WriteHeader(http.StatusNotFound)
@@ -222,6 +228,21 @@ func Test_getDesiredAppCatalogEntryCR_metadata(t *testing.T) {
 			annotations:         map[string]string{"io.giantswarm.application.metadata": srv.URL + "/invalid.yaml"},
 			expectedAPIVersion:  "v1",
 			expectedAnnotations: map[string]string{"io.giantswarm.application.metadata": srv.URL + "/invalid.yaml"},
+		},
+		{
+			name:               "annotation keys Kubernetes rejects are dropped",
+			annotations:        map[string]string{"io.giantswarm.application.metadata": srv.URL + "/invalid-key.yaml"},
+			expectedAPIVersion: "v2",
+			expectedAnnotations: map[string]string{
+				"io.giantswarm.application.metadata": srv.URL + "/invalid-key.yaml",
+				"application.giantswarm.io/team":     "honeybadger",
+			},
+		},
+		{
+			name:                "server error falls back to the index data",
+			annotations:         map[string]string{"io.giantswarm.application.metadata": srv.URL + "/server-error.yaml"},
+			expectedAPIVersion:  "v1",
+			expectedAnnotations: map[string]string{"io.giantswarm.application.metadata": srv.URL + "/server-error.yaml"},
 		},
 		{
 			name:                "missing main.yaml falls back to the index data",
