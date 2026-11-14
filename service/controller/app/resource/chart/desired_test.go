@@ -11,7 +11,7 @@ import (
 	"time"
 
 	"github.com/giantswarm/apiextensions-application/api/v1alpha1"
-	"github.com/giantswarm/k8sclient/v7/pkg/k8sclienttest"
+	"github.com/giantswarm/k8sclient/v8/pkg/k8sclienttest"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger/microloggertest"
 	"github.com/google/go-cmp/cmp"
