@@ -1,12 +1,13 @@
-{{- if .Values.kyvernoPolicyExceptions.enabled }}
+{{- if and .Values.kyvernoPolicyExceptions.enabled .Values.kyvernoPolicyExceptions.legacy.enabled }}
 {{- if .Values.bootstrapMode.enabled }}
 apiVersion: kyverno.io/v2
 kind: PolicyException
 metadata:
   name: {{ include "resource.default.name" . }}-bootstrap-mode
-  namespace: {{ include "resource.default.namespace" . }}
+  namespace: kube-system
   labels:
     {{- include "labels.common" . | nindent 4 }}
+    policy.giantswarm.io/migrated-to-cel: "true"
   annotations:
     "helm.sh/hook": "pre-install,pre-upgrade"
 spec:
