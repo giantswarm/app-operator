@@ -138,6 +138,14 @@
             "properties": {
                 "enabled": {
                     "type": "boolean"
+                },
+                "legacy": {
+                    "type": "object",
+                    "properties": {
+                        "enabled": {
+                            "type": "boolean"
+                        }
+                    }
                 }
             }
         },

@@ -1,0 +1,35 @@
+{{- if .Values.kyvernoPolicyExceptions.enabled }}
+{{- if .Values.bootstrapMode.enabled }}
+apiVersion: policies.kyverno.io/v1
+kind: PolicyException
+metadata:
+  name: {{ include "resource.default.name" . }}-bootstrap-mode
+  namespace: kube-system
+  labels:
+    {{- include "labels.common" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": "pre-install,pre-upgrade"
+spec:
+  policyRefs:
+    - name: disallow-host-namespaces
+      kind: ValidatingPolicy
+    # require-ro-rootfs is a supplemental policy and usually not enabled. It is
+    # excepted because the app-operator Deployment fails it when the policy is
+    # enforced.
+    - name: require-ro-rootfs
+      kind: ValidatingPolicy
+    # restrict-sa-automount-sa-token is a supplemental policy and usually not
+    # enabled. It is excepted because the app-operator ServiceAccount fails it
+    # when the policy is enforced.
+    - name: restrict-sa-automount-sa-token
+      kind: ValidatingPolicy
+  matchConditions:
+    - name: app-operator-workloads
+      # ServiceAccount is matched for restrict-sa-automount-sa-token.
+      expression: >-
+        request.kind.kind in ['Deployment', 'ReplicaSet', 'Pod', 'ServiceAccount'] &&
+        request.namespace == {{ include "resource.default.namespace" . }} &&
+        has(object.metadata.name) &&
+        (object.metadata.name == '{{ include "resource.default.name" . }}' || object.metadata.name.startsWith('{{ include "resource.default.name" . }}-'))
+{{- end -}}
+{{- end -}}

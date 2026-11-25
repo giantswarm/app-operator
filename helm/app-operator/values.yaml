@@ -104,3 +104,6 @@ serviceMonitor:
 
 kyvernoPolicyExceptions:
   enabled: true
+  legacy:
+    # -- Renders the kyverno.io/v2 PolicyException, which applies to ClusterPolicies only. Will be used as a global switch in a future release.
+    enabled: true
