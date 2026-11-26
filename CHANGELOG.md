@@ -7,6 +7,8 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+## [7.7.0] - 2026-11-26
+
 ### Added
 
 - Annotate Chart CRs with the Catalog app-operator resolved the chart from (`app-operator.giantswarm.io/catalog` and `app-operator.giantswarm.io/catalog-namespace`). chart-operator uses them to decide whether an app-operator chart outside the `giantswarm` namespace may be installed with its elevated Helm client. They are set by app-operator only and never copied from the App CR.
@@ -909,7 +911,8 @@ from Helm 2 to Helm 3.
 
 - Flattening operator release structure.
 
-[Unreleased]: https://github.com/giantswarm/app-operator/compare/v7.6.0...HEAD
+[Unreleased]: https://github.com/giantswarm/app-operator/compare/v7.7.0...HEAD
+[7.7.0]: https://github.com/giantswarm/app-operator/compare/v7.6.0...v7.7.0
 [7.6.0]: https://github.com/giantswarm/app-operator/compare/v7.5.4...v7.6.0
 [7.5.4]: https://github.com/giantswarm/app-operator/compare/v7.5.3...v7.5.4
 [7.5.3]: https://github.com/giantswarm/app-operator/compare/v7.5.2...v7.5.3
