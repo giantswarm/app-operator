@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Fixed
+
+- Watch the ConfigMaps and Secrets an App references with informers instead of hand-written list and watch loops. When the watch was reopened, the old loop skipped every change at or below the newest resourceVersion it had just listed, so a change made while the watch was down never re-rendered the App; the ConfigMap and Secret watches also retried failed list or watch calls without backoff.
+
 ## [7.6.0] - 2026-11-06
 
 ### Added
