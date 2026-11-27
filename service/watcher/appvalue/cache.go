@@ -147,10 +147,12 @@ func (c *AppValueWatcher) addCache(ctx context.Context, cr v1alpha1.App, eventTy
 			c.linkApp(app, resource)
 		}
 
-		// Drop what the App no longer reads from.
+		// Drop what the App no longer reads from. The watching label stays:
+		// every app-operator instance shares it, and this one cannot tell
+		// whether another one still reads the resource.
 		for _, resource := range c.indexedResources[app] {
 			if !containsResource(resources, resource) {
-				c.unlinkApp(ctx, app, resource)
+				c.unlinkApp(ctx, app, resource, false)
 			}
 		}
 
@@ -160,7 +162,7 @@ func (c *AppValueWatcher) addCache(ctx context.Context, cr v1alpha1.App, eventTy
 		// The resources come from the index, not from the App: its catalog
 		// may be gone already, as in a cluster teardown.
 		for _, resource := range c.indexedResources[app] {
-			c.unlinkApp(ctx, app, resource)
+			c.unlinkApp(ctx, app, resource, true)
 		}
 
 		delete(c.indexedResources, app)
@@ -270,9 +272,9 @@ func (c *AppValueWatcher) linkApp(app appIndex, resource resourceIndex) {
 }
 
 // unlinkApp removes the App from the resource's Apps. A resource no App reads
-// from any more leaves the index and loses its watching label; one that is
-// gone already only leaves the index.
-func (c *AppValueWatcher) unlinkApp(ctx context.Context, app appIndex, resource resourceIndex) {
+// from any more leaves the index, and with removeLabel loses its watching
+// label too; one that is gone already only leaves the index.
+func (c *AppValueWatcher) unlinkApp(ctx context.Context, app appIndex, resource resourceIndex, removeLabel bool) {
 	empty := false
 	{
 		c.appIndexMutex.Lock()
@@ -292,7 +294,7 @@ func (c *AppValueWatcher) unlinkApp(ctx context.Context, app appIndex, resource 
 		c.appIndexMutex.Unlock()
 	}
 
-	if !empty {
+	if !empty || !removeLabel {
 		return
 	}
 

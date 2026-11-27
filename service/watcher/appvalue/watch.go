@@ -150,24 +150,35 @@ func (c *AppValueWatcher) onDelete(ctx context.Context, obj interface{}, resType
 // triggerApps annotates every App that depends on the given resource with its
 // latest resourceVersion, which makes the App controller reconcile the App.
 func (c *AppValueWatcher) triggerApps(ctx context.Context, resource resourceIndex, resourceVersion string) {
-	v, ok := c.resourcesToApps.Load(resource)
-	if !ok {
-		c.logger.Debugf(ctx, "cache missed %s %#q in namespace %#q", resource.ResourceType, resource.Name, resource.Namespace)
-		return
-	}
+	// Copy the Apps under the lock and release it before the API calls, so
+	// indexing does not wait for them. The lookup is under the lock too, so it
+	// sees the index the App informer last wrote.
+	var apps []appIndex
+	{
+		c.appIndexMutex.RLock()
+		v, ok := c.resourcesToApps.Load(resource)
+		if ok {
+			storedIndex, isIndex := v.(map[appIndex]bool)
+			if !isIndex {
+				c.appIndexMutex.RUnlock()
+				c.logger.Errorf(ctx, microerror.Maskf(wrongTypeError, "expected '%T', got '%T'", map[appIndex]bool{}, v), "failed to read the apps of %s %#q in namespace %#q", resource.ResourceType, resource.Name, resource.Namespace)
+				return
+			}
+			for app := range storedIndex {
+				apps = append(apps, app)
+			}
+		}
+		c.appIndexMutex.RUnlock()
 
-	storedIndex, ok := v.(map[appIndex]bool)
-	if !ok {
-		c.logger.Errorf(ctx, microerror.Maskf(wrongTypeError, "expected '%T', got '%T'", map[appIndex]bool{}, v), "failed to read the apps of %s %#q in namespace %#q", resource.ResourceType, resource.Name, resource.Namespace)
-		return
+		if !ok {
+			c.logger.Debugf(ctx, "cache missed %s %#q in namespace %#q", resource.ResourceType, resource.Name, resource.Namespace)
+			return
+		}
 	}
 
 	c.logger.Debugf(ctx, "listed apps depends on %#q %s in namespace %#q", resource.Name, resource.ResourceType, resource.Namespace)
 
-	c.appIndexMutex.RLock()
-	defer c.appIndexMutex.RUnlock()
-
-	for app := range storedIndex {
+	for _, app := range apps {
 		c.logger.Debugf(ctx, "triggering %#q app update in namespace %#q", app.Name, app.Namespace)
 
 		var currentApp v1alpha1.App

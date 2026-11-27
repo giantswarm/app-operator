@@ -99,7 +99,8 @@ func isLabelled(t *testing.T, k8s kubernetes.Interface, name string) bool {
 }
 
 // Test_addCache_updateDropsOldReference pins that an App that switches its
-// values ConfigMap leaves the old one: it is unindexed and loses its label.
+// values ConfigMap leaves the old one in the index. The old one keeps its
+// watching label: another app-operator instance may still read it.
 func Test_addCache_updateDropsOldReference(t *testing.T) {
 	ctx := context.Background()
 	c := newCacheTestWatcher(t, nil)
@@ -114,8 +115,11 @@ func Test_addCache_updateDropsOldReference(t *testing.T) {
 	if err := c.addCache(ctx, *testApp(valuesB), watch.Modified); err != nil {
 		t.Fatalf("updating app: %v", err)
 	}
-	if isIndexed(c, valuesA) || isLabelled(t, c.k8sClient.K8sClient(), valuesA) {
-		t.Fatalf("%s is still indexed or labelled after the app switched to %s", valuesA, valuesB)
+	if isIndexed(c, valuesA) {
+		t.Fatalf("%s is still indexed after the app switched to %s", valuesA, valuesB)
+	}
+	if !isLabelled(t, c.k8sClient.K8sClient(), valuesA) {
+		t.Fatalf("%s lost its watching label, which other app-operator instances share", valuesA)
 	}
 	if !isIndexed(c, valuesB) || !isLabelled(t, c.k8sClient.K8sClient(), valuesB) {
 		t.Fatalf("%s is not indexed and labelled after the update", valuesB)
