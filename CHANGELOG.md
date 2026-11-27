@@ -9,7 +9,7 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ### Fixed
 
-- Watch the ConfigMaps and Secrets an App references with informers instead of hand-written list and watch loops. When the watch was reopened, the old loop skipped every change at or below the newest resourceVersion it had just listed, so a change made while the watch was down never re-rendered the App; the ConfigMap and Secret watches also retried failed list or watch calls without backoff. A ConfigMap or Secret deleted while the watch was down re-renders its Apps too, and the watcher keeps no annotations of the watched objects in memory, as `kubectl.kubernetes.io/last-applied-configuration` holds their data.
+- Watch the ConfigMaps and Secrets an App references with informers instead of hand-written list and watch loops. When the watch was reopened, the old loop skipped every change at or below the newest resourceVersion it had just listed, so a change made while the watch was down never re-rendered the App; the ConfigMap, Secret and App watches also retried failed list or watch calls without backoff. The App watch rebuilt its index of the ConfigMaps and Secrets each App reads whenever it reopened, so a change that arrived before the rebuild finished was lost too; it now updates the index in place. A ConfigMap or Secret deleted while the watch was down re-renders its Apps too, and the watcher keeps no annotations of the watched objects in memory, as `kubectl.kubernetes.io/last-applied-configuration` holds their data.
 
 ## [7.7.1] - 2026-11-26
 

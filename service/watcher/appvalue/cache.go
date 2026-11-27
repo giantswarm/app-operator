@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
-	"sync"
 
 	"github.com/giantswarm/apiextensions-application/api/v1alpha1"
 	"github.com/giantswarm/app/v8/pkg/key"
@@ -13,50 +12,83 @@ import (
 	"github.com/giantswarm/microerror"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/watch"
+	"k8s.io/client-go/tools/cache"
 )
 
 var appResource = schema.GroupVersionResource{Group: "application.giantswarm.io", Version: "v1alpha1", Resource: "apps"}
 
+// buildCache links every App to the ConfigMaps and Secrets it reads its values
+// from, and labels those for watching.
+//
+// It runs an informer, like the ConfigMap and Secret watches: it backs off on
+// errors, stops with ctx, and resumes its watch or relists when the watch
+// expires. A relist reports Apps deleted while the watch was down as
+// deletions, so the index is updated in place and never rebuilt. Rebuilding it
+// lost every ConfigMap or Secret change that arrived before the App replay had
+// filled it again, and replaced the index while those handlers read it.
 func (c *AppValueWatcher) buildCache(ctx context.Context) {
-	for {
-		lo := metav1.ListOptions{
-			LabelSelector: c.selector.String(),
-		}
-
-		res, err := c.k8sClient.DynClient().Resource(appResource).Namespace(metav1.NamespaceAll).Watch(ctx, lo)
-		if err != nil {
-			c.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("failed to get apps with label %#q", c.selector.String()), "stack", fmt.Sprintf("%#v", err))
-			continue
-		}
-
-		for r := range res.ResultChan() {
-			unstructuredObj, err := runtime.DefaultUnstructuredConverter.ToUnstructured(r.Object)
-			if err != nil {
-				c.logger.Errorf(ctx, err, "failed to convert %#v to unstructured object", r.Object)
-				continue
-			}
-
-			app := &v1alpha1.App{}
-			err = runtime.DefaultUnstructuredConverter.FromUnstructured(unstructuredObj, app)
-			if err != nil {
-				c.logger.Errorf(ctx, err, "failed to convert unstructured object %#v to app", unstructuredObj)
-				continue
-			}
-
-			err = c.addCache(ctx, *app, r.Type)
-			if err != nil {
-				c.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("failed to reconcile app CR %#q", app.Name), "stack", fmt.Sprintf("%#v", err))
-			}
-		}
-
-		c.logger.LogCtx(ctx, "debug", "watch channel has been closed, reopening...")
-		c.resourcesToApps = sync.Map{}
+	lw := &cache.ListWatch{
+		ListWithContextFunc: func(ctx context.Context, options metav1.ListOptions) (runtime.Object, error) {
+			options.LabelSelector = c.selector.String()
+			return c.k8sClient.DynClient().Resource(appResource).Namespace(metav1.NamespaceAll).List(ctx, options)
+		},
+		WatchFuncWithContext: func(ctx context.Context, options metav1.ListOptions) (watch.Interface, error) {
+			options.LabelSelector = c.selector.String()
+			return c.k8sClient.DynClient().Resource(appResource).Namespace(metav1.NamespaceAll).Watch(ctx, options)
+		},
 	}
 
+	c.runAppInformer(ctx, lw)
+}
+
+func (c *AppValueWatcher) runAppInformer(ctx context.Context, lw cache.ListerWatcher) {
+	informer := cache.NewSharedIndexInformer(lw, &unstructured.Unstructured{}, 0, cache.Indexers{})
+
+	_, err := informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+		AddFunc: func(obj interface{}) {
+			c.onAppEvent(ctx, obj, watch.Added)
+		},
+		UpdateFunc: func(_, newObj interface{}) {
+			c.onAppEvent(ctx, newObj, watch.Modified)
+		},
+		DeleteFunc: func(obj interface{}) {
+			if tombstone, ok := obj.(cache.DeletedFinalStateUnknown); ok {
+				obj = tombstone.Obj
+			}
+			c.onAppEvent(ctx, obj, watch.Deleted)
+		},
+	})
+	if err != nil {
+		c.logger.Errorf(ctx, err, "failed to add event handler for apps")
+		return
+	}
+
+	informer.Run(ctx.Done())
+}
+
+func (c *AppValueWatcher) onAppEvent(ctx context.Context, obj interface{}, eventType watch.EventType) {
+	u, ok := obj.(*unstructured.Unstructured)
+	if !ok {
+		c.logger.Errorf(ctx, microerror.Maskf(wrongTypeError, "expected '%T', got '%T'", &unstructured.Unstructured{}, obj), "failed to read app")
+		return
+	}
+
+	app := &v1alpha1.App{}
+	err := runtime.DefaultUnstructuredConverter.FromUnstructured(u.UnstructuredContent(), app)
+	if err != nil {
+		c.logger.Errorf(ctx, err, "failed to convert unstructured object %#v to app", u)
+		return
+	}
+
+	err = c.addCache(ctx, *app, eventType)
+	if err != nil {
+		c.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("failed to reconcile app CR %#q", app.Name), "stack", fmt.Sprintf("%#v", err))
+	}
 }
 
 func (c *AppValueWatcher) addCache(ctx context.Context, cr v1alpha1.App, eventType watch.EventType) error {
