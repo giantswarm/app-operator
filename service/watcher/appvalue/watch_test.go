@@ -126,10 +126,18 @@ func Test_onAdd_recreatedConfigMap(t *testing.T) {
 func Test_onDelete(t *testing.T) {
 	c := newTestWatcher(t)
 
+	// The ConfigMap was updated to 15, then deleted while the watch was
+	// down: the relist reports the deletion as a tombstone that still carries
+	// 15, which the App already has.
+	c.onUpdate(context.Background(), userValues("10"), userValues("15"), configMapType)
+	if got := latestConfigMapVersion(t, c); got != "15" {
+		t.Fatalf("latest configmap version after the update = %q, want %q", got, "15")
+	}
+
 	c.onDelete(context.Background(), cache.DeletedFinalStateUnknown{Key: "org-acme/my-app-user-values", Obj: userValues("15")}, configMapType)
 
-	if got := latestConfigMapVersion(t, c); got != "15" {
-		t.Fatalf("latest configmap version = %q, want %q", got, "15")
+	if got := latestConfigMapVersion(t, c); got != "15-deleted" {
+		t.Fatalf("latest configmap version = %q, want %q", got, "15-deleted")
 	}
 }
 
@@ -292,6 +300,7 @@ func Test_stripData(t *testing.T) {
 	cm := userValues("10")
 	cm.Data = map[string]string{"values": "big"}
 	cm.ManagedFields = []metav1.ManagedFieldsEntry{{Manager: "kubectl"}}
+	cm.Annotations = map[string]string{"kubectl.kubernetes.io/last-applied-configuration": `{"data":{"values":"big"}}`}
 
 	obj, err := stripData(cm)
 	if err != nil {
@@ -299,16 +308,19 @@ func Test_stripData(t *testing.T) {
 	}
 
 	got := obj.(*corev1.ConfigMap)
-	if got.Data != nil || got.ManagedFields != nil || got.GetResourceVersion() != "10" || got.GetName() != "my-app-user-values" {
+	if got.Data != nil || got.ManagedFields != nil || got.Annotations != nil || got.GetResourceVersion() != "10" || got.GetName() != "my-app-user-values" {
 		t.Fatalf("stripData kept data or lost metadata: %+v", got)
 	}
 
-	secret := &corev1.Secret{Data: map[string][]byte{"token": []byte("secret")}}
+	secret := &corev1.Secret{
+		ObjectMeta: metav1.ObjectMeta{Annotations: map[string]string{"kubectl.kubernetes.io/last-applied-configuration": `{"data":{"token":"c2VjcmV0"}}`}},
+		Data:       map[string][]byte{"token": []byte("secret")},
+	}
 	obj, err = stripData(secret)
 	if err != nil {
 		t.Fatalf("stripData: %v", err)
 	}
-	if obj.(*corev1.Secret).Data != nil {
+	if s := obj.(*corev1.Secret); s.Data != nil || s.Annotations != nil {
 		t.Fatalf("stripData kept secret data")
 	}
 }

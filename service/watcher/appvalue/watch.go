@@ -14,6 +14,10 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
+// deletedVersionSuffix marks the version annotation written for a deleted
+// ConfigMap or Secret. The annotation is only a trigger; nothing parses it.
+const deletedVersionSuffix = "-deleted"
+
 // runInformer watches the ConfigMaps or Secrets listed by lw and triggers an
 // update of every App that depends on one of them when it changes or is
 // deleted.
@@ -33,7 +37,9 @@ func (c *AppValueWatcher) runInformer(ctx context.Context, lw cache.ListerWatche
 
 	// Only name, namespace and resourceVersion are read. Every app-operator
 	// instance watches all labelled ConfigMaps of the management cluster, so
-	// keep their data, and the data of Secrets, out of its memory.
+	// keep their data, and the data of Secrets, out of its memory. Annotations
+	// go too: kubectl.kubernetes.io/last-applied-configuration holds the whole
+	// object a client-side kubectl apply wrote, data included.
 	err := informer.SetTransform(stripData)
 	if err != nil {
 		c.logger.Errorf(ctx, err, "failed to set the transform for %ss", resType)
@@ -68,10 +74,12 @@ func stripData(obj interface{}) (interface{}, error) {
 	case *corev1.ConfigMap:
 		o.Data = nil
 		o.BinaryData = nil
+		o.Annotations = nil
 		o.ManagedFields = nil
 	case *corev1.Secret:
 		o.Data = nil
 		o.StringData = nil
+		o.Annotations = nil
 		o.ManagedFields = nil
 	}
 
@@ -128,11 +136,15 @@ func (c *AppValueWatcher) onDelete(ctx context.Context, obj interface{}, resType
 		return
 	}
 
+	// A deletion seen only on a relist arrives as a tombstone that carries the
+	// last resourceVersion the informer cached, which the App may already
+	// carry from the update before. Mark it as a deletion, so the annotation
+	// always changes and the App is rendered again without the object.
 	c.triggerApps(ctx, resourceIndex{
 		ResourceType: resType,
 		Name:         objMeta.GetName(),
 		Namespace:    objMeta.GetNamespace(),
-	}, objMeta.GetResourceVersion())
+	}, objMeta.GetResourceVersion()+deletedVersionSuffix)
 }
 
 // triggerApps annotates every App that depends on the given resource with its
