@@ -50,6 +50,12 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "my-cool-prometheus",
 					Namespace: "default",
+					// The catalog annotations on the App must be ignored: the
+					// Chart records the Catalog app-operator resolved.
+					Annotations: map[string]string{
+						"app-operator.giantswarm.io/catalog":           "control-plane-catalog",
+						"app-operator.giantswarm.io/catalog-namespace": "giantswarm",
+					},
 					Labels: map[string]string{
 						"app":                                "prometheus",
 						"app-operator.giantswarm.io/version": "1.0.0",
@@ -120,8 +126,10 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					Name:      "my-cool-prometheus",
 					Namespace: "giantswarm",
 					Annotations: map[string]string{
-						"chart-operator.giantswarm.io/app-name":      "my-cool-prometheus",
-						"chart-operator.giantswarm.io/app-namespace": "default",
+						"chart-operator.giantswarm.io/app-name":        "my-cool-prometheus",
+						"chart-operator.giantswarm.io/app-namespace":   "default",
+						"app-operator.giantswarm.io/catalog":           "giantswarm",
+						"app-operator.giantswarm.io/catalog-namespace": "default",
 					},
 					Labels: map[string]string{
 						"app":                                  "prometheus",
@@ -269,6 +277,8 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					Annotations: map[string]string{
 						"chart-operator.giantswarm.io/app-name":           "my-cool-prometheus",
 						"chart-operator.giantswarm.io/app-namespace":      "default",
+						"app-operator.giantswarm.io/catalog":              "giantswarm",
+						"app-operator.giantswarm.io/catalog-namespace":    "",
 						"chart-operator.giantswarm.io/force-helm-upgrade": "true",
 					},
 					Name:      "my-cool-prometheus",
@@ -363,8 +373,10 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					Name:      "my-cool-prometheus",
 					Namespace: "giantswarm",
 					Annotations: map[string]string{
-						"chart-operator.giantswarm.io/app-name":      "my-cool-prometheus",
-						"chart-operator.giantswarm.io/app-namespace": "default",
+						"chart-operator.giantswarm.io/app-name":        "my-cool-prometheus",
+						"chart-operator.giantswarm.io/app-namespace":   "default",
+						"app-operator.giantswarm.io/catalog":           "giantswarm",
+						"app-operator.giantswarm.io/catalog-namespace": "default",
 					},
 					Labels: map[string]string{
 						"app":                                  "prometheus",
@@ -450,8 +462,10 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					Name:      "my-cool-prometheus",
 					Namespace: "giantswarm",
 					Annotations: map[string]string{
-						"chart-operator.giantswarm.io/app-name":      "my-cool-prometheus",
-						"chart-operator.giantswarm.io/app-namespace": "default",
+						"chart-operator.giantswarm.io/app-name":        "my-cool-prometheus",
+						"chart-operator.giantswarm.io/app-namespace":   "default",
+						"app-operator.giantswarm.io/catalog":           "giantswarm",
+						"app-operator.giantswarm.io/catalog-namespace": "default",
 					},
 					Labels: map[string]string{
 						"app":                                  "prometheus",
@@ -530,8 +544,10 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					Name:      "hello-world",
 					Namespace: "giantswarm",
 					Annotations: map[string]string{
-						"chart-operator.giantswarm.io/app-name":      "hello-world",
-						"chart-operator.giantswarm.io/app-namespace": "default",
+						"chart-operator.giantswarm.io/app-name":        "hello-world",
+						"chart-operator.giantswarm.io/app-namespace":   "default",
+						"app-operator.giantswarm.io/catalog":           "giantswarm",
+						"app-operator.giantswarm.io/catalog-namespace": "default",
 					},
 					Labels: map[string]string{
 						"chart-operator.giantswarm.io/version": "1.0.0",
@@ -638,8 +654,10 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					Name:      "my-cool-prometheus",
 					Namespace: "giantswarm",
 					Annotations: map[string]string{
-						"chart-operator.giantswarm.io/app-name":      "my-cool-prometheus",
-						"chart-operator.giantswarm.io/app-namespace": "default",
+						"chart-operator.giantswarm.io/app-name":        "my-cool-prometheus",
+						"chart-operator.giantswarm.io/app-namespace":   "default",
+						"app-operator.giantswarm.io/catalog":           "giantswarm",
+						"app-operator.giantswarm.io/catalog-namespace": "default",
 					},
 					Labels: map[string]string{
 						"app":                                  "prometheus",
@@ -1051,8 +1069,10 @@ func Test_Resource_Bulid_TarballURL(t *testing.T) {
 					Name:      "my-cool-prometheus",
 					Namespace: "giantswarm",
 					Annotations: map[string]string{
-						"chart-operator.giantswarm.io/app-name":      "my-cool-prometheus",
-						"chart-operator.giantswarm.io/app-namespace": "default",
+						"chart-operator.giantswarm.io/app-name":        "my-cool-prometheus",
+						"chart-operator.giantswarm.io/app-namespace":   "default",
+						"app-operator.giantswarm.io/catalog":           "giantswarm",
+						"app-operator.giantswarm.io/catalog-namespace": "default",
 					},
 					Labels: map[string]string{
 						"app":                                  "prometheus",
@@ -1120,8 +1140,10 @@ func Test_Resource_Bulid_TarballURL(t *testing.T) {
 					Name:      "my-cool-prometheus",
 					Namespace: "giantswarm",
 					Annotations: map[string]string{
-						"chart-operator.giantswarm.io/app-name":      "my-cool-prometheus",
-						"chart-operator.giantswarm.io/app-namespace": "default",
+						"chart-operator.giantswarm.io/app-name":        "my-cool-prometheus",
+						"chart-operator.giantswarm.io/app-namespace":   "default",
+						"app-operator.giantswarm.io/catalog":           "giantswarm",
+						"app-operator.giantswarm.io/catalog-namespace": "default",
 					},
 					Labels: map[string]string{
 						"app":                                  "prometheus",
@@ -1199,8 +1221,10 @@ func Test_Resource_Bulid_TarballURL(t *testing.T) {
 					Name:      "my-cool-prometheus",
 					Namespace: "giantswarm",
 					Annotations: map[string]string{
-						"chart-operator.giantswarm.io/app-name":      "my-cool-prometheus",
-						"chart-operator.giantswarm.io/app-namespace": "default",
+						"chart-operator.giantswarm.io/app-name":        "my-cool-prometheus",
+						"chart-operator.giantswarm.io/app-namespace":   "default",
+						"app-operator.giantswarm.io/catalog":           "giantswarm",
+						"app-operator.giantswarm.io/catalog-namespace": "default",
 					},
 					Labels: map[string]string{
 						"app":                                  "prometheus",
@@ -1278,8 +1302,10 @@ func Test_Resource_Bulid_TarballURL(t *testing.T) {
 					Name:      "my-cool-prometheus",
 					Namespace: "giantswarm",
 					Annotations: map[string]string{
-						"chart-operator.giantswarm.io/app-name":      "my-cool-prometheus",
-						"chart-operator.giantswarm.io/app-namespace": "default",
+						"chart-operator.giantswarm.io/app-name":        "my-cool-prometheus",
+						"chart-operator.giantswarm.io/app-namespace":   "default",
+						"app-operator.giantswarm.io/catalog":           "giantswarm",
+						"app-operator.giantswarm.io/catalog-namespace": "default",
 					},
 					Labels: map[string]string{
 						"app":                                  "prometheus",
@@ -1319,8 +1345,10 @@ func Test_Resource_Bulid_TarballURL(t *testing.T) {
 					Name:      "my-cool-prometheus",
 					Namespace: "giantswarm",
 					Annotations: map[string]string{
-						"chart-operator.giantswarm.io/app-name":      "my-cool-prometheus",
-						"chart-operator.giantswarm.io/app-namespace": "default",
+						"chart-operator.giantswarm.io/app-name":        "my-cool-prometheus",
+						"chart-operator.giantswarm.io/app-namespace":   "default",
+						"app-operator.giantswarm.io/catalog":           "giantswarm",
+						"app-operator.giantswarm.io/catalog-namespace": "default",
 					},
 					Labels: map[string]string{
 						"app":                                  "prometheus",

@@ -38,6 +38,15 @@ const (
 	annotationChartOperatorPauseStarted         = "app-operator.giantswarm.io/pause-ts"
 	annotationChartOperatorDependsOn            = "app-operator.giantswarm.io/depends-on"
 	annotationChartOperatorDependsOnHelmRelease = "app-operator.giantswarm.io/depends-on-helmrelease"
+
+	// annotationCatalog and annotationCatalogNamespace record the Catalog CR
+	// app-operator resolved the chart from. chart-operator uses them to decide
+	// whether an app-operator chart outside the giantswarm namespace may be
+	// installed with its elevated Helm client. They are never copied from the
+	// App CR (only chart-operator.giantswarm.io annotations are), so tenants
+	// cannot set them.
+	annotationCatalog          = "app-operator.giantswarm.io/catalog"
+	annotationCatalogNamespace = "app-operator.giantswarm.io/catalog-namespace"
 )
 
 func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interface{}, error) {
@@ -96,6 +105,8 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 	}
 
 	annotations := generateAnnotations(cr.GetAnnotations(), cr.Namespace, cr.Name)
+	annotations[annotationCatalog] = cc.Catalog.GetName()
+	annotations[annotationCatalogNamespace] = cc.Catalog.GetNamespace()
 	depsNotInstalled, err := r.checkDependencies(ctx, cr)
 	if err != nil {
 		return nil, microerror.Mask(err)
