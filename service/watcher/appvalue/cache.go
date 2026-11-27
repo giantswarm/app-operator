@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
-	"sync"
+	"time"
 
 	"github.com/giantswarm/apiextensions-application/api/v1alpha1"
 	"github.com/giantswarm/app/v8/pkg/key"
@@ -13,50 +13,107 @@ import (
 	"github.com/giantswarm/microerror"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/watch"
+	"k8s.io/client-go/tools/cache"
 )
+
+// appResyncPeriod is how often every App is indexed and its ConfigMaps and
+// Secrets labelled again. It retries Apps whose catalog or values could not be
+// read yet, and labels a ConfigMap again whose label another app-operator
+// instance removed. The watch reopens that used to rebuild the index did the
+// same.
+const appResyncPeriod = 30 * time.Minute
 
 var appResource = schema.GroupVersionResource{Group: "application.giantswarm.io", Version: "v1alpha1", Resource: "apps"}
 
+// buildCache links every App to the ConfigMaps and Secrets it reads its values
+// from, and labels those for watching.
+//
+// It runs an informer, like the ConfigMap and Secret watches: it backs off on
+// errors, stops with ctx, and resumes its watch or relists when the watch
+// expires. A relist reports Apps deleted while the watch was down as
+// deletions, so the index is updated in place and never rebuilt. Rebuilding it
+// lost every ConfigMap or Secret change that arrived before the App replay had
+// filled it again, and replaced the index while those handlers read it.
 func (c *AppValueWatcher) buildCache(ctx context.Context) {
-	for {
-		lo := metav1.ListOptions{
-			LabelSelector: c.selector.String(),
-		}
-
-		res, err := c.k8sClient.DynClient().Resource(appResource).Namespace(metav1.NamespaceAll).Watch(ctx, lo)
-		if err != nil {
-			c.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("failed to get apps with label %#q", c.selector.String()), "stack", fmt.Sprintf("%#v", err))
-			continue
-		}
-
-		for r := range res.ResultChan() {
-			unstructuredObj, err := runtime.DefaultUnstructuredConverter.ToUnstructured(r.Object)
-			if err != nil {
-				c.logger.Errorf(ctx, err, "failed to convert %#v to unstructured object", r.Object)
-				continue
-			}
-
-			app := &v1alpha1.App{}
-			err = runtime.DefaultUnstructuredConverter.FromUnstructured(unstructuredObj, app)
-			if err != nil {
-				c.logger.Errorf(ctx, err, "failed to convert unstructured object %#v to app", unstructuredObj)
-				continue
-			}
-
-			err = c.addCache(ctx, *app, r.Type)
-			if err != nil {
-				c.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("failed to reconcile app CR %#q", app.Name), "stack", fmt.Sprintf("%#v", err))
-			}
-		}
-
-		c.logger.LogCtx(ctx, "debug", "watch channel has been closed, reopening...")
-		c.resourcesToApps = sync.Map{}
+	lw := &cache.ListWatch{
+		ListWithContextFunc: func(ctx context.Context, options metav1.ListOptions) (runtime.Object, error) {
+			options.LabelSelector = c.selector.String()
+			return c.k8sClient.DynClient().Resource(appResource).Namespace(metav1.NamespaceAll).List(ctx, options)
+		},
+		WatchFuncWithContext: func(ctx context.Context, options metav1.ListOptions) (watch.Interface, error) {
+			options.LabelSelector = c.selector.String()
+			return c.k8sClient.DynClient().Resource(appResource).Namespace(metav1.NamespaceAll).Watch(ctx, options)
+		},
 	}
 
+	c.runAppInformer(ctx, lw)
+}
+
+func (c *AppValueWatcher) runAppInformer(ctx context.Context, lw cache.ListerWatcher) {
+	informer := cache.NewSharedIndexInformer(lw, &unstructured.Unstructured{}, appResyncPeriod, cache.Indexers{})
+
+	// The handlers read the spec, name and namespace of an App only.
+	err := informer.SetTransform(stripApp)
+	if err != nil {
+		c.logger.Errorf(ctx, err, "failed to set the transform for apps")
+		return
+	}
+
+	_, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+		AddFunc: func(obj interface{}) {
+			c.onAppEvent(ctx, obj, watch.Added)
+		},
+		UpdateFunc: func(_, newObj interface{}) {
+			c.onAppEvent(ctx, newObj, watch.Modified)
+		},
+		DeleteFunc: func(obj interface{}) {
+			if tombstone, ok := obj.(cache.DeletedFinalStateUnknown); ok {
+				obj = tombstone.Obj
+			}
+			c.onAppEvent(ctx, obj, watch.Deleted)
+		},
+	})
+	if err != nil {
+		c.logger.Errorf(ctx, err, "failed to add event handler for apps")
+		return
+	}
+
+	informer.Run(ctx.Done())
+}
+
+// stripApp drops what the App handlers never read from the cached Apps.
+func stripApp(obj interface{}) (interface{}, error) {
+	if u, ok := obj.(*unstructured.Unstructured); ok {
+		unstructured.RemoveNestedField(u.Object, "status")
+		unstructured.RemoveNestedField(u.Object, "metadata", "managedFields")
+	}
+
+	return obj, nil
+}
+
+func (c *AppValueWatcher) onAppEvent(ctx context.Context, obj interface{}, eventType watch.EventType) {
+	u, ok := obj.(*unstructured.Unstructured)
+	if !ok {
+		c.logger.Errorf(ctx, microerror.Maskf(wrongTypeError, "expected '%T', got '%T'", &unstructured.Unstructured{}, obj), "failed to read app")
+		return
+	}
+
+	app := &v1alpha1.App{}
+	err := runtime.DefaultUnstructuredConverter.FromUnstructured(u.UnstructuredContent(), app)
+	if err != nil {
+		c.logger.Errorf(ctx, err, "failed to convert unstructured object %#v to app", u)
+		return
+	}
+
+	err = c.addCache(ctx, *app, eventType)
+	if err != nil {
+		c.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("failed to reconcile app CR %#q", app.Name), "stack", fmt.Sprintf("%#v", err))
+	}
 }
 
 func (c *AppValueWatcher) addCache(ctx context.Context, cr v1alpha1.App, eventType watch.EventType) error {
@@ -65,11 +122,65 @@ func (c *AppValueWatcher) addCache(ctx context.Context, cr v1alpha1.App, eventTy
 		Namespace: cr.GetNamespace(),
 	}
 
+	if c.indexedResources == nil {
+		c.indexedResources = map[appIndex][]resourceIndex{}
+	}
+
+	switch eventType {
+	case watch.Added, watch.Modified:
+		resources, err := c.appResources(ctx, cr)
+		if err != nil {
+			// The App keeps the resources it was indexed with; the next
+			// resync retries it.
+			return microerror.Mask(err)
+		}
+
+		for _, resource := range resources {
+			// Label it for watching. A label that cannot be set yet, for
+			// example on a ConfigMap that does not exist yet, is set again
+			// on the next resync.
+			err := c.addLabel(ctx, resource)
+			if err != nil {
+				c.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("failed to add label to %#q %#q in namespace %#q", resource.ResourceType, resource.Name, resource.Namespace), "stack", fmt.Sprintf("%#v", err))
+			}
+
+			c.linkApp(app, resource)
+		}
+
+		// Drop what the App no longer reads from. The watching label stays:
+		// every app-operator instance shares it, and this one cannot tell
+		// whether another one still reads the resource.
+		for _, resource := range c.indexedResources[app] {
+			if !containsResource(resources, resource) {
+				c.unlinkApp(ctx, app, resource, false)
+			}
+		}
+
+		c.indexedResources[app] = resources
+
+	case watch.Deleted:
+		// The resources come from the index, not from the App: its catalog
+		// may be gone already, as in a cluster teardown.
+		for _, resource := range c.indexedResources[app] {
+			c.unlinkApp(ctx, app, resource, true)
+		}
+
+		delete(c.indexedResources, app)
+
+	default:
+		// no-op for unsupported events
+	}
+
+	return nil
+}
+
+// appResources lists the ConfigMaps and Secrets the App reads its values from.
+func (c *AppValueWatcher) appResources(ctx context.Context, cr v1alpha1.App) ([]resourceIndex, error) {
 	resources := []resourceIndex{}
 
 	catalog, err := c.findCatalog(ctx, cr)
 	if err != nil {
-		return microerror.Mask(err)
+		return nil, microerror.Mask(err)
 	}
 
 	if key.CatalogConfigMapName(*catalog) != "" {
@@ -137,66 +248,72 @@ func (c *AppValueWatcher) addCache(ctx context.Context, cr v1alpha1.App, eventTy
 		})
 	}
 
-	switch eventType {
-	case watch.Added, watch.Modified:
-		for _, resource := range resources {
-			// First, put the watchUpdate label
-			err := c.addLabel(ctx, resource)
-			if err != nil {
-				c.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("failed to add label to %#q %#q in namespace %#q", resource.ResourceType, resource.Name, resource.Namespace), "stack", fmt.Sprintf("%#v", err))
-				continue
-			}
+	return resources, nil
+}
 
-			v, ok := c.resourcesToApps.Load(resource)
-			if ok {
-				storedAppIndex, ok := v.(map[appIndex]bool)
-				if !ok {
-					return microerror.Maskf(wrongTypeError, "expected '%T', got '%T'", []appIndex{}, v)
-				}
+// linkApp records that the App reads its values from the resource.
+func (c *AppValueWatcher) linkApp(app appIndex, resource resourceIndex) {
+	c.appIndexMutex.Lock()
+	defer c.appIndexMutex.Unlock()
 
-				c.appIndexMutex.Lock()
-				storedAppIndex[app] = true
-				c.appIndexMutex.Unlock()
-				c.resourcesToApps.Store(resource, storedAppIndex)
-			} else {
-				m := map[appIndex]bool{
-					app: true,
-				}
-				c.resourcesToApps.Store(resource, m)
-			}
-		}
-
-	case watch.Deleted:
-		for _, resource := range resources {
-			v, ok := c.resourcesToApps.Load(resource)
-			if ok {
-				storedIndex, ok := v.(map[appIndex]bool)
-				if !ok {
-					return microerror.Maskf(wrongTypeError, "expected '%T', got '%T'", []appIndex{}, v)
-				}
-
-				c.appIndexMutex.Lock()
-				delete(storedIndex, app)
-				c.appIndexMutex.Unlock()
-				if len(storedIndex) == 0 {
-					err := c.removeLabel(ctx, resource)
-					if err != nil {
-						c.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("failed to remove label from %#q %#q in namespace %#q", resource.ResourceType, resource.Name, resource.Namespace), "stack", fmt.Sprintf("%#v", err))
-						continue
-					}
-
-					c.resourcesToApps.Delete(resource)
-				} else {
-					c.resourcesToApps.Store(resource, storedIndex)
-				}
-			}
-		}
-
-	default:
-		// no-op for unsupported events
+	v, ok := c.resourcesToApps.Load(resource)
+	if !ok {
+		c.resourcesToApps.Store(resource, map[appIndex]bool{app: true})
+		return
 	}
 
-	return nil
+	storedIndex, ok := v.(map[appIndex]bool)
+	if !ok {
+		c.resourcesToApps.Store(resource, map[appIndex]bool{app: true})
+		return
+	}
+
+	storedIndex[app] = true
+}
+
+// unlinkApp removes the App from the resource's Apps. A resource no App reads
+// from any more leaves the index, and with removeLabel loses its watching
+// label too; one that is gone already only leaves the index.
+func (c *AppValueWatcher) unlinkApp(ctx context.Context, app appIndex, resource resourceIndex, removeLabel bool) {
+	empty := false
+	{
+		c.appIndexMutex.Lock()
+		v, ok := c.resourcesToApps.Load(resource)
+		if ok {
+			storedIndex, ok := v.(map[appIndex]bool)
+			if ok {
+				delete(storedIndex, app)
+				empty = len(storedIndex) == 0
+			} else {
+				empty = true
+			}
+			if empty {
+				c.resourcesToApps.Delete(resource)
+			}
+		}
+		c.appIndexMutex.Unlock()
+	}
+
+	if !empty || !removeLabel {
+		return
+	}
+
+	err := c.removeLabel(ctx, resource)
+	if apierrors.IsNotFound(err) {
+		return
+	} else if err != nil {
+		c.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("failed to remove label from %#q %#q in namespace %#q", resource.ResourceType, resource.Name, resource.Namespace), "stack", fmt.Sprintf("%#v", err))
+	}
+}
+
+func containsResource(resources []resourceIndex, resource resourceIndex) bool {
+	for _, r := range resources {
+		if r == resource {
+			return true
+		}
+	}
+
+	return false
 }
 
 func (c *AppValueWatcher) addLabel(ctx context.Context, resource resourceIndex) error {

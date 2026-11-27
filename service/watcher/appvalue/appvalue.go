@@ -32,8 +32,11 @@ type AppValueWatcher struct {
 
 	appIndexMutex   sync.RWMutex
 	resourcesToApps sync.Map
-	secretNamespace string
-	selector        labels.Selector
+	// indexedResources lists the resources each App was indexed with. Only
+	// the App informer's handlers use it, one event at a time.
+	indexedResources map[appIndex][]resourceIndex
+	secretNamespace  string
+	selector         labels.Selector
 }
 
 func NewAppValueWatcher(config AppValueWatcherConfig) (*AppValueWatcher, error) {
@@ -64,10 +67,11 @@ func NewAppValueWatcher(config AppValueWatcherConfig) (*AppValueWatcher, error) 
 		k8sClient: config.K8sClient,
 		logger:    config.Logger,
 
-		appIndexMutex:   sync.RWMutex{},
-		resourcesToApps: sync.Map{},
-		secretNamespace: config.SecretNamespace,
-		selector:        selector,
+		appIndexMutex:    sync.RWMutex{},
+		resourcesToApps:  sync.Map{},
+		indexedResources: map[appIndex][]resourceIndex{},
+		secretNamespace:  config.SecretNamespace,
+		selector:         selector,
 	}
 
 	return c, nil
