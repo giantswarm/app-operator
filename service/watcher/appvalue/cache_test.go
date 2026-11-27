@@ -99,7 +99,7 @@ func isLabelled(t *testing.T, k8s kubernetes.Interface, name string) bool {
 }
 
 // Test_addCache_updateDropsOldReference pins that an App that switches its
-// values ConfigMap leaves the old one in the index. The old one keeps its
+// values ConfigMap drops the old one from the index. The old one keeps its
 // watching label: another app-operator instance may still read it.
 func Test_addCache_updateDropsOldReference(t *testing.T) {
 	ctx := context.Background()
@@ -146,6 +146,9 @@ func Test_addCache_deleteWithoutCatalog(t *testing.T) {
 	}
 	if isIndexed(c, valuesA) {
 		t.Fatalf("%s is still indexed after its app was deleted", valuesA)
+	}
+	if isLabelled(t, c.k8sClient.K8sClient(), valuesA) {
+		t.Fatalf("%s kept its watching label after its last app was deleted", valuesA)
 	}
 	if len(c.indexedResources) != 0 {
 		t.Fatalf("the deleted app is still in the reverse index: %v", c.indexedResources)
